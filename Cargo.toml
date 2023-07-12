@@ -1,0 +1,15 @@
+[package]
+name = "verusfmt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+clap = { version = "4.3.11", features = ["derive"] }
+insta = "1.30.0"
+pest = "2.0"
+pest_derive = "2.0"
+pretty = "0.12.1"
+similar = "2.2.1"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17" }
