@@ -1,0 +1,1034 @@
+//! A Verus grammar
+//!
+//! Explicitly ignores regions of the code that are outside the `verus!` macro.
+
+// Legend:
+//
+//    //!                - documentation comment, for the full grammar
+//    ///                - documentation comment
+//    //                 - comment
+//    foo = { ... }      - regular rule
+//    baz = @{ ... }     - atomic
+//    bar = _{ ... }     - silent
+//    qux = ${ ... }     - compound-atomic
+//    #tag = ...         - tags
+//    plugh = !{ ... }   - non-atomic
+//    "abc"              - exact string
+//    ^"abc"             - case insensitive
+//    'a'..'z'           - character range
+//    ANY                - any character
+//    foo ~ bar          - sequence
+//    baz | qux          - ordered choice
+//    foo*               - zero or more
+//    bar+               - one or more
+//    baz?               - optional
+//    qux{n}             - exactly n
+//    qux{m, n}          - between m and n (inclusive)
+//    &foo               - positive predicate
+//    !bar               - negative predicate
+
+//***********************//
+// General common things //
+//***********************//
+
+/// Allowed whitespace between any tokens in the grammar; completely ignored when the parsing is
+/// done (except in cases such as strings or comments)
+WHITESPACE = _{
+  " " | "\t" | NEWLINE
+}
+
+/// Comment syntax, ignored in the syntax tree that is parsed. Allowed to exist
+/// between any tokens (except atomic tokens, of course).
+///
+/// To maintain whitepsace, replace out the `_{` with a `@{`.
+COMMENT = @{
+    // Outer docstring
+    ("//!" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+    // Inner docstring
+  | ("///" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+    // Multiline comment
+  | multiline_comment
+    // Singleline comment
+  | ("//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+}
+
+multiline_comment = @{
+    "/*" ~ (multiline_comment | (!"*/" ~ ANY))* ~ "*/"
+}
+
+/// The entirety of a Verus source file
+file = {
+    SOI ~
+    (non_verus ~ verus_macro_use)* ~
+    non_verus? ~
+    EOI
+}
+
+/// Region of code that doesn't contain any Verus macro use whatsoever
+non_verus = @{
+  (!"verus!" ~ ANY)*
+}
+
+/// An actual use of the `verus! { ... }` macro
+verus_macro_use = {
+    "verus!" ~ "{" ~ verus_macro_body ~ "}"
+}
+
+/// Anything inside the `verus! { ... }` macro
+verus_macro_body = {
+    item*
+}
+
+/// A valid identifier, currently only supports ASCII-based identifiers, but
+/// this probably should be extended in the future to correctly handle all
+/// allowed identifiers.
+identifier = @{
+    (ASCII_ALPHA | "_") ~
+    (ASCII_ALPHANUMERIC | "_")*
+}
+
+hex_number = @{
+    "0x" ~ (ASCII_HEX_DIGIT | "_")+
+}
+
+decimal_number = @{
+    (ASCII_DIGIT | "_")+
+}
+
+octal_number = @{
+    "0o" ~ (ASCII_OCT_DIGIT | "_")+
+}
+
+binary_number = @{
+    "0b" ~ ("0" | "1" | "_")+
+}
+
+int_number = @{
+    (
+        hex_number
+      | decimal_number
+      | octal_number
+      | binary_number
+    ) ~
+    (
+        "usize" | "u8" | "u16" | "u32" | "u64" | "u128"
+      | "isize" | "i8" | "i16" | "i32" | "i64" | "i128"
+      | "int"
+      | "nat"
+    )?
+}
+
+float_number = @{
+    (ASCII_DIGIT | "_")+ ~
+    "." ~
+    (ASCII_DIGIT | "_")* ~
+    ("f32" | "f64")?
+}
+
+lifetime_ident = @{
+    "'" ~ ("_" | identifier)
+}
+
+/// A valid string, accounting for escaped quotes too.
+string = @{
+    "\"" ~ ("\\\"" | !"\"" ~ ANY)* ~ "\""
+}
+
+raw_string = @{
+    "r" ~ PUSH("#"*) ~ "\""    // push the number signs onto the stack
+    ~ raw_string_interior
+    ~ "\"" ~ POP               // match a quotation mark and the number signs
+}
+raw_string_interior = {
+    (
+        !("\"" ~ PEEK)    // unless the next character is a quotation mark
+                          // followed by the correct amount of number signs,
+        ~ ANY             // consume one character
+    )*
+}
+
+byte_string = @{
+    "b" ~ string
+}
+
+raw_byte_string = @{
+    "b" ~ raw_string
+}
+
+char = @{
+    "'" ~ ("\\'" | !"'" ~ ANY)* ~ "'"
+}
+
+byte = @{
+    "b" ~ char
+}
+
+//*************************//
+// Names, Paths and Macros //
+//*************************//
+
+name = { identifier | "self" }
+
+name_ref = { identifier | int_number | "self" | "super" | "crate" | "Self" }
+
+lifetime = { lifetime_ident }
+
+path = { (path_segment ~ "::")* ~ path_segment }
+
+path_segment = {
+    "::"? ~ name_ref ~ generic_arg_list?
+  | "::"? ~ name_ref ~ param_list ~ ret_type?
+  | "::"? ~ name_ref
+  | "<" ~ path_type ~ ("as" ~ path_type)? ~ ">"
+}
+
+generic_arg_list = {
+    "::"? ~ "<" ~ (generic_arg ~ ("," ~ generic_arg)* ~ ","?)? ~ ">"
+}
+
+generic_arg = {
+    type_arg
+  | assoc_type_arg
+  | lifetime_arg
+  | const_arg
+}
+
+type_arg = {
+    type
+}
+
+assoc_type_arg = {
+    name_ref ~
+    (generic_arg_list | param_list ~ ret_type?)? ~
+    (":" ~ type_bound_list | ("=" ~ type | const_arg))?
+}
+
+lifetime_arg = {
+    lifetime
+}
+
+const_arg = {
+    expr
+}
+
+macro_call = {
+    attr* ~ path ~ "!" ~ token_tree ~ ";"?
+}
+
+// TODO Add actual token trees
+token_tree = {
+    "(" ~ ")"
+  | "{" ~ "}"
+  | "[" ~ "]"
+}
+
+macro_items = {
+    item*
+}
+
+macro_stmts = {
+    stmt* ~ expr?
+}
+
+//*************************//
+//          Items          //
+//*************************//
+
+item = {
+    const
+  | enum
+  | extern_block
+  | extern_crate
+  | fn
+  | impl
+  | macro_call
+  | macro_rules
+  | macro_def
+  | module
+  | static
+  | struct
+  | trait
+  | trait_alias
+  | type_alias
+  | union
+  | use
+}
+
+macro_rules = {
+    attr* ~ visibility? ~
+    "macro_rules" ~ "!" ~ name ~
+    token_tree
+}
+
+macro_def = {
+    attr* ~ visibility? ~
+    "macro" ~ name ~ token_tree? ~
+    token_tree
+}
+
+module = {
+    attr* ~ visibility? ~
+    "mod" ~ name ~
+    (item_list | ";")
+}
+
+item_list = {
+    "{" ~ attr* ~ item* ~ "}"
+}
+
+extern_crate = {
+    attr* ~ visibility? ~
+    "extern" ~ "crate" ~ name_ref ~ rename? ~ ";"
+}
+
+rename = {
+    "as" ~ (name | "_")
+}
+
+use = {
+    attr* ~ visibility? ~
+    "use" ~ use_tree ~ ";"
+}
+
+use_tree = {
+    (path? ~ "::")? ~ ("*" | use_tree_list)
+  | path ~ rename?
+}
+
+use_tree_list = {
+    "{" ~ (use_tree ~ ("," ~ use_tree)* ~ ","?)? ~ "}"
+}
+
+fn = {
+    attr* ~ visibility? ~ publish? ~
+    "default"? ~ "const"? ~ "async"? ~ "unsafe"? ~ abi? ~ fn_mode? ~
+    "fn" ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
+    prover? ~
+    where_clause? ~ requires_clause? ~ recommends_clause? ~ ensures_clause? ~ decreases_clause? ~
+    (block_expr | ";")
+}
+
+abi = {
+    "extern" ~ string?
+}
+
+param_list = {
+    "(" ~ (
+        (self_param ~ ",")? ~ param ~ ("," ~ param)*
+      | self_param
+    )? ~ ","? ~ ")"
+  | "|" ~ (param ~ ("," ~ param)* ~ ","?)? ~ "|"
+}
+
+self_param = {
+    attr* ~ (
+        ("&" ~ lifetime?)? ~ "mut"? ~ name
+      | "mut"? ~ name ~ ":" ~ type
+    )
+}
+
+param = {
+    attr* ~ (
+        "tracked"? ~ pat ~ (":" ~ type)?
+        | type
+        | "..."
+    )
+}
+
+ret_type = {
+    "->" ~ ("tracked"? ~ ("(" ~ pat ~ ":" ~ type ~ ")" | type))
+}
+
+type_alias = {
+    attr* ~ visibility? ~
+    "default"? ~
+    "type" ~ name ~ generic_param_list? ~ (":" ~ type_bound_list)? ~ where_clause? ~
+    ("=" ~ type)? ~ ";"
+}
+
+struct = {
+    attr* ~ visibility? ~ data_mode? ~
+    "struct" ~ name ~ generic_param_list? ~ (
+        where_clause? ~ (record_field_list | ";")
+      | tuple_field_list ~ where_clause? ~ ";"
+    )
+}
+
+record_field_list = {
+    "{" ~ (record_field ~ ("," ~ record_field)* ~ ","?)? ~ "}"
+}
+
+record_field = {
+    attr* ~ visibility? ~ data_mode? ~
+    name ~ ":" ~ type
+}
+
+tuple_field_list = {
+    "(" ~ (tuple_field ~ ("," ~ tuple_field)* ~ ","?)? ~ ")"
+}
+
+tuple_field = {
+    attr* ~ visibility? ~
+    data_mode? ~
+    type
+}
+
+field_list = {
+    record_field_list
+  | tuple_field_list
+}
+
+enum = {
+    attr* ~ visibility? ~
+    "enum" ~ name ~ generic_param_list? ~ where_clause? ~
+    variant_list
+}
+
+variant_list = {
+    "{" ~ (variant ~ ("," ~ variant)* ~ ","?)? ~ "}"
+}
+
+variant = {
+    attr* ~ visibility? ~
+    name ~ field_list? ~ ("=" ~ expr)?
+}
+
+union = {
+    attr* ~ visibility? ~
+    "union" ~ name ~ generic_param_list? ~ where_clause? ~
+    record_field_list
+}
+
+const = {
+    attr* ~ visibility? ~
+    "default"? ~
+    "const" ~ (name | "_") ~ ":" ~ type ~
+    ("=" ~ expr)? ~ ";"
+}
+
+static = {
+    attr* ~ visibility? ~
+    "static" ~ "mut"? ~ name ~ ":" ~ type ~
+    ("=" ~ expr)? ~ ";"
+}
+
+trait = {
+    attr* ~ visibility? ~
+    "unsafe"? ~ "auto"? ~
+    "trait" ~ name ~ generic_param_list? ~
+    (":" ~ type_bound_list)? ~ where_clause? ~ assoc_item_list
+}
+
+trait_alias = {
+    attr* ~ visibility? ~
+    "trait" ~ name ~ generic_param_list? ~ "=" ~ type_bound_list? ~ where_clause? ~ ";"
+}
+
+assoc_item_list = {
+    "{" ~ attr* ~ assoc_item* ~ "}"
+}
+
+assoc_item = {
+    const
+  | fn
+  | macro_call
+  | type_alias
+}
+
+impl = {
+    attr* ~ visibility? ~
+    "default"? ~ "unsafe"? ~
+    "impl" ~ generic_param_list? ~ ("const"? ~ "!"? ~ type ~ "for")? ~ type ~ where_clause? ~
+    assoc_item_list
+}
+
+extern_block = {
+    attr* ~ "unsafe"? ~ abi ~ extern_item_list
+}
+
+extern_item_list = {
+    "{" ~ attr* ~ extern_item* ~ "}"
+}
+
+extern_item = {
+    fn
+  | macro_call
+  | static
+  | type_alias
+}
+
+generic_param_list = {
+    "<" ~ (generic_param ~ ("," ~ generic_param)* ~ ","?)? ~ ">"
+}
+
+generic_param = {
+    const_param
+  | lifetime_param
+  | type_param
+}
+
+type_param = {
+    attr* ~ name ~ (":" ~ type_bound_list)? ~
+    ("=" ~ type)?
+}
+
+const_param = {
+    attr* ~ "const" ~ name ~ ":" ~ type ~
+    ("=" ~ expr)?
+}
+
+lifetime_param = {
+    attr* ~ lifetime ~ (":" ~ type_bound_list)?
+}
+
+where_clause = {
+    "where" ~ (where_pred ~ ("," ~ where_pred)* ~ ","?)?
+}
+
+where_pred = {
+    ("for" ~ generic_param_list)? ~ (lifetime | type) ~ ":" ~ type_bound_list?
+}
+
+visibility = {
+    "pub" ~ ("(" ~ ("in")? ~ path ~ ")")?
+}
+
+attr = {
+    trigger_attribute
+  | "#" ~ "!"? ~ "[" ~ meta ~ "]"
+}
+
+meta = {
+    path ~ ("=" ~ expr | token_tree)?
+}
+
+//****************************//
+// Statements and Expressions //
+//****************************//
+
+stmt = {
+    ";"
+  | proof_block
+  | expr ~ ";"
+  | item
+  | let_stmt
+}
+
+let_stmt = {
+    attr* ~ "let" ~ "ghost"? ~ "tracked"? ~ pat ~ (":" ~ type)? ~
+    "=" ~ expr ~
+    let_else? ~
+    ";"
+}
+
+let_else = {
+    "else" ~ block_expr
+}
+
+// This split of `expr` and `expr_inner` is to simply break the left-recursion
+// that would happen otherwise.
+expr = {
+    expr_inner ~
+    (
+        // await_expr
+        "." ~ "await"
+        // call_expr
+      | arg_list
+        // cast_expr
+      | "as" ~ type
+        // field_expr
+      | "." ~ name_ref
+        // try_expr
+      | "?"
+        // view_expr
+      | "@"
+        // index_expr
+      | "[" ~ expr ~ "]"
+        // method_call_expr
+      | "." ~ name_ref ~ generic_arg_list? ~ arg_list
+        // bin_expr
+      | bin_expr_ops ~ expr
+        // range_expr
+      | (".." | "..=") ~ expr?
+    )*
+}
+
+expr_inner = {
+    array_expr
+  | assert_expr
+  | assume_expr
+  | assert_forall_expr
+  | block_expr
+  | box_expr
+  | break_expr
+  | closure_expr
+  | continue_expr
+  | for_expr
+  | if_expr
+  | literal
+  | loop_expr
+  | macro_call
+  | match_expr
+  | paren_expr
+  | path_expr
+  | prefix_expr
+  | record_expr
+  | ref_expr
+  | return_expr
+  | tuple_expr
+  | while_expr
+  | yield_expr
+  | yeet_expr
+  | let_expr
+  | underscore_expr
+}
+
+macro_expr = {
+    macro_call
+}
+
+literal = {
+    attr* ~ (
+        int_number
+      | float_number
+      | string
+      | raw_string
+      | byte_string
+      | raw_byte_string
+      | "true"
+      | "false"
+      | char
+      | byte
+    )
+}
+
+path_expr = {
+    attr* ~ path
+}
+
+stmt_list = {
+    "{" ~
+    attr* ~
+    stmt* ~
+    expr? ~
+    "}"
+}
+
+ref_expr = {
+    attr* ~ "&" ~ ("raw" | "mut" | "const") ~ expr
+}
+
+proof_block = {
+    attr* ~ label? ~ "proof" ~ stmt_list
+}
+
+block_expr = {
+    proof_block
+    | attr* ~ label? ~ ("try" | "unsafe" | "async" | "const")? ~ stmt_list
+}
+
+prefix_expr = {
+    attr* ~ ("-" | "!" | "*" | "&&&" | "|||") ~ expr
+}
+
+bin_expr_ops = {
+    ("|||" | "||" | "|")
+  | ("&&&" | "&&" | "&")
+  | "<==>"
+  | "==>" | "<=="
+  | "!=="
+  | "==" | "!=" | "<=" | ">=" | "<" | ">"
+  | "+" | "*" | "-" | "/" | "%" | "<<" | ">>" | "^"
+  | "=" | "+=" | "/=" | "*=" | "%=" | ">>=" | "<<=" | "-=" | "|=" | "&=" | "^="
+}
+
+paren_expr = {
+    attr* ~ "(" ~ expr ~ ")"
+}
+
+array_expr = {
+    attr* ~ "[" ~ attr* ~ (
+        expr ~ ";" ~ expr
+      | comma_delimited_exprs?
+    ) ~ "]"
+}
+
+tuple_expr = {
+    attr* ~ "(" ~ attr* ~ comma_delimited_exprs? ~ ")"
+}
+
+record_expr = {
+    path ~ record_expr_field_list
+}
+
+record_expr_field_list = {
+    "{" ~
+    attr* ~
+    (record_expr_field ~ ("," ~ record_expr_field)* ~ ","?)? ~
+    (".." ~ expr)? ~
+    "}"
+}
+
+record_expr_field = {
+    attr* ~ (name ~ ":")? ~ expr
+}
+
+arg_list = {
+    "(" ~ comma_delimited_exprs? ~ ")"
+}
+
+closure_expr = {
+    attr* ~ (!"forall" ~ "for" ~ generic_param_list)? ~
+    "const"? ~ "static"? ~ "async"? ~ "move"? ~ "forall"? ~ "exists"? ~ "choose"? ~
+    param_list ~ ret_type? ~
+    attr* ~
+    expr
+}
+
+if_expr = {
+    attr* ~ "if" ~ expr ~ block_expr ~
+    ("else" ~ (if_expr | block_expr))?
+}
+
+loop_expr = {
+    attr* ~ label? ~ "loop" ~ block_expr
+}
+
+for_expr = {
+    attr* ~ label? ~ "for" ~ pat ~ "in" ~ expr ~
+    block_expr
+}
+
+while_expr = {
+    attr* ~ label? ~ "while" ~ expr ~ invariant_clause? ~ decreases_clause? ~
+    block_expr
+}
+
+label = {
+    lifetime ~ ":"
+}
+
+break_expr = {
+    attr* ~ "break" ~ lifetime? ~ expr?
+}
+
+continue_expr = {
+    attr* ~ "continue" ~ lifetime?
+}
+
+match_expr = {
+    attr* ~ "match" ~ expr ~ match_arm_list
+}
+
+match_arm_list = {
+    "{" ~
+    attr* ~
+    match_arm* ~
+    "}"
+}
+
+match_arm = {
+    attr* ~ pat ~ match_guard? ~ "=>" ~ expr ~ ","?
+}
+
+match_guard = {
+    "if" ~ expr
+}
+
+return_expr = {
+    attr* ~ "return" ~ expr?
+}
+
+yield_expr = {
+    attr* ~ "yield" ~ expr?
+}
+
+yeet_expr = {
+    attr* ~ "do" ~ "yeet" ~ expr?
+}
+
+let_expr = {
+    attr* ~ "let" ~ pat ~ "=" ~ expr
+}
+
+underscore_expr = {
+    attr* ~ "_"
+}
+
+box_expr = {
+    attr* ~ "box" ~ expr
+}
+
+//*************************//
+//          Types          //
+//*************************//
+
+type = {
+    array_type
+  | dyn_trait_type
+  | fn_ptr_type
+  | for_type
+  | impl_trait_type
+  | infer_type
+  | macro_type
+  | never_type
+  | paren_type
+  | path_type
+  | ptr_type
+  | ref_type
+  | slice_type
+  | tuple_type
+}
+
+paren_type = {
+    "(" ~ type ~ ")"
+}
+
+never_type = {
+    "!"
+}
+
+macro_type = {
+    macro_call
+}
+
+path_type = {
+    path
+}
+
+tuple_type = {
+    "(" ~ (type ~ ("," ~ type)* ~ ","?)? ~ ")"
+}
+
+ptr_type = {
+    "*" ~ ("const" | "mut") ~ type
+}
+
+ref_type = {
+    "&" ~ lifetime? ~ "mut"? ~ type
+}
+
+array_type = {
+    "[" ~ type ~ ";" ~ expr ~ "]"
+}
+
+slice_type = {
+    "[" ~ type ~ "]"
+}
+
+infer_type = {
+    "_"
+}
+
+fn_ptr_type = {
+    "const"? ~ "async"? ~ "unsafe"? ~ abi? ~ "fn" ~ param_list ~ ret_type?
+}
+
+for_type = {
+    "for" ~ generic_param_list ~ type
+}
+
+impl_trait_type = {
+    "impl" ~ type_bound_list
+}
+
+dyn_trait_type = {
+    "dyn" ~ type_bound_list
+}
+
+type_bound_list = {
+    type_bound ~ ("+" ~ type_bound)* ~ "+"?
+}
+
+type_bound = {
+    lifetime
+  | ("?" | "~" ~ "const")? ~ type
+}
+
+//************************//
+//        Patterns        //
+//************************//
+
+
+pat = {
+    pat_inner ~ (
+        // range_pat (for 1.. or 1..2)
+        ("..=" | "..") ~ pat?
+        // or_pat
+      | ("|" ~ pat_inner)* ~ "|"?
+    )?
+}
+
+pat_inner = {
+    box_pat
+  | rest_pat
+  | literal_pat
+  | macro_pat
+  | paren_pat
+  | wildcard_pat
+  | end_only_range_pat
+  | record_pat
+  | ref_pat
+  | slice_pat
+  | tuple_pat
+  | tuple_struct_pat
+  | const_block_pat
+  | ident_pat
+  | path_pat
+}
+
+literal_pat = {
+    "-"? ~ literal
+}
+
+ident_pat = {
+    attr* ~ "ref"? ~ "mut"? ~ name ~ ("@" ~ pat)?
+}
+
+wildcard_pat = {
+    "_"
+}
+
+end_only_range_pat = {
+    ("..=" | "..") ~ pat
+}
+
+ref_pat = {
+    "&" ~ "mut"? ~ pat
+}
+
+record_pat = {
+    path ~ record_pat_field_list
+}
+
+record_pat_field_list = {
+    "{" ~
+    record_pat_field* ~ ("," ~ record_pat_field)* ~ ","? ~
+    rest_pat? ~
+    "}"
+}
+
+record_pat_field = {
+    attr* ~ (name_ref ~ ":")? ~ pat
+}
+
+tuple_struct_pat = {
+    path ~ "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+}
+
+tuple_pat = {
+    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+}
+
+paren_pat = {
+    "(" ~ pat ~ ")"
+}
+
+slice_pat = {
+    "[" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ "]"
+}
+
+path_pat = {
+    path
+}
+
+box_pat = {
+    "box" ~ pat
+}
+
+rest_pat = {
+    attr* ~ ".."
+}
+
+macro_pat = {
+    macro_call
+}
+
+const_block_pat = {
+    "const" ~ block_expr
+}
+
+//************************//
+//        Verus           //
+//************************//
+
+publish = {
+    "closed"
+  | "open"
+}
+
+fn_mode = {
+    mode_spec_checked
+  | "spec"
+  | "proof"
+  | "exec"
+}
+
+mode_spec_checked = {
+    "spec" ~ "(" ~ "checked" ~ ")"
+}
+
+data_mode = {
+    "ghost"
+  | "tracked"
+}
+
+comma_delimited_exprs = {
+    expr ~ ("," ~ expr)* ~ ","?
+}
+
+comma_delimited_exprs_for_verus_clauses = {
+    expr ~ ("," ~ !verus_clause_non_expr ~ expr)* ~ ","?
+}
+
+verus_clause_non_expr = _{
+    "{"
+  | "requires"
+  | "ensures"
+  | "invariant"
+  | "recommends"
+  | "recommends"
+  | "via"
+  | "decreases"
+  | "when"
+}
+
+requires_clause = {
+    "requires" ~ comma_delimited_exprs_for_verus_clauses
+}
+
+ensures_clause = {
+    "ensures" ~ comma_delimited_exprs_for_verus_clauses
+}
+
+invariant_clause = {
+    "invariant" ~ comma_delimited_exprs_for_verus_clauses
+}
+
+recommends_clause = {
+    "recommends" ~ comma_delimited_exprs_for_verus_clauses ~ ("via" ~ expr)?
+}
+
+decreases_clause = {
+    "decreases" ~ comma_delimited_exprs_for_verus_clauses ~ ("when" ~ expr)? ~ ("via" ~ expr)?
+}
+
+assert_expr = {
+    attr* ~ "assert" ~ "(" ~ expr ~ ")" ~ (prover ~ requires_clause? ~ block_expr?)?
+}
+
+assume_expr = {
+    attr* ~ "assume" ~ "(" ~ expr ~ ")"
+}
+
+assert_forall_expr = {
+    attr* ~ "assert" ~ "forall" ~ closure_expr ~ ("implies" ~ expr)? ~ "by" ~ block_expr
+}
+
+prover = {
+    "by" ~ ("(" ~ name ~ ")")?
+}
+
+trigger_attribute = {
+    "#" ~ "!" ~ "[" ~ "trigger" ~ comma_delimited_exprs? ~ "]"
+}
