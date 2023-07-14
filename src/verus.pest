@@ -66,16 +66,16 @@ file = {
 
 /// Region of code that doesn't contain any Verus macro use whatsoever
 non_verus = @{
-  (!"verus!" ~ ANY)*
+  (!("verus!" ~ WHITESPACE ~ "{") ~ ANY)*
 }
 
 /// An actual use of the `verus! { ... }` macro
-verus_macro_use = {
-    "verus!" ~ "{" ~ verus_macro_body ~ "}"
+verus_macro_use = ${
+    "verus!" ~ WHITESPACE* ~ "{" ~ WHITESPACE* ~ verus_macro_body ~ WHITESPACE* ~ "}" ~ WHITESPACE* ~ ("//" ~ WHITESPACE* ~ "verus!")?
 }
 
 /// Anything inside the `verus! { ... }` macro
-verus_macro_body = {
+verus_macro_body = !{
     item*
 }
 
