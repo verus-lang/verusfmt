@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use anyhow::anyhow;
 use clap::Parser as ClapParser;
+use fs_err as fs;
 use pest::Parser;
 use pest_derive::Parser;
 use tracing::{debug, error, info, trace};
@@ -49,11 +50,7 @@ fn main() -> anyhow::Result<()> {
         })
         .init();
 
-    if !args.file.is_file() {
-        return Err(anyhow!("{:?} is not a valid file", args.file));
-    }
-
-    let unparsed_file = std::fs::read_to_string(&args.file)?;
+    let unparsed_file = fs::read_to_string(&args.file)?;
     let parsed_file = VerusParser::parse(Rule::file, &unparsed_file)?
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")

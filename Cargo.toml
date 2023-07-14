@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.71"
 clap = { version = "4.3.11", features = ["derive"] }
+fs-err = "2.9.0"
 insta = "1.30.0"
 pest = "2.0"
 pest_derive = "2.0"
