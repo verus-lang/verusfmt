@@ -97,7 +97,7 @@ fn main() -> anyhow::Result<()> {
             return Err(anyhow!("invalid formatting"));
         }
     } else {
-        error!("TODO: write output to file");
-        return Err(anyhow!("unimplemented"));
+        fs::write(args.file, formatted_output)?;
+        Ok(())
     }
 }
