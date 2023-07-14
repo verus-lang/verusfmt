@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use anyhow::anyhow;
 use clap::Parser as ClapParser;
 use fs_err as fs;
-use pest::Parser;
+use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
 use tracing::{debug, error, info, trace};
 
@@ -34,6 +34,11 @@ struct Args {
 // even this should be opinionated, but might be useful to expose this as an unstable option or
 // something.
 const NUMBER_OF_COLUMNS: u32 = 120;
+
+fn format_item(item: Pair<Rule>) -> String {
+    error!("TODO: format before returning");
+    item.as_str().to_owned()
+}
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
@@ -69,8 +74,19 @@ fn main() -> anyhow::Result<()> {
                 formatted_output += pair.as_str();
             }
             Rule::verus_macro_use => {
-                error!("TODO: format before placing in output");
-                formatted_output += pair.as_str();
+                let body = pair.into_inner().collect::<Vec<_>>();
+                assert_eq!(body.len(), 1);
+                let body = body.into_iter().next().unwrap();
+                formatted_output += "verus! {\n\n";
+                for item in body.into_inner() {
+                    if item.as_rule() == Rule::COMMENT {
+                        formatted_output += item.as_str();
+                    } else {
+                        formatted_output += &format_item(item);
+                        formatted_output += "\n\n";
+                    }
+                }
+                formatted_output += "} // verus!\n";
             }
             Rule::EOI => {
                 // end of input; do nothing
