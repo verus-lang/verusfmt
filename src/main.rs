@@ -8,6 +8,7 @@ use fs_err as fs;
 use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
 use tracing::{debug, error, info, trace};
+use pretty::*;
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
@@ -33,11 +34,41 @@ struct Args {
 // XXX: Should we expose this to the user as a configurable option where we pick a default? I think
 // even this should be opinionated, but might be useful to expose this as an unstable option or
 // something.
-const NUMBER_OF_COLUMNS: u32 = 120;
+const NUMBER_OF_COLUMNS: usize = 120;
+
+fn item_to_doc<'a>(item: Pair<Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
+    let doc_builder = match item.as_rule() {
+        Rule::const => {
+            let mut inner_rules = item.into_inner();
+            let attrs = inner_rules.next().unwrap();
+            let visibility = inner_rules.next().unwrap();
+            let default = inner_rules.next().unwrap();
+            let name = inner_rules.next().unwrap();
+            let ttype = inner_rules.next().unwrap();
+            let initializer = inner_rules.next().unwrap();
+            println!("{:?} {:?} {:?} {:?} {:?} {:?}",
+                     attrs,
+                     visibility,
+                     default,
+                     name,
+                     ttype,
+                     initializer);
+            arena.text(item.as_str().to_owned())
+        },
+        _ => {
+            error!("TODO: format before returning");
+            arena.text(item.as_str().to_owned())
+        }
+    };
+    doc_builder.into_doc()
+}
+
 
 fn format_item(item: Pair<Rule>) -> String {
-    error!("TODO: format before returning");
-    item.as_str().to_owned()
+    let mut w = Vec::new();
+    let arena = Arena::<()>::new();
+    item_to_doc(item, &arena).render(NUMBER_OF_COLUMNS, &mut w).unwrap();
+    String::from_utf8(w).unwrap()
 }
 
 fn main() -> anyhow::Result<()> {
