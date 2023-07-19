@@ -35,6 +35,7 @@ struct Args {
 // even this should be opinionated, but might be useful to expose this as an unstable option or
 // something.
 const NUMBER_OF_COLUMNS: usize = 120;
+const INDENT_SPACES: isize = 4;
 
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/expressions.html
@@ -59,7 +60,7 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()
                     Rule::default => vec![arena.text(elt.as_str()), arena.space()],
                     Rule::name => vec![arena.text(elt.as_str())],
                     Rule::r#type => vec![arena.text(":"),
-                                     arena.softline().append(arena.text(elt.as_str().trim())).nest(4)],
+                                     arena.softline().append(arena.text(elt.as_str().trim())).nest(INDENT_SPACES)],
                         // REVIEW: The type ends up with an space after it when it becomes a path_segment
                         // For now, I'm calling trim to remove it, but perhaps it should be fixed
                         // in the grammar?
@@ -72,32 +73,14 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()
                                    arena.text("="),
                                    // Need to use this version to get actual nesting.  The next two
                                    // lines don't work
-                                   arena.softline().append(expr_to_doc(elt, arena)).nest(4)],
+                                   arena.softline().append(expr_to_doc(elt, arena)).nest(INDENT_SPACES)],
 //                                   arena.softline(),
-//                                   expr_to_doc(elt, arena).nest(4)],
+//                                   expr_to_doc(elt, arena).nest(INDENT_SPACES)],
                     _ => unreachable!(),
                 };
                 doc.append(arena.concat(docs))
             });
             d.append(arena.text(";"))
-
-
-//            let d = arena.text(item.clone().as_str().to_owned());
-//            let mut inner_rules = item.into_inner();
-//            let attrs = inner_rules.next().unwrap();
-//            let visibility = inner_rules.next().unwrap();
-//            let default = inner_rules.next().unwrap();
-//            let name = inner_rules.next().unwrap();
-//            let ttype = inner_rules.next().unwrap();
-//            let initializer = inner_rules.next().unwrap();
-//            println!("<<{:?}>>\n<<{:?}>>\n<<{:?}>>\n<<{:?}>>\n<<{:?}>>\n<<{:?}>>",
-//                     attrs,
-//                     visibility,
-//                     default,
-//                     name,
-//                     ttype,
-//                     initializer);
-//            d
         },
         _ => {
             error!("TODO: format {:?} before returning", item.as_rule());
