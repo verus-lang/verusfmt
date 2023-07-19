@@ -161,27 +161,125 @@ byte = @{
     "b" ~ char
 }
 
+semi_str = { ";" }
+bang_str = { "!" }
+colons_str = { "::" }
+langle_str = { "<" }
+rangle_str = { ">" }
+eq_str = { "=" }
+as_str = { "as" }
+assert_str = { "assert" }
+assume_str = { "assume" }
+async_str = { "async" }
+auto_str = { "auto" }
+await_str = { "await" }
+b_str = { "b" }
+box_str = { "box" }
+break_str = { "break" }
+by_str = { "by" }
+checked_str = { "checked" }
+choose_str = { "choose" }
+closed_str = { "closed" }
+const_str = { "const" }
+continue_str = { "continue" }
+crate_str = { "crate" }
+decreases_str = { "decreases" }
+default_str = { "default" }
+do_str = { "do" }
+dyn_str = { "dyn" }
+else_str = { "else" }
+ensures_str = { "ensures" }
+enum_str = { "enum" }
+exec_str = { "exec" }
+exists_str = { "exists" }
+extern_str = { "extern" }
+f32_str = { "f32" }
+f64_str = { "f64" }
+false_str = { "false" }
+fn_str = { "fn" }
+for_str = { "for" }
+forall_str = { "forall" }
+ghost_str = { "ghost" }
+i128_str = { "i128" }
+i16_str = { "i16" }
+i32_str = { "i32" }
+i64_str = { "i64" }
+i8_str = { "i8" }
+if_str = { "if" }
+impl_str = { "impl" }
+implies_str = { "implies" }
+in_str = { "in" }
+int_str = { "int" }
+invariant_str = { "invariant" }
+isize_str = { "isize" }
+let_str = { "let" }
+loop_str = { "loop" }
+macro_str = { "macro" }
+macro_rules_str = { "macro_rules" }
+match_str = { "match" }
+mod_str = { "mod" }
+move_str = { "move" }
+mut_str = { "mut" }
+nat_str = { "nat" }
+open_str = { "open" }
+proof_str = { "proof" }
+pub_str = { "pub" }
+r_str = { "r" }
+raw_str = { "raw" }
+recommends_str = { "recommends" }
+ref_str = { "ref" }
+requires_str = { "requires" }
+return_str = { "return" }
+self_str = { "self" }
+Self_str = { "Self" }
+spec_str = { "spec" }
+static_str = { "static" }
+struct_str = { "struct" }
+super_str = { "super" }
+tracked_str = { "tracked" }
+trait_str = { "trait" }
+trigger_str = { "trigger" }
+true_str = { "true" }
+try_str = { "try" }
+type_str = { "type" }
+u128_str = { "u128" }
+u16_str = { "u16" }
+u32_str = { "u32" }
+u64_str = { "u64" }
+u8_str = { "u8" }
+union_str = { "union" }
+unsafe_str = { "unsafe" }
+use_str = { "use" }
+usize_str = { "usize" }
+via_str = { "via" }
+when_str = { "when" }
+where_str = { "where" }
+while_str = { "while" }
+yeet_str = { "yeet" }
+yield_str = { "yield" }
+
+
 //*************************//
 // Names, Paths and Macros //
 //*************************//
 
-name = { identifier | "self" }
+name = { identifier | self_str }
 
-name_ref = { identifier | int_number | "self" | "super" | "crate" | "Self" }
+name_ref = { identifier | int_number | self_str | super_str | crate_str | Self_str }
 
 lifetime = { lifetime_ident }
 
-path = { (path_segment ~ "::")* ~ path_segment }
+path = { (path_segment ~ colons_str)* ~ path_segment }
 
 path_segment = {
-    "::"? ~ name_ref ~ generic_arg_list?
-  | "::"? ~ name_ref ~ param_list ~ ret_type?
-  | "::"? ~ name_ref
-  | "<" ~ path_type ~ ("as" ~ path_type)? ~ ">"
+    colons_str? ~ name_ref ~ generic_arg_list?
+  | colons_str? ~ name_ref ~ param_list ~ ret_type?
+  | colons_str? ~ name_ref
+  | langle_str ~ path_type ~ (as_str ~ path_type)? ~ rangle_str
 }
 
 generic_arg_list = {
-    "::"? ~ "<" ~ (generic_arg ~ ("," ~ generic_arg)* ~ ","?)? ~ ">"
+    colons_str? ~ langle_str ~ (generic_arg ~ ("," ~ generic_arg)* ~ ","?)? ~ rangle_str
 }
 
 generic_arg = {
@@ -198,7 +296,7 @@ type_arg = {
 assoc_type_arg = {
     name_ref ~
     (generic_arg_list | param_list ~ ret_type?)? ~
-    (":" ~ type_bound_list | ("=" ~ type | const_arg))?
+    (":" ~ type_bound_list | (eq_str ~ type | const_arg))?
 }
 
 lifetime_arg = {
@@ -210,7 +308,7 @@ const_arg = {
 }
 
 macro_call = {
-    attr* ~ path ~ "!" ~ token_tree ~ ";"?
+    attr* ~ path ~ bang_str ~ token_tree ~ semi_str?
 }
 
 // TODO Add actual token trees
@@ -254,20 +352,20 @@ item = {
 
 macro_rules = {
     attr* ~ visibility? ~
-    "macro_rules" ~ "!" ~ name ~
+    macro_rules_str ~ bang_str ~ name ~
     token_tree
 }
 
 macro_def = {
     attr* ~ visibility? ~
-    "macro" ~ name ~ token_tree? ~
+    macro_str ~ name ~ token_tree? ~
     token_tree
 }
 
 module = {
     attr* ~ visibility? ~
-    "mod" ~ name ~
-    (item_list | ";")
+    mod_str ~ name ~
+    (item_list | semi_str)
 }
 
 item_list = {
@@ -276,20 +374,20 @@ item_list = {
 
 extern_crate = {
     attr* ~ visibility? ~
-    "extern" ~ "crate" ~ name_ref ~ rename? ~ ";"
+    extern_str ~ crate_str ~ name_ref ~ rename? ~ semi_str
 }
 
 rename = {
-    "as" ~ (name | "_")
+    as_str ~ (name | "_")
 }
 
 use = {
     attr* ~ visibility? ~
-    "use" ~ use_tree ~ ";"
+    use_str ~ use_tree ~ semi_str
 }
 
 use_tree = {
-    (path? ~ "::")? ~ ("*" | use_tree_list)
+    (path? ~ colons_str)? ~ ("*" | use_tree_list)
   | path ~ rename?
 }
 
@@ -299,15 +397,15 @@ use_tree_list = {
 
 fn = {
     attr* ~ visibility? ~ publish? ~
-    "default"? ~ "const"? ~ "async"? ~ "unsafe"? ~ abi? ~ fn_mode? ~
-    "fn" ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
+    default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_mode? ~
+    fn_str ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
     prover? ~
     where_clause? ~ requires_clause? ~ recommends_clause? ~ ensures_clause? ~ decreases_clause? ~
-    (block_expr | ";")
+    (block_expr | semi_str)
 }
 
 abi = {
-    "extern" ~ string?
+    extern_str ~ string?
 }
 
 param_list = {
@@ -320,35 +418,35 @@ param_list = {
 
 self_param = {
     attr* ~ (
-        ("&" ~ lifetime?)? ~ "mut"? ~ name
-      | "mut"? ~ name ~ ":" ~ type
+        ("&" ~ lifetime?)? ~ mut_str? ~ name
+      | mut_str? ~ name ~ ":" ~ type
     )
 }
 
 param = {
     attr* ~ (
-        "tracked"? ~ pat ~ (":" ~ type)?
+        tracked_str? ~ pat ~ (":" ~ type)?
         | type
         | "..."
     )
 }
 
 ret_type = {
-    "->" ~ ("tracked"? ~ ("(" ~ pat ~ ":" ~ type ~ ")" | type))
+    "->" ~ (tracked_str? ~ ("(" ~ pat ~ ":" ~ type ~ ")" | type))
 }
 
 type_alias = {
     attr* ~ visibility? ~
-    "default"? ~
-    "type" ~ name ~ generic_param_list? ~ (":" ~ type_bound_list)? ~ where_clause? ~
-    ("=" ~ type)? ~ ";"
+    default_str? ~
+    type_str ~ name ~ generic_param_list? ~ (":" ~ type_bound_list)? ~ where_clause? ~
+    (eq_str ~ type)? ~ semi_str
 }
 
 struct = {
     attr* ~ visibility? ~ data_mode? ~
-    "struct" ~ name ~ generic_param_list? ~ (
-        where_clause? ~ (record_field_list | ";")
-      | tuple_field_list ~ where_clause? ~ ";"
+    struct_str ~ name ~ generic_param_list? ~ (
+        where_clause? ~ (record_field_list | semi_str)
+      | tuple_field_list ~ where_clause? ~ semi_str
     )
 }
 
@@ -378,7 +476,7 @@ field_list = {
 
 enum = {
     attr* ~ visibility? ~
-    "enum" ~ name ~ generic_param_list? ~ where_clause? ~
+    enum_str ~ name ~ generic_param_list? ~ where_clause? ~
     variant_list
 }
 
@@ -388,40 +486,38 @@ variant_list = {
 
 variant = {
     attr* ~ visibility? ~
-    name ~ field_list? ~ ("=" ~ expr)?
+    name ~ field_list? ~ (eq_str ~ expr)?
 }
 
 union = {
     attr* ~ visibility? ~
-    "union" ~ name ~ generic_param_list? ~ where_clause? ~
+    union_str ~ name ~ generic_param_list? ~ where_clause? ~
     record_field_list
 }
 
-default = { "default" }
-
 const = {
     attr* ~ visibility? ~
-    default? ~
-    "const" ~ (name | "_") ~ ":" ~ type ~
-    ("=" ~ expr)? ~ ";"
+    default_str? ~
+    const_str ~ (name | "_") ~ ":" ~ type ~
+    (eq_str ~ expr)? ~ semi_str
 }
 
 static = {
     attr* ~ visibility? ~
-    "static" ~ "mut"? ~ name ~ ":" ~ type ~
-    ("=" ~ expr)? ~ ";"
+    static_str ~ mut_str? ~ name ~ ":" ~ type ~
+    (eq_str ~ expr)? ~ semi_str
 }
 
 trait = {
     attr* ~ visibility? ~
-    "unsafe"? ~ "auto"? ~
-    "trait" ~ name ~ generic_param_list? ~
+    unsafe_str? ~ auto_str? ~
+    trait_str ~ name ~ generic_param_list? ~
     (":" ~ type_bound_list)? ~ where_clause? ~ assoc_item_list
 }
 
 trait_alias = {
     attr* ~ visibility? ~
-    "trait" ~ name ~ generic_param_list? ~ "=" ~ type_bound_list? ~ where_clause? ~ ";"
+    trait_str ~ name ~ generic_param_list? ~ eq_str ~ type_bound_list? ~ where_clause? ~ semi_str
 }
 
 assoc_item_list = {
@@ -437,13 +533,13 @@ assoc_item = {
 
 impl = {
     attr* ~ visibility? ~
-    "default"? ~ "unsafe"? ~
-    "impl" ~ generic_param_list? ~ ("const"? ~ "!"? ~ type ~ "for")? ~ type ~ where_clause? ~
+    default_str? ~ unsafe_str? ~
+    impl_str ~ generic_param_list? ~ (const_str? ~ bang_str? ~ type ~ for_str)? ~ type ~ where_clause? ~
     assoc_item_list
 }
 
 extern_block = {
-    attr* ~ "unsafe"? ~ abi ~ extern_item_list
+    attr* ~ unsafe_str? ~ abi ~ extern_item_list
 }
 
 extern_item_list = {
@@ -458,7 +554,7 @@ extern_item = {
 }
 
 generic_param_list = {
-    "<" ~ (generic_param ~ ("," ~ generic_param)* ~ ","?)? ~ ">"
+    langle_str ~ (generic_param ~ ("," ~ generic_param)* ~ ","?)? ~ rangle_str
 }
 
 generic_param = {
@@ -469,12 +565,12 @@ generic_param = {
 
 type_param = {
     attr* ~ name ~ (":" ~ type_bound_list)? ~
-    ("=" ~ type)?
+    (eq_str ~ type)?
 }
 
 const_param = {
-    attr* ~ "const" ~ name ~ ":" ~ type ~
-    ("=" ~ expr)?
+    attr* ~ const_str ~ name ~ ":" ~ type ~
+    (eq_str ~ expr)?
 }
 
 lifetime_param = {
@@ -482,24 +578,24 @@ lifetime_param = {
 }
 
 where_clause = {
-    "where" ~ (where_pred ~ ("," ~ where_pred)* ~ ","?)?
+    where_str ~ (where_pred ~ ("," ~ where_pred)* ~ ","?)?
 }
 
 where_pred = {
-    ("for" ~ generic_param_list)? ~ (lifetime | type) ~ ":" ~ type_bound_list?
+    (for_str ~ generic_param_list)? ~ (lifetime | type) ~ ":" ~ type_bound_list?
 }
 
 visibility = {
-    "pub" ~ ("(" ~ ("in")? ~ path ~ ")")?
+    pub_str ~ ("(" ~ (in_str)? ~ path ~ ")")?
 }
 
 attr = {
     trigger_attribute
-  | "#" ~ "!"? ~ "[" ~ meta ~ "]"
+  | "#" ~ bang_str? ~ "[" ~ meta ~ "]"
 }
 
 meta = {
-    path ~ ("=" ~ expr | token_tree)?
+    path ~ (eq_str ~ expr | token_tree)?
 }
 
 //****************************//
@@ -507,22 +603,22 @@ meta = {
 //****************************//
 
 stmt = {
-    ";"
+    semi_str
   | proof_block
-  | expr ~ ";"
+  | expr ~ semi_str
   | item
   | let_stmt
 }
 
 let_stmt = {
-    attr* ~ "let" ~ "ghost"? ~ "tracked"? ~ pat ~ (":" ~ type)? ~
-    "=" ~ expr ~
+    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ pat ~ (":" ~ type)? ~
+    eq_str ~ expr ~
     let_else? ~
-    ";"
+    semi_str
 }
 
 let_else = {
-    "else" ~ block_expr
+    else_str ~ block_expr
 }
 
 // This split of `expr` and `expr_inner` is to simply break the left-recursion
@@ -531,11 +627,11 @@ expr = {
     expr_inner ~
     (
         // await_expr
-        "." ~ "await"
+        "." ~ await_str
         // call_expr
       | arg_list
         // cast_expr
-      | "as" ~ type
+      | as_str ~ type
         // field_expr
       | "." ~ name_ref
         // try_expr
@@ -595,8 +691,8 @@ literal = {
       | raw_string
       | byte_string
       | raw_byte_string
-      | "true"
-      | "false"
+      | true_str
+      | false_str
       | char
       | byte
     )
@@ -615,20 +711,20 @@ stmt_list = {
 }
 
 ref_expr = {
-    attr* ~ "&" ~ ("raw" | "mut" | "const") ~ expr
+    attr* ~ "&" ~ (raw_str | mut_str | const_str) ~ expr
 }
 
 proof_block = {
-    attr* ~ label? ~ "proof" ~ stmt_list
+    attr* ~ label? ~ proof_str ~ stmt_list
 }
 
 block_expr = {
     proof_block
-    | attr* ~ label? ~ ("try" | "unsafe" | "async" | "const")? ~ stmt_list
+    | attr* ~ label? ~ (try_str | unsafe_str | async_str | const_str)? ~ stmt_list
 }
 
 prefix_expr = {
-    attr* ~ ("-" | "!" | "*" | "&&&" | "|||") ~ expr
+    attr* ~ ("-" | bang_str | "*" | "&&&" | "|||") ~ expr
 }
 
 bin_expr_ops = {
@@ -648,7 +744,7 @@ paren_expr = {
 
 array_expr = {
     attr* ~ "[" ~ attr* ~ (
-        expr ~ ";" ~ expr
+        expr ~ semi_str ~ expr
       | comma_delimited_exprs?
     ) ~ "]"
 }
@@ -678,29 +774,29 @@ arg_list = {
 }
 
 closure_expr = {
-    attr* ~ (!"forall" ~ "for" ~ generic_param_list)? ~
-    "const"? ~ "static"? ~ "async"? ~ "move"? ~ "forall"? ~ "exists"? ~ "choose"? ~
+    attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
+    const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~
     param_list ~ ret_type? ~
     attr* ~
     expr
 }
 
 if_expr = {
-    attr* ~ "if" ~ expr ~ block_expr ~
-    ("else" ~ (if_expr | block_expr))?
+    attr* ~ if_str ~ expr ~ block_expr ~
+    (else_str ~ (if_expr | block_expr))?
 }
 
 loop_expr = {
-    attr* ~ label? ~ "loop" ~ block_expr
+    attr* ~ label? ~ loop_str ~ block_expr
 }
 
 for_expr = {
-    attr* ~ label? ~ "for" ~ pat ~ "in" ~ expr ~
+    attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr ~
     block_expr
 }
 
 while_expr = {
-    attr* ~ label? ~ "while" ~ expr ~ invariant_clause? ~ decreases_clause? ~
+    attr* ~ label? ~ while_str ~ expr ~ invariant_clause? ~ decreases_clause? ~
     block_expr
 }
 
@@ -709,15 +805,15 @@ label = {
 }
 
 break_expr = {
-    attr* ~ "break" ~ lifetime? ~ expr?
+    attr* ~ break_str ~ lifetime? ~ expr?
 }
 
 continue_expr = {
-    attr* ~ "continue" ~ lifetime?
+    attr* ~ continue_str ~ lifetime?
 }
 
 match_expr = {
-    attr* ~ "match" ~ expr ~ match_arm_list
+    attr* ~ match_str ~ expr ~ match_arm_list
 }
 
 match_arm_list = {
@@ -732,23 +828,23 @@ match_arm = {
 }
 
 match_guard = {
-    "if" ~ expr
+    if_str ~ expr
 }
 
 return_expr = {
-    attr* ~ "return" ~ expr?
+    attr* ~ return_str ~ expr?
 }
 
 yield_expr = {
-    attr* ~ "yield" ~ expr?
+    attr* ~ yield_str ~ expr?
 }
 
 yeet_expr = {
-    attr* ~ "do" ~ "yeet" ~ expr?
+    attr* ~ do_str ~ yeet_str ~ expr?
 }
 
 let_expr = {
-    attr* ~ "let" ~ pat ~ "=" ~ expr
+    attr* ~ let_str ~ pat ~ eq_str ~ expr
 }
 
 underscore_expr = {
@@ -756,7 +852,7 @@ underscore_expr = {
 }
 
 box_expr = {
-    attr* ~ "box" ~ expr
+    attr* ~ box_str ~ expr
 }
 
 //*************************//
@@ -785,7 +881,7 @@ paren_type = {
 }
 
 never_type = {
-    "!"
+    bang_str
 }
 
 macro_type = {
@@ -801,15 +897,15 @@ tuple_type = {
 }
 
 ptr_type = {
-    "*" ~ ("const" | "mut") ~ type
+    "*" ~ (const_str | mut_str) ~ type
 }
 
 ref_type = {
-    "&" ~ lifetime? ~ "mut"? ~ type
+    "&" ~ lifetime? ~ mut_str? ~ type
 }
 
 array_type = {
-    "[" ~ type ~ ";" ~ expr ~ "]"
+    "[" ~ type ~ semi_str ~ expr ~ "]"
 }
 
 slice_type = {
@@ -821,19 +917,19 @@ infer_type = {
 }
 
 fn_ptr_type = {
-    "const"? ~ "async"? ~ "unsafe"? ~ abi? ~ "fn" ~ param_list ~ ret_type?
+    const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_str ~ param_list ~ ret_type?
 }
 
 for_type = {
-    "for" ~ generic_param_list ~ type
+    for_str ~ generic_param_list ~ type
 }
 
 impl_trait_type = {
-    "impl" ~ type_bound_list
+    impl_str ~ type_bound_list
 }
 
 dyn_trait_type = {
-    "dyn" ~ type_bound_list
+    dyn_str ~ type_bound_list
 }
 
 type_bound_list = {
@@ -842,7 +938,7 @@ type_bound_list = {
 
 type_bound = {
     lifetime
-  | ("?" | "~" ~ "const")? ~ type
+  | ("?" | "~" ~ const_str)? ~ type
 }
 
 //************************//
@@ -882,7 +978,7 @@ literal_pat = {
 }
 
 ident_pat = {
-    attr* ~ "ref"? ~ "mut"? ~ name ~ ("@" ~ pat)?
+    attr* ~ ref_str? ~ mut_str? ~ name ~ ("@" ~ pat)?
 }
 
 wildcard_pat = {
@@ -894,7 +990,7 @@ end_only_range_pat = {
 }
 
 ref_pat = {
-    "&" ~ "mut"? ~ pat
+    "&" ~ mut_str? ~ pat
 }
 
 record_pat = {
@@ -933,7 +1029,7 @@ path_pat = {
 }
 
 box_pat = {
-    "box" ~ pat
+    box_str ~ pat
 }
 
 rest_pat = {
@@ -945,7 +1041,7 @@ macro_pat = {
 }
 
 const_block_pat = {
-    "const" ~ block_expr
+    const_str ~ block_expr
 }
 
 //************************//
@@ -953,24 +1049,24 @@ const_block_pat = {
 //************************//
 
 publish = {
-    "closed"
-  | "open"
+    closed_str
+  | open_str
 }
 
 fn_mode = {
     mode_spec_checked
-  | "spec"
-  | "proof"
-  | "exec"
+  | spec_str
+  | proof_str
+  | exec_str
 }
 
 mode_spec_checked = {
-    "spec" ~ "(" ~ "checked" ~ ")"
+    spec_str ~ "(" ~ checked_str ~ ")"
 }
 
 data_mode = {
-    "ghost"
-  | "tracked"
+    ghost_str
+  | tracked_str
 }
 
 comma_delimited_exprs = {
@@ -983,52 +1079,52 @@ comma_delimited_exprs_for_verus_clauses = {
 
 verus_clause_non_expr = _{
     "{"
-  | "requires"
-  | "ensures"
-  | "invariant"
-  | "recommends"
-  | "recommends"
-  | "via"
-  | "decreases"
-  | "when"
+  | requires_str
+  | ensures_str
+  | invariant_str
+  | recommends_str
+  | recommends_str
+  | via_str
+  | decreases_str
+  | when_str
 }
 
 requires_clause = {
-    "requires" ~ comma_delimited_exprs_for_verus_clauses
+    requires_str ~ comma_delimited_exprs_for_verus_clauses
 }
 
 ensures_clause = {
-    "ensures" ~ comma_delimited_exprs_for_verus_clauses
+    ensures_str ~ comma_delimited_exprs_for_verus_clauses
 }
 
 invariant_clause = {
-    "invariant" ~ comma_delimited_exprs_for_verus_clauses
+    invariant_str ~ comma_delimited_exprs_for_verus_clauses
 }
 
 recommends_clause = {
-    "recommends" ~ comma_delimited_exprs_for_verus_clauses ~ ("via" ~ expr)?
+    recommends_str ~ comma_delimited_exprs_for_verus_clauses ~ (via_str ~ expr)?
 }
 
 decreases_clause = {
-    "decreases" ~ comma_delimited_exprs_for_verus_clauses ~ ("when" ~ expr)? ~ ("via" ~ expr)?
+    decreases_str ~ comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr)? ~ (via_str ~ expr)?
 }
 
 assert_expr = {
-    attr* ~ "assert" ~ "(" ~ expr ~ ")" ~ (prover ~ requires_clause? ~ block_expr?)?
+    attr* ~ assert_str ~ "(" ~ expr ~ ")" ~ (prover ~ requires_clause? ~ block_expr?)?
 }
 
 assume_expr = {
-    attr* ~ "assume" ~ "(" ~ expr ~ ")"
+    attr* ~ assume_str ~ "(" ~ expr ~ ")"
 }
 
 assert_forall_expr = {
-    attr* ~ "assert" ~ "forall" ~ closure_expr ~ ("implies" ~ expr)? ~ "by" ~ block_expr
+    attr* ~ assert_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ by_str ~ block_expr
 }
 
 prover = {
-    "by" ~ ("(" ~ name ~ ")")?
+    by_str ~ ("(" ~ name ~ ")")?
 }
 
 trigger_attribute = {
-    "#" ~ "!" ~ "[" ~ "trigger" ~ comma_delimited_exprs? ~ "]"
+    "#" ~ "!" ~ "[" ~ trigger_str ~ comma_delimited_exprs? ~ "]"
 }

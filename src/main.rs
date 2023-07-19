@@ -40,61 +40,34 @@ const INDENT_SPACES: isize = 4;
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/expressions.html
 
-fn expr_to_doc<'a>(expr: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
-    arena.text(expr.as_str())
-}
-
-fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
-    let item = item.into_inner().next().unwrap();  // Grab the specific case of item
-    let doc_builder = match item.as_rule() {
-        Rule::r#const => {
-            let d = item.into_inner().fold(arena.nil(), |doc, elt| {
-                // Too many lifetime problems with this version
-                //let default = |d:DocBuilder<'a, Arena>, e:Pair<'a, Rule>| d.append(arena.text(e.as_str()).append(arena.space()));
-                let docs = match elt.as_rule() {
-                    Rule::attr => vec![arena.text(elt.as_str()), arena.hardline()],
-//                    Rule::visibility => default(doc, elt),
-//                    Rule::default => default(doc, elt),
-//                    Rule::name => default(doc, elt),
-                    Rule::visibility => vec![arena.text(elt.as_str()), arena.space()],
-                    Rule::default => vec![arena.text(elt.as_str()), arena.space()],
-                    Rule::name => vec![arena.text(elt.as_str())],
-                    Rule::r#type => vec![arena.text(":"),
-                                     arena.softline().append(arena.text(elt.as_str().trim())).nest(INDENT_SPACES)],
-                        // REVIEW: The type ends up with an space after it when it becomes a path_segment
-                        // For now, I'm calling trim to remove it, but perhaps it should be fixed
-                        // in the grammar?
-//                        { 
-//                            println!("##{:?}##", elt); 
-//                            println!("##{}##", elt.as_str()); 
-//                            doc.append(arena.text(": ".to_owned() + elt.as_str() + ">>"))
-//                        },
-                    Rule::expr => vec![arena.space(),
-                                   arena.text("="),
-                                   // Need to use this version to get actual nesting.  The next two
-                                   // lines don't work
-                                   arena.softline().append(expr_to_doc(elt, arena)).nest(INDENT_SPACES)],
-//                                   arena.softline(),
-//                                   expr_to_doc(elt, arena).nest(INDENT_SPACES)],
-                    _ => unreachable!(),
-                };
-                doc.append(arena.concat(docs))
-            });
-            d.append(arena.text(";"))
-        },
+fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
+    //let item = item.into_inner(); //.next().unwrap();  // Grab the specific case of item
+    match item.as_rule() {
+        Rule::attr => arena.text(item.as_str()).append(arena.hardline()),
+        Rule::visibility => arena.text(item.as_str()).append(arena.space()),
+        Rule::default_str => arena.text(item.as_str()).append(arena.space()),
+        Rule::name => arena.text(item.as_str()),
+        Rule::r#type => arena.text(":").append(arena.softline()).append(arena.text(item.as_str().trim())).nest(INDENT_SPACES),
+        Rule::eq_str => arena.space().append(arena.text("=")).append(arena.softline()).nest(INDENT_SPACES),
+        Rule::semi_str => arena.text(";"),
+        Rule::bang_str => arena.text("!"),
+        Rule::pub_str => arena.text("pub "),
+        Rule::const_str => arena.text("const "),
+        Rule::expr => { info!("TODO: pretty exprs"); arena.text(item.as_str()) },
+        Rule::r#const => arena.concat(item.into_inner().map(|i| item_to_doc(i, arena))),
+        Rule::item => arena.concat(item.into_inner().map(|i| item_to_doc(i, arena))),
         _ => {
             error!("TODO: format {:?} before returning", item.as_rule());
             arena.text(item.as_str().to_owned())
         }
-    };
-    doc_builder.into_doc()
+    }
 }
 
 
 fn format_item(item: Pair<Rule>) -> String {
     let mut w = Vec::new();
     let arena = Arena::<()>::new();
-    item_to_doc(item, &arena).render(NUMBER_OF_COLUMNS, &mut w).unwrap();
+    item_to_doc(item, &arena).into_doc().render(NUMBER_OF_COLUMNS, &mut w).unwrap();
     String::from_utf8(w).unwrap()
 }
 
