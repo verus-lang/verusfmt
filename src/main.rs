@@ -39,8 +39,8 @@ const NUMBER_OF_COLUMNS: usize = 120;
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/expressions.html
 
-fn expr_to_doc<'a>(expr: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
-    arena.text(expr.as_str()).into_doc()
+fn expr_to_doc<'a>(expr: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
+    arena.text(expr.as_str())
 }
 
 fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
@@ -50,17 +50,16 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()
             let d = item.into_inner().fold(arena.nil(), |doc, elt| {
                 // Too many lifetime problems with this version
                 //let default = |d:DocBuilder<'a, Arena>, e:Pair<'a, Rule>| d.append(arena.text(e.as_str()).append(arena.space()));
-                match elt.as_rule() {
-                    Rule::attr => doc.append(arena.text(elt.as_str()).append(arena.hardline())),
+                let docs = match elt.as_rule() {
+                    Rule::attr => vec![arena.text(elt.as_str()), arena.hardline()],
 //                    Rule::visibility => default(doc, elt),
 //                    Rule::default => default(doc, elt),
 //                    Rule::name => default(doc, elt),
-                    Rule::visibility => doc.append(arena.text(elt.as_str()).append(arena.space())),
-                    Rule::default => doc.append(arena.text(elt.as_str()).append(arena.space())),
-                    Rule::name => doc.append(arena.text(elt.as_str())),
-                    Rule::r#type => doc.append(arena.text(":")
-                                                   .append(arena.softline())
-                                                   .append(arena.text(elt.as_str().trim())).nest(4)),
+                    Rule::visibility => vec![arena.text(elt.as_str()), arena.space()],
+                    Rule::default => vec![arena.text(elt.as_str()), arena.space()],
+                    Rule::name => vec![arena.text(elt.as_str())],
+                    Rule::r#type => vec![arena.text(":"),
+                                     arena.softline().append(arena.text(elt.as_str().trim())).nest(4)],
                         // REVIEW: The type ends up with an space after it when it becomes a path_segment
                         // For now, I'm calling trim to remove it, but perhaps it should be fixed
                         // in the grammar?
@@ -69,13 +68,16 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()
 //                            println!("##{}##", elt.as_str()); 
 //                            doc.append(arena.text(": ".to_owned() + elt.as_str() + ">>"))
 //                        },
-                    Rule::expr => doc.append(
-                                    arena.space()
-                                        .append(arena.text("="))
-                                        .append(arena.softline())
-                                        .append(expr_to_doc(elt, arena)).nest(4)),
+                    Rule::expr => vec![arena.space(),
+                                   arena.text("="),
+                                   // Need to use this version to get actual nesting.  The next two
+                                   // lines don't work
+                                   arena.softline().append(expr_to_doc(elt, arena)).nest(4)],
+//                                   arena.softline(),
+//                                   expr_to_doc(elt, arena).nest(4)],
                     _ => unreachable!(),
-                }
+                };
+                doc.append(arena.concat(docs))
             });
             d.append(arena.text(";"))
 
