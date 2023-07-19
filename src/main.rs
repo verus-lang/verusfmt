@@ -36,27 +36,69 @@ struct Args {
 // something.
 const NUMBER_OF_COLUMNS: usize = 120;
 
-fn item_to_doc<'a>(item: Pair<Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
+// When in doubt, we should generally try to stick to Rust style guidelines:
+//   https://doc.rust-lang.org/beta/style-guide/expressions.html
+
+fn expr_to_doc<'a>(expr: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
+    arena.text(expr.as_str()).into_doc()
+}
+
+fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> RefDoc<'a,()> {
+    let item = item.into_inner().next().unwrap();  // Grab the specific case of item
     let doc_builder = match item.as_rule() {
-        Rule::const => {
-            let mut inner_rules = item.into_inner();
-            let attrs = inner_rules.next().unwrap();
-            let visibility = inner_rules.next().unwrap();
-            let default = inner_rules.next().unwrap();
-            let name = inner_rules.next().unwrap();
-            let ttype = inner_rules.next().unwrap();
-            let initializer = inner_rules.next().unwrap();
-            println!("{:?} {:?} {:?} {:?} {:?} {:?}",
-                     attrs,
-                     visibility,
-                     default,
-                     name,
-                     ttype,
-                     initializer);
-            arena.text(item.as_str().to_owned())
+        Rule::r#const => {
+            let d = item.into_inner().fold(arena.nil(), |doc, elt| {
+                // Too many lifetime problems with this version
+                //let default = |d:DocBuilder<'a, Arena>, e:Pair<'a, Rule>| d.append(arena.text(e.as_str()).append(arena.space()));
+                match elt.as_rule() {
+                    Rule::attr => doc.append(arena.text(elt.as_str()).append(arena.hardline())),
+//                    Rule::visibility => default(doc, elt),
+//                    Rule::default => default(doc, elt),
+//                    Rule::name => default(doc, elt),
+                    Rule::visibility => doc.append(arena.text(elt.as_str()).append(arena.space())),
+                    Rule::default => doc.append(arena.text(elt.as_str()).append(arena.space())),
+                    Rule::name => doc.append(arena.text(elt.as_str())),
+                    Rule::r#type => doc.append(arena.text(":")
+                                                   .append(arena.softline())
+                                                   .append(arena.text(elt.as_str().trim())).nest(4)),
+                        // REVIEW: The type ends up with an space after it when it becomes a path_segment
+                        // For now, I'm calling trim to remove it, but perhaps it should be fixed
+                        // in the grammar?
+//                        { 
+//                            println!("##{:?}##", elt); 
+//                            println!("##{}##", elt.as_str()); 
+//                            doc.append(arena.text(": ".to_owned() + elt.as_str() + ">>"))
+//                        },
+                    Rule::expr => doc.append(
+                                    arena.space()
+                                        .append(arena.text("="))
+                                        .append(arena.softline())
+                                        .append(expr_to_doc(elt, arena)).nest(4)),
+                    _ => unreachable!(),
+                }
+            });
+            d.append(arena.text(";"))
+
+
+//            let d = arena.text(item.clone().as_str().to_owned());
+//            let mut inner_rules = item.into_inner();
+//            let attrs = inner_rules.next().unwrap();
+//            let visibility = inner_rules.next().unwrap();
+//            let default = inner_rules.next().unwrap();
+//            let name = inner_rules.next().unwrap();
+//            let ttype = inner_rules.next().unwrap();
+//            let initializer = inner_rules.next().unwrap();
+//            println!("<<{:?}>>\n<<{:?}>>\n<<{:?}>>\n<<{:?}>>\n<<{:?}>>\n<<{:?}>>",
+//                     attrs,
+//                     visibility,
+//                     default,
+//                     name,
+//                     ttype,
+//                     initializer);
+//            d
         },
         _ => {
-            error!("TODO: format before returning");
+            error!("TODO: format {:?} before returning", item.as_rule());
             arena.text(item.as_str().to_owned())
         }
     };

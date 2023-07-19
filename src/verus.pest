@@ -397,9 +397,11 @@ union = {
     record_field_list
 }
 
+default = { "default" }
+
 const = {
     attr* ~ visibility? ~
-    "default"? ~
+    default? ~
     "const" ~ (name | "_") ~ ":" ~ type ~
     ("=" ~ expr)? ~ ";"
 }
