@@ -44,33 +44,38 @@ fn soft_indent<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> Doc
     arena.softline().append(doc).nest(INDENT_SPACES)
 }
 
+fn map_to_doc<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.concat(pair.into_inner().map(|i| to_doc(i, arena)))
+}
+
 fn format_doc(doc: RefDoc<()>) -> String {
     let mut w = Vec::new();
     doc.render(NUMBER_OF_COLUMNS, &mut w).unwrap();
     String::from_utf8(w).unwrap()
 }
 
-fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
-    //let item = item.into_inner(); //.next().unwrap();  // Grab the specific case of item
-    match item.as_rule() {
+fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
+    let s = arena.text(pair.as_str().trim());
+    match pair.as_rule() {
         //***********************//
         // General common things //
         //***********************//
-        Rule::identifier => unreachable!(),
-        Rule::hex_number => unreachable!(),
-        Rule::decimal_number => unreachable!(),
-        Rule::octal_number => unreachable!(),
-        Rule::binary_number => unreachable!(),
-        Rule::int_number => unreachable!(),
-        Rule::float_number => unreachable!(),
-        Rule::lifetime_ident => unreachable!(),
-        Rule::string => unreachable!(),
-        Rule::raw_string => unreachable!(),
-        Rule::raw_string_interior => unreachable!(),
-        Rule::byte_string => unreachable!(),
-        Rule::raw_byte_string => unreachable!(),
-        Rule::r#char => unreachable!(),
-        Rule::byte => unreachable!(),
+        Rule::identifier |
+        Rule::hex_number |
+        Rule::decimal_number |
+        Rule::octal_number |
+        Rule::binary_number |
+        Rule::int_number |
+        Rule::float_number |
+        Rule::lifetime_ident |
+        Rule::string |
+        Rule::raw_string |
+        Rule::raw_string_interior |
+        Rule::byte_string |
+        Rule::raw_byte_string |
+        Rule::r#char |
+        Rule::byte
+            => s,
 
         //***********************************************************//
         // Fixed strings we want to preserve in the formatted output //
@@ -82,102 +87,104 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         Rule::rangle_str => unreachable!(),
         Rule::eq_str => arena.text("=").append(arena.softline()).nest(INDENT_SPACES),
 
-        Rule::as_str => arena.text("as "),
-        Rule::assert_str => arena.text("assert "),
-        Rule::assume_str => arena.text("assume "),
-        Rule::async_str => arena.text("async "),
-        Rule::auto_str => arena.text("auto "),
-        Rule::await_str => arena.text("await "),
-        Rule::b_str => arena.text("b "),
-        Rule::box_str => arena.text("box "),
-        Rule::break_str => arena.text("break "),
-        Rule::by_str => arena.text("by "),
-        Rule::checked_str => arena.text("checked "),
-        Rule::choose_str => arena.text("choose "),
-        Rule::closed_str => arena.text("closed "),
-        Rule::const_str => arena.text("const "),
-        Rule::continue_str => arena.text("continue "),
-        Rule::crate_str => arena.text("crate "),
-        Rule::decreases_str => arena.text("decreases "),
-        Rule::default_str => arena.text("default "),
-        Rule::do_str => arena.text("do "),
-        Rule::dyn_str => arena.text("dyn "),
-        Rule::else_str => arena.text("else "),
-        Rule::ensures_str => arena.text("ensures "),
-        Rule::enum_str => arena.text("enum "),
-        Rule::exec_str => arena.text("exec "),
-        Rule::exists_str => arena.text("exists "),
-        Rule::extern_str => arena.text("extern "),
-        Rule::f32_str => arena.text("f32 "),
-        Rule::f64_str => arena.text("f64 "),
-        Rule::false_str => arena.text("false "),
-        Rule::fn_str => arena.text("fn "),
-        Rule::for_str => arena.text("for "),
-        Rule::forall_str => arena.text("forall "),
-        Rule::ghost_str => arena.text("ghost "),
-        Rule::i128_str => arena.text("i128 "),
-        Rule::i16_str => arena.text("i16 "),
-        Rule::i32_str => arena.text("i32 "),
-        Rule::i64_str => arena.text("i64 "),
-        Rule::i8_str => arena.text("i8 "),
-        Rule::if_str => arena.text("if "),
-        Rule::impl_str => arena.text("impl "),
-        Rule::implies_str => arena.text("implies "),
-        Rule::in_str => arena.text("in "),
-        Rule::int_str => arena.text("int "),
-        Rule::invariant_str => arena.text("invariant "),
-        Rule::isize_str => arena.text("isize "),
-        Rule::let_str => arena.text("let "),
-        Rule::loop_str => arena.text("loop "),
-        Rule::macro_str => arena.text("macro "),
-        Rule::macro_rules_str => arena.text("macro_rules "),
-        Rule::match_str => arena.text("match "),
-        Rule::mod_str => arena.text("mod "),
-        Rule::move_str => arena.text("move "),
-        Rule::mut_str => arena.text("mut "),
-        Rule::nat_str => arena.text("nat "),
-        Rule::open_str => arena.text("open "),
-        Rule::proof_str => arena.text("proof "),
-        Rule::pub_str => arena.text("pub "),
-        Rule::r_str => arena.text("r "),
-        Rule::raw_str => arena.text("raw "),
-        Rule::recommends_str => arena.text("recommends "),
-        Rule::ref_str => arena.text("ref "),
-        Rule::requires_str => arena.text("requires "),
-        Rule::return_str => arena.text("return "),
-        Rule::self_str => arena.text("self "),
-        Rule::spec_str => arena.text("spec "),
-        Rule::static_str => arena.text("static "),
-        Rule::struct_str => arena.text("struct "),
-        Rule::super_str => arena.text("super "),
-        Rule::tracked_str => arena.text("tracked "),
-        Rule::trait_str => arena.text("trait "),
-        Rule::trigger_str => arena.text("trigger "),
-        Rule::true_str => arena.text("true "),
-        Rule::try_str => arena.text("try "),
-        Rule::type_str => arena.text("type "),
-        Rule::u128_str => arena.text("u128 "),
-        Rule::u16_str => arena.text("u16 "),
-        Rule::u32_str => arena.text("u32 "),
-        Rule::u64_str => arena.text("u64 "),
-        Rule::u8_str => arena.text("u8 "),
-        Rule::union_str => arena.text("union "),
-        Rule::unsafe_str => arena.text("unsafe "),
-        Rule::use_str => arena.text("use "),
-        Rule::usize_str => arena.text("usize "),
-        Rule::via_str => arena.text("via "),
-        Rule::when_str => arena.text("when "),
-        Rule::where_str => arena.text("where "),
-        Rule::while_str => arena.text("while "),
-        Rule::yeet_str => arena.text("yeet "),
-        Rule::yield_str => arena.text("yield "),
+        Rule::as_str |
+        Rule::assert_str |
+        Rule::assume_str |
+        Rule::async_str |
+        Rule::auto_str |
+        Rule::await_str |
+        Rule::b_str |
+        Rule::box_str |
+        Rule::break_str |
+        Rule::by_str |
+        Rule::checked_str |
+        Rule::choose_str |
+        Rule::closed_str |
+        Rule::const_str |
+        Rule::continue_str |
+        Rule::crate_str |
+        Rule::decreases_str |
+        Rule::default_str |
+        Rule::do_str |
+        Rule::dyn_str |
+        Rule::else_str |
+        Rule::ensures_str |
+        Rule::enum_str |
+        Rule::exec_str |
+        Rule::exists_str |
+        Rule::extern_str |
+        Rule::f32_str |
+        Rule::f64_str |
+        Rule::false_str |
+        Rule::fn_str |
+        Rule::for_str |
+        Rule::forall_str |
+        Rule::ghost_str |
+        Rule::i128_str |
+        Rule::i16_str |
+        Rule::i32_str |
+        Rule::i64_str |
+        Rule::i8_str |
+        Rule::if_str |
+        Rule::impl_str |
+        Rule::implies_str |
+        Rule::in_str |
+        Rule::int_str |
+        Rule::invariant_str |
+        Rule::isize_str |
+        Rule::let_str |
+        Rule::loop_str |
+        Rule::macro_str |
+        Rule::macro_rules_str |
+        Rule::match_str |
+        Rule::mod_str |
+        Rule::move_str |
+        Rule::mut_str |
+        Rule::nat_str |
+        Rule::open_str |
+        Rule::proof_str |
+        Rule::pub_str |
+        Rule::r_str |
+        Rule::raw_str |
+        Rule::recommends_str |
+        Rule::ref_str |
+        Rule::requires_str |
+        Rule::return_str |
+        Rule::self_str |
+        Rule::spec_str |
+        Rule::static_str |
+        Rule::struct_str |
+        Rule::super_str |
+        Rule::tracked_str |
+        Rule::trait_str |
+        Rule::trigger_str |
+        Rule::true_str |
+        Rule::try_str |
+        Rule::type_str |
+        Rule::u128_str |
+        Rule::u16_str |
+        Rule::u32_str |
+        Rule::u64_str |
+        Rule::u8_str |
+        Rule::union_str |
+        Rule::unsafe_str |
+        Rule::use_str |
+        Rule::usize_str |
+        Rule::via_str |
+        Rule::when_str |
+        Rule::where_str |
+        Rule::while_str |
+        Rule::yeet_str |
+        Rule::yield_str 
+            => s.append(arena.space()),
 
         //*************************//
         // Names, Paths and Macros //
         //*************************//
-        Rule::name => arena.text(item.as_str()),
-        Rule::name_ref => unreachable!(),
-        Rule::lifetime => unreachable!(),
+        Rule::name |
+        Rule::name_ref |
+        Rule::lifetime
+            => s,
         Rule::path => unreachable!(),
         Rule::path_segment => unreachable!(),
         Rule::generic_arg_list => unreachable!(),
@@ -194,7 +201,7 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         //*************************//
         //          Items          //
         //*************************//
-        Rule::item => arena.concat(item.into_inner().map(|i| item_to_doc(i, arena))),
+        Rule::item => map_to_doc(arena, pair),
         Rule::macro_rules => unreachable!(),
         Rule::macro_def => unreachable!(),
         Rule::module => unreachable!(),
@@ -221,8 +228,8 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         Rule::variant_list => unreachable!(),
         Rule::variant => unreachable!(),
         Rule::union => unreachable!(),
-        Rule::initializer => soft_indent(arena, arena.concat(item.into_inner().map(|i| item_to_doc(i, arena)))),
-        Rule::r#const => arena.concat(item.into_inner().map(|i| item_to_doc(i, arena))),
+        Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
+        Rule::r#const => map_to_doc(arena, pair),
         Rule::r#static => unreachable!(),
         Rule::r#trait => unreachable!(),
         Rule::trait_alias => unreachable!(),
@@ -239,8 +246,8 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         Rule::lifetime_param => unreachable!(),
         Rule::where_clause => unreachable!(),
         Rule::where_pred => unreachable!(),
-        Rule::visibility => arena.text(item.as_str()).append(arena.space()),
-        Rule::attr => arena.text(item.as_str()).append(arena.hardline()),
+        Rule::visibility => arena.text(pair.as_str()).append(arena.space()),
+        Rule::attr => arena.text(pair.as_str()).append(arena.hardline()),
         Rule::meta => unreachable!(),
 
         //****************************//
@@ -249,7 +256,7 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         Rule::stmt => unreachable!(),
         Rule::let_stmt => unreachable!(),
         Rule::let_else => unreachable!(),
-        Rule::expr => { error!("TODO: pretty exprs"); arena.text(item.as_str()) },
+        Rule::expr => { error!("TODO: pretty exprs"); s },
         Rule::expr_inner => unreachable!(),
         Rule::macro_expr => unreachable!(),
         Rule::literal => unreachable!(),
@@ -289,7 +296,7 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         //*************************//
         //          Types          //
         //*************************//
-        Rule::r#type => arena.text(":").append(soft_indent(arena, arena.text(item.as_str().trim()))),
+        Rule::r#type => arena.text(":").append(soft_indent(arena, s)),
         Rule::paren_type => unreachable!(),
         Rule::never_type => unreachable!(),
         Rule::macro_type => unreachable!(),
@@ -352,15 +359,15 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         Rule::trigger_attribute => unreachable!(),
 
         _ => {
-            error!("TODO: format {:?} before returning", item.as_rule());
-            arena.text(item.as_str().to_owned())
+            error!("TODO: format {:?} before returning", pair.as_rule());
+            arena.text(pair.as_str().to_owned())
         }
     }
 }
 
 fn format_item(item: Pair<Rule>) -> String {
     let arena = Arena::<()>::new();
-    format_doc(item_to_doc(item, &arena).into_doc())
+    format_doc(to_doc(item, &arena).into_doc())
 }
 
 fn main() -> anyhow::Result<()> {
