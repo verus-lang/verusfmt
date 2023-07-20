@@ -495,11 +495,15 @@ union = {
     record_field_list
 }
 
+initializer = {
+    eq_str ~ expr
+}
+
 const = {
     attr* ~ visibility? ~
     default_str? ~
     const_str ~ (name | "_") ~ ":" ~ type ~
-    (eq_str ~ expr)? ~ semi_str
+    initializer? ~ semi_str
 }
 
 static = {

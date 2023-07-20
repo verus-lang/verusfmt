@@ -40,6 +40,16 @@ const INDENT_SPACES: isize = 4;
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/expressions.html
 
+fn soft_indent<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
+    arena.softline().append(doc).nest(INDENT_SPACES)
+}
+
+fn format_doc(doc: RefDoc<()>) -> String {
+    let mut w = Vec::new();
+    doc.render(NUMBER_OF_COLUMNS, &mut w).unwrap();
+    String::from_utf8(w).unwrap()
+}
+
 fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     //let item = item.into_inner(); //.next().unwrap();  // Grab the specific case of item
     match item.as_rule() {
@@ -47,13 +57,14 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
         Rule::visibility => arena.text(item.as_str()).append(arena.space()),
         Rule::default_str => arena.text(item.as_str()).append(arena.space()),
         Rule::name => arena.text(item.as_str()),
-        Rule::r#type => arena.text(":").append(arena.softline()).append(arena.text(item.as_str().trim())).nest(INDENT_SPACES),
-        Rule::eq_str => arena.space().append(arena.text("=")).append(arena.softline()).nest(INDENT_SPACES),
+        Rule::r#type => arena.text(":").append(soft_indent(arena, arena.text(item.as_str().trim()))),
+        Rule::eq_str => arena.text("=").append(arena.softline()).nest(INDENT_SPACES),
         Rule::semi_str => arena.text(";"),
         Rule::bang_str => arena.text("!"),
         Rule::pub_str => arena.text("pub "),
         Rule::const_str => arena.text("const "),
-        Rule::expr => { info!("TODO: pretty exprs"); arena.text(item.as_str()) },
+        Rule::initializer => soft_indent(arena, arena.concat(item.into_inner().map(|i| item_to_doc(i, arena)))),
+        Rule::expr => { error!("TODO: pretty exprs"); arena.text(item.as_str()) },
         Rule::r#const => arena.concat(item.into_inner().map(|i| item_to_doc(i, arena))),
         Rule::item => arena.concat(item.into_inner().map(|i| item_to_doc(i, arena))),
         _ => {
@@ -63,12 +74,9 @@ fn item_to_doc<'a>(item: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'
     }
 }
 
-
 fn format_item(item: Pair<Rule>) -> String {
-    let mut w = Vec::new();
     let arena = Arena::<()>::new();
-    item_to_doc(item, &arena).into_doc().render(NUMBER_OF_COLUMNS, &mut w).unwrap();
-    String::from_utf8(w).unwrap()
+    format_doc(item_to_doc(item, &arena).into_doc())
 }
 
 fn main() -> anyhow::Result<()> {
