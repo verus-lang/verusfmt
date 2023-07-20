@@ -161,6 +161,9 @@ byte = @{
     "b" ~ char
 }
 
+//***********************************************************//
+// Fixed strings we want to preserve in the formatted output //
+//***********************************************************//
 semi_str = { ";" }
 bang_str = { "!" }
 colons_str = { "::" }
@@ -173,7 +176,6 @@ assume_str = { "assume" }
 async_str = { "async" }
 auto_str = { "auto" }
 await_str = { "await" }
-b_str = { "b" }
 box_str = { "box" }
 break_str = { "break" }
 by_str = { "by" }

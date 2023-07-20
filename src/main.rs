@@ -80,11 +80,12 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //***********************************************************//
         // Fixed strings we want to preserve in the formatted output //
         //***********************************************************//
-        Rule::semi_str => arena.text(";"),
-        Rule::bang_str => arena.text("!"),
-        Rule::colons_str => unreachable!(),
-        Rule::langle_str => unreachable!(),
-        Rule::rangle_str => unreachable!(),
+        Rule::semi_str |
+        Rule::bang_str |
+        Rule::colons_str |
+        Rule::langle_str |
+        Rule::rangle_str 
+            => s,
         Rule::eq_str => arena.text("=").append(arena.softline()).nest(INDENT_SPACES),
 
         Rule::as_str |
@@ -93,7 +94,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::async_str |
         Rule::auto_str |
         Rule::await_str |
-        Rule::b_str |
         Rule::box_str |
         Rule::break_str |
         Rule::by_str |
@@ -185,10 +185,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::name_ref |
         Rule::lifetime
             => s,
-        Rule::path => unreachable!(),
-        Rule::path_segment => unreachable!(),
+        Rule::path => map_to_doc(arena, pair),
+        Rule::path_segment => map_to_doc(arena, pair),
         Rule::generic_arg_list => unreachable!(),
-        Rule::generic_arg => unreachable!(),
+        Rule::generic_arg => map_to_doc(arena, pair),
         Rule::type_arg => unreachable!(),
         Rule::assoc_type_arg => unreachable!(),
         Rule::lifetime_arg => unreachable!(),
