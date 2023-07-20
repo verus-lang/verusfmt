@@ -309,6 +309,7 @@ const_arg = {
     expr
 }
 
+// TODO: Special handling for the calc! and state_machine! macros?
 macro_call = {
     attr* ~ path ~ bang_str ~ token_tree ~ semi_str?
 }

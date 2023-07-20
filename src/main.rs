@@ -54,6 +54,10 @@ fn format_doc(doc: RefDoc<()>) -> String {
     String::from_utf8(w).unwrap()
 }
 
+// TODO: We'll want special handling for comma-delimited lists; Rust will include a terminal comma 
+//       when spilling to multiple lines and otherwise omit it
+
+
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     match pair.as_rule() {
