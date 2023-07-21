@@ -40,10 +40,25 @@ const INDENT_SPACES: isize = 4;
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/expressions.html
 
+/// Adds a space that turns into a newline plus indentation when in multi-line mode
 fn soft_indent<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
     arena.softline().append(doc).nest(INDENT_SPACES)
 }
 
+fn soft_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
+    arena.text(",").append(arena.softline()).nest(INDENT_SPACES)
+}
+
+fn soft_comma_doc<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
+    arena.text(",").append(arena.softline()).append(doc).nest(INDENT_SPACES)
+}
+
+/// Adds a comma that vanishes in single-line mode
+fn conditional_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
+    arena.text(",").flat_alt(arena.nil()).group()
+}
+
+/// Produce a document that simply combines the result of calling `to_doc` on each child
 fn map_to_doc<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.concat(pair.into_inner().map(|i| to_doc(i, arena)))
 }
@@ -60,6 +75,7 @@ fn format_doc(doc: RefDoc<()>) -> String {
 
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
+    // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
     match pair.as_rule() {
         //***********************//
         // General common things //
@@ -228,8 +244,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::tuple_field_list => unreachable!(),
         Rule::tuple_field => unreachable!(),
         Rule::field_list => unreachable!(),
-        Rule::r#enum => unreachable!(),
-        Rule::variant_list => unreachable!(),
+        Rule::r#enum => map_to_doc(arena, pair),
+        Rule::variant_list => { error!("TODO: pretty variant_list"); s },
         Rule::variant => unreachable!(),
         Rule::union => unreachable!(),
         Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
@@ -243,8 +259,13 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::extern_block => unreachable!(),
         Rule::extern_item_list => unreachable!(),
         Rule::extern_item => unreachable!(),
-        Rule::generic_param_list => unreachable!(),
-        Rule::generic_param => unreachable!(),
+        Rule::generic_param_list => {
+            let mut generics = pair.into_inner();
+            let doc = to_doc(generics.next().unwrap(), arena);  // TODO: Handle empty list
+            doc.append(arena.concat(generics.map(|i| soft_comma_doc(arena, to_doc(i, arena))))).group().append(conditional_comma(arena)).angles()
+        },
+//            arena.intersperse(pair.into_inner().map(|i| to_doc(i, arena)), soft_comma(arena)).append(conditional_comma(arena)).angles(),
+        Rule::generic_param => { error!("TODO: pretty generic_param"); s },
         Rule::type_param => unreachable!(),
         Rule::const_param => unreachable!(),
         Rule::lifetime_param => unreachable!(),

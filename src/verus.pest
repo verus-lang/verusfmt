@@ -561,7 +561,7 @@ extern_item = {
 }
 
 generic_param_list = {
-    langle_str ~ (generic_param ~ ("," ~ generic_param)* ~ ","?)? ~ rangle_str
+    "<" ~ (generic_param ~ ("," ~ generic_param)* ~ ","?)? ~ ">"
 }
 
 generic_param = {
