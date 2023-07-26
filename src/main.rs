@@ -280,9 +280,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 .angles()
                 .group() 
         },
-        Rule::generic_param => { error!("TODO: pretty generic_param"); s },
+        Rule::generic_param => { map_to_doc(arena, pair) }
         Rule::type_param => unreachable!(),
-        Rule::const_param => unreachable!(),
+        Rule::const_param => map_to_doc(arena, pair),
         Rule::lifetime_param => unreachable!(),
         Rule::where_clause => unreachable!(),
         Rule::where_pred => unreachable!(),

@@ -577,7 +577,7 @@ type_param = {
 
 const_param = {
     attr* ~ const_str ~ name ~ ":" ~ type ~
-    (eq_str ~ expr)?
+    (initializer)?
 }
 
 lifetime_param = {
