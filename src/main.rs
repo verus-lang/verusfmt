@@ -55,7 +55,7 @@ fn soft_comma_doc<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> 
 
 /// Adds a comma that vanishes in single-line mode
 fn conditional_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
-    arena.text(",").flat_alt(arena.nil()).group()
+    arena.text(",").flat_alt(arena.nil()) //.group()
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each child
@@ -260,11 +260,26 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::extern_item_list => unreachable!(),
         Rule::extern_item => unreachable!(),
         Rule::generic_param_list => {
-            let mut generics = pair.into_inner();
-            let doc = to_doc(generics.next().unwrap(), arena);  // TODO: Handle empty list
-            doc.append(arena.concat(generics.map(|i| soft_comma_doc(arena, to_doc(i, arena))))).group().append(conditional_comma(arena)).angles()
+//            let mut generics = pair.into_inner();
+//            let doc = to_doc(generics.next().unwrap(), arena);  // TODO: Handle empty list
+//            doc.append(arena.concat(generics.map(|i| soft_comma_doc(arena, to_doc(i, arena))))).group().append(conditional_comma(arena)).angles()
+//        },
+            //arena.intersperse(pair.into_inner().map(|i| to_doc(i, arena)), soft_comma(arena)).append(conditional_comma(arena)).angles()},
+            arena.line_()
+                .append(arena.intersperse(
+                            pair.into_inner().map(|i| to_doc(i, arena)), 
+                            docs![arena, 
+                                  ",", 
+                                  arena.line()
+                            ]
+                            )
+                )
+                .append(conditional_comma(arena))
+                .nest(INDENT_SPACES)
+                .append(arena.line_())
+                .angles()
+                .group() 
         },
-//            arena.intersperse(pair.into_inner().map(|i| to_doc(i, arena)), soft_comma(arena)).append(conditional_comma(arena)).angles(),
         Rule::generic_param => { error!("TODO: pretty generic_param"); s },
         Rule::type_param => unreachable!(),
         Rule::const_param => unreachable!(),
