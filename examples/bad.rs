@@ -10,4 +10,3 @@ verus! {
 enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
 enum SimpleEnumSingleLongGenerics<ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ> { Constructor1 }
 }
-enum SimpleEnumComplexGenerics<#![attrib] const A:T=5+2> { Constructor1 }
