@@ -9,4 +9,5 @@ verus! {
 // #[verifier=abcd] pub(in self::super::crate) enum SimpleEnumSingle<S,T,> { pub Constructor1(pub int), Constructor2 }
 enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
 enum SimpleEnumSingleLongGenerics<ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ> { Constructor1 }
+enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bool,u8), ConsStruct1{x:u8}, ConsStruct2{a:u32, b:bool} }
 }
