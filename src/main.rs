@@ -45,17 +45,25 @@ fn soft_indent<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> Doc
     arena.softline().append(doc).nest(INDENT_SPACES)
 }
 
-fn soft_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
-    arena.text(",").append(arena.softline()).nest(INDENT_SPACES)
-}
-
-fn soft_comma_doc<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
-    arena.text(",").append(arena.softline()).append(doc).nest(INDENT_SPACES)
-}
-
 /// Adds a comma that vanishes in single-line mode
 fn conditional_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     arena.text(",").flat_alt(arena.nil()) //.group()
+}
+
+/// Comma-delimited list with an optional final comma
+fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.line_()
+        .append(arena.intersperse(
+                    pair.into_inner().map(|i| to_doc(i, arena)), 
+                    docs![arena, 
+                          ",", 
+                          arena.line()
+                    ]
+                    )
+        )
+        .append(conditional_comma(arena))
+        .nest(INDENT_SPACES)
+        .append(arena.line_())
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each child
@@ -246,14 +254,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::ret_type => unsupported(pair),
         Rule::type_alias => unsupported(pair),
         Rule::r#struct => unsupported(pair),
-        Rule::record_field_list => unsupported(pair),
-        Rule::record_field => unsupported(pair),
-        Rule::tuple_field_list => unsupported(pair),
-        Rule::tuple_field => unsupported(pair),
-        Rule::field_list => unsupported(pair),
+        Rule::record_field_list => comma_delimited(arena, pair).braces().group(),
+        Rule::record_field => map_to_doc(arena, pair),
+        Rule::tuple_field_list => comma_delimited(arena, pair).parens().group(),
+        Rule::tuple_field => map_to_doc(arena, pair),
+        Rule::field_list => map_to_doc(arena, pair),
         Rule::r#enum => map_to_doc(arena, pair),
-        Rule::variant_list => { error!("TODO: pretty variant_list"); s },
-        Rule::variant => unsupported(pair),
+        Rule::variant_list => arena.space().append(comma_delimited(arena, pair).braces()),
+        Rule::variant => map_to_doc(arena, pair),
         Rule::union => unsupported(pair),
         Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
         Rule::r#const => map_to_doc(arena, pair),
@@ -266,27 +274,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::extern_block => unsupported(pair),
         Rule::extern_item_list => unsupported(pair),
         Rule::extern_item => unsupported(pair),
-        Rule::generic_param_list => {
-//            let mut generics = pair.into_inner();
-//            let doc = to_doc(generics.next().unwrap(), arena);  // TODO: Handle empty list
-//            doc.append(arena.concat(generics.map(|i| soft_comma_doc(arena, to_doc(i, arena))))).group().append(conditional_comma(arena)).angles()
-//        },
-            //arena.intersperse(pair.into_inner().map(|i| to_doc(i, arena)), soft_comma(arena)).append(conditional_comma(arena)).angles()},
-            arena.line_()
-                .append(arena.intersperse(
-                            pair.into_inner().map(|i| to_doc(i, arena)), 
-                            docs![arena, 
-                                  ",", 
-                                  arena.line()
-                            ]
-                            )
-                )
-                .append(conditional_comma(arena))
-                .nest(INDENT_SPACES)
-                .append(arena.line_())
-                .angles()
-                .group() 
-        },
+        Rule::generic_param_list => comma_delimited(arena, pair).angles().group(),
         Rule::generic_param => map_to_doc(arena, pair),
         Rule::type_param => map_to_doc(arena, pair),
         Rule::const_param => unsupported(pair),
