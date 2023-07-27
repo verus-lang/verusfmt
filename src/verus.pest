@@ -166,6 +166,7 @@ byte = @{
 //***********************************************************//
 semi_str = { ";" }
 bang_str = { "!" }
+colon_str = { ":" }
 colons_str = { "::" }
 langle_str = { "<" }
 rangle_str = { ">" }
@@ -298,7 +299,7 @@ type_arg = {
 assoc_type_arg = {
     name_ref ~
     (generic_arg_list | param_list ~ ret_type?)? ~
-    (":" ~ type_bound_list | (eq_str ~ type | const_arg))?
+    (colon_str ~ type_bound_list | (eq_str ~ type | const_arg))?
 }
 
 lifetime_arg = {
@@ -422,26 +423,26 @@ param_list = {
 self_param = {
     attr* ~ (
         ("&" ~ lifetime?)? ~ mut_str? ~ name
-      | mut_str? ~ name ~ ":" ~ type
+      | mut_str? ~ name ~ colon_str ~ type
     )
 }
 
 param = {
     attr* ~ (
-        tracked_str? ~ pat ~ (":" ~ type)?
+        tracked_str? ~ pat ~ (colon_str ~ type)?
         | type
         | "..."
     )
 }
 
 ret_type = {
-    "->" ~ (tracked_str? ~ ("(" ~ pat ~ ":" ~ type ~ ")" | type))
+    "->" ~ (tracked_str? ~ ("(" ~ pat ~ colon_str ~ type ~ ")" | type))
 }
 
 type_alias = {
     attr* ~ visibility? ~
     default_str? ~
-    type_str ~ name ~ generic_param_list? ~ (":" ~ type_bound_list)? ~ where_clause? ~
+    type_str ~ name ~ generic_param_list? ~ (colon_str ~ type_bound_list)? ~ where_clause? ~
     (eq_str ~ type)? ~ semi_str
 }
 
@@ -459,7 +460,7 @@ record_field_list = {
 
 record_field = {
     attr* ~ visibility? ~ data_mode? ~
-    name ~ ":" ~ type
+    name ~ colon_str ~ type
 }
 
 tuple_field_list = {
@@ -505,13 +506,13 @@ initializer = {
 const = {
     attr* ~ visibility? ~
     default_str? ~
-    const_str ~ (name | "_") ~ ":" ~ type ~
+    const_str ~ (name | "_") ~ colon_str ~ type ~
     initializer? ~ semi_str
 }
 
 static = {
     attr* ~ visibility? ~
-    static_str ~ mut_str? ~ name ~ ":" ~ type ~
+    static_str ~ mut_str? ~ name ~ colon_str ~ type ~
     (eq_str ~ expr)? ~ semi_str
 }
 
@@ -519,7 +520,7 @@ trait = {
     attr* ~ visibility? ~
     unsafe_str? ~ auto_str? ~
     trait_str ~ name ~ generic_param_list? ~
-    (":" ~ type_bound_list)? ~ where_clause? ~ assoc_item_list
+    (colon_str ~ type_bound_list)? ~ where_clause? ~ assoc_item_list
 }
 
 trait_alias = {
@@ -571,17 +572,17 @@ generic_param = {
 }
 
 type_param = {
-    attr* ~ name ~ (":" ~ type_bound_list)? ~
+    attr* ~ name ~ (colon_str ~ type_bound_list)? ~
     (eq_str ~ type)?
 }
 
 const_param = {
-    attr* ~ const_str ~ name ~ ":" ~ type ~
+    attr* ~ const_str ~ name ~ colon_str ~ type ~
     (eq_str ~ expr)?
 }
 
 lifetime_param = {
-    attr* ~ lifetime ~ (":" ~ type_bound_list)?
+    attr* ~ lifetime ~ (colon_str ~ type_bound_list)?
 }
 
 where_clause = {
@@ -589,7 +590,7 @@ where_clause = {
 }
 
 where_pred = {
-    (for_str ~ generic_param_list)? ~ (lifetime | type) ~ ":" ~ type_bound_list?
+    (for_str ~ generic_param_list)? ~ (lifetime | type) ~ colon_str ~ type_bound_list?
 }
 
 visibility = {
@@ -618,7 +619,7 @@ stmt = {
 }
 
 let_stmt = {
-    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ pat ~ (":" ~ type)? ~
+    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ pat ~ (colon_str ~ type)? ~
     eq_str ~ expr ~
     let_else? ~
     semi_str
@@ -773,7 +774,7 @@ record_expr_field_list = {
 }
 
 record_expr_field = {
-    attr* ~ (name ~ ":")? ~ expr
+    attr* ~ (name ~ colon_str)? ~ expr
 }
 
 arg_list = {
@@ -808,7 +809,7 @@ while_expr = {
 }
 
 label = {
-    lifetime ~ ":"
+    lifetime ~ colon_str
 }
 
 break_expr = {
@@ -1012,7 +1013,7 @@ record_pat_field_list = {
 }
 
 record_pat_field = {
-    attr* ~ (name_ref ~ ":")? ~ pat
+    attr* ~ (name_ref ~ colon_str)? ~ pat
 }
 
 tuple_struct_pat = {

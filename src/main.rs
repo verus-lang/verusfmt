@@ -80,7 +80,7 @@ fn format_doc(doc: RefDoc<()>) -> String {
 /// Provide some details for parsing rules we don't (yet) support
 fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     let (line, col) = pair.line_col();
-    eprintln!("Unsupported rule {:?} starting at line {}, col {}: {}", pair.as_rule(), line, col, pair.as_str());
+    error!("Unsupported rule {:?} starting at line {}, col {}: {}", pair.as_rule(), line, col, pair.as_str());
     todo!()
 }
 
@@ -121,7 +121,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::langle_str |
         Rule::rangle_str 
             => s,
-        Rule::eq_str => arena.text("=").append(arena.softline()).nest(INDENT_SPACES),
+        Rule::colon_str | 
+        Rule::eq_str => s.append(arena.softline()).nest(INDENT_SPACES),
 
         Rule::as_str |
         Rule::assert_str |
@@ -331,7 +332,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //*************************//
         //          Types          //
         //*************************//
-        Rule::r#type => arena.text(":").append(soft_indent(arena, s)),
+        Rule::r#type => s,
         Rule::paren_type => unsupported(pair),
         Rule::never_type => unsupported(pair),
         Rule::macro_type => unsupported(pair),
