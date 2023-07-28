@@ -429,29 +429,14 @@ fn format_item(item: Pair<Rule>) -> String {
     format_doc(to_doc(item, &arena).into_doc())
 }
 
-fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
-
-    tracing_subscriber::fmt()
-        .with_timer(tracing_subscriber::fmt::time::uptime())
-        .with_level(true)
-        .with_target(false)
-        .with_max_level(match args.debug_level {
-            0 => tracing::Level::WARN,
-            1 => tracing::Level::INFO,
-            2 => tracing::Level::DEBUG,
-            _ => tracing::Level::TRACE,
-        })
-        .init();
-
-    let unparsed_file = fs::read_to_string(&args.file)?;
-    let parsed_file = VerusParser::parse(Rule::file, &unparsed_file)?
+fn parse_and_format(s: &String) -> Result<String, pest::error::Error<Rule>> {
+    let parsed_file = VerusParser::parse(Rule::file, s)?
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")
         .into_inner();
 
-    info!(file = %args.file.display(), "Parsed");
-    trace!(parsed = %parsed_file, "Parsed file");
+//    info!(file = %args.file.display(), "Parsed");
+//    trace!(parsed = %parsed_file, "Parsed file");
 
     let mut formatted_output = String::new();
 
@@ -483,6 +468,26 @@ fn main() -> anyhow::Result<()> {
             _ => unreachable!("Unexpected rule: {:?}", rule),
         }
     }
+    Ok(formatted_output)
+}
+
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    tracing_subscriber::fmt()
+        .with_timer(tracing_subscriber::fmt::time::uptime())
+        .with_level(true)
+        .with_target(false)
+        .with_max_level(match args.debug_level {
+            0 => tracing::Level::WARN,
+            1 => tracing::Level::INFO,
+            2 => tracing::Level::DEBUG,
+            _ => tracing::Level::TRACE,
+        })
+        .init();
+
+    let unparsed_file = fs::read_to_string(&args.file)?;
+    let formatted_output = parse_and_format(&unparsed_file)?;
 
     if args.check {
         if unparsed_file == formatted_output {
