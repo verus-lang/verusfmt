@@ -79,6 +79,7 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
+    println!("Processing rule {:?}", pair.as_rule());
     match pair.as_rule() {
         //***********************//
         // General common things //
@@ -283,7 +284,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::lifetime_param => unsupported(pair),
         Rule::where_clause => unsupported(pair),
         Rule::where_pred => unsupported(pair),
-        Rule::visibility => arena.text(pair.as_str()).append(arena.space()),
+        Rule::visibility => arena.text(pair.as_str()).append(arena.space()),        // TODO: No space
         Rule::attr => arena.text(pair.as_str()).append(arena.hardline()),
         Rule::meta => unsupported(pair),
 
@@ -404,7 +405,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
 
 fn format_item(item: Pair<Rule>) -> String {
     let arena = Arena::<()>::new();
-    format_doc(to_doc(item, &arena).into_doc())
+    let doc = to_doc(item, &arena).into_doc();
+    println!("{:?}", doc);
+    format_doc(doc)
 }
 
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
