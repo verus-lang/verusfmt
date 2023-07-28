@@ -3,8 +3,12 @@ use insta::assert_snapshot;
 
 /// Tests of Verus-specific formatting
 
+
+// This is an example of an insta test.
+// Since we don't currently support verus-specific features, it only uses Rust features
+// but in the future, it should be a Verus-specific test
 #[test]
-fn constants() {
+fn verus_constants() {
     let file = r#"
 verus! {
 #[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
@@ -30,44 +34,4 @@ verus! {
     } // verus!
     "###);
 }
-
-#[test]
-fn enums() {
-    let file = r#"
-verus! {
-enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
-enum SimpleEnumSingleLongGenerics<ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ> { Constructor1 }
-enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bool,u8), ConsStruct1{x:u8}, ConsStruct2{a:u32, b:bool} }
-}"#;
-
-    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
-    verus! {
-
-    enum SimpleEnumSingleBriefGenerics<A, B, C, D, E> {
-        Constructor1,
-    }
-    enum SimpleEnumSingleLongGenerics<
-        ABCDEFGHIJKLMNOPQRSTUVWXYZ,
-        ABCDEFGHIJKLMNOPQRSTUVWXYZ,
-        ABCDEFGHIJKLMNOPQRSTUVWXYZ,
-        ABCDEFGHIJKLMNOPQRSTUVWXYZ,
-    > {
-        Constructor1,
-    }
-    enum SimpleEnumConstructors<A, B, C, D, E> {
-        ConsIdentifier,
-        ConsTupleStruct1(u32, bool, u8),
-        ConsStruct1 { 
-            x: u8,
-        },
-        ConsStruct2 { 
-            a: u32,
-            b: bool,
-        },
-    }
-
-    } // verus!
-    "###);
-}
-
 

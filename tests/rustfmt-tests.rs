@@ -32,18 +32,7 @@ fn rustfmt(value: &str) -> Option<String> {
     None
 }
 
-
-#[test]
-fn rust_constants() {
-    let file = r#"
-const MY_CONST1 : u32 = 1;
-const MY_CONST2 : u32 = 2;
-"#;
-//    let file = r#"
-//#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-//#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST2 : some_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-//#[verifier=abcd] pub(in self::super::crate) default const MY_CONST3: some_type = 5;
-//"#;
+fn compare(file: &str) {
     let verus_file = format!("{}{}{}", VERUS_PREFIX, file, VERUS_SUFFIX);
     let verus_fmt = parse_and_format(&verus_file).unwrap();
     let start = VERUS_PREFIX.len();
@@ -59,14 +48,27 @@ const MY_CONST2 : u32 = 2;
         Some(("rust", "verus")),
     );
     assert_eq!(rust_fmt, verus_inner, "{diff}");
+
 }
-/*
+
+
 #[test]
-fn test_enums() {
+fn rust_constants() {
     let file = r#"
-verus! {
+#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST2 : some_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+#[verifier=abcd] pub(in self::super::crate) default const MY_CONST3: some_type = 5;
+"#;
+    compare(file);
+}
+
+#[test]
+fn rust_enums() {
+    let file = r#"
 enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
 enum SimpleEnumSingleLongGenerics<ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ> { Constructor1 }
 enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bool,u8), ConsStruct1{x:u8}, ConsStruct2{a:u32, b:bool} }
-}"#;
-*/
+"#;
+    compare(file);
+}
+

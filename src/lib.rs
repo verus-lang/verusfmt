@@ -255,7 +255,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::ret_type => unsupported(pair),
         Rule::type_alias => unsupported(pair),
         Rule::r#struct => unsupported(pair),
-        Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)), //.group(),
+        Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)).group(),
         Rule::record_field => map_to_doc(arena, pair),
         Rule::tuple_field_list => comma_delimited(arena, pair).parens().group(),
         Rule::tuple_field => map_to_doc(arena, pair),
