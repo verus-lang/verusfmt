@@ -47,7 +47,7 @@ fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> D
     arena.space().append(
         docs![
             arena,
-            arena.space(),
+            arena.nil().flat_alt(arena.space()),
             doc,
             arena.nil().flat_alt(arena.space()),
         ].braces()

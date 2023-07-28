@@ -68,6 +68,15 @@ fn rust_enums() {
 enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
 enum SimpleEnumSingleLongGenerics<ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ> { Constructor1 }
 enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bool,u8), ConsStruct1{x:u8}, ConsStruct2{a:u32, b:bool} }
+enum Enum {
+    ConsIdentifier,
+    ConsTupleStruct1(u32, bool, u8),
+    ConsStruct2 {
+        a_very_very_very_very_very_very_long_name:
+            a_very_very_very_very_very_very_very_very_very_very_very_very_long_type,
+        b: bool,
+    },
+}
 "#;
     compare(file);
 }

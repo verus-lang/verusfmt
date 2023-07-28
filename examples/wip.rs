@@ -1,7 +1,14 @@
 // Example that's currently being used for experimentation
 verus! {
 
-const MY_CONST1: u32 = 1;
-const MY_CONST2: u32 = 2;
+enum Enum {
+    ConsIdentifier,
+    ConsTupleStruct1(u32, bool, u8),
+    ConsStruct2 {
+        a_very_very_very_very_very_very_long_name:
+            a_very_very_very_very_very_very_very_very_very_very_very_very_long_type,
+        b: bool,
+    },
+}
 
 } // verus!
