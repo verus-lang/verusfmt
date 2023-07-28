@@ -2,6 +2,7 @@
 name = "verusfmt"
 version = "0.1.0"
 edition = "2021"
+autoexamples = false
 
 [dependencies]
 anyhow = "1.0.71"
@@ -14,3 +15,14 @@ pretty = "0.12.1"
 similar = "2.2.1"
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17" }
+
+[dev-dependencies]
+insta = { version = "1.30.0" }
+
+# Spend more time on initial compilation in exchange for faster runs
+[profile.dev.package.insta]
+opt-level = 3
+
+# Spend more time on initial compilation in exchange for faster runs
+[profile.dev.package.similar]
+opt-level = 3

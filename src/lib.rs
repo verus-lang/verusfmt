@@ -406,7 +406,7 @@ fn format_item(item: Pair<Rule>) -> String {
     format_doc(to_doc(item, &arena).into_doc())
 }
 
-pub fn parse_and_format(s: &String) -> Result<String, pest::error::Error<Rule>> {
+pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let parsed_file = VerusParser::parse(Rule::file, s)?
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")
