@@ -1,9 +1,10 @@
 use verusfmt::parse_and_format;
 use insta::assert_snapshot;
 
+/// Tests for Verus-specific formatting
 
 #[test]
-fn test_constants() {
+fn constants() {
     let file = r#"
 verus! {
 #[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
@@ -33,7 +34,7 @@ verus! {
 }
 
 #[test]
-fn test_enums() {
+fn enums() {
     let file = r#"
 verus! {
 enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
