@@ -66,6 +66,17 @@ fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuild
         .append(arena.line_())
 }
 
+fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
+    arena.space().append(
+        docs![
+            arena,
+            arena.space(),
+            doc,
+            arena.nil().flat_alt(arena.space()),
+        ].braces()
+    )
+}
+
 /// Produce a document that simply combines the result of calling `to_doc` on each child
 fn map_to_doc<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.concat(pair.into_inner().map(|i| to_doc(i, arena)))
@@ -121,20 +132,21 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::langle_str |
         Rule::rangle_str 
             => s,
-        Rule::colon_str | 
+        Rule::colon_str => 
+            docs![
+                arena,
+                s,
+                arena.line_(),
+                arena.space()
+            ].nest(INDENT_SPACES-1).group(), 
         Rule::eq_str => 
-            // When we have: foo : bar = bas
-            // This produces:
-            // foo:
-            //   bar = 
-            //     baz
-            s.append(arena.line_()).append(arena.space()).nest(INDENT_SPACES-1), 
-            // This produces:
-            // foo:
-            // bar = 
-            //   baz
-            s.append(arena.softline()).nest(INDENT_SPACES),
-
+            docs![
+                arena,
+                arena.space(),
+                s,
+                arena.line_(),
+                arena.space()
+            ].nest(INDENT_SPACES-1).group(), 
         Rule::as_str |
         Rule::assert_str |
         Rule::assume_str |
@@ -266,7 +278,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::ret_type => unsupported(pair),
         Rule::type_alias => unsupported(pair),
         Rule::r#struct => unsupported(pair),
-        Rule::record_field_list => comma_delimited(arena, pair).braces().group(),
+        Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)), //.group(),
         Rule::record_field => map_to_doc(arena, pair),
         Rule::tuple_field_list => comma_delimited(arena, pair).parens().group(),
         Rule::tuple_field => map_to_doc(arena, pair),
@@ -275,7 +287,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::variant_list => arena.space().append(comma_delimited(arena, pair).braces()),
         Rule::variant => map_to_doc(arena, pair),
         Rule::union => unsupported(pair),
-        Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
+        //Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
         Rule::r#const => map_to_doc(arena, pair),
         Rule::r#static => unsupported(pair),
         Rule::r#trait => unsupported(pair),

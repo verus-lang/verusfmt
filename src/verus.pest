@@ -490,7 +490,7 @@ variant_list = {
 
 variant = {
     attr* ~ visibility? ~
-    name ~ field_list? ~ (initializer)?
+    name ~ field_list? ~ (eq_str ~ expr)?
 }
 
 union = {
@@ -499,15 +499,11 @@ union = {
     record_field_list
 }
 
-initializer = {
-    eq_str ~ expr
-}
-
 const = {
     attr* ~ visibility? ~
     default_str? ~
     const_str ~ (name | "_") ~ colon_str ~ type ~
-    initializer? ~ semi_str
+    eq_str ~ expr? ~ semi_str
 }
 
 static = {
