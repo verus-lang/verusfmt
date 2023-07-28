@@ -122,7 +122,18 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::rangle_str 
             => s,
         Rule::colon_str | 
-        Rule::eq_str => s.append(arena.softline()).nest(INDENT_SPACES),
+        Rule::eq_str => 
+            // When we have: foo : bar = bas
+            // This produces:
+            // foo:
+            //   bar = 
+            //     baz
+            s.append(arena.line_()).append(arena.space()).nest(INDENT_SPACES-1), 
+            // This produces:
+            // foo:
+            // bar = 
+            //   baz
+            s.append(arena.softline()).nest(INDENT_SPACES),
 
         Rule::as_str |
         Rule::assert_str |
