@@ -406,6 +406,9 @@ fn format_item(item: Pair<Rule>) -> String {
     format_doc(to_doc(item, &arena).into_doc())
 }
 
+pub const VERUS_PREFIX: &str = "verus! {\n\n";
+pub const VERUS_SUFFIX: &str = "\n} // verus!\n";
+
 pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let parsed_file = VerusParser::parse(Rule::file, s)?
         .next()
@@ -428,16 +431,16 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 let body = pair.into_inner().collect::<Vec<_>>();
                 assert_eq!(body.len(), 1);
                 let body = body.into_iter().next().unwrap();
-                formatted_output += "verus! {\n\n";
+                formatted_output += VERUS_PREFIX;
                 for item in body.into_inner() {
                     if item.as_rule() == Rule::COMMENT {
                         formatted_output += item.as_str();
                     } else {
                         formatted_output += &format_item(item);
-                        formatted_output += "\n\n";
+                        formatted_output += "\n";
                     }
                 }
-                formatted_output += "} // verus!\n";
+                formatted_output += VERUS_SUFFIX;
             }
             Rule::EOI => {
                 // end of input; do nothing

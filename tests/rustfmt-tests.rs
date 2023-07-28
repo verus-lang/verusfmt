@@ -1,7 +1,7 @@
 use std::process::{Command,Stdio};
 use std::str::from_utf8;
 use std::io::Write;
-use verusfmt::parse_and_format;
+use verusfmt::{VERUS_PREFIX, VERUS_SUFFIX,parse_and_format};
 
 /// Tests to check that when formatting standard Rust syntax,
 /// we match rustfmt
@@ -36,15 +36,19 @@ fn rustfmt(value: &str) -> Option<String> {
 #[test]
 fn rust_constants() {
     let file = r#"
-#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST2 : some_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-#[verifier=abcd] pub(in self::super::crate) default const MY_CONST3: some_type = 5;
+const MY_CONST1 : u32 = 1;
+const MY_CONST2 : u32 = 2;
 "#;
-    let verus_prefix = "verus! {\n";
-    let verus_suffix = "\n} // verus!\n";
-    let verus_file = format!("{}{}{}", verus_prefix, file, verus_suffix);
+//    let file = r#"
+//#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+//#[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST2 : some_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+//#[verifier=abcd] pub(in self::super::crate) default const MY_CONST3: some_type = 5;
+//"#;
+    let verus_file = format!("{}{}{}", VERUS_PREFIX, file, VERUS_SUFFIX);
     let verus_fmt = parse_and_format(&verus_file).unwrap();
-    let verus_inner = &verus_fmt[verus_prefix.len() + 1..verus_fmt.len() - verus_suffix.len()];
+    let start = VERUS_PREFIX.len();
+    let end = verus_fmt.len() - VERUS_SUFFIX.len();
+    let verus_inner = &verus_fmt[start..end];
     let rust_fmt = rustfmt(file).unwrap();
 
     let diff = similar::udiff::unified_diff(

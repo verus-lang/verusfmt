@@ -1,7 +1,7 @@
 use verusfmt::parse_and_format;
 use insta::assert_snapshot;
 
-/// Tests for Verus-specific formatting
+/// Tests of Verus-specific formatting
 
 #[test]
 fn constants() {
@@ -20,12 +20,10 @@ verus! {
     pub(in self::super::crate) default const MY_CONST1:
         some_very_very_very_very_very_very_very_very_very_very_very_very_long_type =
         "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-
     #[verifier=abcd]
     #[verifier=efgh]
     pub(in self::super::crate) default const MY_CONST2: some_type =
         "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
-
     #[verifier=abcd]
     pub(in self::super::crate) default const MY_CONST3: some_type = 5;
 
@@ -48,7 +46,6 @@ enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bo
     enum SimpleEnumSingleBriefGenerics<A, B, C, D, E> {
         Constructor1,
     }
-
     enum SimpleEnumSingleLongGenerics<
         ABCDEFGHIJKLMNOPQRSTUVWXYZ,
         ABCDEFGHIJKLMNOPQRSTUVWXYZ,
@@ -57,7 +54,6 @@ enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bo
     > {
         Constructor1,
     }
-
     enum SimpleEnumConstructors<A, B, C, D, E> {
         ConsIdentifier,
         ConsTupleStruct1(u32, bool, u8),
