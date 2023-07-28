@@ -454,7 +454,13 @@ struct = {
     )
 }
 
+// Each record must have its own line
 record_field_list = {
+    "{" ~ (record_field ~ ("," ~ record_field)* ~ ","?)? ~ "}"
+}
+
+// Records may be condensed onto a single line if sufficiently short
+condensable_record_field_list = {
     "{" ~ (record_field ~ ("," ~ record_field)* ~ ","?)? ~ "}"
 }
 
@@ -474,7 +480,7 @@ tuple_field = {
 }
 
 field_list = {
-    record_field_list
+    condensable_record_field_list
   | tuple_field_list
 }
 

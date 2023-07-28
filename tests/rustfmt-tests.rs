@@ -26,6 +26,8 @@ fn rustfmt(value: &str) -> Option<String> {
                 return Some(from_utf8(&output.stdout)
                     .unwrap()
                     .into());
+            } else {
+                eprintln!("rustfmt failed! {}", from_utf8(&output.stderr).unwrap());
             }
         }
     }
@@ -81,3 +83,16 @@ enum Enum {
     compare(file);
 }
 
+#[test]
+fn rust_structs() {
+    let file = r#"
+struct Foo { a: A, b: B }
+struct Struct2 {
+    a_very_very__very_very_very_very_very_very_long_name:
+        a_very_very_very_very_very_very_very_very_very_very_very_very_long_type,
+    b: bool,
+    c: u32,
+}
+"#;
+    compare(file);
+}

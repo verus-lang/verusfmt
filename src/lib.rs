@@ -68,7 +68,7 @@ fn format_doc(doc: RefDoc<()>) -> String {
 /// Provide some details for parsing rules we don't (yet) support
 fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     let (line, col) = pair.line_col();
-    error!("Unsupported rule {:?} starting at line {}, col {}: {}", pair.as_rule(), line, col, pair.as_str());
+    error!("Unsupported parsing object '{:?}', starting at line {}, col {}: {}", pair.as_rule(), line, col, pair.as_str());
     todo!()
 }
 
@@ -254,8 +254,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::param => unsupported(pair),
         Rule::ret_type => unsupported(pair),
         Rule::type_alias => unsupported(pair),
-        Rule::r#struct => unsupported(pair),
-        Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)).group(),
+        Rule::r#struct => map_to_doc(arena, pair),
+        Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)),
+        Rule::condensable_record_field_list => spaced_braces(arena, comma_delimited(arena, pair)).group(),
         Rule::record_field => map_to_doc(arena, pair),
         Rule::tuple_field_list => comma_delimited(arena, pair).parens().group(),
         Rule::tuple_field => map_to_doc(arena, pair),
