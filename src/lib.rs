@@ -72,6 +72,8 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     todo!()
 }
 
+// TODO: Be sure that comments are being handled properly
+
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
@@ -184,6 +186,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::requires_str |
         Rule::return_str |
         Rule::self_str |
+        Rule::Self_str |
         Rule::spec_str |
         Rule::static_str |
         Rule::struct_str |
@@ -392,10 +395,15 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::prover => unsupported(pair),
         Rule::trigger_attribute => unsupported(pair),
 
-        _ => {
-            error!("TODO: format {:?} before returning", pair.as_rule());
-            arena.text(pair.as_str().to_owned())
-        }
+        Rule::WHITESPACE => arena.nil(),
+        Rule::COMMENT => s,
+        Rule::multiline_comment => s,
+        Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::verus_macro_body | Rule::EOI => unreachable!(),
+
+//        _ => {
+//            error!("TODO: format {:?} before returning", pair.as_rule());
+//            arena.text(pair.as_str().to_owned())
+//        }
     }
 }
 
