@@ -93,6 +93,7 @@ struct Struct2 {
     b: bool,
     c: u32,
 }
+pub struct Bar(String, u8);
 "#;
     compare(file);
 }

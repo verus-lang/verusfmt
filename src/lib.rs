@@ -15,7 +15,7 @@ const NUMBER_OF_COLUMNS: usize = 120;
 const INDENT_SPACES: isize = 4;
 
 // When in doubt, we should generally try to stick to Rust style guidelines:
-//   https://doc.rust-lang.org/beta/style-guide/expressions.html
+//   https://doc.rust-lang.org/beta/style-guide/items.html
 
 /// Adds a space that turns into a newline plus indentation when in multi-line mode
 fn soft_indent<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
@@ -72,14 +72,10 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     todo!()
 }
 
-// TODO: We'll want special handling for comma-delimited lists; Rust will include a terminal comma 
-//       when spilling to multiple lines and otherwise omit it
-
-
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
-    println!("Processing rule {:?}", pair.as_rule());
+    debug!("Processing rule {:?}", pair.as_rule());
     match pair.as_rule() {
         //***********************//
         // General common things //
@@ -284,7 +280,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::lifetime_param => unsupported(pair),
         Rule::where_clause => unsupported(pair),
         Rule::where_pred => unsupported(pair),
-        Rule::visibility => arena.text(pair.as_str()).append(arena.space()),        // TODO: No space
+        Rule::visibility => s.append(arena.space()),
         Rule::attr => arena.text(pair.as_str()).append(arena.hardline()),
         Rule::meta => unsupported(pair),
 
@@ -406,7 +402,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
 fn format_item(item: Pair<Rule>) -> String {
     let arena = Arena::<()>::new();
     let doc = to_doc(item, &arena).into_doc();
-    println!("{:?}", doc);
+    debug!("{:?}", doc);
     format_doc(doc)
 }
 
