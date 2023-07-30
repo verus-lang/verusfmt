@@ -167,17 +167,22 @@ byte = @{
 //***********************************************************//
 // Fixed strings we want to preserve in the formatted output //
 //***********************************************************//
-semi_str = { ";" }
+at_str = { "@" }
 bang_str = { "!" }
 colon_str = { ":" }
 colons_str = { "::" }
+dash_str = { "-" }
+dot_dot_str = { ".." }
+dot_dot_eq_str = { "..=" }
 ellipses_str = { "..." }
 eq_str = { "=" }
 langle_str = { "<" }
 lparen_str = { "(" }
+pipe_str = { "|" }
 rangle_str = { ">" }
 rarrow_str = { "->" }
 rparen_str = { ")" }
+semi_str = { ";" }
 as_str = { "as" }
 assert_str = { "assert" }
 assume_str = { "assume" }
@@ -966,9 +971,9 @@ type_bound = {
 pat = {
     pat_inner ~ (
         // range_pat (for 1.. or 1..2)
-        ("..=" | "..") ~ pat?
+        (dot_dot_eq_str | dot_dot_str) ~ pat?
         // or_pat
-      | ("|" ~ pat_inner)* ~ "|"?
+      | (pipe_str ~ pat_inner)* ~ pipe_str?
     )?
 }
 
@@ -991,11 +996,11 @@ pat_inner = {
 }
 
 literal_pat = {
-    "-"? ~ literal
+    dash_str? ~ literal
 }
 
 ident_pat = {
-    attr* ~ ref_str? ~ mut_str? ~ name ~ ("@" ~ pat)?
+    attr* ~ ref_str? ~ mut_str? ~ name ~ (at_str ~ pat)?
 }
 
 wildcard_pat = {
@@ -1003,7 +1008,7 @@ wildcard_pat = {
 }
 
 end_only_range_pat = {
-    ("..=" | "..") ~ pat
+    (dot_dot_eq_str | dot_dot_str) ~ pat
 }
 
 ref_pat = {
@@ -1025,8 +1030,12 @@ record_pat_field = {
     attr* ~ (name_ref ~ colon_str)? ~ pat
 }
 
+tuple_struct_pat_inner = {
+    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+}
+
 tuple_struct_pat = {
-    path ~ "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+    path ~ tuple_struct_pat_inner
 }
 
 tuple_pat = {
@@ -1050,7 +1059,7 @@ box_pat = {
 }
 
 rest_pat = {
-    attr* ~ ".."
+    attr* ~ dot_dot_str
 }
 
 macro_pat = {

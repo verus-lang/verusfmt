@@ -102,14 +102,19 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //***********************************************************//
         // Fixed strings we want to preserve in the formatted output //
         //***********************************************************//
-        Rule::semi_str |
+        Rule::at_str |
         Rule::bang_str |
         Rule::colons_str |
+        Rule::dash_str |
+        Rule::dot_dot_str |
+        Rule::dot_dot_eq_str |
         Rule::ellipses_str |
         Rule::langle_str |
         Rule::lparen_str |
+        Rule::pipe_str |
         Rule::rangle_str |
-        Rule::rparen_str
+        Rule::rparen_str |
+        Rule::semi_str
             => s,
         Rule::rarrow_str => docs![arena, arena.space(), s, arena.space()],
         Rule::colon_str => 
@@ -300,18 +305,18 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //****************************//
         // Statements and Expressions //
         //****************************//
-        Rule::stmt => unsupported(pair),
-        Rule::let_stmt => unsupported(pair),
+        Rule::stmt => map_to_doc(arena, pair),
+        Rule::let_stmt => map_to_doc(arena, pair),
         Rule::let_else => unsupported(pair),
         Rule::expr => { error!("TODO: pretty exprs"); s },
         Rule::expr_inner => unsupported(pair),
         Rule::macro_expr => unsupported(pair),
         Rule::literal => unsupported(pair),
         Rule::path_expr => unsupported(pair),
-        Rule::stmt_list => unsupported(pair),
+        Rule::stmt_list => spaced_braces(arena, map_to_doc(arena, pair)),
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
-        Rule::block_expr => unsupported(pair),
+        Rule::block_expr => map_to_doc(arena, pair),
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
         Rule::paren_expr => unsupported(pair),
@@ -364,23 +369,25 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //************************//
         //        Patterns        //
         //************************//
-        Rule::pat => unsupported(pair),
-        Rule::pat_inner => unsupported(pair),
-        Rule::literal_pat => unsupported(pair),
-        Rule::ident_pat => unsupported(pair),
-        Rule::wildcard_pat => unsupported(pair),
-        Rule::end_only_range_pat => unsupported(pair),
-        Rule::ref_pat => unsupported(pair),
-        Rule::record_pat => unsupported(pair),
-        Rule::record_pat_field_list => unsupported(pair),
-        Rule::record_pat_field => unsupported(pair),
-        Rule::tuple_struct_pat => unsupported(pair),
-        Rule::tuple_pat => unsupported(pair),
-        Rule::paren_pat => unsupported(pair),
-        Rule::slice_pat => unsupported(pair),
-        Rule::path_pat => unsupported(pair),
-        Rule::box_pat => unsupported(pair),
-        Rule::rest_pat => unsupported(pair),
+        Rule::pat => map_to_doc(arena, pair),
+        Rule::pat_inner => map_to_doc(arena, pair),
+        Rule::literal_pat => map_to_doc(arena, pair),
+        Rule::ident_pat => map_to_doc(arena, pair),
+        Rule::wildcard_pat => arena.text("_"),
+        Rule::end_only_range_pat => map_to_doc(arena, pair),
+        Rule::ref_pat => arena.text("&").append(map_to_doc(arena, pair)),
+        Rule::record_pat => map_to_doc(arena, pair),
+        Rule::record_pat_field_list => comma_delimited(arena, pair).braces().group(),   // TODO: Handle vanishing comma's interaction with rest_pat
+        Rule::record_pat_field => map_to_doc(arena, pair),
+        Rule::tuple_struct_pat_inner => comma_delimited(arena, pair).parens().group(),
+        Rule::tuple_struct_pat => map_to_doc(arena, pair), 
+        Rule::tuple_pat => comma_delimited(arena, pair).parens().group(),
+        Rule::paren_pat => map_to_doc(arena, pair).parens(),
+        Rule::slice_pat => comma_delimited(arena, pair).brackets().group(),
+        Rule::path_pat => map_to_doc(arena, pair),
+        Rule::box_pat => map_to_doc(arena, pair),
+        Rule::rest_pat => map_to_doc(arena, pair),  // TODO: Should the attributes on this be on
+                                                    // the same line?
         Rule::macro_pat => unsupported(pair),
         Rule::const_block_pat => unsupported(pair),
 
