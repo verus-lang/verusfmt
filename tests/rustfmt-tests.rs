@@ -41,6 +41,7 @@ fn compare(file: &str) {
     let end = verus_fmt.len() - VERUS_SUFFIX.len();
     let verus_inner = &verus_fmt[start..end];
     let rust_fmt = rustfmt(file).unwrap();
+    println!("{}", rust_fmt);
 
     let diff = similar::udiff::unified_diff(
         similar::Algorithm::Patience,
@@ -94,6 +95,18 @@ struct Struct2 {
     c: u32,
 }
 pub struct Bar(String, u8);
+struct Unit();
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_functions() {
+    let file = r#"
+#[verifier=abcd]
+pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32;    
+pub fn test_function<A, B, C>(long_var_name_1: LongLongLongTypeName, long_var_name_2: LongLongLongTypeName, long_var_name_3: LongLongLongTypeName) -> u32;    
+"#;
+    compare(file);
+}
+

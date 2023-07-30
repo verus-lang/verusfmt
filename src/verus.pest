@@ -161,6 +161,9 @@ byte = @{
     "b" ~ char
 }
 
+
+
+
 //***********************************************************//
 // Fixed strings we want to preserve in the formatted output //
 //***********************************************************//
@@ -168,9 +171,13 @@ semi_str = { ";" }
 bang_str = { "!" }
 colon_str = { ":" }
 colons_str = { "::" }
-langle_str = { "<" }
-rangle_str = { ">" }
+ellipses_str = { "..." }
 eq_str = { "=" }
+langle_str = { "<" }
+lparen_str = { "(" }
+rangle_str = { ">" }
+rarrow_str = { "->" }
+rparen_str = { ")" }
 as_str = { "as" }
 assert_str = { "assert" }
 assume_str = { "assume" }
@@ -429,14 +436,14 @@ self_param = {
 
 param = {
     attr* ~ (
-        tracked_str? ~ pat ~ (colon_str ~ type)?
+        tracked_str? ~ name ~ (colon_str ~ type)?
         | type
-        | "..."
+        | ellipses_str
     )
 }
 
 ret_type = {
-    "->" ~ (tracked_str? ~ ("(" ~ pat ~ colon_str ~ type ~ ")" | type))
+    rarrow_str ~ (tracked_str? ~ (lparen_str ~ name ~ colon_str ~ type ~ rparen_str | type))
 }
 
 type_alias = {

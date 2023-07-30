@@ -105,9 +105,13 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::semi_str |
         Rule::bang_str |
         Rule::colons_str |
+        Rule::ellipses_str |
         Rule::langle_str |
-        Rule::rangle_str 
+        Rule::lparen_str |
+        Rule::rangle_str |
+        Rule::rparen_str
             => s,
+        Rule::rarrow_str => docs![arena, arena.space(), s, arena.space()],
         Rule::colon_str => 
             docs![
                 arena,
@@ -247,12 +251,18 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::r#use => unsupported(pair),
         Rule::use_tree => unsupported(pair),
         Rule::use_tree_list => unsupported(pair),
-        Rule::r#fn => unsupported(pair),
+        Rule::r#fn => map_to_doc(arena, pair),
         Rule::abi => unsupported(pair),
-        Rule::param_list => unsupported(pair),
+        Rule::param_list => { 
+            if pair.as_str().starts_with('(') {
+                comma_delimited(arena, pair).parens().group()
+            } else { 
+                comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group()
+            }
+        }
         Rule::self_param => unsupported(pair),
-        Rule::param => unsupported(pair),
-        Rule::ret_type => unsupported(pair),
+        Rule::param => map_to_doc(arena, pair),
+        Rule::ret_type => map_to_doc(arena, pair),
         Rule::type_alias => unsupported(pair),
         Rule::r#struct => map_to_doc(arena, pair),
         Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)),
