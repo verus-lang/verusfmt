@@ -305,7 +305,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //****************************//
         // Statements and Expressions //
         //****************************//
-        Rule::stmt => map_to_doc(arena, pair),
+        Rule::stmt => map_to_doc(arena, pair).append(arena.line()).nest(INDENT_SPACES),
         Rule::let_stmt => map_to_doc(arena, pair),
         Rule::let_else => unsupported(pair),
         Rule::expr => { error!("TODO: pretty exprs"); s },
@@ -313,7 +313,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::macro_expr => unsupported(pair),
         Rule::literal => unsupported(pair),
         Rule::path_expr => unsupported(pair),
-        Rule::stmt_list => spaced_braces(arena, map_to_doc(arena, pair)),
+        Rule::stmt_list => spaced_braces(arena, map_to_doc(arena, pair)).group(),
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
