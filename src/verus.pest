@@ -764,15 +764,23 @@ bin_expr_ops = {
   | "=" | "+=" | "/=" | "*=" | "%=" | ">>=" | "<<=" | "-=" | "|=" | "&=" | "^="
 }
 
-paren_expr = {
-    attr* ~ "(" ~ expr ~ ")"
+paren_expr_inner = {
+    "(" ~ expr ~ ")"
 }
 
-array_expr = {
-    attr* ~ "[" ~ attr* ~ (
+paren_expr = {
+    attr* ~ paren_expr_inner
+}
+
+array_expr_inner = {
+    "[" ~ attr* ~ (
         expr ~ semi_str ~ expr
       | comma_delimited_exprs?
     ) ~ "]"
+}
+
+array_expr = {
+    attr* ~ array_expr_inner
 }
 
 tuple_expr_inner = {

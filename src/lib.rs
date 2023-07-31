@@ -44,16 +44,33 @@ fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuild
         .append(arena.line_())
 }
 
-/// Parens around a comma-delimited list with an optional final comma,
-/// where the opening paren tries to "stick" to the previous line if needed
-fn sticky_paren_list<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+enum Enclosure {
+    Braces,
+    Brackets,
+    Parens,
+}
+
+/// Wrap a comma-delimited list with an optional final comma,
+/// where the opening enclosure's symbol tries to "stick" to the previous line if needed
+fn sticky_list<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure) -> DocBuilder<'a,Arena<'a>> {
+    use Enclosure::*;
+    let opening = match enc {
+        Braces => "{",
+        Brackets => "[",
+        Parens => "(",
+    };
+    let closing = match enc {
+        Braces => "}",
+        Brackets => "]",
+        Parens => ")",
+    };
     docs![
         arena,
-        arena.text("("),
+        opening,
         arena.line_(),
     ].group()
     .append(map_to_doc(arena, pair)).group()
-    .append(arena.text(")"))
+    .append(arena.text(closing))
 }
 
 fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
@@ -345,17 +362,19 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::stmt_list => block_braces(arena, map_to_doc(arena, pair)),
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
-        Rule::block_expr => map_to_doc(arena, pair),
+        Rule::block_expr => map_to_doc(arena, pair), //sticky_list(arena, pair, Enclosure::Braces),
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
-        Rule::paren_expr => unsupported(pair),
-        Rule::array_expr => unsupported(pair),
-        Rule::tuple_expr_inner => sticky_paren_list(arena, pair),
+        Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
+        Rule::paren_expr => map_to_doc(arena, pair),
+        Rule::array_expr_inner => sticky_list(arena, pair, Enclosure::Brackets),
+        Rule::array_expr => map_to_doc(arena, pair),
+        Rule::tuple_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
         Rule::tuple_expr => map_to_doc(arena, pair),
         Rule::record_expr => unsupported(pair),
         Rule::record_expr_field_list => unsupported(pair),
         Rule::record_expr_field => unsupported(pair),
-        Rule::arg_list => sticky_paren_list(arena, pair),
+        Rule::arg_list => sticky_list(arena, pair, Enclosure::Parens),
         Rule::closure_expr => unsupported(pair),
         Rule::if_expr => unsupported(pair),
         Rule::loop_expr => unsupported(pair),
