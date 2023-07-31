@@ -54,6 +54,16 @@ fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> D
     )
 }
 
+fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
+    arena.space().append(
+        docs![
+            arena,
+            arena.line().append(doc).nest(INDENT_SPACES),
+            arena.line(),
+        ].braces()
+    )
+}
+
 /// Produce a document that simply combines the result of calling `to_doc` on each child
 fn map_to_doc<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.concat(pair.into_inner().map(|i| to_doc(i, arena)))
@@ -72,7 +82,7 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     todo!()
 }
 
-// TODO: Be sure that comments are being handled properly
+// TODO: Be sure that comments are being handled properly.  `//` comments should start with a space
 
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
@@ -305,7 +315,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //****************************//
         // Statements and Expressions //
         //****************************//
-        Rule::stmt => map_to_doc(arena, pair).append(arena.line()).nest(INDENT_SPACES),
+        Rule::stmt => map_to_doc(arena, pair).append(arena.line()),
         Rule::let_stmt => map_to_doc(arena, pair),
         Rule::let_else => unsupported(pair),
         Rule::expr => { error!("TODO: pretty exprs"); s },
@@ -313,7 +323,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::macro_expr => unsupported(pair),
         Rule::literal => unsupported(pair),
         Rule::path_expr => unsupported(pair),
-        Rule::stmt_list => spaced_braces(arena, map_to_doc(arena, pair)).group(),
+        Rule::stmt_list => block_braces(arena, map_to_doc(arena, pair)),
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
