@@ -2,9 +2,12 @@
 verus! {
 
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
-    let x = a;
-    let mut z = b;
-    c
+    let x = (
+        a_long_long_long_long_long_long_long_long_long_long_long_long_expr,
+        another_very_long_expr,
+        c,
+    );
+    a
 }
 
 } // verus!

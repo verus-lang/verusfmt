@@ -108,9 +108,16 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32;
 pub fn test_function<A, B, C>(long_var_name_1: LongLongLongTypeName, long_var_name_2: LongLongLongTypeName, long_var_name_3: LongLongLongTypeName) -> u32;    
 pub fn test_function1<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 { let x = a; let mut z = b; c }
 pub fn test_function2<A, B, C>(a: u32) -> u32 { a }
-pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+    let long_long_long_long_long_long_long_long_name: LongLongLongLongLongLongLongLongType = long_long_function_name(a);
     let x = a;
     let mut z = b;
+    let long_long_long_long_long_long_long_long_name: LongLongLongLongLongLongLongLongLongLongType = long_long_function_name(a);
+    let x = (
+        a_long_long_long_long_long_long_long_long_long_long_long_long_expr,
+        another_very_long_expr,
+        c,
+    );
     c
 }
 "#;

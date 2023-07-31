@@ -172,15 +172,19 @@ bang_str = { "!" }
 colon_str = { ":" }
 colons_str = { "::" }
 dash_str = { "-" }
+dot_str = { ".." }
 dot_dot_str = { ".." }
 dot_dot_eq_str = { "..=" }
 ellipses_str = { "..." }
 eq_str = { "=" }
 langle_str = { "<" }
+lbracket_str = { "[" }
 lparen_str = { "(" }
 pipe_str = { "|" }
+question_str = { "?" }
 rangle_str = { ">" }
 rarrow_str = { "->" }
+rbracket_str = { "]" }
 rparen_str = { ")" }
 semi_str = { ";" }
 as_str = { "as" }
@@ -649,25 +653,25 @@ expr = {
     expr_inner ~
     (
         // await_expr
-        "." ~ await_str
+        dot_str ~ await_str
         // call_expr
       | arg_list
         // cast_expr
       | as_str ~ type
         // field_expr
-      | "." ~ name_ref
+      | dot_str ~ name_ref
         // try_expr
-      | "?"
+      | question_str
         // view_expr
-      | "@"
+      | at_str
         // index_expr
-      | "[" ~ expr ~ "]"
+      | lbracket_str ~ expr ~ rbracket_str
         // method_call_expr
-      | "." ~ name_ref ~ generic_arg_list? ~ arg_list
+      | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
         // bin_expr
       | bin_expr_ops ~ expr
         // range_expr
-      | (".." | "..=") ~ expr?
+      | (dot_dot_str | dot_dot_eq_str) ~ expr?
     )*
 }
 
@@ -771,8 +775,12 @@ array_expr = {
     ) ~ "]"
 }
 
+tuple_expr_inner = {
+    "(" ~ attr* ~ comma_delimited_exprs? ~ ")"
+}
+
 tuple_expr = {
-    attr* ~ "(" ~ attr* ~ comma_delimited_exprs? ~ ")"
+    attr* ~ tuple_expr_inner
 }
 
 record_expr = {

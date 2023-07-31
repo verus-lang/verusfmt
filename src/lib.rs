@@ -8,10 +8,11 @@ use tracing::{debug, error, info, trace};
 #[grammar = "verus.pest"]
 pub struct VerusParser;
 
-// XXX: Should we expose this to the user as a configurable option where we pick a default? I think
+// XXX: Should we expose these to the user as a configurable option where we pick a default? I think
 // even this should be opinionated, but might be useful to expose this as an unstable option or
 // something.
-const NUMBER_OF_COLUMNS: usize = 120;
+// rustfmt sets this to 100: https://rust-lang.github.io/rustfmt/?version=v1.6.0&search=#max_width
+const NUMBER_OF_COLUMNS: usize = 100;
 const INDENT_SPACES: isize = 4;
 
 // When in doubt, we should generally try to stick to Rust style guidelines:
@@ -41,6 +42,18 @@ fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuild
         .append(conditional_comma(arena))
         .nest(INDENT_SPACES)
         .append(arena.line_())
+}
+
+/// Parens around a comma-delimited list with an optional final comma,
+/// where the opening paren tries to "stick" to the previous line if needed
+fn sticky_paren_list<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    docs![
+        arena,
+        arena.text("("),
+        arena.line_(),
+    ].group()
+    .append(map_to_doc(arena, pair)).group()
+    .append(arena.text(")"))
 }
 
 fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
@@ -116,13 +129,17 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::bang_str |
         Rule::colons_str |
         Rule::dash_str |
+        Rule::dot_str |
         Rule::dot_dot_str |
         Rule::dot_dot_eq_str |
         Rule::ellipses_str |
         Rule::langle_str |
+        Rule::lbracket_str |
         Rule::lparen_str |
         Rule::pipe_str |
+        Rule::question_str |
         Rule::rangle_str |
+        Rule::rbracket_str |
         Rule::rparen_str |
         Rule::semi_str
             => s,
@@ -316,13 +333,15 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         // Statements and Expressions //
         //****************************//
         Rule::stmt => map_to_doc(arena, pair).append(arena.line()),
-        Rule::let_stmt => map_to_doc(arena, pair),
+        // TODO: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
+        //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
+        Rule::let_stmt => map_to_doc(arena, pair).group(),
         Rule::let_else => unsupported(pair),
-        Rule::expr => { error!("TODO: pretty exprs"); s },
-        Rule::expr_inner => unsupported(pair),
+        Rule::expr => map_to_doc(arena, pair),
+        Rule::expr_inner => map_to_doc(arena, pair),
         Rule::macro_expr => unsupported(pair),
-        Rule::literal => unsupported(pair),
-        Rule::path_expr => unsupported(pair),
+        Rule::literal => map_to_doc(arena, pair),
+        Rule::path_expr => map_to_doc(arena, pair),
         Rule::stmt_list => block_braces(arena, map_to_doc(arena, pair)),
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
@@ -331,11 +350,12 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::bin_expr_ops => unsupported(pair),
         Rule::paren_expr => unsupported(pair),
         Rule::array_expr => unsupported(pair),
-        Rule::tuple_expr => unsupported(pair),
+        Rule::tuple_expr_inner => sticky_paren_list(arena, pair),
+        Rule::tuple_expr => map_to_doc(arena, pair),
         Rule::record_expr => unsupported(pair),
         Rule::record_expr_field_list => unsupported(pair),
         Rule::record_expr_field => unsupported(pair),
-        Rule::arg_list => unsupported(pair),
+        Rule::arg_list => sticky_paren_list(arena, pair),
         Rule::closure_expr => unsupported(pair),
         Rule::if_expr => unsupported(pair),
         Rule::loop_expr => unsupported(pair),
@@ -408,7 +428,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::fn_mode => unsupported(pair),
         Rule::mode_spec_checked => unsupported(pair),
         Rule::data_mode => unsupported(pair),
-        Rule::comma_delimited_exprs => unsupported(pair),
+        Rule::comma_delimited_exprs => comma_delimited(arena, pair).group(),
         Rule::comma_delimited_exprs_for_verus_clauses => unsupported(pair),
         Rule::verus_clause_non_expr => unsupported(pair),
         Rule::requires_clause => unsupported(pair),
