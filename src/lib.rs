@@ -1,5 +1,5 @@
 #![allow(dead_code, unused_imports)] // TEMPORARY
-use pest::{iterators::Pair, Parser};
+use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
 use pretty::*;
 use tracing::{debug, error, info, trace};
@@ -85,13 +85,13 @@ fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> D
 }
 
 fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
-    arena.space().append(
+    //arena.space().append(
         docs![
             arena,
             arena.line().append(doc).nest(INDENT_SPACES),
-            arena.line(),
+            //arena.line(),
         ].braces()
-    )
+    //)
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each child
@@ -110,6 +110,23 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     let (line, col) = pair.line_col();
     error!("Unsupported parsing object '{:?}', starting at line {}, col {}: {}", pair.as_rule(), line, col, pair.as_str());
     todo!()
+}
+
+/// Checks if a block may be written on a single line.  Rust says this is okay if:
+/// - it is either used in expression position (not statement position) or is an unsafe block in statement position
+/// - contains a single-line expression and no statements
+/// - contains no comments
+fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
+    assert!(matches!(r, Rule::stmt_list));
+    let count = pairs.clone().fold(0, 
+        |count, p| count + match p.as_rule() {
+            Rule::attr |
+            Rule::stmt |
+            Rule::COMMENT => 1,
+            Rule::expr => -1,
+            _ => 0,
+        });
+    return count == -1;
 }
 
 // TODO: Be sure that comments are being handled properly.  `//` comments should start with a space
@@ -359,10 +376,27 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::macro_expr => unsupported(pair),
         Rule::literal => map_to_doc(arena, pair),
         Rule::path_expr => map_to_doc(arena, pair),
-        Rule::stmt_list => block_braces(arena, map_to_doc(arena, pair)),
+        Rule::stmt_list => {
+            let rule = pair.as_rule();
+            let pairs = pair.into_inner();
+            if pairs.len() == 0 {
+                // Rust says: "An empty block should be written as {}"
+                arena.text("{}")
+            } else if expr_only_block(rule, &pairs) {
+                // A block may be written on a single line if:
+                // - it is either used in expression position (not statement position) or is an unsafe block in statement position
+                // - contains a single-line expression and no statements
+                // - contains no comments
+                let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
+                spaced_braces(arena, mapped).group()
+            } else {
+                let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
+                block_braces(arena, mapped)
+            }
+        }
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
-        Rule::block_expr => map_to_doc(arena, pair), //sticky_list(arena, pair, Enclosure::Braces),
+        Rule::block_expr => map_to_doc(arena, pair),
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
         Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
