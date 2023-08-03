@@ -73,25 +73,27 @@ fn sticky_list<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure)
     .append(arena.text(closing))
 }
 
+/// Surround the doc with braces that have inner spacing only if on a single line
 fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
-    arena.space().append(
-        docs![
-            arena,
-            arena.nil().flat_alt(arena.space()),
-            doc,
-            arena.nil().flat_alt(arena.space()),
-        ].braces()
-    )
+    docs![
+        arena,
+        arena.nil().flat_alt(arena.space()),
+        doc,
+        arena.nil().flat_alt(arena.space()),
+    ].braces()
+}
+
+/// Pad spaced_braces with an additional space before the opening brace
+fn extra_spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
+    arena.space().append(spaced_braces(arena, doc))
 }
 
 fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
-    //arena.space().append(
-        docs![
-            arena,
-            arena.line().append(doc).nest(INDENT_SPACES),
-            //arena.line(),
-        ].braces()
-    //)
+    docs![
+        arena,
+        arena.line().append(doc).nest(INDENT_SPACES),
+        arena.line(),
+    ].braces()
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each child
@@ -331,8 +333,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::ret_type => map_to_doc(arena, pair),
         Rule::type_alias => unsupported(pair),
         Rule::r#struct => map_to_doc(arena, pair),
-        Rule::record_field_list => spaced_braces(arena, comma_delimited(arena, pair)),
-        Rule::condensable_record_field_list => spaced_braces(arena, comma_delimited(arena, pair)).group(),
+        Rule::record_field_list => extra_spaced_braces(arena, comma_delimited(arena, pair)),
+        Rule::condensable_record_field_list => extra_spaced_braces(arena, comma_delimited(arena, pair)).group(),
         Rule::record_field => map_to_doc(arena, pair),
         Rule::tuple_field_list => comma_delimited(arena, pair).parens().group(),
         Rule::tuple_field => map_to_doc(arena, pair),
@@ -388,8 +390,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 // - contains a single-line expression and no statements
                 // - contains no comments
                 let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
+                println!("expr_only_block");
                 spaced_braces(arena, mapped).group()
             } else {
+                println!("not an expr_only_block");
                 let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
                 block_braces(arena, mapped)
             }
@@ -397,6 +401,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
+        Rule::fn_block_expr => arena.space().append(map_to_doc(arena, pair)),
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
         Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),

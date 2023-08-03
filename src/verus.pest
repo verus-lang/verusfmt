@@ -421,7 +421,7 @@ fn = {
     fn_str ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
     prover? ~
     where_clause? ~ requires_clause? ~ recommends_clause? ~ ensures_clause? ~ decreases_clause? ~
-    (block_expr | semi_str)
+    (fn_block_expr | semi_str)
 }
 
 abi = {
@@ -747,6 +747,10 @@ proof_block = {
 block_expr = {
     proof_block
     | attr* ~ label? ~ (try_str | unsafe_str | async_str | const_str)? ~ stmt_list
+}
+
+fn_block_expr = {
+    stmt_list
 }
 
 prefix_expr = {
