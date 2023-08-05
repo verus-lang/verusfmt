@@ -188,7 +188,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::rparen_str |
         Rule::semi_str
             => s,
-        Rule::rarrow_str => docs![arena, arena.space(), s, arena.space()],
+        Rule::rarrow_str => s.append(arena.space()),
         Rule::colon_str => 
             docs![
                 arena,
@@ -231,7 +231,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::extern_str |
         Rule::f32_str |
         Rule::f64_str |
-        Rule::false_str |
         Rule::fn_str |
         Rule::for_str |
         Rule::forall_str |
@@ -275,7 +274,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::tracked_str |
         Rule::trait_str |
         Rule::trigger_str |
-        Rule::true_str |
         Rule::try_str |
         Rule::type_str |
         Rule::u128_str |
@@ -295,6 +293,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::yield_str 
             => s.append(arena.space()),
 
+        Rule::false_str |
+        Rule::true_str 
+            => s,
         //*************************//
         // Names, Paths and Macros //
         //*************************//
@@ -331,11 +332,13 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::r#fn => map_to_doc(arena, pair),
         Rule::abi => unsupported(pair),
         Rule::param_list => { 
+            let doc = 
             if pair.as_str().starts_with('(') {
                 comma_delimited(arena, pair).parens().group()
             } else { 
                 comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group()
-            }
+            };
+            doc.append(arena.space())
         }
         Rule::self_param => unsupported(pair),
         Rule::param => map_to_doc(arena, pair),
@@ -404,6 +407,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 block_braces(arena, mapped, terminal_expr(&pairs))
             }
         }
+        // TODO: Try this example once we support calls:
+//            let _ = {
+//                a_call(
+//                    an_argument,
+//                    another_arg,
+//                )
+//            };
+
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
@@ -424,7 +435,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::record_expr_field_list => unsupported(pair),
         Rule::record_expr_field => unsupported(pair),
         Rule::arg_list => sticky_list(arena, pair, Enclosure::Parens),
-        Rule::closure_expr => unsupported(pair),
+        Rule::closure_expr => map_to_doc(arena, pair),
         Rule::if_expr => unsupported(pair),
         Rule::loop_expr => unsupported(pair),
         Rule::for_expr => unsupported(pair),

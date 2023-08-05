@@ -109,6 +109,18 @@ pub fn test_function<A, B, C>(long_var_name_1: LongLongLongTypeName, long_var_na
 pub fn test_function1<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 { let x = a; let mut z = b; c }
 pub fn test_function2<A, B, C>(a: u32) -> u32 { a }
 pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+    let x = a;
+    c
+}
+"#;
+    compare(file);
+}
+
+#[test]
+fn rust_let_stmt() {
+    let file = r#"
+#[verifier=abcd]
+pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     let long_long_long_long_long_long_long_long_name: LongLongLongLongLongLongLongLongType = long_long_function_name(a);
     let x = a;
     let mut z = b;
@@ -120,6 +132,14 @@ pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     );
     c
 }
+"#;
+    compare(file);
+}
+
+
+#[test]
+fn rust_blocks() {
+    let file = r#"
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     let _ = { a_call() };
     let _ = unsafe { a_call() };
@@ -130,9 +150,46 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     unsafe {
         a_call();
     };
+    let x = 5;
     a
+}
+pub fn test() -> bool {
+    let z = {
+        let k = 5;
+        k
+    };
+}
+pub fn test() -> bool {
+    {
+        let y = 7;
+        b
+    }
+}
+pub fn test() -> bool {
+    unsafe {
+        let x = 5;
+        x
+    }
 }
 "#;
     compare(file);
 }
-
+#[test]
+fn rust_closures() {
+    let file = r#"
+pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+    let f = || true;
+    let g = |x, y| x;
+    let h = |x, y, z: int| {
+        let w = y;
+        let u = w;
+        u
+    };
+    let i = |x| unsafe {
+        let y = x;
+        y
+    };
+}
+"#;
+    compare(file);
+}
