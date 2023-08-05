@@ -88,17 +88,20 @@ fn extra_spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>
     arena.space().append(spaced_braces(arena, doc))
 }
 
-fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
-    docs![
-        arena,
-        arena.line().append(doc).nest(INDENT_SPACES),
-        arena.line(),
-    ].braces()
+fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>, terminal_expr: bool) -> DocBuilder<'a,Arena<'a>> {
+    let doc = arena.hardline().append(doc).nest(INDENT_SPACES);
+    let doc = if terminal_expr { doc.append(arena.hardline()) } else { doc };
+    doc.braces()
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each child
 fn map_to_doc<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
-    arena.concat(pair.into_inner().map(|i| to_doc(i, arena)))
+    arena.concat(pair.into_inner().map(|p| to_doc(p, arena)))
+}
+
+/// Produce a document that simply combines the result of calling `to_doc` on each pair 
+fn map_pairs_to_doc<'a>(arena:&'a Arena<'a,()>, pairs: &Pairs<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.concat(pairs.clone().map(|p| to_doc(p, arena)))
 }
 
 fn format_doc(doc: RefDoc<()>) -> String {
@@ -129,6 +132,12 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
             _ => 0,
         });
     return count == -1;
+}
+
+/// Checks if a block terminates in an expression
+fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
+    let e = pairs.clone().find(|p| matches!(p.as_rule(), Rule::expr));
+    !e.is_none()
 }
 
 // TODO: Be sure that comments are being handled properly.  `//` comments should start with a space
@@ -368,7 +377,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //****************************//
         // Statements and Expressions //
         //****************************//
-        Rule::stmt => map_to_doc(arena, pair).append(arena.line()),
+        Rule::stmt => map_to_doc(arena, pair).append(arena.hardline()),
         // TODO: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
         //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
         Rule::let_stmt => map_to_doc(arena, pair).group(),
@@ -389,18 +398,20 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 // - it is either used in expression position (not statement position) or is an unsafe block in statement position
                 // - contains a single-line expression and no statements
                 // - contains no comments
-                let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
-                spaced_braces(arena, mapped).group()
+                spaced_braces(arena, map_pairs_to_doc(arena, &pairs)).group()
             } else {
-                println!("not an expr_only_block");
-                let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
-                block_braces(arena, mapped)
+                let mapped = arena.concat(pairs.clone().map(|i| to_doc(i, arena)));
+                block_braces(arena, mapped, terminal_expr(&pairs))
             }
         }
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
-        Rule::fn_block_expr => arena.space().append(block_braces(arena, map_to_doc(arena, pair))),
+        Rule::fn_block_expr => {
+            let pairs = pair.into_inner();
+            let mapped = map_pairs_to_doc(arena, &pairs);
+            arena.space().append(block_braces(arena, mapped, terminal_expr(&pairs)))
+        }
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
         Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),

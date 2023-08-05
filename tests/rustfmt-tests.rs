@@ -120,6 +120,18 @@ pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     );
     c
 }
+pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+    let _ = { a_call() };
+    let _ = unsafe { a_call() };
+    let _ = {
+        a_call();
+        b
+    };
+    unsafe {
+        a_call();
+    };
+    a
+}
 "#;
     compare(file);
 }
