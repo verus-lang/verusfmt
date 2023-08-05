@@ -750,7 +750,11 @@ block_expr = {
 }
 
 fn_block_expr = {
-    stmt_list
+    "{" ~
+    attr* ~
+    stmt* ~
+    expr? ~
+    "}"
 }
 
 prefix_expr = {

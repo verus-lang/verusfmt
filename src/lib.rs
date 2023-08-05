@@ -390,7 +390,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 // - contains a single-line expression and no statements
                 // - contains no comments
                 let mapped = arena.concat(pairs.map(|i| to_doc(i, arena)));
-                println!("expr_only_block");
                 spaced_braces(arena, mapped).group()
             } else {
                 println!("not an expr_only_block");
@@ -401,7 +400,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::ref_expr => unsupported(pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
-        Rule::fn_block_expr => arena.space().append(map_to_doc(arena, pair)),
+        Rule::fn_block_expr => arena.space().append(block_braces(arena, map_to_doc(arena, pair))),
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
         Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
