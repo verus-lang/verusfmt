@@ -461,22 +461,29 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //          Types          //
         //*************************//
         Rule::r#type => s,
-        Rule::paren_type => unsupported(pair),
-        Rule::never_type => unsupported(pair),
-        Rule::macro_type => unsupported(pair),
-        Rule::path_type => unsupported(pair),
-        Rule::tuple_type => unsupported(pair),
-        Rule::ptr_type => unsupported(pair),
-        Rule::ref_type => unsupported(pair),
-        Rule::array_type => unsupported(pair),
-        Rule::slice_type => unsupported(pair),
-        Rule::infer_type => unsupported(pair),
-        Rule::fn_ptr_type => unsupported(pair),
-        Rule::for_type => unsupported(pair),
-        Rule::impl_trait_type => unsupported(pair),
-        Rule::dyn_trait_type => unsupported(pair),
+        Rule::paren_type => map_to_doc(arena, pair).parens(),
+        Rule::never_type => map_to_doc(arena, pair),
+        Rule::macro_type => map_to_doc(arena, pair),
+        Rule::path_type => map_to_doc(arena, pair),
+        Rule::tuple_type => comma_delimited(arena, pair).braces().group(),
+        Rule::ptr_type => arena.text("*").append(map_to_doc(arena, pair)),
+        Rule::ref_type => arena.text("*").append(map_to_doc(arena, pair)),
+        Rule::array_type => 
+            // In this context, the semicolon must have a space following it
+            arena.concat(pair.into_inner().map(|p| 
+                                               match p.as_rule() {
+                                                   Rule::semi_str => arena.text("; "),
+                                                   _ => to_doc(p, arena)
+                                               }
+            )).brackets(),
+        Rule::slice_type => map_to_doc(arena, pair).brackets(),
+        Rule::infer_type => map_to_doc(arena, pair),
+        Rule::fn_ptr_type => map_to_doc(arena, pair),
+        Rule::for_type => map_to_doc(arena, pair),
+        Rule::impl_trait_type => map_to_doc(arena, pair),
+        Rule::dyn_trait_type => map_to_doc(arena, pair),
         Rule::type_bound_list => unsupported(pair),
-        Rule::type_bound => unsupported(pair),
+        Rule::type_bound => map_to_doc(arena, pair),
 
         //************************//
         //        Patterns        //
