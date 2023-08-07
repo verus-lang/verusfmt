@@ -23,6 +23,7 @@ struct Args {
     debug_level: u8,
 }
 
+// TODO: Call rustfmt on the code too (maybe include an option to skip it)
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 

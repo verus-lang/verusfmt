@@ -1,38 +1,8 @@
-use std::process::{Command,Stdio};
-use std::str::from_utf8;
-use std::io::Write;
-use verusfmt::{VERUS_PREFIX, VERUS_SUFFIX,parse_and_format};
+use verusfmt::{VERUS_PREFIX, VERUS_SUFFIX, parse_and_format, rustfmt};
 
 /// Tests to check that when formatting standard Rust syntax,
 /// we match rustfmt
 
-
-/// Run rustfmt
-fn rustfmt(value: &str) -> Option<String> {
-    if let Ok(mut proc) = Command::new("rustfmt")
-        .arg("--emit=stdout")
-        .arg("--edition=2021")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .spawn()
-    {
-        {
-            let stdin = proc.stdin.as_mut().unwrap();
-            stdin.write_all(value.as_bytes()).unwrap();
-        }
-        if let Ok(output) = proc.wait_with_output() {
-            if output.status.success() {
-                return Some(from_utf8(&output.stdout)
-                    .unwrap()
-                    .into());
-            } else {
-                eprintln!("rustfmt failed! {}", from_utf8(&output.stderr).unwrap());
-            }
-        }
-    }
-    None
-}
 
 fn compare(file: &str) {
     let verus_file = format!("{}{}{}", VERUS_PREFIX, file, VERUS_SUFFIX);
@@ -51,7 +21,6 @@ fn compare(file: &str) {
         Some(("rust", "verus")),
     );
     assert_eq!(rust_fmt, verus_inner, "{diff}");
-
 }
 
 
