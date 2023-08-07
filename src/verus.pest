@@ -167,6 +167,7 @@ byte = @{
 //***********************************************************//
 // Fixed strings we want to preserve in the formatted output //
 //***********************************************************//
+amp_str = { "&" }
 at_str = { "@" }
 bang_str = { "!" }
 colon_str = { ":" }
@@ -737,7 +738,7 @@ stmt_list = {
 }
 
 ref_expr = {
-    attr* ~ "&" ~ (raw_str | mut_str | const_str) ~ expr
+    attr* ~ amp_str ~ (raw_str | mut_str | const_str) ~ expr
 }
 
 proof_block = {
@@ -754,7 +755,7 @@ fn_block_expr = {
     attr* ~
     stmt* ~
     expr? ~
-    "}"
+    "}"     
 }
 
 prefix_expr = {
@@ -819,6 +820,7 @@ arg_list = {
     "(" ~ comma_delimited_exprs? ~ ")"
 }
 
+// TODO: Can a closure's param list really use parens (as allowed by param_list)?
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~

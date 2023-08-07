@@ -173,6 +173,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //***********************************************************//
         // Fixed strings we want to preserve in the formatted output //
         //***********************************************************//
+        Rule::amp_str |
         Rule::at_str |
         Rule::bang_str |
         Rule::colons_str |
@@ -418,7 +419,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
 //                )
 //            };
 
-        Rule::ref_expr => unsupported(pair),
+        Rule::ref_expr => map_to_doc(arena, pair),
         Rule::proof_block => unsupported(pair),
         Rule::block_expr => map_to_doc(arena, pair),
         Rule::fn_block_expr => {
@@ -444,18 +445,18 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::for_expr => unsupported(pair),
         Rule::while_expr => unsupported(pair),
         Rule::label => unsupported(pair),
-        Rule::break_expr => unsupported(pair),
-        Rule::continue_expr => unsupported(pair),
+        Rule::break_expr => map_to_doc(arena, pair),
+        Rule::continue_expr => map_to_doc(arena, pair),
         Rule::match_expr => unsupported(pair),
         Rule::match_arm_list => unsupported(pair),
         Rule::match_arm => unsupported(pair),
         Rule::match_guard => unsupported(pair),
-        Rule::return_expr => unsupported(pair),
-        Rule::yield_expr => unsupported(pair),
-        Rule::yeet_expr => unsupported(pair),
-        Rule::let_expr => unsupported(pair),
-        Rule::underscore_expr => unsupported(pair),
-        Rule::box_expr => unsupported(pair),
+        Rule::return_expr => map_to_doc(arena, pair),
+        Rule::yield_expr => map_to_doc(arena, pair),
+        Rule::yeet_expr => map_to_doc(arena, pair),
+        Rule::let_expr => map_to_doc(arena, pair),
+        Rule::underscore_expr => map_to_doc(arena, pair).append(arena.text("_")),
+        Rule::box_expr => map_to_doc(arena, pair),
 
         //*************************//
         //          Types          //
