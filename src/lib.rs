@@ -437,7 +437,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::if_expr => map_to_doc(arena, pair),
         Rule::loop_expr => unsupported(pair),
         Rule::for_expr => unsupported(pair),
-        Rule::while_expr => unsupported(pair),
+        Rule::while_expr => map_to_doc(arena, pair),
         Rule::label => unsupported(pair),
         Rule::break_expr => map_to_doc(arena, pair),
         Rule::continue_expr => map_to_doc(arena, pair),

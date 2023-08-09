@@ -179,3 +179,22 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_while() {
+    let file = r#"
+pub fn test_function() -> u32 {
+    if b {
+        a;
+    } else {
+        c;
+    };
+    while b {
+        let x = a;
+        a;
+    };
+    5
+}
+"#;
+    compare(file);
+}
