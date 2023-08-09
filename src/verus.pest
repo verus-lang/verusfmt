@@ -434,7 +434,10 @@ param_list = {
         (self_param ~ ",")? ~ param ~ ("," ~ param)*
       | self_param
     )? ~ ","? ~ ")"
-  | "|" ~ (param ~ ("," ~ param)* ~ ","?)? ~ "|"
+}
+
+closure_param_list = {
+    "|" ~ (param ~ ("," ~ param)* ~ ","?)? ~ "|"
 }
 
 self_param = {
@@ -693,7 +696,6 @@ expr_inner = {
   | macro_call
   | match_expr
   | paren_expr
-  | path_expr
   | prefix_expr
   | record_expr
   | ref_expr
@@ -704,6 +706,7 @@ expr_inner = {
   | yeet_expr
   | let_expr
   | underscore_expr
+  | path_expr   // Needs to be last, or it matches against keywords like "while"  
 }
 
 macro_expr = {
@@ -824,13 +827,14 @@ arg_list = {
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~
-    param_list ~ ret_type? ~
+    closure_param_list ~ ret_type? ~
     attr* ~
     expr
 }
 
+condition = { expr }
 if_expr = {
-    attr* ~ if_str ~ expr ~ block_expr ~
+    attr* ~ if_str ~ condition ~ block_expr ~
     (else_str ~ (if_expr | block_expr))?
 }
 
@@ -844,7 +848,7 @@ for_expr = {
 }
 
 while_expr = {
-    attr* ~ label? ~ while_str ~ expr ~ invariant_clause? ~ decreases_clause? ~
+    attr* ~ label? ~ while_str ~ condition ~ invariant_clause? ~ decreases_clause? ~
     block_expr
 }
 
