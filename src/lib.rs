@@ -192,7 +192,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::rparen_str |
         Rule::semi_str
             => s,
-        Rule::rarrow_str => s.append(arena.space()),
+        Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()), 
         Rule::colon_str => 
             docs![
                 arena,
@@ -208,6 +208,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 arena.line_(),
                 arena.space()
             ].nest(INDENT_SPACES-1).group(), 
+        Rule::else_str => docs![arena, arena.space(), s, arena.space()],
         Rule::as_str |
         Rule::assert_str |
         Rule::assume_str |
@@ -227,7 +228,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::default_str |
         Rule::do_str |
         Rule::dyn_str |
-        Rule::else_str |
         Rule::ensures_str |
         Rule::enum_str |
         Rule::exec_str |
@@ -335,15 +335,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::use_tree_list => unsupported(pair),
         Rule::r#fn => map_to_doc(arena, pair),
         Rule::abi => unsupported(pair),
-        Rule::param_list => { 
-            let doc = 
-            if pair.as_str().starts_with('(') {
-                comma_delimited(arena, pair).parens().group()
-            } else { 
-                comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group()
-            };
-            doc.append(arena.space())
-        }
+        Rule::param_list => comma_delimited(arena, pair).parens().group(),
+        Rule::closure_param_list => comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.space()),
         Rule::self_param => unsupported(pair),
         Rule::param => map_to_doc(arena, pair),
         Rule::ret_type => map_to_doc(arena, pair),
@@ -440,7 +433,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::record_expr_field => unsupported(pair),
         Rule::arg_list => sticky_list(arena, pair, Enclosure::Parens),
         Rule::closure_expr => map_to_doc(arena, pair),
-        Rule::if_expr => unsupported(pair),
+        Rule::condition => map_to_doc(arena, pair).append(arena.space()),
+        Rule::if_expr => map_to_doc(arena, pair),
         Rule::loop_expr => unsupported(pair),
         Rule::for_expr => unsupported(pair),
         Rule::while_expr => unsupported(pair),
