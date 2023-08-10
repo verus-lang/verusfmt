@@ -185,13 +185,13 @@ fn rust_while() {
     let file = r#"
 pub fn test_function() -> u32 {
     if b {
-        a;
+        a();
     } else {
-        c;
+        c();
     };
     while b {
         let x = a;
-        a;
+        a();
     };
     5
 }

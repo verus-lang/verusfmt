@@ -381,8 +381,11 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         // TODO: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
         //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
         Rule::let_stmt => map_to_doc(arena, pair).group(),
+        Rule::expr_stmt => map_to_doc(arena, pair),
         Rule::let_else => unsupported(pair),
         Rule::expr => map_to_doc(arena, pair),
+        Rule::expr_with_block => map_to_doc(arena, pair),
+        Rule::expr_without_block => map_to_doc(arena, pair),
         Rule::expr_inner => map_to_doc(arena, pair),
         Rule::macro_expr => unsupported(pair),
         Rule::literal => map_to_doc(arena, pair),

@@ -635,9 +635,14 @@ meta = {
 stmt = {
     semi_str
   | proof_block
-  | expr ~ semi_str
   | item
   | let_stmt
+  | expr_stmt
+}
+
+expr_stmt = {
+    expr_without_block ~ semi_str
+  | expr_with_block ~ semi_str?
 }
 
 let_stmt = {
@@ -651,9 +656,26 @@ let_else = {
     else_str ~ block_expr
 }
 
-// This split of `expr` and `expr_inner` is to simply break the left-recursion
-// that would happen otherwise.
 expr = {
+    expr_with_block
+  | expr_without_block
+}
+
+expr_with_block = {
+    attr* ~
+    (
+          block_expr
+        | loop_expr
+        | for_expr
+        | while_expr
+        | if_expr
+        | match_expr
+    )
+}
+
+// This split of `expr_without_block` and `expr_inner` is to simply break the left-recursion
+// that would happen otherwise.
+expr_without_block = {
     expr_inner ~
     (
         // await_expr
@@ -684,24 +706,18 @@ expr_inner = {
   | assert_expr
   | assume_expr
   | assert_forall_expr
-  | block_expr
   | box_expr
   | break_expr
   | closure_expr
   | continue_expr
-  | for_expr
-  | if_expr
   | literal
-  | loop_expr
   | macro_call
-  | match_expr
   | paren_expr
   | prefix_expr
   | record_expr
   | ref_expr
   | return_expr
   | tuple_expr
-  | while_expr
   | yield_expr
   | yeet_expr
   | let_expr
@@ -823,7 +839,6 @@ arg_list = {
     "(" ~ comma_delimited_exprs? ~ ")"
 }
 
-// TODO: Can a closure's param list really use parens (as allowed by param_list)?
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~
