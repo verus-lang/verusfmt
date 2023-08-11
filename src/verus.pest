@@ -1132,7 +1132,7 @@ fn_mode = {
 }
 
 mode_spec_checked = {
-    spec_str ~ "(" ~ checked_str ~ ")"
+    spec_str ~ lparen_str ~ checked_str ~ rparen_str
 }
 
 data_mode = {
@@ -1149,7 +1149,7 @@ comma_delimited_exprs_for_verus_clauses = {
 }
 
 verus_clause_non_expr = _{
-    "{"
+    "{"             // TODO: Why is this permitted here?
   | requires_str
   | ensures_str
   | invariant_str

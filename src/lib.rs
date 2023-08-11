@@ -218,7 +218,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::box_str |
         Rule::break_str |
         Rule::by_str |
-        Rule::checked_str |
         Rule::choose_str |
         Rule::closed_str |
         Rule::const_str |
@@ -230,7 +229,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::dyn_str |
         Rule::ensures_str |
         Rule::enum_str |
-        Rule::exec_str |
         Rule::exists_str |
         Rule::extern_str |
         Rule::f32_str |
@@ -261,17 +259,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::mut_str |
         Rule::nat_str |
         Rule::open_str |
-        Rule::proof_str |
         Rule::pub_str |
         Rule::r_str |
         Rule::raw_str |
         Rule::recommends_str |
         Rule::ref_str |
-        Rule::requires_str |
         Rule::return_str |
         Rule::self_str |
         Rule::Self_str |
-        Rule::spec_str |
         Rule::static_str |
         Rule::struct_str |
         Rule::super_str |
@@ -297,7 +292,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::yield_str 
             => s.append(arena.space()),
 
+        Rule::requires_str
+            => arena.hardline().append(s).nest(INDENT_SPACES).append(arena.hardline()).nest(INDENT_SPACES),
+
+        Rule::checked_str |
+        Rule::exec_str |
         Rule::false_str |
+        Rule::proof_str |
+        Rule::spec_str |
         Rule::true_str 
             => s,
         //*************************//
@@ -511,14 +513,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //************************//
         //        Verus           //
         //************************//
-        Rule::publish => unsupported(pair),
-        Rule::fn_mode => unsupported(pair),
-        Rule::mode_spec_checked => unsupported(pair),
-        Rule::data_mode => unsupported(pair),
+        Rule::publish => map_to_doc(arena, pair),
+        Rule::fn_mode => map_to_doc(arena, pair).append(arena.space()),
+        Rule::mode_spec_checked => map_to_doc(arena, pair),
+        Rule::data_mode => map_to_doc(arena, pair),
         Rule::comma_delimited_exprs => comma_delimited(arena, pair).group(),
-        Rule::comma_delimited_exprs_for_verus_clauses => unsupported(pair),
-        Rule::verus_clause_non_expr => unsupported(pair),
-        Rule::requires_clause => unsupported(pair),
+        Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited(arena, pair),
+        Rule::verus_clause_non_expr => map_to_doc(arena, pair),
+        Rule::requires_clause => map_to_doc(arena, pair),
         Rule::ensures_clause => unsupported(pair),
         Rule::invariant_clause => unsupported(pair),
         Rule::recommends_clause => unsupported(pair),
