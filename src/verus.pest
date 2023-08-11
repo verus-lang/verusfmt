@@ -677,31 +677,20 @@ expr_with_block = {
 // that would happen otherwise.
 expr_without_block = {
     expr_inner ~
-    (
-        // await_expr
-        dot_str ~ await_str
-        // call_expr
-      | arg_list
-        // cast_expr
-      | as_str ~ type
-        // field_expr
-      | dot_str ~ name_ref
-        // try_expr
-      | question_str
-        // view_expr
-      | at_str
-        // index_expr
-      | lbracket_str ~ expr ~ rbracket_str
-        // method_call_expr
-      | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
-        // bin_expr
-      | bin_expr_ops ~ expr
-        // range_expr
-      | (dot_dot_str | dot_dot_eq_str) ~ expr?
-    )*
+    expr_outer*
 }
 
-expr_inner = {
+expr_no_struct = {
+    expr_inner_no_struct ~
+    expr_outer*
+}
+
+// In certain places, like the conditional for an if_expr,
+// we have to prohibit struct_expr, since there is otherwise
+// an ambiguity between struct_expr and pattern_expr.  E.g.,
+//     let x = if b { 5 } else { 10 };
+//     let u = MyStruct { x: 2, y: 3 };
+expr_inner_no_struct = _{
     array_expr
   | assert_expr
   | assume_expr
@@ -714,7 +703,6 @@ expr_inner = {
   | macro_call
   | paren_expr
   | prefix_expr
-  | record_expr
   | ref_expr
   | return_expr
   | tuple_expr
@@ -723,6 +711,34 @@ expr_inner = {
   | let_expr
   | underscore_expr
   | path_expr   // Needs to be last, or it matches against keywords like "while"  
+}
+
+expr_outer = _{
+    // await_expr
+    dot_str ~ await_str
+    // call_expr
+    | arg_list
+    // cast_expr
+    | as_str ~ type
+    // field_expr
+    | dot_str ~ name_ref
+    // try_expr
+    | question_str
+    // view_expr
+    | at_str
+    // index_expr
+    | lbracket_str ~ expr ~ rbracket_str
+    // method_call_expr
+    | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
+    // bin_expr
+    | bin_expr_ops ~ expr
+    // range_expr
+    | (dot_dot_str | dot_dot_eq_str) ~ expr?
+}
+
+expr_inner = {
+    struct_expr
+  | expr_inner_no_struct
 }
 
 macro_expr = {
@@ -819,7 +835,7 @@ tuple_expr = {
     attr* ~ tuple_expr_inner
 }
 
-record_expr = {
+struct_expr = {
     path ~ record_expr_field_list
 }
 
@@ -847,7 +863,7 @@ closure_expr = {
     expr
 }
 
-condition = { expr }
+condition = { expr_inner_no_struct }
 if_expr = {
     attr* ~ if_str ~ condition ~ block_expr ~
     (else_str ~ (if_expr | block_expr))?
@@ -858,7 +874,7 @@ loop_expr = {
 }
 
 for_expr = {
-    attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr ~
+    attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr_inner_no_struct ~
     block_expr
 }
 
