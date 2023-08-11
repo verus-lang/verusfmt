@@ -823,7 +823,6 @@ arg_list = {
     "(" ~ comma_delimited_exprs? ~ ")"
 }
 
-// TODO: Can a closure's param list really use parens (as allowed by param_list)?
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~
