@@ -847,7 +847,7 @@ closure_expr = {
     expr
 }
 
-condition = { expr_inner_no_struct }
+condition = { expr_no_struct }
 if_expr = {
     attr* ~ if_str ~ condition ~ block_expr ~
     (else_str ~ (if_expr | block_expr))?
@@ -858,7 +858,7 @@ loop_expr = {
 }
 
 for_expr = {
-    attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr_inner_no_struct ~
+    attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr_no_struct ~
     block_expr
 }
 
