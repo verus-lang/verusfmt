@@ -673,7 +673,7 @@ expr_with_block = {
     )
 }
 
-// This split of `expr_without_block` and `expr_inner` is to simply break the left-recursion
+// This split of `expr_inner` and `expr_outer` is to simply break the left-recursion
 // that would happen otherwise.
 expr_without_block = {
     expr_inner ~
@@ -713,6 +713,11 @@ expr_inner_no_struct = _{
   | path_expr   // Needs to be last, or it matches against keywords like "while"  
 }
 
+expr_inner = {
+    struct_expr
+  | expr_inner_no_struct
+}
+
 expr_outer = _{
     // await_expr
     dot_str ~ await_str
@@ -734,11 +739,6 @@ expr_outer = _{
     | bin_expr_ops ~ expr
     // range_expr
     | (dot_dot_str | dot_dot_eq_str) ~ expr?
-}
-
-expr_inner = {
-    struct_expr
-  | expr_inner_no_struct
 }
 
 macro_expr = {

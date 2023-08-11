@@ -165,7 +165,6 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
 
 // TODO: Need to differentiate if-expressions in different contexts
 #[test]
-#[ignore]
 fn rust_if() {
     let file = r#"
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
