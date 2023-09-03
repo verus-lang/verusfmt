@@ -440,11 +440,12 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::fn_block_expr => {
             let pairs = pair.into_inner();
             let mapped = map_pairs_to_doc(arena, &pairs);
-            // TODO: For a normal function, we want a space after the return type but before the
+            // For a normal function, we want a space after the return type but before the
             // opening brace; for a Verus function with a signature, we don't want the space,
-            // since the opening bracket goes on its own line
-            //arena.space().append(block_braces(arena, mapped, terminal_expr(&pairs)))
-            block_braces(arena, mapped, terminal_expr(&pairs))
+            // since the opening bracket goes on its own line.  We use arena.column to distinguish
+            // between the two cases
+            arena.column(|c| { if c > 0 { arena.space().into_doc() } else { arena.nil().into_doc() } })
+                .append(block_braces(arena, mapped, terminal_expr(&pairs)))
         }
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
