@@ -444,6 +444,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
             // opening brace; for a Verus function with a signature, we don't want the space,
             // since the opening bracket goes on its own line.  We use arena.column to distinguish
             // between the two cases
+            // TODO: This only works, however, if the function definition itself is not indented,
+            //       which it might be if it's inside an impl block
             arena.column(|c| { if c > 0 { arena.space().into_doc() } else { arena.nil().into_doc() } })
                 .append(block_braces(arena, mapped, terminal_expr(&pairs)))
         }
