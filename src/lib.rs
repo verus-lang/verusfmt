@@ -47,6 +47,23 @@ fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuild
         .append(arena.line_())
 }
 
+/// Comma-delimited list with a required final comma
+fn comma_delimited_full<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.hardline()
+        .append(arena.intersperse(
+                    pair.into_inner().map(|i| to_doc(i, arena)), 
+                    docs![arena, 
+                          ",", 
+                          arena.hardline()
+                    ]
+                    )
+        )
+        .append(arena.text(","))
+        .append(arena.hardline())
+        .nest(INDENT_SPACES)
+        //.append(arena.line_())
+}
+
 enum Enclosure {
     Braces,
     Brackets,
@@ -293,7 +310,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
             => s.append(arena.space()),
 
         Rule::requires_str
-            => arena.hardline().append(s).nest(INDENT_SPACES).append(arena.hardline()).nest(INDENT_SPACES),
+            => arena.hardline().append(s).nest(INDENT_SPACES), //.append(arena.hardline()).nest(INDENT_SPACES),
 
         Rule::checked_str |
         Rule::exec_str |
@@ -423,7 +440,11 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::fn_block_expr => {
             let pairs = pair.into_inner();
             let mapped = map_pairs_to_doc(arena, &pairs);
-            arena.space().append(block_braces(arena, mapped, terminal_expr(&pairs)))
+            // TODO: For a normal function, we want a space after the return type but before the
+            // opening brace; for a Verus function with a signature, we don't want the space,
+            // since the opening bracket goes on its own line
+            //arena.space().append(block_braces(arena, mapped, terminal_expr(&pairs)))
+            block_braces(arena, mapped, terminal_expr(&pairs))
         }
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
@@ -518,7 +539,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::mode_spec_checked => map_to_doc(arena, pair),
         Rule::data_mode => map_to_doc(arena, pair),
         Rule::comma_delimited_exprs => comma_delimited(arena, pair).group(),
-        Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited(arena, pair),
+        Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited_full(arena, pair).nest(INDENT_SPACES),
         Rule::verus_clause_non_expr => map_to_doc(arena, pair),
         Rule::requires_clause => map_to_doc(arena, pair),
         Rule::ensures_clause => unsupported(pair),
