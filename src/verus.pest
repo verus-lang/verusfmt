@@ -721,8 +721,8 @@ expr_outer = _{
 }
 
 expr_inner = {
-    struct_expr
-  | expr_inner_no_struct
+    expr_inner_no_struct
+  | struct_expr
 }
 
 macro_expr = {
