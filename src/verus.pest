@@ -416,13 +416,21 @@ use_tree_list = {
     "{" ~ (use_tree ~ ("," ~ use_tree)* ~ ","?)? ~ "}"
 }
 
+fn_qualifier = {
+    prover? ~ where_clause? ~ requires_clause? ~ recommends_clause? ~ ensures_clause? ~ decreases_clause?
+}
+
+fn_terminator = {
+    fn_block_expr 
+  | semi_str
+}
+
 fn = {
     attr* ~ visibility? ~ publish? ~
     default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_mode? ~
     fn_str ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
-    prover? ~
-    where_clause? ~ requires_clause? ~ recommends_clause? ~ ensures_clause? ~ decreases_clause? ~
-    (fn_block_expr | semi_str)
+    fn_qualifier ~
+    fn_terminator
 }
 
 abi = {

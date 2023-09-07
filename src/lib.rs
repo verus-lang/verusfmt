@@ -352,7 +352,21 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::r#use => unsupported(pair),
         Rule::use_tree => unsupported(pair),
         Rule::use_tree_list => unsupported(pair),
-        Rule::r#fn => map_to_doc(arena, pair),
+        Rule::fn_qualifier => map_to_doc(arena, pair),
+        Rule::fn_terminator => map_to_doc(arena, pair),
+        Rule::r#fn => {
+            let pairs = pair.into_inner();
+            let has_qualifier = pairs.clone().find(|p| matches!(p.as_rule(), Rule::fn_qualifier)).is_some();
+            arena.concat(pairs.map(|p| {
+                   let r = p.as_rule();
+                   let d = to_doc(p, arena);
+                   match r {
+                       Rule::fn_terminator if !has_qualifier && matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) => 
+                               // We need a space before our opening brace
+                               arena.space().append(d),
+                       _ => d,
+                   }}))
+        }
         Rule::abi => unsupported(pair),
         Rule::param_list => comma_delimited(arena, pair).parens().group(),
         Rule::closure_param_list => comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.space()),
@@ -440,14 +454,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::fn_block_expr => {
             let pairs = pair.into_inner();
             let mapped = map_pairs_to_doc(arena, &pairs);
-            // For a normal function, we want a space after the return type but before the
-            // opening brace; for a Verus function with a signature, we don't want the space,
-            // since the opening bracket goes on its own line.  We use arena.column to distinguish
-            // between the two cases
-            // TODO: This only works, however, if the function definition itself is not indented,
-            //       which it might be if it's inside an impl block
-            arena.column(|c| { if c > 0 { arena.space().into_doc() } else { arena.nil().into_doc() } })
-                .append(block_braces(arena, mapped, terminal_expr(&pairs)))
+            block_braces(arena, mapped, terminal_expr(&pairs))
         }
         Rule::prefix_expr => unsupported(pair),
         Rule::bin_expr_ops => unsupported(pair),
