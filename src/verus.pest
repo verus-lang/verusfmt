@@ -1193,11 +1193,11 @@ decreases_clause = {
 }
 
 assert_expr = {
-    attr* ~ assert_str ~ "(" ~ expr ~ ")" ~ (prover ~ requires_clause? ~ block_expr?)?
+    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str ~ (prover ~ requires_clause? ~ block_expr?)?
 }
 
 assume_expr = {
-    attr* ~ assume_str ~ "(" ~ expr ~ ")"
+    attr* ~ assume_str ~ lparen_str ~ expr ~ rparen_str
 }
 
 assert_forall_expr = {
@@ -1205,7 +1205,7 @@ assert_forall_expr = {
 }
 
 prover = {
-    by_str ~ ("(" ~ name ~ ")")?
+    by_str ~ (lparen_str ~ name ~ rparen_str)?
 }
 
 trigger_attribute = {

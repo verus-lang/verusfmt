@@ -233,7 +233,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::await_str |
         Rule::box_str |
         Rule::break_str |
-        Rule::by_str |
         Rule::choose_str |
         Rule::closed_str |
         Rule::const_str |
@@ -297,19 +296,22 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::unsafe_str |
         Rule::use_str |
         Rule::usize_str |
-        Rule::via_str |
-        Rule::when_str |
         Rule::where_str |
         Rule::while_str |
         Rule::yeet_str |
         Rule::yield_str 
             => s.append(arena.space()),
 
+        Rule::by_str |
+        Rule::via_str |
+        Rule::when_str
+            => arena.hardline().append(s).append(arena.space()).nest(INDENT_SPACES),
+
         Rule::decreases_str |
         Rule::ensures_str |
         Rule::recommends_str |
         Rule::requires_str
-            => arena.hardline().append(s).nest(INDENT_SPACES), //.append(arena.hardline()).nest(INDENT_SPACES),
+            => arena.hardline().append(s).nest(INDENT_SPACES),
 
         Rule::checked_str |
         Rule::exec_str |
@@ -567,7 +569,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::assert_expr => unsupported(pair),
         Rule::assume_expr => unsupported(pair),
         Rule::assert_forall_expr => unsupported(pair),
-        Rule::prover => unsupported(pair),
+        Rule::prover => map_to_doc(arena, pair),
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
