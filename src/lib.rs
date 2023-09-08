@@ -356,14 +356,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::fn_terminator => map_to_doc(arena, pair),
         Rule::r#fn => {
             let pairs = pair.into_inner();
-            let has_qualifier = pairs.clone().find(|p| matches!(p.as_rule(), Rule::fn_qualifier)).is_some();
+            let has_qualifier = pairs.clone().find(|p| matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0).is_some();
+            println!("has qualifier: {}", has_qualifier);
             arena.concat(pairs.map(|p| {
-                   let r = p.as_rule();
-                   let d = to_doc(p, arena);
-                   match r {
-                       Rule::fn_terminator if !has_qualifier && matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) => 
+                   let d = to_doc(p.clone(), arena);
+                   match p.as_rule() {
+                       Rule::fn_terminator if !has_qualifier && matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) => { println!("Adding a space"); 
                                // We need a space before our opening brace
-                               arena.space().append(d),
+                               arena.space().append(d)},
                        _ => d,
                    }}))
         }
