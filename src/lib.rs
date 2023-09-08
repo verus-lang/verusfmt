@@ -59,7 +59,6 @@ fn comma_delimited_full<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> Doc
                     )
         )
         .append(arena.text(","))
-        .append(arena.hardline())
         .nest(INDENT_SPACES)
         //.append(arena.line_())
 }
@@ -244,7 +243,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::default_str |
         Rule::do_str |
         Rule::dyn_str |
-        Rule::ensures_str |
         Rule::enum_str |
         Rule::exists_str |
         Rule::extern_str |
@@ -309,6 +307,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::yield_str 
             => s.append(arena.space()),
 
+        Rule::ensures_str |
         Rule::requires_str
             => arena.hardline().append(s).nest(INDENT_SPACES), //.append(arena.hardline()).nest(INDENT_SPACES),
 
@@ -357,13 +356,21 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::r#fn => {
             let pairs = pair.into_inner();
             let has_qualifier = pairs.clone().find(|p| matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0).is_some();
-            println!("has qualifier: {}", has_qualifier);
             arena.concat(pairs.map(|p| {
                    let d = to_doc(p.clone(), arena);
                    match p.as_rule() {
-                       Rule::fn_terminator if !has_qualifier && matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) => { println!("Adding a space"); 
-                               // We need a space before our opening brace
-                               arena.space().append(d)},
+                       Rule::fn_terminator =>
+                           if has_qualifier {
+                               // The terminator (fn_block_expr or semicolon) goes on a new line
+                               arena.hardline().append(d)
+                           } else { 
+                               if matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) {
+                                   // We need a space before our opening brace
+                                   arena.space().append(d)
+                               } else {
+                                   d
+                               }
+                           }
                        _ => d,
                    }}))
         }
@@ -552,10 +559,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited_full(arena, pair).nest(INDENT_SPACES),
         Rule::verus_clause_non_expr => map_to_doc(arena, pair),
         Rule::requires_clause => map_to_doc(arena, pair),
-        Rule::ensures_clause => unsupported(pair),
+        Rule::ensures_clause => map_to_doc(arena, pair),
         Rule::invariant_clause => unsupported(pair),
-        Rule::recommends_clause => unsupported(pair),
-        Rule::decreases_clause => unsupported(pair),
+        Rule::recommends_clause => map_to_doc(arena, pair),
+        Rule::decreases_clause => map_to_doc(arena, pair),
         Rule::assert_expr => unsupported(pair),
         Rule::assume_expr => unsupported(pair),
         Rule::assert_forall_expr => unsupported(pair),
