@@ -49,12 +49,12 @@ fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuild
 
 /// Comma-delimited list with a required final comma
 fn comma_delimited_full<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
-    arena.hardline()
+    arena.line()
         .append(arena.intersperse(
                     pair.into_inner().map(|i| to_doc(i, arena)), 
                     docs![arena, 
                           ",", 
-                          arena.hardline()
+                          arena.line()
                     ]
                     )
         )
@@ -239,7 +239,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::const_str |
         Rule::continue_str |
         Rule::crate_str |
-        Rule::decreases_str |
         Rule::default_str |
         Rule::do_str |
         Rule::dyn_str |
@@ -277,7 +276,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::pub_str |
         Rule::r_str |
         Rule::raw_str |
-        Rule::recommends_str |
         Rule::ref_str |
         Rule::return_str |
         Rule::self_str |
@@ -307,7 +305,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::yield_str 
             => s.append(arena.space()),
 
+        Rule::decreases_str |
         Rule::ensures_str |
+        Rule::recommends_str |
         Rule::requires_str
             => arena.hardline().append(s).nest(INDENT_SPACES), //.append(arena.hardline()).nest(INDENT_SPACES),
 
@@ -557,6 +557,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::data_mode => map_to_doc(arena, pair),
         Rule::comma_delimited_exprs => comma_delimited(arena, pair).group(),
         Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited_full(arena, pair).nest(INDENT_SPACES),
+        Rule::groupable_comma_delimited_exprs_for_verus_clauses => map_to_doc(arena, pair).nest(INDENT_SPACES).group(),
         Rule::verus_clause_non_expr => map_to_doc(arena, pair),
         Rule::requires_clause => map_to_doc(arena, pair),
         Rule::ensures_clause => map_to_doc(arena, pair),

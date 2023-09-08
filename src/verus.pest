@@ -417,7 +417,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    prover? ~ where_clause? ~ requires_clause? ~ recommends_clause? ~ ensures_clause? ~ decreases_clause?
+    prover? ~ where_clause? ~ requires_clause? ~ recommends_clause? ~ decreases_clause? ~ ensures_clause?
 }
 
 fn_terminator = {
@@ -1156,6 +1156,10 @@ comma_delimited_exprs_for_verus_clauses = {
     expr ~ ("," ~ !verus_clause_non_expr ~ expr)* ~ ","?
 }
 
+groupable_comma_delimited_exprs_for_verus_clauses = {
+    comma_delimited_exprs_for_verus_clauses
+}
+
 verus_clause_non_expr = _{
     "{"             // TODO: Why is this permitted here?
   | requires_str
@@ -1185,7 +1189,7 @@ recommends_clause = {
 }
 
 decreases_clause = {
-    decreases_str ~ comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr)? ~ (via_str ~ expr)?
+    decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr)? ~ (via_str ~ expr)?
 }
 
 assert_expr = {
