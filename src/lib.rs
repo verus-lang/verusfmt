@@ -240,13 +240,11 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::do_str |
         Rule::dyn_str |
         Rule::enum_str |
-        Rule::exists_str |
         Rule::extern_str |
         Rule::f32_str |
         Rule::f64_str |
         Rule::fn_str |
         Rule::for_str |
-        Rule::forall_str |
         Rule::ghost_str |
         Rule::i128_str |
         Rule::i16_str |
@@ -315,7 +313,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::assume_str |
         Rule::checked_str |
         Rule::exec_str |
+        Rule::exists_str |
         Rule::false_str |
+        Rule::forall_str |
         Rule::proof_str |
         Rule::spec_str |
         Rule::true_str 
@@ -566,10 +566,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::invariant_clause => unsupported(pair),
         Rule::recommends_clause => map_to_doc(arena, pair),
         Rule::decreases_clause => map_to_doc(arena, pair),
-        Rule::assert_block_expr => arena.line().append(map_to_doc(arena, pair)),
+        Rule::assert_requires => map_to_doc(arena, pair).append(arena.line()),
         Rule::assert_expr => map_to_doc(arena, pair).group(),
         Rule::assume_expr => map_to_doc(arena, pair),
-        Rule::assert_forall_expr => unsupported(pair),
+        Rule::assert_forall_expr => map_to_doc(arena, pair),
         Rule::prover => map_to_doc(arena, pair),
         Rule::inline_prover => map_to_doc(arena, pair).group(),
         Rule::trigger_attribute => unsupported(pair),

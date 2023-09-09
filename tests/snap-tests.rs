@@ -21,7 +21,7 @@ pub fn test_function(x: bool, y: bool) -> u32
         x,
 {
     assume(x);
-    assert(x) by (bit_vector);
+    assert(x);
     5
 }
 spec fn dec0(a: int) -> int
@@ -46,7 +46,7 @@ spec fn dec0(a: int) -> int
             x,
     {
         assume(x);
-        assert(x) by (bit_vector);
+        assert(x);
         5
     }
     spec fn dec0(a: int) -> int
@@ -54,6 +54,53 @@ spec fn dec0(a: int) -> int
         when a
         via dec0_decreases
     {
+        5
+    }
+    "###);
+}
+
+#[test]
+fn verus_assert_by() {
+    let file = r#"
+pub fn test_function(x: bool, y: bool) -> u32
+    by (nonlinear_arith)
+{
+    assert(x) by (bit_vector);
+    assert(f1(3)) by {
+        reveal(f1);
+    };
+    assert(x) by (nonlinear_arith)
+        requires
+            x,
+            z,
+    {
+        assert(y);
+    };
+    assert(forall|x: int, y: int| x) by {
+        reveal(f1);
+    };
+    5
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    pub fn test_function(x: bool, y: bool) -> u32
+        by (nonlinear_arith)
+    {
+        assert(x) by (bit_vector);
+        assert(f1(3)) by {
+            reveal(f1);
+        };
+        assert(x) by (nonlinear_arith)
+            requires
+                x,
+                z,
+        {
+            assert(y);
+        };
+        assert(forall|x: int, y: int| x) by {
+            reveal(f1);
+        };
         5
     }
     "###);
