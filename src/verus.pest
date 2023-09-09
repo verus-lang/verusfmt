@@ -1192,8 +1192,12 @@ decreases_clause = {
     decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr)? ~ (via_str ~ expr)?
 }
 
+assert_block_expr = {
+    block_expr
+}
+
 assert_expr = {
-    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str ~ (prover ~ requires_clause? ~ block_expr?)?
+    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str ~ (inline_prover ~ requires_clause? ~ assert_block_expr?)?
 }
 
 assume_expr = {
@@ -1202,6 +1206,10 @@ assume_expr = {
 
 assert_forall_expr = {
     attr* ~ assert_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ by_str ~ block_expr
+}
+
+inline_prover = {
+    prover
 }
 
 prover = {

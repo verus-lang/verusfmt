@@ -566,10 +566,12 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::invariant_clause => unsupported(pair),
         Rule::recommends_clause => map_to_doc(arena, pair),
         Rule::decreases_clause => map_to_doc(arena, pair),
+        Rule::assert_block_expr => arena.line().append(map_to_doc(arena, pair)),
         Rule::assert_expr => map_to_doc(arena, pair).group(),
         Rule::assume_expr => map_to_doc(arena, pair),
         Rule::assert_forall_expr => unsupported(pair),
         Rule::prover => map_to_doc(arena, pair),
+        Rule::inline_prover => map_to_doc(arena, pair).group(),
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
