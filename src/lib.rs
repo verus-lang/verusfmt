@@ -226,8 +226,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
             ].nest(INDENT_SPACES-1).group(), 
         Rule::else_str => docs![arena, arena.space(), s, arena.space()],
         Rule::as_str |
-        Rule::assert_str |
-        Rule::assume_str |
         Rule::async_str |
         Rule::auto_str |
         Rule::await_str |
@@ -305,7 +303,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::by_str |
         Rule::via_str |
         Rule::when_str
-            => arena.hardline().append(s).append(arena.space()).nest(INDENT_SPACES),
+            => arena.line().append(s).append(arena.space()).nest(INDENT_SPACES),
 
         Rule::decreases_str |
         Rule::ensures_str |
@@ -313,6 +311,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::requires_str
             => arena.hardline().append(s).nest(INDENT_SPACES),
 
+        Rule::assert_str |
+        Rule::assume_str |
         Rule::checked_str |
         Rule::exec_str |
         Rule::false_str |
@@ -566,8 +566,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::invariant_clause => unsupported(pair),
         Rule::recommends_clause => map_to_doc(arena, pair),
         Rule::decreases_clause => map_to_doc(arena, pair),
-        Rule::assert_expr => unsupported(pair),
-        Rule::assume_expr => unsupported(pair),
+        Rule::assert_expr => map_to_doc(arena, pair).group(),
+        Rule::assume_expr => map_to_doc(arena, pair),
         Rule::assert_forall_expr => unsupported(pair),
         Rule::prover => map_to_doc(arena, pair),
         Rule::trigger_attribute => unsupported(pair),
