@@ -466,7 +466,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
             block_braces(arena, mapped, terminal_expr(&pairs))
         }
         Rule::prefix_expr => unsupported(pair),
-        Rule::bin_expr_ops => unsupported(pair),
+        Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
+        Rule::bin_expr_ops => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
         Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
         Rule::paren_expr => map_to_doc(arena, pair),
         Rule::array_expr_inner => sticky_list(arena, pair, Enclosure::Brackets),

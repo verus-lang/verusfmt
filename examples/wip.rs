@@ -1,21 +1,8 @@
 verus! {
 
-pub fn test_function(x: bool, y: bool) -> u32
-    by (nonlinear_arith)
-{
-    assert(f1(3)) by {
-        reveal(f1);
-    };
-    assert(x) by (nonlinear_arith)
-        requires
-            x,
-            z,
-    {
-        assert(y);
-    };
-    assert(forall|x: int, y: int| x) by {
-        reveal(f1);
-    };
+pub fn test_function(x: int, y: int) -> u32 {
+    let very_very_very_very_very_very_long = 
+        very_very_very_very_very_very_x + very_very_very_very_y;
     5
 }
 

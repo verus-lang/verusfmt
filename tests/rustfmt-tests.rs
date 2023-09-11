@@ -143,6 +143,7 @@ pub fn test() -> bool {
 "#;
     compare(file);
 }
+
 #[test]
 fn rust_closures() {
     let file = r#"
@@ -158,6 +159,20 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
         let y = x;
         y
     };
+}
+"#;
+    compare(file);
+}
+
+
+#[test]
+fn rust_bin_expr() {
+    let file = r#"
+pub fn test_function(x: int, y: int) -> u32 {
+    let z = x + y;
+    let very_very_very_very_very_very_long = very_very_very_very_very_very_x
+        + very_very_very_very_y;
+    5
 }
 "#;
     compare(file);
