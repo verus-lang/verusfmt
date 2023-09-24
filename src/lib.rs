@@ -221,9 +221,8 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 arena,
                 arena.space(),
                 s,
-                arena.line_(),
-                arena.space()
-            ].nest(INDENT_SPACES-1).group(), 
+                arena.line(),
+            ], //.nest(INDENT_SPACES-1).group(), 
         Rule::else_str => docs![arena, arena.space(), s, arena.space()],
         Rule::as_str |
         Rule::async_str |
@@ -391,6 +390,21 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::tuple_field => map_to_doc(arena, pair),
         Rule::field_list => map_to_doc(arena, pair),
         Rule::r#enum => map_to_doc(arena, pair),
+        Rule::eq_expr => map_to_doc(arena, pair).nest(INDENT_SPACES).group(),
+//            arena.concat(pair.into_inner().map(|p| 
+//                match p.as_rule() {
+//                    Rule::expr => 
+//
+//                    _ => to_doc(p, arena))) 
+//                }
+//                        
+//            docs![
+//                arena,
+//                arena.space(),
+//                s,
+//                arena.line_(),
+//                arena.space()
+//            ], //.nest(INDENT_SPACES-1).group(), 
         Rule::variant_list => arena.space().append(comma_delimited(arena, pair).braces()),
         Rule::variant => map_to_doc(arena, pair),
         Rule::union => unsupported(pair),
