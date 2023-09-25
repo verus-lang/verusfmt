@@ -517,10 +517,6 @@ enum = {
     enum_str ~ name ~ generic_param_list? ~ where_clause? ~
     variant_list
 }
-// TODO: Add eq_type
-eq_expr = {
-    eq_str ~ expr
-}
 
 variant_list = {
     "{" ~ (variant ~ ("," ~ variant)* ~ ","?)? ~ "}"
@@ -528,7 +524,7 @@ variant_list = {
 
 variant = {
     attr* ~ visibility? ~
-    name ~ field_list? ~ (eq_expr)?
+    name ~ field_list? ~ (eq_str ~ expr)?
 }
 
 union = {
@@ -541,13 +537,13 @@ const = {
     attr* ~ visibility? ~
     default_str? ~
     const_str ~ (name | "_") ~ colon_str ~ type ~
-    eq_expr? ~ semi_str
+    eq_str ~ expr? ~ semi_str
 }
 
 static = {
     attr* ~ visibility? ~
     static_str ~ mut_str? ~ name ~ colon_str ~ type ~
-    (eq_expr)? ~ semi_str
+    (eq_str ~ expr)? ~ semi_str
 }
 
 trait = {
@@ -612,7 +608,7 @@ type_param = {
 
 const_param = {
     attr* ~ const_str ~ name ~ colon_str ~ type ~
-    (eq_expr)?
+    (eq_str ~ expr)?
 }
 
 lifetime_param = {
@@ -637,7 +633,7 @@ attr = {
 }
 
 meta = {
-    path ~ (eq_expr | token_tree)?
+    path ~ (eq_str ~ expr | token_tree)?
 }
 
 //****************************//
@@ -654,7 +650,7 @@ stmt = {
 
 let_stmt = {
     attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ pat ~ (colon_str ~ type)? ~
-    eq_expr ~
+    eq_str ~ expr ~
     let_else? ~
     semi_str
 }
@@ -927,7 +923,7 @@ yeet_expr = {
 }
 
 let_expr = {
-    attr* ~ let_str ~ pat ~ eq_expr
+    attr* ~ let_str ~ pat ~ eq_str ~ expr
 }
 
 underscore_expr = {
