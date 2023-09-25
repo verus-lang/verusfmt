@@ -206,7 +206,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::rangle_str |
         Rule::rbracket_str |
         Rule::rparen_str |
-        Rule::semi_str
+        Rule::semi_str |
+        Rule::star_str |
+        Rule::triple_and |
+        Rule::triple_or
             => s,
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()), 
         Rule::colon_str => 
@@ -458,14 +461,14 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
 //            };
 
         Rule::ref_expr => map_to_doc(arena, pair),
-        Rule::proof_block => unsupported(pair),
+        Rule::proof_block => map_to_doc(arena, pair),
         Rule::block_expr => map_to_doc(arena, pair),
         Rule::fn_block_expr => {
             let pairs = pair.into_inner();
             let mapped = map_pairs_to_doc(arena, &pairs);
             block_braces(arena, mapped, terminal_expr(&pairs))
         }
-        Rule::prefix_expr => unsupported(pair),
+        Rule::prefix_expr => map_to_doc(arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
         Rule::bin_expr_ops => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
         Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),

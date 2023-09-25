@@ -188,6 +188,9 @@ rarrow_str = { "->" }
 rbracket_str = { "]" }
 rparen_str = { ")" }
 semi_str = { ";" }
+star_str = { "*" }
+triple_and = { "&&&" }
+triple_or = { "|||" }
 as_str = { "as" }
 assert_str = { "assert" }
 assume_str = { "assume" }
@@ -408,7 +411,7 @@ use = {
 }
 
 use_tree = {
-    (path? ~ colons_str)? ~ ("*" | use_tree_list)
+    (path? ~ colons_str)? ~ (star_str | use_tree_list)
   | path ~ rename?
 }
 
@@ -786,7 +789,7 @@ fn_block_expr = {
 }
 
 prefix_expr = {
-    attr* ~ ("-" | bang_str | "*" | "&&&" | "|||") ~ expr
+    attr* ~ (dash_str | bang_str | star_str | triple_and | triple_or) ~ expr
 }
 
 assignment_ops = {
@@ -976,7 +979,7 @@ tuple_type = {
 }
 
 ptr_type = {
-    "*" ~ (const_str | mut_str) ~ type
+    star_str ~ (const_str | mut_str) ~ type
 }
 
 ref_type = {
