@@ -164,6 +164,20 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     compare(file);
 }
 
+
+#[test]
+fn rust_match_expr() {
+    let file = r#"
+fn len<T>(l: List<T>) -> nat {
+    match l {
+        List::Nil => 0,
+        List::Cons(_, tl) => 1 + len(*tl),
+    }
+}
+"#;
+    compare(file);
+}
+
 // TODO: We can't handle this test and the block_exprs consistently at the same time
 #[test]
 #[ignore]

@@ -1,9 +1,14 @@
 verus! {
 
-pub fn test_function(x: int, y: int) -> u32 {
-    let very_very_very_very_very_very_long = very_very_very_very_very_very_x 
-        + very_very_very_very_y + very_very_very_very_z;
-    5
+enum List<T> {
+    Nil,
+    Cons(T, Box<List<T>>),
+}
+fn len<T>(l: List<T>) -> nat {
+    match l {
+        List::Nil => 0,
+        List::Cons(_, tl) => 1 + len(*tl),
+    }
 }
 
 } // verus!

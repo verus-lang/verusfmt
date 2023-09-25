@@ -905,8 +905,12 @@ match_arm_list = {
     "}"
 }
 
+match_arm_lhs = {
+    attr* ~ pat ~ match_guard?
+}
+
 match_arm = {
-    attr* ~ pat ~ match_guard? ~ "=>" ~ expr ~ ","?
+    match_arm_lhs ~ "=>" ~ expr ~ ","?
 }
 
 match_guard = {
@@ -1051,8 +1055,8 @@ pat_inner = {
   | tuple_pat
   | tuple_struct_pat
   | const_block_pat
-  | ident_pat
   | path_pat
+  | ident_pat
 }
 
 literal_pat = {
