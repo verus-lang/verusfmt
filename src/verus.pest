@@ -224,6 +224,7 @@ fn_str = { "fn" }
 for_str = { "for" }
 forall_str = { "forall" }
 ghost_str = { "ghost" }
+has_str = { "has" }
 i128_str = { "i128" }
 i16_str = { "i16" }
 i32_str = { "i32" }
@@ -235,6 +236,7 @@ implies_str = { "implies" }
 in_str = { "in" }
 int_str = { "int" }
 invariant_str = { "invariant" }
+is_str = { "is" }
 isize_str = { "isize" }
 let_str = { "let" }
 loop_str = { "loop" }
@@ -773,6 +775,10 @@ expr_outer = _{
     | arg_list
     // cast_expr
     | as_str ~ type
+    // datatype test
+    | is_str ~ type
+    // colection test
+    | has_str ~ expr
     // field_expr
     | dot_str ~ name_ref
     // try_expr
