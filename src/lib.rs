@@ -203,7 +203,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::langle_str |
         Rule::lbracket_str |
         Rule::lparen_str |
-        Rule::pipe_str |
         Rule::question_str |
         Rule::rangle_str |
         Rule::rbracket_str |
@@ -213,6 +212,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::triple_and |
         Rule::triple_or
             => s,
+        Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()), 
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()), 
         Rule::colon_str => 
             docs![
@@ -494,7 +494,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::continue_expr => map_to_doc(arena, pair),
         Rule::match_expr => map_to_doc(arena, pair),
         Rule::match_arm_list => arena.space().append(block_braces(arena, map_to_doc(arena, pair), false)),
-        Rule::match_arm_lhs => map_to_doc(arena, pair).append(arena.text(" =>")).append(arena.line()).group(),
+        Rule::match_arm_lhs => map_to_doc(arena, pair).append(arena.text(" => ")).group(),
         Rule::match_arm => map_to_doc(arena, pair).append(arena.text(",")).append(arena.line()),
         Rule::match_guard => unsupported(pair),
         Rule::return_expr => map_to_doc(arena, pair),
