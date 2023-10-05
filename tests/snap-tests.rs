@@ -199,3 +199,32 @@ fn len<T>(l: List<T>) -> nat {
     "###);
 }
 
+#[test]
+fn verus_trait() {
+    let file = r#"
+trait T {
+    proof fn my_uninterpreted_fun2(&self, i: int, j: int) -> (r: int)
+        requires
+            0 <= i < 10,
+            0 <= j < 10,
+        ensures
+            i <= r,
+            j <= r,
+    ;
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    trait T {
+        proof fn my_uninterpreted_fun2(&self, i: int, j: int) -> (r: int)
+            requires
+                0 <= i < 10,
+                0 <= j < 10,
+            ensures
+                i <= r,
+                j <= r,
+        ;
+    }
+    "###);
+}
+

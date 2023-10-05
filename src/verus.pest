@@ -513,7 +513,7 @@ closure_param_list = {
 
 self_param = {
     attr* ~ (
-        ("&" ~ lifetime?)? ~ mut_str? ~ name
+        (amp_str ~ lifetime?)? ~ mut_str? ~ name
       | mut_str? ~ name ~ colon_str ~ type
     )
 }

@@ -264,7 +264,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::int_str |
         Rule::is_str |
         Rule::invariant_str |
-        Rule::if_str |
         Rule::isize_str |
         Rule::let_str |
         Rule::loop_str |
@@ -276,7 +275,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::mut_str |
         Rule::nat_str |
         Rule::open_str |
-        Rule::proof_str |
         Rule::pub_str |
         Rule::r_str |
         Rule::raw_str |
@@ -325,6 +323,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::exists_str |
         Rule::false_str |
         Rule::forall_str |
+        Rule::proof_str |
         Rule::spec_str |
         Rule::true_str 
             => s,
@@ -387,7 +386,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::abi => unsupported(pair),
         Rule::param_list => comma_delimited(arena, pair).parens().group(),
         Rule::closure_param_list => comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.space()),
-        Rule::self_param => unsupported(pair),
+        Rule::self_param => map_to_doc(arena, pair),
         Rule::param => map_to_doc(arena, pair),
         Rule::ret_type => map_to_doc(arena, pair),
         Rule::type_alias => unsupported(pair),
@@ -405,10 +404,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
         Rule::r#const => map_to_doc(arena, pair),
         Rule::r#static => unsupported(pair),
-        Rule::r#trait => unsupported(pair),
+        Rule::r#trait => map_to_doc(arena, pair),
         Rule::trait_alias => unsupported(pair),
-        Rule::assoc_item_list => unsupported(pair),
-        Rule::assoc_item => unsupported(pair),
+        Rule::assoc_item_list => arena.space().append(block_braces(arena, map_to_doc(arena, pair), true)),
+        Rule::assoc_item => map_to_doc(arena, pair),
         Rule::r#impl => unsupported(pair),
         Rule::extern_block => unsupported(pair),
         Rule::extern_item_list => unsupported(pair),

@@ -1,8 +1,14 @@
 verus! {
 
-pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
-    let g = |x, y| x;
-    g
+trait T {
+    proof fn my_uninterpreted_fun2(&self, i: int, j: int) -> (r: int)
+        requires
+            0 <= i < 10,
+            0 <= j < 10,
+        ensures
+            i <= r,
+            j <= r,
+    ;
 }
 
 } // verus!
