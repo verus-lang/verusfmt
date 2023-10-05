@@ -22,6 +22,8 @@ pub fn test_function(x: bool, y: bool) -> u32
 {
     assume(x);
     assert(x);
+    assert(c is Seq);
+    assert(c has 3 == c has 3);
     5
 }
 spec fn dec0(a: int) -> int
@@ -53,6 +55,8 @@ fn test_views() {
     {
         assume(x);
         assert(x);
+        assert(c is Seq);
+        assert(c has 3 == c has 3);
         5
     }
     spec fn dec0(a: int) -> int

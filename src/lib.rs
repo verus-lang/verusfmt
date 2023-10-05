@@ -251,7 +251,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::fn_str |
         Rule::for_str |
         Rule::ghost_str |
-        Rule::has_str |
         Rule::i128_str |
         Rule::i16_str |
         Rule::i32_str |
@@ -262,7 +261,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::implies_str |
         Rule::in_str |
         Rule::int_str |
-        Rule::is_str |
         Rule::invariant_str |
         Rule::isize_str |
         Rule::let_str |
@@ -304,6 +302,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::yeet_str |
         Rule::yield_str 
             => s.append(arena.space()),
+        
+        Rule::has_str |
+        Rule::is_str
+            => arena.space().append(s).append(arena.space()),
 
         Rule::by_str |
         Rule::via_str |
