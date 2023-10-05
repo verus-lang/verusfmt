@@ -518,7 +518,7 @@ self_param = {
 
 param = {
     attr* ~ (
-        tracked_str? ~ name ~ (colon_str ~ type)?
+        tracked_str? ~ pat_no_top_alt ~ (colon_str ~ type)?
         | type
         | ellipses_str
     )
@@ -1096,6 +1096,13 @@ pat = {
         (dot_dot_eq_str | dot_dot_str) ~ pat?
         // or_pat
       | (pipe_str ~ pat_inner)* ~ pipe_str?
+    )?
+}
+
+pat_no_top_alt = {
+    pat_inner ~ (
+        // range_pat (for 1.. or 1..2)
+        (dot_dot_eq_str | dot_dot_str) ~ pat_no_top_alt?
     )?
 }
 

@@ -1,11 +1,8 @@
 verus! {
 
-fn test_views() {
-    proof {
-        let s: Seq<u8> = v@;
-        assert(s[0] == 10);
-        assert(s[1] == 20);
-    }
+pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+    let g = |x, y| x;
+    g
 }
 
 } // verus!

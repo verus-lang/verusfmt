@@ -536,6 +536,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //        Patterns        //
         //************************//
         Rule::pat => map_to_doc(arena, pair),
+        Rule::pat_no_top_alt => map_to_doc(arena, pair),
         Rule::pat_inner => map_to_doc(arena, pair),
         Rule::literal_pat => map_to_doc(arena, pair),
         Rule::ident_pat => map_to_doc(arena, pair),
