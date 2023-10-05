@@ -28,7 +28,9 @@ fn compare(file: &str) {
 fn rust_constants() {
     let file = r#"
 #[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST1 : some_very_very_very_very_very_very_very_very_very_very_very_very_long_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+
 #[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST2 : some_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
+
 #[verifier=abcd] pub(in self::super::crate) default const MY_CONST3: some_type = 5;
 "#;
     compare(file);
@@ -38,8 +40,11 @@ fn rust_constants() {
 fn rust_enums() {
     let file = r#"
 enum SimpleEnumSingleBriefGenerics<A,B,C,D,E> { Constructor1 }
+
 enum SimpleEnumSingleLongGenerics<ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ,ABCDEFGHIJKLMNOPQRSTUVWXYZ> { Constructor1 }
+
 enum SimpleEnumConstructors<A,B,C,D,E> { ConsIdentifier, ConsTupleStruct1(u32,bool,u8), ConsStruct1{x:u8}, ConsStruct2{a:u32, b:bool} }
+
 enum Enum {
     ConsIdentifier,
     ConsTupleStruct1(u32, bool, u8),
@@ -57,13 +62,16 @@ enum Enum {
 fn rust_structs() {
     let file = r#"
 struct Foo { a: A, b: B }
+
 struct Struct2 {
     a_very_very__very_very_very_very_very_very_long_name:
         a_very_very_very_very_very_very_very_very_very_very_very_very_long_type,
     b: bool,
     c: u32,
 }
+
 pub struct Bar(String, u8);
+
 struct Unit();
 "#;
     compare(file);
@@ -74,13 +82,18 @@ fn rust_functions() {
     let file = r#"
 #[verifier=abcd]
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32;    
+
 pub fn test_function<A, B, C>(long_var_name_1: LongLongLongTypeName, long_var_name_2: LongLongLongTypeName, long_var_name_3: LongLongLongTypeName) -> u32;    
+
 pub fn test_function1<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 { let x = a; let mut z = b; c }
+
 pub fn test_function2<A, B, C>(a: u32) -> u32 { a }
+
 pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     let x = a;
     c
 }
+
 "#;
     compare(file);
 }
@@ -122,18 +135,21 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     let x = 5;
     a
 }
+
 pub fn test() -> bool {
     let z = {
         let k = 5;
         k
     };
 }
+
 pub fn test() -> bool {
     {
         let y = 7;
         b
     }
 }
+
 pub fn test() -> bool {
     unsafe {
         let x = 5;

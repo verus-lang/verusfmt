@@ -660,12 +660,17 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 assert_eq!(body.len(), 1);
                 let body = body.into_iter().next().unwrap();
                 formatted_output += VERUS_PREFIX;
-                for item in body.into_inner() {
+                let items = body.into_inner();
+                let len = items.clone().count();
+                for (i, item) in items.enumerate() {
                     if item.as_rule() == Rule::COMMENT {
                         formatted_output += item.as_str();
                     } else {
                         formatted_output += &format_item(item);
                         formatted_output += "\n";
+                        if i < len - 1 {
+                            formatted_output += "\n";
+                        }
                     }
                 }
                 formatted_output += VERUS_SUFFIX;
