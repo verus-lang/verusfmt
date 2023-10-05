@@ -159,12 +159,24 @@ fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
     !e.is_none()
 }
 
+fn debug_print(pair: Pair<Rule>, indent: usize) {
+    print!("{:indent$}{:?} {{", "", pair.as_rule(), indent=indent);
+    let pairs = pair.into_inner();
+    if pairs.peek().is_some() {
+        print!("\n");
+        pairs.for_each(|p| debug_print(p, indent + 2));
+        println!("{:indent$}}}", "", indent=indent);
+    } else {
+        println!("}}");
+    }
+}
+
 // TODO: Be sure that comments are being handled properly.  `//` comments should start with a space
 
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
-    debug!("Processing rule {:?}", pair.as_rule());
+    debug!("Processing rule {:?}", pair);
     match pair.as_rule() {
         //***********************//
         // General common things //
@@ -587,7 +599,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
-        Rule::COMMENT => s,
+        Rule::COMMENT => s.append(arena.line()),
         Rule::multiline_comment => s,
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::verus_macro_body | Rule::EOI => unreachable!(),
 
@@ -649,6 +661,7 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let mut formatted_output = String::new();
 
     for pair in parsed_file {
+        //debug_print(pair, 0);
         let rule = pair.as_rule();
         debug!(?rule, "Processing top-level");
         match rule {
@@ -665,6 +678,7 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 for (i, item) in items.enumerate() {
                     if item.as_rule() == Rule::COMMENT {
                         formatted_output += item.as_str();
+                        formatted_output += "\n";
                     } else {
                         formatted_output += &format_item(item);
                         formatted_output += "\n";

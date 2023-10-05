@@ -1,11 +1,8 @@
 verus! {
 
-fn a() -> u32 {
-    1
-}
-
-fn b() -> u32 {
-    2
+fn test_my_funs() {
+    // Line comment 1
+    let u = 4; // inline comment 1
 }
 
 } // verus!
