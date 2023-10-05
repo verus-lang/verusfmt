@@ -20,6 +20,10 @@ pub struct VerusParser;
 const NUMBER_OF_COLUMNS: usize = 100;
 const INDENT_SPACES: isize = 4;
 
+struct Context {
+    inline_comment_lines : HashSet<usize>,
+}
+
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/items.html
 
@@ -34,10 +38,10 @@ fn conditional_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
 }
 
 /// Comma-delimited list with an optional final comma
-fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.line_()
         .append(arena.intersperse(
-                    pair.into_inner().map(|i| to_doc(i, arena)), 
+                    pair.into_inner().map(|i| to_doc(ctx, i, arena)), 
                     docs![arena, 
                           ",", 
                           arena.line()
@@ -50,10 +54,10 @@ fn comma_delimited<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuild
 }
 
 /// Comma-delimited list with a required final comma
-fn comma_delimited_full<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+fn comma_delimited_full<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.line()
         .append(arena.intersperse(
-                    pair.into_inner().map(|i| to_doc(i, arena)), 
+                    pair.into_inner().map(|i| to_doc(ctx, i, arena)), 
                     docs![arena, 
                           ",", 
                           arena.line()
@@ -73,7 +77,7 @@ enum Enclosure {
 
 /// Wrap a comma-delimited list with an optional final comma,
 /// where the opening enclosure's symbol tries to "stick" to the previous line if needed
-fn sticky_list<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure) -> DocBuilder<'a,Arena<'a>> {
+fn sticky_list<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure) -> DocBuilder<'a,Arena<'a>> {
     use Enclosure::*;
     let opening = match enc {
         Braces => "{",
@@ -90,7 +94,7 @@ fn sticky_list<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure)
         opening,
         arena.line_(),
     ].group()
-    .append(map_to_doc(arena, pair)).group()
+    .append(map_to_doc(ctx, arena, pair)).group()
     .append(arena.text(closing))
 }
 
@@ -116,13 +120,13 @@ fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>, termi
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each child
-fn map_to_doc<'a>(arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
-    arena.concat(pair.into_inner().map(|p| to_doc(p, arena)))
+fn map_to_doc<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.concat(pair.into_inner().map(|p| to_doc(ctx, p, arena)))
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each pair 
-fn map_pairs_to_doc<'a>(arena:&'a Arena<'a,()>, pairs: &Pairs<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
-    arena.concat(pairs.clone().map(|p| to_doc(p, arena)))
+fn map_pairs_to_doc<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pairs: &Pairs<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.concat(pairs.clone().map(|p| to_doc(ctx, p, arena)))
 }
 
 fn format_doc(doc: RefDoc<()>) -> String {
@@ -175,10 +179,9 @@ fn debug_print(pair: Pair<Rule>, indent: usize) {
 
 // TODO: Be sure that comments are being handled properly.  `//` comments should start with a space
 
-fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
+fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
-    let (line, col) = pair.line_col();
     //debug!("Processing rule {:?} on line {}", pair.as_rule(), line);
     debug!("Processing rule {:?}", pair.as_rule());
     match pair.as_rule() {
@@ -352,10 +355,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::name_ref |
         Rule::lifetime
             => s,
-        Rule::path => map_to_doc(arena, pair),
-        Rule::path_segment => map_to_doc(arena, pair),
+        Rule::path => map_to_doc(ctx, arena, pair),
+        Rule::path_segment => map_to_doc(ctx, arena, pair),
         Rule::generic_arg_list => unsupported(pair),
-        Rule::generic_arg => map_to_doc(arena, pair),
+        Rule::generic_arg => map_to_doc(ctx, arena, pair),
         Rule::type_arg => unsupported(pair),
         Rule::assoc_type_arg => unsupported(pair),
         Rule::lifetime_arg => unsupported(pair),
@@ -368,7 +371,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //*************************//
         //          Items          //
         //*************************//
-        Rule::item => map_to_doc(arena, pair),
+        Rule::item => map_to_doc(ctx, arena, pair),
         Rule::macro_rules => unsupported(pair),
         Rule::macro_def => unsupported(pair),
         Rule::module => unsupported(pair),
@@ -378,13 +381,13 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::r#use => unsupported(pair),
         Rule::use_tree => unsupported(pair),
         Rule::use_tree_list => unsupported(pair),
-        Rule::fn_qualifier => map_to_doc(arena, pair),
-        Rule::fn_terminator => map_to_doc(arena, pair),
+        Rule::fn_qualifier => map_to_doc(ctx, arena, pair),
+        Rule::fn_terminator => map_to_doc(ctx, arena, pair),
         Rule::r#fn => {
             let pairs = pair.into_inner();
             let has_qualifier = pairs.clone().find(|p| matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0).is_some();
             arena.concat(pairs.map(|p| {
-                   let d = to_doc(p.clone(), arena);
+                   let d = to_doc(ctx, p.clone(), arena);
                    match p.as_rule() {
                        Rule::fn_terminator =>
                            if has_qualifier {
@@ -402,37 +405,37 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                    }}))
         }
         Rule::abi => unsupported(pair),
-        Rule::param_list => comma_delimited(arena, pair).parens().group(),
-        Rule::closure_param_list => comma_delimited(arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.space()),
-        Rule::self_param => map_to_doc(arena, pair),
-        Rule::param => map_to_doc(arena, pair),
-        Rule::ret_type => map_to_doc(arena, pair),
+        Rule::param_list => comma_delimited(ctx, arena, pair).parens().group(),
+        Rule::closure_param_list => comma_delimited(ctx, arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.space()),
+        Rule::self_param => map_to_doc(ctx, arena, pair),
+        Rule::param => map_to_doc(ctx, arena, pair),
+        Rule::ret_type => map_to_doc(ctx, arena, pair),
         Rule::type_alias => unsupported(pair),
-        Rule::r#struct => map_to_doc(arena, pair),
-        Rule::record_field_list => extra_spaced_braces(arena, comma_delimited(arena, pair)),
-        Rule::condensable_record_field_list => extra_spaced_braces(arena, comma_delimited(arena, pair)).group(),
-        Rule::record_field => map_to_doc(arena, pair),
-        Rule::tuple_field_list => comma_delimited(arena, pair).parens().group(),
-        Rule::tuple_field => map_to_doc(arena, pair),
-        Rule::field_list => map_to_doc(arena, pair),
-        Rule::r#enum => map_to_doc(arena, pair),
-        Rule::variant_list => arena.space().append(comma_delimited(arena, pair).braces()),
-        Rule::variant => map_to_doc(arena, pair),
+        Rule::r#struct => map_to_doc(ctx, arena, pair),
+        Rule::record_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)),
+        Rule::condensable_record_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group(),
+        Rule::record_field => map_to_doc(ctx, arena, pair),
+        Rule::tuple_field_list => comma_delimited(ctx, arena, pair).parens().group(),
+        Rule::tuple_field => map_to_doc(ctx, arena, pair),
+        Rule::field_list => map_to_doc(ctx, arena, pair),
+        Rule::r#enum => map_to_doc(ctx, arena, pair),
+        Rule::variant_list => arena.space().append(comma_delimited(ctx, arena, pair).braces()),
+        Rule::variant => map_to_doc(ctx, arena, pair),
         Rule::union => unsupported(pair),
-        //Rule::initializer => soft_indent(arena, map_to_doc(arena, pair)),
-        Rule::r#const => map_to_doc(arena, pair),
+        //Rule::initializer => soft_indent(arena, map_to_doc(ctx, arena, pair)),
+        Rule::r#const => map_to_doc(ctx, arena, pair),
         Rule::r#static => unsupported(pair),
-        Rule::r#trait => map_to_doc(arena, pair),
+        Rule::r#trait => map_to_doc(ctx, arena, pair),
         Rule::trait_alias => unsupported(pair),
-        Rule::assoc_item_list => arena.space().append(block_braces(arena, map_to_doc(arena, pair), true)),
-        Rule::assoc_item => map_to_doc(arena, pair),
-        Rule::r#impl => map_to_doc(arena, pair),
+        Rule::assoc_item_list => arena.space().append(block_braces(arena, map_to_doc(ctx, arena, pair), true)),
+        Rule::assoc_item => map_to_doc(ctx, arena, pair),
+        Rule::r#impl => map_to_doc(ctx, arena, pair),
         Rule::extern_block => unsupported(pair),
         Rule::extern_item_list => unsupported(pair),
         Rule::extern_item => unsupported(pair),
-        Rule::generic_param_list => comma_delimited(arena, pair).angles().group(),
-        Rule::generic_param => map_to_doc(arena, pair),
-        Rule::type_param => map_to_doc(arena, pair),
+        Rule::generic_param_list => comma_delimited(ctx, arena, pair).angles().group(),
+        Rule::generic_param => map_to_doc(ctx, arena, pair),
+        Rule::type_param => map_to_doc(ctx, arena, pair),
         Rule::const_param => unsupported(pair),
         Rule::lifetime_param => unsupported(pair),
         Rule::where_clause => unsupported(pair),
@@ -444,19 +447,19 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //****************************//
         // Statements and Expressions //
         //****************************//
-        Rule::stmt => map_to_doc(arena, pair).append(arena.hardline()),
+        Rule::stmt => map_to_doc(ctx, arena, pair).append(arena.hardline()),
         // TODO: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
         //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
-        Rule::let_stmt => map_to_doc(arena, pair).group(),
+        Rule::let_stmt => map_to_doc(ctx, arena, pair).group(),
         Rule::let_else => unsupported(pair),
-        Rule::expr => map_to_doc(arena, pair),
-        Rule::expr_inner => map_to_doc(arena, pair),
-        Rule::expr_inner_no_struct => map_to_doc(arena, pair),
-        Rule::expr_outer => map_to_doc(arena, pair),
-        Rule::expr_no_struct => map_to_doc(arena, pair),
+        Rule::expr => map_to_doc(ctx, arena, pair),
+        Rule::expr_inner => map_to_doc(ctx, arena, pair),
+        Rule::expr_inner_no_struct => map_to_doc(ctx, arena, pair),
+        Rule::expr_outer => map_to_doc(ctx, arena, pair),
+        Rule::expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::macro_expr => unsupported(pair),
-        Rule::literal => map_to_doc(arena, pair),
-        Rule::path_expr => map_to_doc(arena, pair),
+        Rule::literal => map_to_doc(ctx, arena, pair),
+        Rule::path_expr => map_to_doc(ctx, arena, pair),
         Rule::stmt_list => {
             let rule = pair.as_rule();
             let pairs = pair.into_inner();
@@ -468,9 +471,9 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
                 // - it is either used in expression position (not statement position) or is an unsafe block in statement position
                 // - contains a single-line expression and no statements
                 // - contains no comments
-                spaced_braces(arena, map_pairs_to_doc(arena, &pairs)).group()
+                spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)).group()
             } else {
-                let mapped = arena.concat(pairs.clone().map(|i| to_doc(i, arena)));
+                let mapped = arena.concat(pairs.clone().map(|i| to_doc(ctx, i, arena)));
                 block_braces(arena, mapped, terminal_expr(&pairs))
             }
         }
@@ -482,98 +485,98 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
 //                )
 //            };
 
-        Rule::ref_expr => map_to_doc(arena, pair),
-        Rule::proof_block => map_to_doc(arena, pair),
-        Rule::block_expr => map_to_doc(arena, pair),
+        Rule::ref_expr => map_to_doc(ctx, arena, pair),
+        Rule::proof_block => map_to_doc(ctx, arena, pair),
+        Rule::block_expr => map_to_doc(ctx, arena, pair),
         Rule::fn_block_expr => {
             let pairs = pair.into_inner();
-            let mapped = map_pairs_to_doc(arena, &pairs);
+            let mapped = map_pairs_to_doc(ctx, arena, &pairs);
             block_braces(arena, mapped, terminal_expr(&pairs))
         }
-        Rule::prefix_expr => map_to_doc(arena, pair),
+        Rule::prefix_expr => map_to_doc(ctx, arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
         Rule::bin_expr_ops => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
-        Rule::paren_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
-        Rule::paren_expr => map_to_doc(arena, pair),
-        Rule::array_expr_inner => sticky_list(arena, pair, Enclosure::Brackets),
-        Rule::array_expr => map_to_doc(arena, pair),
-        Rule::tuple_expr_inner => sticky_list(arena, pair, Enclosure::Parens),
-        Rule::tuple_expr => map_to_doc(arena, pair),
+        Rule::paren_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
+        Rule::paren_expr => map_to_doc(ctx, arena, pair),
+        Rule::array_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Brackets),
+        Rule::array_expr => map_to_doc(ctx, arena, pair),
+        Rule::tuple_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
+        Rule::tuple_expr => map_to_doc(ctx, arena, pair),
         Rule::struct_expr => unsupported(pair),
         Rule::record_expr_field_list => unsupported(pair),
         Rule::record_expr_field => unsupported(pair),
-        Rule::arg_list => sticky_list(arena, pair, Enclosure::Parens),
-        Rule::closure_expr => map_to_doc(arena, pair),
-        Rule::condition => map_to_doc(arena, pair).append(arena.space()),
-        Rule::if_expr => map_to_doc(arena, pair),
+        Rule::arg_list => sticky_list(ctx, arena, pair, Enclosure::Parens),
+        Rule::closure_expr => map_to_doc(ctx, arena, pair),
+        Rule::condition => map_to_doc(ctx, arena, pair).append(arena.space()),
+        Rule::if_expr => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => unsupported(pair),
         Rule::for_expr => unsupported(pair),
-        Rule::while_expr => map_to_doc(arena, pair),
+        Rule::while_expr => map_to_doc(ctx, arena, pair),
         Rule::label => unsupported(pair),
-        Rule::break_expr => map_to_doc(arena, pair),
-        Rule::continue_expr => map_to_doc(arena, pair),
-        Rule::match_expr => map_to_doc(arena, pair),
-        Rule::match_arm_list => arena.space().append(block_braces(arena, map_to_doc(arena, pair), false)),
-        Rule::match_arm_lhs => map_to_doc(arena, pair).append(arena.text(" => ")).group(),
-        Rule::match_arm => map_to_doc(arena, pair).append(arena.text(",")).append(arena.line()),
+        Rule::break_expr => map_to_doc(ctx, arena, pair),
+        Rule::continue_expr => map_to_doc(ctx, arena, pair),
+        Rule::match_expr => map_to_doc(ctx, arena, pair),
+        Rule::match_arm_list => arena.space().append(block_braces(arena, map_to_doc(ctx, arena, pair), false)),
+        Rule::match_arm_lhs => map_to_doc(ctx, arena, pair).append(arena.text(" => ")).group(),
+        Rule::match_arm => map_to_doc(ctx, arena, pair).append(arena.text(",")).append(arena.line()),
         Rule::match_guard => unsupported(pair),
-        Rule::return_expr => map_to_doc(arena, pair),
-        Rule::yield_expr => map_to_doc(arena, pair),
-        Rule::yeet_expr => map_to_doc(arena, pair),
-        Rule::let_expr => map_to_doc(arena, pair),
-        Rule::underscore_expr => map_to_doc(arena, pair).append(arena.text("_")),
-        Rule::box_expr => map_to_doc(arena, pair),
+        Rule::return_expr => map_to_doc(ctx, arena, pair),
+        Rule::yield_expr => map_to_doc(ctx, arena, pair),
+        Rule::yeet_expr => map_to_doc(ctx, arena, pair),
+        Rule::let_expr => map_to_doc(ctx, arena, pair),
+        Rule::underscore_expr => map_to_doc(ctx, arena, pair).append(arena.text("_")),
+        Rule::box_expr => map_to_doc(ctx, arena, pair),
 
         //*************************//
         //          Types          //
         //*************************//
         Rule::r#type => s,
-        Rule::paren_type => map_to_doc(arena, pair).parens(),
-        Rule::never_type => map_to_doc(arena, pair),
-        Rule::macro_type => map_to_doc(arena, pair),
-        Rule::path_type => map_to_doc(arena, pair),
-        Rule::tuple_type => comma_delimited(arena, pair).braces().group(),
-        Rule::ptr_type => arena.text("*").append(map_to_doc(arena, pair)),
-        Rule::ref_type => arena.text("*").append(map_to_doc(arena, pair)),
+        Rule::paren_type => map_to_doc(ctx, arena, pair).parens(),
+        Rule::never_type => map_to_doc(ctx, arena, pair),
+        Rule::macro_type => map_to_doc(ctx, arena, pair),
+        Rule::path_type => map_to_doc(ctx, arena, pair),
+        Rule::tuple_type => comma_delimited(ctx, arena, pair).braces().group(),
+        Rule::ptr_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
+        Rule::ref_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
         Rule::array_type => 
             // In this context, the semicolon must have a space following it
             arena.concat(pair.into_inner().map(|p| 
                                                match p.as_rule() {
                                                    Rule::semi_str => arena.text("; "),
-                                                   _ => to_doc(p, arena)
+                                                   _ => to_doc(ctx, p, arena)
                                                }
             )).brackets(),
-        Rule::slice_type => map_to_doc(arena, pair).brackets(),
-        Rule::infer_type => map_to_doc(arena, pair),
-        Rule::fn_ptr_type => map_to_doc(arena, pair),
-        Rule::for_type => map_to_doc(arena, pair),
-        Rule::impl_trait_type => map_to_doc(arena, pair),
-        Rule::dyn_trait_type => map_to_doc(arena, pair),
+        Rule::slice_type => map_to_doc(ctx, arena, pair).brackets(),
+        Rule::infer_type => map_to_doc(ctx, arena, pair),
+        Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
+        Rule::for_type => map_to_doc(ctx, arena, pair),
+        Rule::impl_trait_type => map_to_doc(ctx, arena, pair),
+        Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::type_bound_list => unsupported(pair),
-        Rule::type_bound => map_to_doc(arena, pair),
+        Rule::type_bound => map_to_doc(ctx, arena, pair),
 
         //************************//
         //        Patterns        //
         //************************//
-        Rule::pat => map_to_doc(arena, pair),
-        Rule::pat_no_top_alt => map_to_doc(arena, pair),
-        Rule::pat_inner => map_to_doc(arena, pair),
-        Rule::literal_pat => map_to_doc(arena, pair),
-        Rule::ident_pat => map_to_doc(arena, pair),
+        Rule::pat => map_to_doc(ctx, arena, pair),
+        Rule::pat_no_top_alt => map_to_doc(ctx, arena, pair),
+        Rule::pat_inner => map_to_doc(ctx, arena, pair),
+        Rule::literal_pat => map_to_doc(ctx, arena, pair),
+        Rule::ident_pat => map_to_doc(ctx, arena, pair),
         Rule::wildcard_pat => arena.text("_"),
-        Rule::end_only_range_pat => map_to_doc(arena, pair),
-        Rule::ref_pat => arena.text("&").append(map_to_doc(arena, pair)),
-        Rule::record_pat => map_to_doc(arena, pair),
-        Rule::record_pat_field_list => comma_delimited(arena, pair).braces().group(),   // TODO: Handle vanishing comma's interaction with rest_pat
-        Rule::record_pat_field => map_to_doc(arena, pair),
-        Rule::tuple_struct_pat_inner => comma_delimited(arena, pair).parens().group(),
-        Rule::tuple_struct_pat => map_to_doc(arena, pair), 
-        Rule::tuple_pat => comma_delimited(arena, pair).parens().group(),
-        Rule::paren_pat => map_to_doc(arena, pair).parens(),
-        Rule::slice_pat => comma_delimited(arena, pair).brackets().group(),
-        Rule::path_pat => map_to_doc(arena, pair),
-        Rule::box_pat => map_to_doc(arena, pair),
-        Rule::rest_pat => map_to_doc(arena, pair),  // TODO: Should the attributes on this be on
+        Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
+        Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),
+        Rule::record_pat => map_to_doc(ctx, arena, pair),
+        Rule::record_pat_field_list => comma_delimited(ctx, arena, pair).braces().group(),   // TODO: Handle vanishing comma's interaction with rest_pat
+        Rule::record_pat_field => map_to_doc(ctx, arena, pair),
+        Rule::tuple_struct_pat_inner => comma_delimited(ctx, arena, pair).parens().group(),
+        Rule::tuple_struct_pat => map_to_doc(ctx, arena, pair), 
+        Rule::tuple_pat => comma_delimited(ctx, arena, pair).parens().group(),
+        Rule::paren_pat => map_to_doc(ctx, arena, pair).parens(),
+        Rule::slice_pat => comma_delimited(ctx, arena, pair).brackets().group(),
+        Rule::path_pat => map_to_doc(ctx, arena, pair),
+        Rule::box_pat => map_to_doc(ctx, arena, pair),
+        Rule::rest_pat => map_to_doc(ctx, arena, pair),  // TODO: Should the attributes on this be on
                                                     // the same line?
         Rule::macro_pat => unsupported(pair),
         Rule::const_block_pat => unsupported(pair),
@@ -581,29 +584,36 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //************************//
         //        Verus           //
         //************************//
-        Rule::publish => map_to_doc(arena, pair),
-        Rule::fn_mode => map_to_doc(arena, pair).append(arena.space()),
-        Rule::mode_spec_checked => map_to_doc(arena, pair),
-        Rule::data_mode => map_to_doc(arena, pair),
-        Rule::comma_delimited_exprs => comma_delimited(arena, pair).group(),
-        Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited_full(arena, pair).nest(INDENT_SPACES),
-        Rule::groupable_comma_delimited_exprs_for_verus_clauses => map_to_doc(arena, pair).nest(INDENT_SPACES).group(),
-        Rule::verus_clause_non_expr => map_to_doc(arena, pair),
-        Rule::requires_clause => map_to_doc(arena, pair),
-        Rule::ensures_clause => map_to_doc(arena, pair),
+        Rule::publish => map_to_doc(ctx, arena, pair),
+        Rule::fn_mode => map_to_doc(ctx, arena, pair).append(arena.space()),
+        Rule::mode_spec_checked => map_to_doc(ctx, arena, pair),
+        Rule::data_mode => map_to_doc(ctx, arena, pair),
+        Rule::comma_delimited_exprs => comma_delimited(ctx, arena, pair).group(),
+        Rule::comma_delimited_exprs_for_verus_clauses => comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES),
+        Rule::groupable_comma_delimited_exprs_for_verus_clauses => map_to_doc(ctx, arena, pair).nest(INDENT_SPACES).group(),
+        Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),
+        Rule::requires_clause => map_to_doc(ctx, arena, pair),
+        Rule::ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::invariant_clause => unsupported(pair),
-        Rule::recommends_clause => map_to_doc(arena, pair),
-        Rule::decreases_clause => map_to_doc(arena, pair),
-        Rule::assert_requires => map_to_doc(arena, pair).append(arena.line()),
-        Rule::assert_expr => map_to_doc(arena, pair).group(),
-        Rule::assume_expr => map_to_doc(arena, pair),
-        Rule::assert_forall_expr => map_to_doc(arena, pair),
-        Rule::prover => map_to_doc(arena, pair),
-        Rule::inline_prover => map_to_doc(arena, pair).group(),
+        Rule::recommends_clause => map_to_doc(ctx, arena, pair),
+        Rule::decreases_clause => map_to_doc(ctx, arena, pair),
+        Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),
+        Rule::assert_expr => map_to_doc(ctx, arena, pair).group(),
+        Rule::assume_expr => map_to_doc(ctx, arena, pair),
+        Rule::assert_forall_expr => map_to_doc(ctx, arena, pair),
+        Rule::prover => map_to_doc(ctx, arena, pair),
+        Rule::inline_prover => map_to_doc(ctx, arena, pair).group(),
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
-        Rule::COMMENT => s.append(arena.line()),
+        Rule::COMMENT => { 
+            let (line, col) = pair.line_col();
+            if ctx.inline_comment_lines.contains(&line) {
+                s.append(arena.text(INLINE_COMMENT_FIXUP)).append(arena.line())
+            } else {
+                s.append(arena.line())
+            }
+        }
         Rule::multiline_comment => s,
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::verus_macro_body | Rule::EOI => unreachable!(),
 
@@ -614,24 +624,46 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
     }
 }
 
-fn format_item(item: Pair<Rule>) -> String {
+const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
+
+fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
     let arena = Arena::<()>::new();
-    let doc = to_doc(item, &arena).into_doc();
+    let doc = to_doc(ctx, item, &arena).into_doc();
     debug!("{:?}", doc);
     format_doc(doc)
 }
 
-// TODO: Only count lines where non-whitespace precedes the comment
+// Count lines where non-whitespace precedes the start of a comment
 fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     let mut comment_lines = HashSet::new();
-    let re = Regex::new(r"//|/\*").unwrap();
+    let re = Regex::new(r"^.*\S.*(//|/\*)").unwrap();
     for (line_num, line) in s.lines().enumerate() {
         if re.captures(line).is_some() {
             comment_lines.insert(line_num + 1);
-            // println!("Found a comment on line {}", line_num + 1);
         }
     }
     return comment_lines;
+}
+
+
+fn fix_inline_comments(s: String) -> String {
+    let mut fixed_str = String::new();
+    let mut prev_str = "";
+
+    let re = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    for line in s.lines() {
+        let line = &line[..line.len() - 1];
+        if re.captures(line).is_some() {
+            fixed_str += prev_str;
+            prev_str = line;
+        } else {
+            fixed_str += prev_str;
+            fixed_str += "\n";
+            prev_str = line;
+        }
+    }
+    fixed_str += prev_str;
+    return fixed_str;
 }
 
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
@@ -667,7 +699,7 @@ pub fn rustfmt(value: &str) -> Option<String> {
 
 
 pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
-    find_inline_comment_lines(s);
+    let ctx = Context { inline_comment_lines: find_inline_comment_lines(s) };
     let parsed_file = VerusParser::parse(Rule::file, s)?
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")
@@ -698,7 +730,7 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                         formatted_output += item.as_str();
                         formatted_output += "\n";
                     } else {
-                        formatted_output += &format_item(item);
+                        formatted_output += &format_item(&ctx, item);
                         formatted_output += "\n";
                         if i < len - 1 {
                             formatted_output += "\n";
@@ -713,7 +745,8 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
             _ => unreachable!("Unexpected rule: {:?}", rule),
         }
     }
-    Ok(formatted_output)
+    let fixed_output = fix_inline_comments(formatted_output);
+    Ok(fixed_output)
 }
 
 
