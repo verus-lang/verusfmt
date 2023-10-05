@@ -408,7 +408,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::trait_alias => unsupported(pair),
         Rule::assoc_item_list => arena.space().append(block_braces(arena, map_to_doc(arena, pair), true)),
         Rule::assoc_item => map_to_doc(arena, pair),
-        Rule::r#impl => unsupported(pair),
+        Rule::r#impl => map_to_doc(arena, pair),
         Rule::extern_block => unsupported(pair),
         Rule::extern_item_list => unsupported(pair),
         Rule::extern_item => unsupported(pair),
