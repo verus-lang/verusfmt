@@ -174,7 +174,7 @@ bang_str = { "!" }
 colon_str = { ":" }
 colons_str = { "::" }
 dash_str = { "-" }
-dot_str = { ".." }
+dot_str = { "." }
 dot_dot_str = { ".." }
 dot_dot_eq_str = { "..=" }
 ellipses_str = { "..." }
