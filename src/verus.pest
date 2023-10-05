@@ -80,9 +80,13 @@ verus_macro_body = !{
 /// A valid identifier, currently only supports ASCII-based identifiers, but
 /// this probably should be extended in the future to correctly handle all
 /// allowed identifiers.
-identifier = @{
+identifier_string = @{
     (ASCII_ALPHA | "_") ~
     (ASCII_ALPHANUMERIC | "_")*
+}
+
+identifier = @{
+    !keyword ~ identifier_string
 }
 
 hex_number = @{
@@ -160,9 +164,6 @@ char = @{
 byte = @{
     "b" ~ char
 }
-
-
-
 
 //***********************************************************//
 // Fixed strings we want to preserve in the formatted output //
@@ -281,6 +282,63 @@ while_str = { "while" }
 yeet_str = { "yeet" }
 yield_str = { "yield" }
 
+// See https://doc.rust-lang.org/reference/keywords.html
+keyword = {
+    // Strict
+      as_str
+    | break_str
+    | const_str
+    | continue_str
+    | crate_str
+    | else_str
+    | enum_str
+    | extern_str
+    | false_str
+    | fn_str
+    | for_str
+    | if_str
+    | impl_str
+    | in_str
+    | let_str
+    | loop_str
+    | match_str
+    | mod_str
+    | move_str
+    | mut_str
+    | pub_str
+    | ref_str
+    | return_str
+    | self_str
+    | Self_str
+    | static_str
+    | struct_str
+    | super_str
+    | trait_str
+    | true_str
+    | type_str
+    | unsafe_str
+    | use_str
+    | where_str
+    | while_str
+    | async_str
+    | await_str
+    | dyn_str
+    
+    // Reserved    
+    | "abstract"
+    | "become"
+    | box_str
+    | do_str
+    | "final"
+    | macro_str
+    | "override_str"
+    | "priv_str"
+    | "typeof_str"
+    | "unsized_str"
+    | "virtual_str"
+    | yield_str
+    | try_str  
+}
 
 //*************************//
 // Names, Paths and Macros //

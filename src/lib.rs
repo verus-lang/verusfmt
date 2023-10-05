@@ -169,8 +169,10 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         //***********************//
         // General common things //
         //***********************//
+        Rule::identifier_string |
         Rule::identifier |
         Rule::hex_number |
+        Rule::keyword |
         Rule::decimal_number |
         Rule::octal_number |
         Rule::binary_number |

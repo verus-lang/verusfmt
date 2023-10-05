@@ -1,5 +1,12 @@
 verus! {
 
+pub fn test_function() -> u32 {
+    let h = |x, y, z: int| {
+        let w = y;
+        u
+    };
+}
+
 enum List<T> {
     Nil,
     Cons(T, Box<List<T>>),
