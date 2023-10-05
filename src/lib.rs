@@ -6,6 +6,8 @@ use tracing::{debug, error, info, trace};
 use std::process::{Command,Stdio};
 use std::str::from_utf8;
 use std::io::Write;
+use std::collections::HashSet;
+use regex::Regex;
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
@@ -176,7 +178,9 @@ fn debug_print(pair: Pair<Rule>, indent: usize) {
 fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
     // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
-    debug!("Processing rule {:?}", pair);
+    let (line, col) = pair.line_col();
+    //debug!("Processing rule {:?} on line {}", pair.as_rule(), line);
+    debug!("Processing rule {:?}", pair.as_rule());
     match pair.as_rule() {
         //***********************//
         // General common things //
@@ -617,6 +621,19 @@ fn format_item(item: Pair<Rule>) -> String {
     format_doc(doc)
 }
 
+// TODO: Only count lines where non-whitespace precedes the comment
+fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
+    let mut comment_lines = HashSet::new();
+    let re = Regex::new(r"//|/\*").unwrap();
+    for (line_num, line) in s.lines().enumerate() {
+        if re.captures(line).is_some() {
+            comment_lines.insert(line_num + 1);
+            // println!("Found a comment on line {}", line_num + 1);
+        }
+    }
+    return comment_lines;
+}
+
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
 pub const VERUS_SUFFIX: &str = "\n} // verus!\n";
 
@@ -650,6 +667,7 @@ pub fn rustfmt(value: &str) -> Option<String> {
 
 
 pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
+    find_inline_comment_lines(s);
     let parsed_file = VerusParser::parse(Rule::file, s)?
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")
