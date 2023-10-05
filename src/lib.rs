@@ -273,6 +273,7 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::mut_str |
         Rule::nat_str |
         Rule::open_str |
+        Rule::proof_str |
         Rule::pub_str |
         Rule::r_str |
         Rule::raw_str |
@@ -321,7 +322,6 @@ fn to_doc<'a>(pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Are
         Rule::exists_str |
         Rule::false_str |
         Rule::forall_str |
-        Rule::proof_str |
         Rule::spec_str |
         Rule::true_str 
             => s,

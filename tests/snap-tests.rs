@@ -31,6 +31,12 @@ spec fn dec0(a: int) -> int
 {
     5
 }
+fn test_views() {
+    proof {
+        let s: Seq<u8> = v@;
+        assert(s[0] == 10);
+        assert(s[1] == 20);
+    }
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
@@ -56,6 +62,12 @@ spec fn dec0(a: int) -> int
     {
         5
     }
+    fn test_views() {
+        proof {
+            let s: Seq<u8> = v@;
+            assert(s[0] == 10);
+            assert(s[1] == 20);
+        }
     "###);
 }
 
