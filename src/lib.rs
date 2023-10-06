@@ -19,6 +19,8 @@ pub struct VerusParser;
 // rustfmt sets this to 100: https://rust-lang.github.io/rustfmt/?version=v1.6.0&search=#max_width
 const NUMBER_OF_COLUMNS: usize = 100;
 const INDENT_SPACES: isize = 4;
+// Number of spaces between an inline comment and the preceding text
+const INLINE_COMMENT_SPACE: usize = 2;
 
 struct Context {
     inline_comment_lines : HashSet<usize>,
@@ -607,7 +609,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
 
         Rule::WHITESPACE => arena.nil(),
         Rule::COMMENT => { 
-            let (line, col) = pair.line_col();
+            let (line, _col) = pair.line_col();
             if ctx.inline_comment_lines.contains(&line) {
                 s.append(arena.text(INLINE_COMMENT_FIXUP)).append(arena.line())
             } else {
@@ -647,22 +649,21 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 
 fn fix_inline_comments(s: String) -> String {
-    let mut fixed_str = String::new();
-    let mut prev_str = "";
+    let mut fixed_str:String = String::new();
+    let mut prev_str:String = "".to_string();
 
     let re = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
     for line in s.lines() {
-        let line = &line[..line.len() - 1];
         if re.captures(line).is_some() {
-            fixed_str += prev_str;
-            prev_str = line;
+            fixed_str += &prev_str;
+            prev_str = format!("{:indent$}{}", "", line.trim_start().replace(INLINE_COMMENT_FIXUP, ""), indent=INLINE_COMMENT_SPACE);
         } else {
-            fixed_str += prev_str;
+            fixed_str += &prev_str;
             fixed_str += "\n";
-            prev_str = line;
+            prev_str = line.to_string();
         }
     }
-    fixed_str += prev_str;
+    fixed_str += &prev_str;
     return fixed_str;
 }
 
