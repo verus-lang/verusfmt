@@ -251,7 +251,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                 arena.space()
             ].nest(INDENT_SPACES-1).group(), 
         Rule::else_str => docs![arena, arena.space(), s, arena.space()],
-        Rule::as_str |
         Rule::async_str |
         Rule::auto_str |
         Rule::await_str |
@@ -294,6 +293,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::mut_str |
         Rule::nat_str |
         Rule::open_str |
+        Rule::proof_space_str |
         Rule::pub_str |
         Rule::r_str |
         Rule::raw_str |
@@ -324,6 +324,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::yield_str 
             => s.append(arena.space()),
         
+        Rule::as_str |
         Rule::has_str |
         Rule::is_str
             => arena.space().append(s).append(arena.space()),

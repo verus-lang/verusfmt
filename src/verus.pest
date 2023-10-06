@@ -249,6 +249,7 @@ mut_str = { "mut" }
 nat_str = { "nat" }
 open_str = { "open" }
 proof_str = { "proof" }
+proof_space_str = { "proof" }
 pub_str = { "pub" }
 r_str = { "r" }
 raw_str = { "raw" }
@@ -836,7 +837,7 @@ ref_expr = {
 }
 
 proof_block = {
-    attr* ~ label? ~ proof_str ~ stmt_list
+    attr* ~ label? ~ proof_space_str ~ stmt_list
 }
 
 block_expr = {
