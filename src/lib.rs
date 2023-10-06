@@ -654,16 +654,16 @@ fn fix_inline_comments(s: String) -> String {
 
     let re = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
     for line in s.lines() {
+        fixed_str += &prev_str;
         if re.captures(line).is_some() {
-            fixed_str += &prev_str;
             prev_str = format!("{:indent$}{}", "", line.trim_start().replace(INLINE_COMMENT_FIXUP, ""), indent=INLINE_COMMENT_SPACE);
         } else {
-            fixed_str += &prev_str;
             fixed_str += "\n";
             prev_str = line.to_string();
         }
     }
     fixed_str += &prev_str;
+    fixed_str += "\n";
     return fixed_str;
 }
 
