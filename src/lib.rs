@@ -639,7 +639,7 @@ fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
 // Count lines where non-whitespace precedes the start of a comment
 fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     let mut comment_lines = HashSet::new();
-    let re = Regex::new(r"^.*\S.*(//|/\*)").unwrap();
+    let re = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
     for (line_num, line) in s.lines().enumerate() {
         if re.captures(line).is_some() {
             comment_lines.insert(line_num + 1);
