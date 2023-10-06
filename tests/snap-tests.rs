@@ -97,6 +97,13 @@ pub fn test_function(x: bool, y: bool) -> u32
     };
     5
 }
+
+fn assert_by_test() {
+    assert(f1(3) > 3) by {
+        reveal(f1);  // reveal f1's definition just inside this block
+    };
+    assert(f1(3) > 3);
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
@@ -118,6 +125,13 @@ pub fn test_function(x: bool, y: bool) -> u32
             reveal(f1);
         };
         5
+    }
+
+    fn assert_by_test() {
+        assert(f1(3) > 3) by {
+            reveal(f1);  // reveal f1's definition just inside this block
+        };
+        assert(f1(3) > 3);
     }
     "###);
 }
