@@ -652,12 +652,18 @@ fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
 
 const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
 
-// Identify lines where non-whitespace precedes the start of a comment
+// Identify lines where non-whitespace precedes the start of a comment (re_inline_candidate);
+// we also have to check for an earlier whitespace-prefixed comment (re_spaced_comment) that
+// dominates candidates found above, like in this example:
+//   let x = 10;
+//   // x = 5;  // We can't do this because x is not mutable
+//   let y = 5;
 fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     let mut comment_lines = HashSet::new();
-    let re = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
+    let re_inline_candidate = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
+    let re_spaced_comment = Regex::new(r"^\s*(///|//|/\*)").unwrap();
     for (line_num, line) in s.lines().enumerate() {
-        if re.captures(line).is_some() {
+        if re_inline_candidate.captures(line).is_some() && re_spaced_comment.captures(line).is_none() {
             comment_lines.insert(line_num + 1);
         }
     }
@@ -666,6 +672,7 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
+    println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
     let mut fixed_str:String = String::new();
     let mut prev_str:String = "".to_string();
     let mut first_iteration = true;
@@ -750,7 +757,6 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 for (i, item) in items.enumerate() {
                     if item.as_rule() == Rule::COMMENT {
                         formatted_output += item.as_str();
-                        formatted_output += "\n";
                     } else {
                         formatted_output += &format_item(&ctx, item);
                         formatted_output += "\n";
