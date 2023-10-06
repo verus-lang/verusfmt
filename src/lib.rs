@@ -627,8 +627,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
     }
 }
 
-const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
-
 fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
     let arena = Arena::<()>::new();
     let doc = to_doc(ctx, item, &arena).into_doc();
@@ -636,7 +634,25 @@ fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
     format_doc(doc)
 }
 
-// Count lines where non-whitespace precedes the start of a comment
+/*
+ * Inline comments are difficult to handle.  Because pest reads them implicitly,
+ * code like this:
+ *   // Comment 1
+ *   foo(x);    // Comment 2
+ * gets parsed as three siblings.  Hence, when we process `foo(x)`, we don't know
+ * that we shouldn't add a newline after the semicolon.  And by the time we process
+ * `// Comment 2`, it's too late to retract the previous newline.  Hence, the current
+ * hack is to preprocess the file to identify all inline comments (we can't do this as part
+ * of the formatting pass, since when we reach `Comment 2` we can't ask it if other code
+ * preceded it).  Then when we generate the formatted version, we add a marker to comments
+ * we have identified as inline.  Finally, after the formatted version is converted to
+ * a string, we postprocess the string to move the inline comments back to their inline position.
+ *
+ */
+
+const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
+
+// Identify lines where non-whitespace precedes the start of a comment
 fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     let mut comment_lines = HashSet::new();
     let re = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
@@ -648,10 +664,11 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     return comment_lines;
 }
 
-
+// Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
     let mut fixed_str:String = String::new();
     let mut prev_str:String = "".to_string();
+    let mut first_iteration = true;
 
     let re = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
     for line in s.lines() {
@@ -659,9 +676,12 @@ fn fix_inline_comments(s: String) -> String {
         if re.captures(line).is_some() {
             prev_str = format!("{:indent$}{}", "", line.trim_start().replace(INLINE_COMMENT_FIXUP, ""), indent=INLINE_COMMENT_SPACE);
         } else {
-            fixed_str += "\n";
+            if !first_iteration {
+                fixed_str += "\n";
+            }
             prev_str = line.to_string();
         }
+        first_iteration = false;
     }
     fixed_str += &prev_str;
     fixed_str += "\n";
