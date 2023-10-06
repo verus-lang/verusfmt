@@ -769,17 +769,32 @@ expr_inner_no_struct = _{
   | path_expr   // Needs to be last, or it matches against keywords like "while"  
 }
 
+// The next three rules are defined to be atomic, since they
+// all require one or more explicit whitespace tokens.
+// This avoids, e.g., parsing "assert" has "as sert".
+expr_as = ${
+    as_str ~ WHITESPACE+ ~ type
+}
+
+expr_has = ${
+    has_str ~ WHITESPACE+ ~ expr
+}
+
+expr_is = ${
+    is_str ~ WHITESPACE+ ~ type
+}
+
 expr_outer = _{
     // await_expr
     dot_str ~ await_str
     // call_expr
     | arg_list
     // cast_expr
-    | as_str ~ WHITESPACE ~ type
+    | expr_as
+    // collection test
+    | expr_has
     // datatype test
-    | is_str ~ WHITESPACE ~ type
-    // colection test
-    | has_str ~ WHITESPACE ~ expr
+    | expr_is
     // field_expr
     | dot_str ~ name_ref
     // try_expr

@@ -5,7 +5,7 @@ X - Various "bonus" commas
 
 Bugs:
 
-- "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
+X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
 
 - Handling of multiline comments
     /* TODO
