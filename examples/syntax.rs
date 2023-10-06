@@ -55,8 +55,8 @@ fn test_my_funs(x: u32, y: u32)
     // my_proof_fun(x, y); // not allowed in exec code
     // let u = my_spec_fun(x, y); // not allowed exec code
     proof {
-        let u = my_spec_fun(x as int, y as int); // allowed in proof code
-        my_proof_fun(u / 2, y as int); // allowed in proof code
+        let u = my_spec_fun(x as int, y as int);  // allowed in proof code
+        my_proof_fun(u / 2, y as int);  // allowed in proof code
     }
 }
 
@@ -92,7 +92,7 @@ fn test_rec(x: u64, y: u64)
     requires
         0 < x < 100,
         y < 100 - x,
-    decreases x
+    decreases x,
 {
     if x > 1 {
         test_rec(x - 1, y + 1);
@@ -102,7 +102,7 @@ fn test_rec(x: u64, y: u64)
 /// Multiple decreases clauses are ordered lexicographically, so that later clauses may
 /// increase when earlier clauses decrease.
 spec fn test_rec2(x: int, y: int) -> int
-    decreases x, y
+    decreases x, y,
 {
     if y > 0 {
         1 + test_rec2(x, y - 1)
@@ -120,14 +120,15 @@ spec fn test_rec2(x: int, y: int) -> int
 ///   - recommends .. "when" specifies a proof function that proves the
 ///     recommendations of the functions invoked in the body
 spec fn add0(a: nat, b: nat) -> nat
-    recommends a > 0
+    recommends
+        a > 0,
     via add0_recommends
 {
     a + b
 }
 
 spec fn dec0(a: int) -> int
-    decreases a
+    decreases a,
     when a > 0
     via dec0_decreases
 {
@@ -165,10 +166,10 @@ fn test_my_funs2(
         a < 100,
         b < 100,
 {
-    let s = a + b; // s is an exec variable
+    let s = a + b;  // s is an exec variable
     proof {
-        let u = a + b; // u is a ghost variable
-        my_proof_fun(u / 2, b as int); // my_proof_fun(x, y) takes ghost parameters x and y
+        let u = a + b;  // u is a ghost variable
+        my_proof_fun(u / 2, b as int);  // my_proof_fun(x, y) takes ghost parameters x and y
     }
 }
 
@@ -181,23 +182,28 @@ spec fn f1(i: int) -> int {
 
 fn assert_by_test() {
     assert(f1(3) > 3) by {
-        reveal(f1); // reveal f1's definition just inside this block
+        reveal(f1);  // reveal f1's definition just inside this block
     }
     assert(f1(3) > 3);
 }
 
 /// "assert by" can also invoke specialized provers for bit-vector reasoning or nonlinear arithmetic.
 fn assert_by_provers(x: u32) {
-    assert(x ^ x == 0u32) by(bit_vector);
-    assert(2 <= x && x < 10 ==> x * x > x) by(nonlinear_arith);
+    assert(x ^ x == 0u32) by (bit_vector);
+    assert(2 <= x && x < 10 ==> x * x > x) by (nonlinear_arith);
 }
 
 /// "assert by" provers can also appear on function signatures to select a specific prover
 /// for the function body.
 proof fn lemma_mul_upper_bound(x: int, x_bound: int, y: int, y_bound: int)
     by (nonlinear_arith)
-    requires x <= x_bound, y <= y_bound, 0 <= x, 0 <= y,
-    ensures x * y <= x_bound * y_bound,
+    requires
+        x <= x_bound,
+        y <= y_bound,
+        0 <= x, 
+        0 <= y,
+    ensures
+        x * y <= x_bound * y_bound,
 {
 }
 
@@ -210,7 +216,7 @@ proof fn test5_bound_checking(x: u32, y: u32, z: u32)
         y <= 0xffff,
         z <= 0xffff,
 {
-    assert(x * z == mul(x, z)) by(nonlinear_arith)
+    assert(x * z == mul(x, z)) by (nonlinear_arith)
         requires
             x <= 0xffff,
             z <= 0xffff,
@@ -328,17 +334,14 @@ pub(crate) proof fn binary_ops<A>(a: A, x: int) {
     assert(false ==> true);
     assert(true && false ==> false && false);
     assert(!(true && (false ==> false) && false));
-
     assert(false ==> false ==> false);
     assert(false ==> (false ==> false));
     assert(!((false ==> false) ==> false));
-
     assert(false <== false <== false);
     assert(!(false <== (false <== false)));
     assert((false <== false) <== false);
     assert(2 + 2 !== 3);
     assert(a == a);
-
     assert(false <==> true && false);
 }
 
@@ -361,7 +364,7 @@ fn test_views() {
     v.push(10);
     v.push(20);
     proof {
-        let s: Seq<u8> = v@; // v@ is equivalent to v.view()
+        let s: Seq<u8> = v@;  // v@ is equivalent to v.view()
         assert(s[0] == 10);
         assert(s[1] == 20);
     }
@@ -401,7 +404,7 @@ fn test_ghost(x: u32, y: u32)
     let ghost mut v = u + 1;
     assert(v == x + y + 1);
     proof {
-        v = v + 1; // proof code may assign to ghost mut variables
+        v = v + 1;  // proof code may assign to ghost mut variables
     }
     let ghost w = {
         let temp = v + 1;
@@ -438,7 +441,8 @@ fn test_ghost_wrappers(x: u32, y: Ghost<u32>)
 }
 
 fn test_consume(t: Tracked<int>)
-    requires t@ <= 7
+    requires 
+        t@ <= 7,
 {
     proof {
         let tracked x = t.get();
@@ -448,7 +452,7 @@ fn test_consume(t: Tracked<int>)
 }
 
 /// Ghost(...) and Tracked(...) patterns can unwrap Ghost<...> and Tracked<...> values:
-fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>) // unwrap so that y has typ u32, not Ghost<u32>
+fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>)  // unwrap so that y has typ u32, not Ghost<u32>
     requires
         x < 100,
         y < 100,
@@ -458,7 +462,7 @@ fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>) // unwrap so that y has typ u
     let Ghost(mut v): Ghost<int> = Ghost(u + 1);
     assert(v == x + y + 1);
     proof {
-        v = v + 1; // assign directly to ghost mut v
+        v = v + 1;  // assign directly to ghost mut v
     }
     let Ghost(w): Ghost<int> = Ghost({
         // proof block that returns a ghost value
@@ -476,10 +480,8 @@ struct S {}
 fn test_ghost_tuple_match(t: (Tracked<S>, Tracked<S>, Ghost<int>, Ghost<int>)) -> Tracked<S> {
     let ghost g: (int, int) = (10, 20);
     assert(g.0 + g.1 == 30);
-
     let ghost (g1, g2) = g;
     assert(g1 + g2 == 30);
-
     // b1, b2: Tracked<S> and g3, g4: Ghost<int>
     let (Tracked(b1), Tracked(b2), Ghost(g3), Ghost(g4)) = t;
     Tracked(b2)
@@ -524,7 +526,8 @@ spec fn my_uninterpreted_fun1(i: int, j: int) -> int;
 spec fn my_uninterpreted_fun2(i: int, j: int) -> int
     recommends
         0 <= i < 10,
-        0 <= j < 10;
+        0 <= j < 10,
+;
 
 /// Trait functions may have specifications
 trait T {
@@ -534,7 +537,8 @@ trait T {
             0 <= j < 10,
         ensures
             i <= r,
-            j <= r;
+            j <= r,
+    ;
 }
 
 enum ThisOrThat {
@@ -545,7 +549,7 @@ enum ThisOrThat {
 proof fn uses_is(t: ThisOrThat) {
     match t {
         ThisOrThat::This(..) => assert(t is This),
-        ThisOrThat::That {..} => assert(t is That),
+        ThisOrThat::That{..} => assert(t is That),
     }
 }
 
@@ -557,7 +561,8 @@ impl Collection {
 }
 
 proof fn uses_spec_has(c: Collection)
-    requires c has 3,
+    requires 
+        c has 3,
 {
     assert(c has 3);
     assert(c has 3 == c has 3);
