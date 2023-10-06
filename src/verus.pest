@@ -775,11 +775,11 @@ expr_outer = _{
     // call_expr
     | arg_list
     // cast_expr
-    | as_str ~ type
+    | as_str ~ WHITESPACE ~ type
     // datatype test
-    | is_str ~ type
+    | is_str ~ WHITESPACE ~ type
     // colection test
-    | has_str ~ expr
+    | has_str ~ WHITESPACE ~ expr
     // field_expr
     | dot_str ~ name_ref
     // try_expr
