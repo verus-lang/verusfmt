@@ -96,6 +96,11 @@ pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     c
 }
 
+fn test_ghost_unwrap(very_very_very_very_long_name: u32, Ghost(another_very_very_very_long_name): Ghost<u32>)  // unwrap so that y has type u32, rather than Ghost<u32>
+{
+    x
+}
+
 "#;
     compare(file);
 }

@@ -620,7 +620,10 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::COMMENT => { 
             let (line, _col) = pair.line_col();
             if ctx.inline_comment_lines.contains(&line) {
-                s.append(arena.text(INLINE_COMMENT_FIXUP)).append(arena.line())
+                arena.text(format!("{:indent$}", "", indent=INLINE_COMMENT_SPACE))
+                    .append(s)
+                    .append(arena.text(INLINE_COMMENT_FIXUP))
+                    .append(arena.line())
             } else {
                 s.append(arena.line())
             }
@@ -680,16 +683,26 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
-    //println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
+    println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
     let mut fixed_str:String = String::new();
     let mut prev_str:String = "".to_string();
     let mut first_iteration = true;
 
     let re = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    let re_still_inline = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
     for line in s.lines() {
         fixed_str += &prev_str;
         if re.captures(line).is_some() {
-            prev_str = format!("{:indent$}{}", "", line.trim_start().replace(INLINE_COMMENT_FIXUP, ""), indent=INLINE_COMMENT_SPACE);
+            if re_still_inline.captures(line).is_some() {
+                // After we formatted the inline comment, it's still inline,
+                // so just remove our marker but otherwise leave the line alone
+                fixed_str += "\n";
+                prev_str = line.replace(INLINE_COMMENT_FIXUP, "");
+            } else {
+                // The formerly inline comment is now on a line by itself, so move it back to the
+                // previous line
+                prev_str = format!("{:indent$}{}", "", line.trim_start().replace(INLINE_COMMENT_FIXUP, ""), indent=INLINE_COMMENT_SPACE);
+            }
         } else {
             if !first_iteration {
                 fixed_str += "\n";

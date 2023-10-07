@@ -62,24 +62,24 @@ X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f
     +    Ghost(y): Ghost<u32>,  )// unwrap so that y has typ u32, not Ghost<u32>
 
 
-   and here:
-      -struct Collection { }
-      +struct Collection {
-      +    ,
-      +}
-
-    and here: <-- Actually, this one is expected; once you go multi-line Rust adds commas to everything
-        proof fn test_tracked(
-            tracked w: int,
-            tracked x: int,
-            tracked y: int,
-            z: int          <---
-        ) -> tracked TrackedAndGhost<(int, int), int> {
-            consume(w);
-            let tracked tag: TrackedAndGhost<(int, int), int> = TrackedAndGhost((x, y), z);
-            let tracked TrackedAndGhost((a, b), c) = tag;
-            TrackedAndGhost((a, b), c)
-        }
+X   and here:
+X      -struct Collection { }
+X      +struct Collection {
+X      +    ,
+X      +}
+X
+X    and here: <-- Actually, this one is expected; once you go multi-line Rust adds commas to everything
+X        proof fn test_tracked(
+X            tracked w: int,
+X            tracked x: int,
+X            tracked y: int,
+X            z: int          <---
+X        ) -> tracked TrackedAndGhost<(int, int), int> {
+X            consume(w);
+X            let tracked tag: TrackedAndGhost<(int, int), int> = TrackedAndGhost((x, y), z);
+X            let tracked TrackedAndGhost((a, b), c) = tag;
+X            TrackedAndGhost((a, b), c)
+X        }
 
 
 - Collapsed struct definition okay?
