@@ -55,13 +55,13 @@ X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f
     +    #![trigger f1(x), f1(y)]
     +    f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
 
-- Spurious comma added here:
-    -fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>) // unwrap so that y has typ u32, not Ghost<u32>
-    +fn test_ghost_unwrap(
-    +    x: u32,
-    +    Ghost(y): Ghost<u32>,  )// unwrap so that y has typ u32, not Ghost<u32>
-
-
+X- Spurious comma added here:
+X    -fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>) // unwrap so that y has typ u32, not Ghost<u32>
+X    +fn test_ghost_unwrap(
+X    +    x: u32,
+X    +    Ghost(y): Ghost<u32>,  )// unwrap so that y has typ u32, not Ghost<u32>
+X
+X
 X   and here:
 X      -struct Collection { }
 X      +struct Collection {

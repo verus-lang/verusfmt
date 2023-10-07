@@ -394,6 +394,8 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::r#fn => {
             let pairs = pair.into_inner();
             let has_qualifier = pairs.clone().find(|p| matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0).is_some();
+            let mut saw_param_list = false;
+            let mut saw_comment_after_param_list = false;
             arena.concat(pairs.map(|p| {
                    let d = to_doc(ctx, p.clone(), arena);
                    match p.as_rule() {
@@ -402,13 +404,24 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                                // The terminator (fn_block_expr or semicolon) goes on a new line
                                arena.hardline().append(d)
                            } else { 
-                               if matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) {
-                                   // We need a space before our opening brace
+                               // If the function has a body, and there isn't a comment up against
+                               // the parameter list, then we need a space before the opening brace
+                               if matches!(p.into_inner().next().unwrap().as_rule(), Rule::fn_block_expr) && !saw_comment_after_param_list {
                                    arena.space().append(d)
                                } else {
                                    d
                                }
                            }
+                       Rule::COMMENT => {
+                           if saw_param_list {
+                               saw_comment_after_param_list = true;
+                           };
+                           d
+                       }
+                       Rule::param_list => {
+                           saw_param_list = true;
+                           d
+                       }
                        _ => d,
                    }}))
         }

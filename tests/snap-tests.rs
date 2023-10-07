@@ -39,6 +39,16 @@ fn test_views() {
         assert(s[0] == 10);
         assert(s[1] == 20);
     }
+}
+
+fn test_ghost_unwrap(
+    x: u32,
+    Ghost(y): Ghost<u32>,
+)  // unwrap so that y has typ u32, not Ghost<u32>
+{
+    x
+}
+
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
@@ -72,6 +82,16 @@ fn test_views() {
             assert(s[0] == 10);
             assert(s[1] == 20);
         }
+    }
+
+    fn test_ghost_unwrap(
+        x: u32,
+        Ghost(y): Ghost<u32>,
+    )  // unwrap so that y has typ u32, not Ghost<u32>
+    {
+        x
+    }
+
     "###);
 }
 
