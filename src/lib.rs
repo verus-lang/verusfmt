@@ -261,7 +261,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::await_str |
         Rule::box_str |
         Rule::break_str |
-        Rule::choose_str |
         Rule::closed_str |
         Rule::const_str |
         Rule::continue_str |
@@ -283,7 +282,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::i8_str |
         Rule::if_str |
         Rule::impl_str |
-        Rule::implies_str |
         Rule::in_str |
         Rule::int_str |
         Rule::invariant_str |
@@ -330,7 +328,9 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
             => s.append(arena.space()),
         
         Rule::as_str |
+        Rule::by_str_inline |
         Rule::has_str |
+        Rule::implies_str |
         Rule::is_str
             => arena.space().append(s).append(arena.space()),
 
@@ -348,6 +348,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::assert_str |
         Rule::assume_str |
         Rule::checked_str |
+        Rule::choose_str |
         Rule::exec_str |
         Rule::exists_str |
         Rule::false_str |

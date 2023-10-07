@@ -372,10 +372,7 @@ fn test_views() {
 
 /// struct and enum declarations may be declared exec (default), tracked, or ghost,
 /// and fields may be declared exec (default), tracked or ghost.
-tracked struct TrackedAndGhost<T, G>(
-    tracked T,
-    ghost G,
-);
+tracked struct TrackedAndGhost<T, G>(tracked T, ghost G);
 
 /// Proof code may manipulate tracked variables directly.
 /// Declarations of tracked variables must be explicitly marked as "tracked".

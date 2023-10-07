@@ -115,6 +115,7 @@ pub fn test_function(x: bool, y: bool) -> u32
     assert(forall|x: int, y: int| x) by {
         reveal(f1);
     };
+    let x_witness = choose|x: int| f1(x) == 10;
     5
 }
 
@@ -123,6 +124,9 @@ fn assert_by_test() {
         reveal(f1);  // reveal f1's definition just inside this block
     };
     assert(f1(3) > 3);
+    assert(forall|x: int| x < 10 implies x < 11) by {
+        reveal(f1);
+    };
 }
 "#;
 
@@ -144,6 +148,7 @@ fn assert_by_test() {
         assert(forall|x: int, y: int| x) by {
             reveal(f1);
         };
+        let x_witness = choose|x: int| f1(x) == 10;
         5
     }
 
@@ -152,6 +157,9 @@ fn assert_by_test() {
             reveal(f1);  // reveal f1's definition just inside this block
         };
         assert(f1(3) > 3);
+        assert(forall|x: int| x < 10 implies x < 11) by {
+            reveal(f1);
+        };
     }
     "###);
 }

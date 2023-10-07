@@ -1,11 +1,9 @@
 verus! {
 
-fn test_ghost_unwrap(
-    x: u32,
-    Ghost(y): Ghost<u32>,
-)  // unwrap so that y has typ u32, not Ghost<u32>
-{
-    x
+fn test() {
+    assert(forall|x: int| x < 10 implies 11) by {
+        reveal(f1);
+    };
 }
 
 } // verus!

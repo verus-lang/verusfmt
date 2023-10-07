@@ -72,6 +72,11 @@ struct Struct2 {
     c: u32,
 }
 
+struct TrackedAndGhost<T, G>(
+    T,
+    G,
+);
+
 pub struct Bar(String, u8);
 
 struct Unit();

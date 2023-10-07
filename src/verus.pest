@@ -201,6 +201,7 @@ await_str = { "await" }
 box_str = { "box" }
 break_str = { "break" }
 by_str = { "by" }
+by_str_inline = { "by" }
 checked_str = { "checked" }
 choose_str = { "choose" }
 closed_str = { "closed" }
@@ -1303,7 +1304,7 @@ assume_expr = {
 }
 
 assert_forall_expr = {
-    attr* ~ assert_str ~ lparen_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ rparen_str ~ by_str ~ block_expr
+    attr* ~ assert_str ~ lparen_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ rparen_str ~ by_str_inline ~ block_expr
 }
 
 inline_prover = {

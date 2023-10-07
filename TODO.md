@@ -29,16 +29,16 @@ X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f
     -        3
     -    }
     +    if y > 0 { 1 + test_rec2(x, y - 1) } else if x > 0 { 2 + test_rec2(x - 1, 100) } else { 3 }
-
-- The `implies` keyword needs a preceding space
-    -    assert(forall|x: int| x < 10 implies f1(x) < 11) by {
-    +    assert(forall|x: int| x < 10implies f1(x) < 11)
-
-- Remove space before `choose`?
-      -        let x_witness = choose|x: int| f1(x) == 10;
-      +        let x_witness = choose |x: int| f1(x) == 10;
-  - Should be consistent with forall and exists
-
+X
+X- The `implies` keyword needs a preceding space
+X    -    assert(forall|x: int| x < 10 implies f1(x) < 11) by {
+X    +    assert(forall|x: int| x < 10implies f1(x) < 11)
+X
+X - Remove space before `choose`?
+X       -        let x_witness = choose|x: int| f1(x) == 10;
+X       +        let x_witness = choose |x: int| f1(x) == 10;
+X   - Should be consistent with forall and exists
+X 
 
 - Ugly line break here:
     -    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger] my_spec_fun(x, y) >= x);
@@ -80,11 +80,11 @@ X            let tracked tag: TrackedAndGhost<(int, int), int> = TrackedAndGhost
 X            let tracked TrackedAndGhost((a, b), c) = tag;
 X            TrackedAndGhost((a, b), c)
 X        }
-
-
-- Collapsed struct definition okay?
-        -tracked struct TrackedAndGhost<T, G>(
-        -    tracked T,
-        -    ghost G,
-        -);
-        +tracked struct TrackedAndGhost<T, G>(tracked T, ghost G);
+X
+X - Collapsed struct definition okay?
+X     - This seems to match rustfmt's output (if we remove the tracked/ghost)
+X         -tracked struct TrackedAndGhost<T, G>(
+X         -    tracked T,
+X         -    ghost G,
+X         -);
+X         +tracked struct TrackedAndGhost<T, G>(tracked T, ghost G);
