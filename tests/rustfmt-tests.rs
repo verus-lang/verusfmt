@@ -32,6 +32,19 @@ fn rust_constants() {
 #[verifier=abcd] #[verifier=efgh] pub(in self::super::crate) default const MY_CONST2 : some_type = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890";
 
 #[verifier=abcd] pub(in self::super::crate) default const MY_CONST3: some_type = 5;
+
+const y: int = 5;
+
+/* TODO
+pub open(crate) spec fn my_pub_spec_fun2(x: u32, y: u32) -> u32 {
+    // function visible to all, body visible to crate
+    x / 2 + y / 2
+}
+*/
+// TODO(main_new) pub(crate) is not being handled correctly
+// TODO(main_new) pub(crate) is not being handled correctly
+const x: int = 5;
+        
 "#;
     compare(file);
 }

@@ -6,19 +6,19 @@ X - Various "bonus" commas
 Bugs:
 
 X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
-
-- Handling of multiline comments
-    /* TODO
-    pub open(crate) spec fn my_pub_spec_fun2(x: u32, y: u32) -> u32 {
-        // function visible to all, body visible to crate
-        x / 2 + y / 2
-    }
-    */
-    // TODO(main_new) pub(crate) is not being handled correctly
-    // pub(crate) open spec fn my_pub_spec_fun3(x: int, y: int) -> int {
-    //     // function and body visible to crate
-    //     x / 2 + y / 2
-    // }
+X
+X- Handling of multiline comments
+X    /* TODO
+X    pub open(crate) spec fn my_pub_spec_fun2(x: u32, y: u32) -> u32 {
+X        // function visible to all, body visible to crate
+X        x / 2 + y / 2
+X    }
+X    */
+X    // TODO(main_new) pub(crate) is not being handled correctly
+X    // pub(crate) open spec fn my_pub_spec_fun3(x: int, y: int) -> int {
+X    //     // function and body visible to crate
+X    //     x / 2 + y / 2
+X    // }
 
 - Are we being too aggressive in one-lining if-else?
     -    if y > 0 {

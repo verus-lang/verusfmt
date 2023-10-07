@@ -642,7 +642,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                 s.append(arena.line())
             }
         }
-        Rule::multiline_comment => s,
+        Rule::multiline_comment => s.append(arena.line()),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::verus_macro_body | Rule::EOI => unreachable!(),
 
 //        _ => {
@@ -792,6 +792,9 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 for (i, item) in items.enumerate() {
                     if item.as_rule() == Rule::COMMENT {
                         formatted_output += item.as_str();
+                        if matches!(&item.as_span().as_str()[..2], "/*") {
+                            formatted_output += "\n";
+                        }
                     } else {
                         formatted_output += &format_item(&ctx, item);
                         formatted_output += "\n";
