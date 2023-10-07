@@ -386,7 +386,7 @@ proof fn test_tracked(
     tracked w: int,
     tracked x: int,
     tracked y: int,
-    z: int
+    z: int,
 ) -> tracked TrackedAndGhost<(int, int), int> {
     consume(w);
     let tracked tag: TrackedAndGhost<(int, int), int> = TrackedAndGhost((x, y), z);
@@ -554,7 +554,7 @@ proof fn uses_is(t: ThisOrThat) {
 }
 
 #[verifier::external_body]
-struct Collection { }
+struct Collection {}
 
 impl Collection {
     pub spec fn spec_has(&self, v: nat) -> bool;

@@ -68,7 +68,7 @@ X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f
       +    ,
       +}
 
-    and here:
+    and here: <-- Actually, this one is expected; once you go multi-line Rust adds commas to everything
         proof fn test_tracked(
             tracked w: int,
             tracked x: int,

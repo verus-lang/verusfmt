@@ -63,6 +63,8 @@ fn rust_structs() {
     let file = r#"
 struct Foo { a: A, b: B }
 
+struct Collection {}
+
 struct Struct2 {
     a_very_very__very_very_very_very_very_very_long_name:
         a_very_very_very_very_very_very_very_very_very_very_very_very_long_type,

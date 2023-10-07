@@ -41,18 +41,23 @@ fn conditional_comma<'a>(arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
 
 /// Comma-delimited list with an optional final comma
 fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
-    arena.line_()
-        .append(arena.intersperse(
-                    pair.into_inner().map(|i| to_doc(ctx, i, arena)), 
+    let pairs = pair.into_inner();
+    if pairs.clone().count() == 0 {
+        arena.nil()
+    } else {
+        arena.line_()
+            .append(arena.intersperse(
+                    pairs.map(|i| to_doc(ctx, i, arena)), 
                     docs![arena, 
-                          ",", 
-                          arena.line()
+                    ",", 
+                    arena.line()
                     ]
                     )
-        )
-        .append(conditional_comma(arena))
-        .nest(INDENT_SPACES)
-        .append(arena.line_())
+                   )
+            .append(conditional_comma(arena))
+            .nest(INDENT_SPACES)
+            .append(arena.line_())
+    }
 }
 
 /// Comma-delimited list with a required final comma
