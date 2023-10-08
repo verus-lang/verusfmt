@@ -229,10 +229,21 @@ pub fn test_function(x: int, y: int) -> u32 {
     compare(file);
 }
 
+#[test]
+fn rust_if() {
+    let file = r#"
+pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
+    if y > 0 { 1 + test_rec2(x, y - 1) } else if x > 0 { 2 + test_rec2(x - 1, 100) } else { 3 }
+}
+"#;
+    compare(file);
+}
+
+
 // TODO: Need to differentiate if-expressions in different contexts
 #[test]
 #[ignore]
-fn rust_if() {
+fn rust_if_contexts() {
     let file = r#"
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     let x = if b { 5 } else { 10 };

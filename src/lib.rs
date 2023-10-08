@@ -775,7 +775,7 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let mut formatted_output = String::new();
 
     for pair in parsed_file {
-        //debug_print(pair, 0);
+        debug_print(pair.clone(), 0);
         let rule = pair.as_rule();
         debug!(?rule, "Processing top-level");
         match rule {
