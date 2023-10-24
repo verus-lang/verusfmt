@@ -66,6 +66,7 @@ pub open spec fn my_pub_spec_fun1(x: int, y: int) -> int {
     // function and body visible to all
     x / 2 + y / 2
 }
+
 /* TODO
 pub open(crate) spec fn my_pub_spec_fun2(x: u32, y: u32) -> u32 {
     // function visible to all, body visible to crate
@@ -81,6 +82,7 @@ pub closed spec fn my_pub_spec_fun4(x: int, y: int) -> int {
     // function visible to all, body visible to module
     x / 2 + y / 2
 }
+
 pub(crate) closed spec fn my_pub_spec_fun5(x: int, y: int) -> int {
     // function visible to crate, body visible to module
     x / 2 + y / 2
@@ -200,13 +202,12 @@ proof fn lemma_mul_upper_bound(x: int, x_bound: int, y: int, y_bound: int)
     requires
         x <= x_bound,
         y <= y_bound,
-        0 <= x, 
+        0 <= x,
         0 <= y,
     ensures
         x * y <= x_bound * y_bound,
 {
 }
-
 
 /// "assert by" can use nonlinear_arith with proof code,
 /// where "requires" clauses selectively make facts available to the proof code.
@@ -269,23 +270,25 @@ fn test_choose() {
 /// or proving an exists, use #[trigger]:
 fn test_single_trigger1() {
     // Use [my_spec_fun(x, y)] as the trigger
-    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger] my_spec_fun(x, y) >= x);
+    assume(forall|x: int, y: int| 
+        f1(x) < 100 && f1(y) < 100 ==> #[trigger]
+        my_spec_fun(x, y) >= x);
 }
 fn test_single_trigger2() {
     // Use [f1(x), f1(y)] as the trigger
-    assume(forall|x: int, y: int|
-        #[trigger] f1(x) < 100 && #[trigger] f1(y) < 100 ==> my_spec_fun(x, y) >= x
-    );
+    assume(forall|x: int, y: int| 
+        #[trigger]
+        f1(x) < 100 && #[trigger]
+        f1(y) < 100 ==> my_spec_fun(x, y) >= x);
 }
 
 /// To manually specify multiple triggers, use #![trigger]:
 fn test_multiple_triggers() {
     // Use both [my_spec_fun(x, y)] and [f1(x), f1(y)] as triggers
-    assume(forall|x: int, y: int|
+    assume(forall|x: int, y: int| 
         #![trigger my_spec_fun(x, y)]
         #![trigger f1(x), f1(y)]
-        f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x
-    );
+        f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
 }
 
 /// Verus can often automatically choose a trigger if no manual trigger is given.
@@ -427,7 +430,7 @@ fn test_ghost_wrappers(x: u32, y: Ghost<u32>)
     let mut v: Ghost<int> = Ghost(u@ + 1);
     assert(v@ == x + y@ + 1);
     proof {
-        v@ = v@ + 1; // proof code may assign to the view of exec variables of type Ghost/Tracked
+        v@ = v@ + 1;  // proof code may assign to the view of exec variables of type Ghost/Tracked
     }
     let w: Ghost<int> = Ghost({
         // proof block that returns a ghost value
@@ -558,7 +561,7 @@ impl Collection {
 }
 
 proof fn uses_spec_has(c: Collection)
-    requires 
+    requires
         c has 3,
 {
     assert(c has 3);
