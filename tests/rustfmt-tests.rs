@@ -200,7 +200,6 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     compare(file);
 }
 
-
 #[test]
 fn rust_match_expr() {
     let file = r#"
@@ -232,6 +231,27 @@ pub fn test_function(x: int, y: int) -> u32 {
 #[test]
 fn rust_if() {
     let file = r#"
+fn test_function() {
+    if y {
+        1
+    } else if x {
+        2
+    } else {
+        3
+    }
+}
+
+fn test_rec2(x: int, y: int) -> int
+{
+    if y > 0 {
+        1 + test_rec2(x, y - 1)
+    } else if x > 0 {
+        2 + test_rec2(x - 1, 100)
+    } else {
+        3
+    }
+}
+
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     if y > 0 { 1 + test_rec2(x, y - 1) } else if x > 0 { 2 + test_rec2(x - 1, 100) } else { 3 }
 }

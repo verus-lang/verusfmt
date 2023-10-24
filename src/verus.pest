@@ -944,23 +944,24 @@ closure_expr = {
 }
 
 condition = { expr_no_struct }
+
 if_expr = {
-    attr* ~ if_str ~ condition ~ block_expr ~
-    (else_str ~ (if_expr | block_expr))?
+    attr* ~ if_str ~ condition ~ fn_block_expr ~
+    (else_str ~ (if_expr | fn_block_expr))?
 }
 
 loop_expr = {
-    attr* ~ label? ~ loop_str ~ block_expr
+    attr* ~ label? ~ loop_str ~ fn_block_expr
 }
 
 for_expr = {
     attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr_no_struct ~
-    block_expr
+    fn_block_expr
 }
 
 while_expr = {
     attr* ~ label? ~ while_str ~ condition ~ invariant_clause? ~ decreases_clause? ~
-    block_expr
+    fn_block_expr
 }
 
 label = {

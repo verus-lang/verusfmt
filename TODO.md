@@ -2,8 +2,10 @@ X Syntax.rs updates
 X - 2-space inline comments
 X - Various "bonus" commas
 
+# Features:
+  - Add more tests for while loops with invariants
 
-Bugs:
+# Bugs:
 
 X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
 X
@@ -19,16 +21,16 @@ X    // pub(crate) open spec fn my_pub_spec_fun3(x: int, y: int) -> int {
 X    //     // function and body visible to crate
 X    //     x / 2 + y / 2
 X    // }
-
-- Are we being too aggressive in one-lining if-else?
-    -    if y > 0 {
-    -        1 + test_rec2(x, y - 1)
-    -    } else if x > 0 {
-    -        2 + test_rec2(x - 1, 100)
-    -    } else {
-    -        3
-    -    }
-    +    if y > 0 { 1 + test_rec2(x, y - 1) } else if x > 0 { 2 + test_rec2(x - 1, 100) } else { 3 }
+X
+X- Are we being too aggressive in one-lining if-else?
+X    -    if y > 0 {
+X    -        1 + test_rec2(x, y - 1)
+X    -    } else if x > 0 {
+X    -        2 + test_rec2(x - 1, 100)
+X    -    } else {
+X    -        3
+X    -    }
+X    +    if y > 0 { 1 + test_rec2(x, y - 1) } else if x > 0 { 2 + test_rec2(x - 1, 100) } else { 3 }
 X
 X- The `implies` keyword needs a preceding space
 X    -    assert(forall|x: int| x < 10 implies f1(x) < 11) by {
