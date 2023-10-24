@@ -47,16 +47,16 @@ X
     +    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger]
     +    my_spec_fun(x, y) >= x);
 
-- And here:
-    -    assume(forall|x: int, y: int|
-    -        #![trigger my_spec_fun(x, y)]
-    -        #![trigger f1(x), f1(y)]
-    -        f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x
-    -    );
-    +    assume(forall|x: int, y: int| #![trigger my_spec_fun(x, y)]
-    +    #![trigger f1(x), f1(y)]
-    +    f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
-
+X- And here:
+X    -    assume(forall|x: int, y: int|
+X    -        #![trigger my_spec_fun(x, y)]
+X    -        #![trigger f1(x), f1(y)]
+X    -        f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x
+X    -    );
+X    +    assume(forall|x: int, y: int| #![trigger my_spec_fun(x, y)]
+X    +    #![trigger f1(x), f1(y)]
+X    +    f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
+X
 X- Spurious comma added here:
 X    -fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>) // unwrap so that y has typ u32, not Ghost<u32>
 X    +fn test_ghost_unwrap(

@@ -692,9 +692,17 @@ visibility = {
     pub_str ~ ("(" ~ (in_str)? ~ path ~ ")")?
 }
 
-attr = {
+attr_core = {
     trigger_attribute
-  | "#" ~ bang_str? ~ "[" ~ meta ~ "]"
+    | "#" ~ bang_str? ~ "[" ~ meta ~ "]"
+}
+// Two aliases for attr_core, so that we can print them differently
+attr = {
+   attr_core
+}
+
+attr_inner = {
+    attr_core
 }
 
 meta = {
@@ -939,7 +947,7 @@ closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~
     closure_param_list ~ ret_type? ~
-    attr* ~
+    attr_inner* ~
     expr
 }
 

@@ -20,10 +20,23 @@ pub fn test_function(x: bool, y: bool) -> u32
     ensures
         x,
 {
+    let h = |x, y, z: int| {
+        let w = y;
+        let u = w;
+        u
+    };
+    let i = |x| unsafe {
+        let y = x;
+        y
+    };
     assume(x);
     assert(x);
     assert(c is Seq);
     assert(c has 3 == c has 3);
+    assume(forall|x: int, y: int|
+        #![trigger long_long_long_long_long_long_f1(x)]
+        #![trigger long_long_long_long_long_long_g1(x)]
+        long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
     5
 }
 spec fn dec0(a: int) -> int
@@ -63,10 +76,23 @@ fn test_ghost_unwrap(
         ensures
             x,
     {
+        let h = |x, y, z: int| {
+            let w = y;
+            let u = w;
+            u
+        };
+        let i = |x| unsafe {
+            let y = x;
+            y
+        };
         assume(x);
         assert(x);
         assert(c is Seq);
         assert(c has 3 == c has 3);
+        assume(forall|x: int, y: int|
+            #![trigger long_long_long_long_long_long_f1(x)]
+            #![trigger long_long_long_long_long_long_g1(x)]
+            long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
         5
     }
     spec fn dec0(a: int) -> int

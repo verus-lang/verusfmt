@@ -428,7 +428,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         }
         Rule::abi => unsupported(pair),
         Rule::param_list => comma_delimited(ctx, arena, pair).parens().group(),
-        Rule::closure_param_list => comma_delimited(ctx, arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.space()),
+        Rule::closure_param_list => comma_delimited(ctx, arena, pair).enclose(arena.text("|"), arena.text("|")).group().append(arena.softline()),
         Rule::self_param => map_to_doc(ctx, arena, pair),
         Rule::param => map_to_doc(ctx, arena, pair),
         Rule::ret_type => map_to_doc(ctx, arena, pair),
@@ -463,7 +463,9 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::where_clause => unsupported(pair),
         Rule::where_pred => unsupported(pair),
         Rule::visibility => s.append(arena.space()),
-        Rule::attr => arena.text(pair.as_str()).append(arena.hardline()),
+        Rule::attr_core => arena.text(pair.as_str()),
+        Rule::attr => map_to_doc(ctx, arena, pair).append(arena.hardline()),
+        Rule::attr_inner => map_to_doc(ctx, arena, pair),
         Rule::meta => unsupported(pair),
 
         //****************************//
@@ -531,7 +533,18 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::record_expr_field_list => unsupported(pair),
         Rule::record_expr_field => unsupported(pair),
         Rule::arg_list => sticky_list(ctx, arena, pair, Enclosure::Parens),
-        Rule::closure_expr => map_to_doc(ctx, arena, pair),
+        Rule::closure_expr =>
+            // Put the body of the closure on an indented newline if it doesn't fit the line
+            arena.concat(
+                pair.into_inner().map(|p| match p.as_rule() {
+                                            Rule::expr => 
+                                                arena.line_().append(to_doc(ctx, p, arena)).nest(INDENT_SPACES),
+                                            Rule::attr_inner => 
+                                                arena.line_().append(to_doc(ctx, p, arena)).nest(INDENT_SPACES),
+                                                _ => to_doc(ctx, p, arena)
+                                          }
+                                     )
+            ).group(),
         Rule::condition => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::if_expr => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => unsupported(pair),
