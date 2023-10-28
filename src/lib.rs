@@ -380,7 +380,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::assoc_type_arg => unsupported(pair),
         Rule::lifetime_arg => unsupported(pair),
         Rule::const_arg => unsupported(pair),
-        Rule::macro_call => unsupported(pair),
+        Rule::macro_call => map_to_doc(ctx, arena, pair),
         Rule::punctuation => map_to_doc(ctx, arena, pair),
         Rule::token => map_to_doc(ctx, arena, pair),
         Rule::delim_token_tree => map_to_doc(ctx, arena, pair),

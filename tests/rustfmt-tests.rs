@@ -122,6 +122,7 @@ pub fn test_function2<A, B, C>(a: u32) -> u32 { a }
 pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     let x = a;
     let serialized = serialize_msg(&msg);
+    todo!();
     c
 }
 
