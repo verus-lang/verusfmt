@@ -221,22 +221,30 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::at_str |
         Rule::bang_str |
         Rule::colons_str |
+        Rule::comma_str |
         Rule::dash_str |
+        Rule::dollar_str |
         Rule::dot_str |
         Rule::dot_dot_str |
         Rule::dot_dot_eq_str |
         Rule::ellipses_str |
+        Rule::fatarrow_str |
         Rule::langle_str |
+        Rule::lbrace_str |
         Rule::lbracket_str |
         Rule::lparen_str |
+        Rule::pound_str |
         Rule::question_str |
         Rule::rangle_str |
+        Rule::rbrace_str |
         Rule::rbracket_str |
         Rule::rparen_str |
         Rule::semi_str |
         Rule::star_str |
+        Rule::tilde_str |
         Rule::triple_and |
-        Rule::triple_or
+        Rule::triple_or |
+        Rule::underscore_str
             => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()), 
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()), 
@@ -373,7 +381,10 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::lifetime_arg => unsupported(pair),
         Rule::const_arg => unsupported(pair),
         Rule::macro_call => unsupported(pair),
-        Rule::token_tree => unsupported(pair),
+        Rule::punctuation => map_to_doc(ctx, arena, pair),
+        Rule::token => map_to_doc(ctx, arena, pair),
+        Rule::delim_token_tree => map_to_doc(ctx, arena, pair),
+        Rule::token_tree => map_to_doc(ctx, arena, pair),
         Rule::macro_items => unsupported(pair),
         Rule::macro_stmts => unsupported(pair),
 

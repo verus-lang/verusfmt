@@ -23,6 +23,16 @@ fn compare(file: &str) {
     assert_eq!(rust_fmt, verus_inner, "{diff}");
 }
 
+#[test]
+fn rust_attributes() {
+    let file = r#"
+#![allow(unused_variables)]
+#[verifier(external_type_specification)]
+#[verifier(external_body)]
+const x: int = 5;
+"#;
+    compare(file);
+}
 
 #[test]
 fn rust_constants() {

@@ -173,25 +173,33 @@ at_str = { "@" }
 bang_str = { "!" }
 colon_str = { ":" }
 colons_str = { "::" }
+comma_str = { "," }
 dash_str = { "-" }
+dollar_str = { "$" }
 dot_str = { "." }
 dot_dot_str = { ".." }
 dot_dot_eq_str = { "..=" }
 ellipses_str = { "..." }
 eq_str = { "=" }
+fatarrow_str = { "=>" }
 langle_str = { "<" }
+lbrace_str = { "{" }
 lbracket_str = { "[" }
 lparen_str = { "(" }
 pipe_str = { "|" }
+pound_str = { "#" }
 question_str = { "?" }
 rangle_str = { ">" }
 rarrow_str = { "->" }
+rbrace_str = { "}" }
 rbracket_str = { "]" }
 rparen_str = { ")" }
 semi_str = { ";" }
 star_str = { "*" }
+tilde_str = { "~" }
 triple_and = { "&&&" }
 triple_or = { "|||" }
+underscore_str = { "_" }
 as_str = { "as" }
 assert_str = { "assert" }
 assume_str = { "assume" }
@@ -397,11 +405,47 @@ macro_call = {
     attr* ~ path ~ bang_str ~ token_tree ~ semi_str?
 }
 
-// TODO Add actual token trees
+// See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
+punctuation = {
+    bin_expr_ops
+  | bang_str
+  | triple_and 
+  | triple_or
+  | at_str
+  | underscore_str
+  | dot_str 
+  | dot_dot_str
+  | ellipses_str
+  | dot_dot_eq_str
+  | comma_str
+  | semi_str
+  | colon_str
+  | colons_str
+  | rarrow_str
+  | fatarrow_str
+  | pound_str
+  | dollar_str
+  | question_str
+  | tilde_str
+}
+
+// See https://doc.rust-lang.org/beta/reference/tokens.html
+token = {
+    identifier
+  | literal
+  | lifetime_ident
+  | keyword 
+  | punctuation
+}
+
+delim_token_tree = {
+      lparen_str ~ token_tree ~ rparen_str
+    | lbracket_str ~ token_tree ~ rbracket_str
+    | lbrace_str ~ token_tree ~ rbrace_str
+}
+
 token_tree = {
-    "(" ~ ")"
-  | "{" ~ "}"
-  | "[" ~ "]"
+    token | delim_token_tree
 }
 
 macro_items = {
