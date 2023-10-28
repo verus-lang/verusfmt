@@ -785,7 +785,7 @@ expr = {
 
 expr_no_struct = {
     expr_inner_no_struct ~
-    expr_outer*
+    expr_outer_no_struct*
 }
 
 // In certain places, like the conditional for an if_expr,
@@ -864,9 +864,37 @@ expr_outer = _{
     | (dot_dot_str | dot_dot_eq_str) ~ expr?
 }
 
+expr_outer_no_struct = _{
+    // await_expr
+    dot_str ~ await_str
+    // call_expr
+    | arg_list
+    // cast_expr
+    | expr_as
+    // collection test
+    | expr_has
+    // datatype test
+    | expr_is
+    // field_expr
+    | dot_str ~ name_ref
+    // try_expr
+    | question_str
+    // view_expr
+    | at_str
+    // index_expr
+    | lbracket_str ~ expr_no_struct ~ rbracket_str
+    // method_call_expr
+    | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
+    // bin_expr
+    | bin_expr_ops ~ expr_no_struct
+    // range_expr
+    | (dot_dot_str | dot_dot_eq_str) ~ expr_no_struct?
+}
+
 expr_inner = {
-    expr_inner_no_struct
-  | struct_expr
+    if_expr  // Must precede struct_expr or struct_expr thinks `if {}` is a struct
+  | struct_expr // Must precede expr_inner_no_struct or `my_struct { }` will be `my_struct`: path_expr
+  | expr_inner_no_struct
 }
 
 macro_expr = {

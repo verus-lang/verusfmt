@@ -494,6 +494,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::expr_has => map_to_doc(ctx, arena, pair),
         Rule::expr_is => map_to_doc(ctx, arena, pair),
         Rule::expr_outer => map_to_doc(ctx, arena, pair),
+        Rule::expr_outer_no_struct => map_to_doc(ctx, arena, pair),
         Rule::expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::macro_expr => unsupported(pair),
         Rule::literal => map_to_doc(ctx, arena, pair),
