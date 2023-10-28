@@ -613,7 +613,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::pat_inner => map_to_doc(ctx, arena, pair),
         Rule::literal_pat => map_to_doc(ctx, arena, pair),
         Rule::ident_pat => map_to_doc(ctx, arena, pair),
-        Rule::wildcard_pat => arena.text("_"),
+        //Rule::wildcard_pat => arena.text("_"),
         Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
         Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),
         Rule::record_pat => map_to_doc(ctx, arena, pair),

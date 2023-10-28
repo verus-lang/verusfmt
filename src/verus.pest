@@ -86,7 +86,7 @@ identifier_string = @{
 }
 
 identifier = @{
-    !(keyword ~ !(ASCII_ALPHA | "_" | ASCII_ALPHANUMERIC)) ~ identifier_string
+    !(keyword ~ !(ASCII_ALPHA | ASCII_ALPHANUMERIC)) ~ identifier_string
 }
 
 hex_number = @{
@@ -1216,7 +1216,7 @@ pat_inner = {
   | literal_pat
   | macro_pat
   | paren_pat
-  | wildcard_pat
+//  | wildcard_pat
   | end_only_range_pat
   | record_pat
   | ref_pat
@@ -1236,9 +1236,9 @@ ident_pat = {
     attr* ~ ref_str? ~ mut_str? ~ name ~ (at_str ~ pat)?
 }
 
-wildcard_pat = {
-    "_"
-}
+//wildcard_pat = {
+//    "_"
+//}
 
 end_only_range_pat = {
     (dot_dot_eq_str | dot_dot_str) ~ pat
