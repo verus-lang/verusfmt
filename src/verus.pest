@@ -559,8 +559,8 @@ closure_param_list = {
 
 self_param = {
     attr* ~ (
-        (amp_str ~ lifetime?)? ~ mut_str? ~ name
-      | mut_str? ~ name ~ colon_str ~ type
+        (amp_str ~ lifetime?)? ~ mut_str? ~ self_str
+      | mut_str? ~ self_str ~ colon_str ~ type
     )
 }
 
@@ -929,7 +929,7 @@ stmt_list = {
 }
 
 ref_expr = {
-    attr* ~ amp_str ~ (raw_str | mut_str | const_str) ~ expr
+    attr* ~ amp_str ~ (raw_str | mut_str | const_str)? ~ expr
 }
 
 proof_block = {
