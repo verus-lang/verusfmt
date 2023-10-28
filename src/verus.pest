@@ -439,9 +439,9 @@ token = {
 }
 
 delim_token_tree = {
-      lparen_str ~ token_tree ~ rparen_str
-    | lbracket_str ~ token_tree ~ rbracket_str
-    | lbrace_str ~ token_tree ~ rbrace_str
+      lparen_str ~ token_tree* ~ rparen_str
+    | lbracket_str ~ token_tree* ~ rbracket_str
+    | lbrace_str ~ token_tree* ~ rbrace_str
 }
 
 token_tree = {
