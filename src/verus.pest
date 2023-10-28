@@ -94,7 +94,7 @@ hex_number = @{
 }
 
 decimal_number = @{
-    (ASCII_DIGIT | "_")+
+    ASCII_DIGIT ~ ("_"? ~ ASCII_DIGIT)*
 }
 
 octal_number = @{

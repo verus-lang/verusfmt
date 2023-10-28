@@ -143,6 +143,7 @@ pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
         another_very_long_expr,
         c,
     );
+    let _addr = listener.unwrap();
     c
 }
 "#;
