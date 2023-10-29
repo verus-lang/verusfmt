@@ -39,6 +39,7 @@ pub fn test_function(x: bool, y: bool) -> u32
         long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
     5
 }
+
 spec fn dec0(a: int) -> int
     decreases a,
     when a
@@ -46,6 +47,7 @@ spec fn dec0(a: int) -> int
 {
     5
 }
+
 fn test_views() {
     proof {
         let s: Seq<u8> = v@;
@@ -62,6 +64,9 @@ fn test_ghost_unwrap(
     x
 }
 
+pub const fn bob_addr() -> (a: StrSlice<'static>) {
+    5
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
@@ -95,6 +100,7 @@ fn test_ghost_unwrap(
             long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
         5
     }
+
     spec fn dec0(a: int) -> int
         decreases a,
         when a
@@ -102,6 +108,7 @@ fn test_ghost_unwrap(
     {
         5
     }
+
     fn test_views() {
         proof {
             let s: Seq<u8> = v@;
@@ -118,6 +125,9 @@ fn test_ghost_unwrap(
         x
     }
 
+    pub const fn bob_addr() -> (a: StrSlice<'static>) {
+        5
+    }
     "###);
 }
 

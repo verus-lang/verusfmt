@@ -128,7 +128,7 @@ float_number = @{
 }
 
 lifetime_ident = @{
-    "'" ~ ("_" | identifier)
+    "'" ~ ("_" | identifier | static_str)
 }
 
 /// A valid string, accounting for escaped quotes too.
