@@ -1,9 +1,13 @@
 verus! {
 
+#[verifier(external_body)] 
+pub const fn alice_addr() -> u32
+    ensures 1 == 2
+{
+    0
+}
+
 fn test_function() {
-    pub const fn bob_addr() -> (a: StrSlice<'static>) {
-        5
-    }
 }
 
 } // verus!
