@@ -236,6 +236,10 @@ pub fn test_function(x: int, y: int) -> u32 {
 fn rust_if() {
     let file = r#"
 fn test_function() {
+    if arg.len() < 12 {
+        return 5;
+    }
+    extend_vec_u8();
     if y {
         1
     } else if x {

@@ -761,6 +761,7 @@ stmt = {
     semi_str
   | proof_block
   | expr ~ semi_str
+  | expr_with_block ~ semi_str?
   | item
   | let_stmt
 }
@@ -895,6 +896,13 @@ expr_inner = {
     if_expr  // Must precede struct_expr or struct_expr thinks `if {}` is a struct
   | struct_expr // Must precede expr_inner_no_struct or `my_struct { }` will be `my_struct`: path_expr
   | expr_inner_no_struct
+}
+
+expr_with_block = {
+    block_expr
+  | loop_expr
+  | if_expr
+  | match_expr
 }
 
 macro_expr = {
