@@ -1,9 +1,27 @@
 verus! {
 
-pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
-    ensures
-        res.is_Some() ==> really_really_really_really_really_really_really_really_long.get_Some_0().foobar,
-{
+#[verifier(external_body)]
+pub fn func1() {
+}
+
+pub fn func2() {
+}
+
+#[verifier(external_body)]
+pub fn func3() {
+}
+
+impl cfg_alice {
+    #[verifier(external_body)]
+    pub fn func1() {
+    }
+
+    pub fn func2() {
+    }
+
+    #[verifier(external_body)]
+    pub fn func3() {
+    }
 }
 
 } // verus!
