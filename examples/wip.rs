@@ -1,6 +1,5 @@
 verus! {
 
-#[verifier(external_body)] 
 pub const fn alice_addr() -> u32
     ensures 1 == 2
 {

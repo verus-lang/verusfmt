@@ -358,7 +358,10 @@ keyword = {
 
 name = { identifier | self_str }
 
-name_ref = { identifier | int_number | self_str | super_str | crate_str | Self_str }
+// name_ref is used below in path_segments, which Rust says cannot
+// contain numbers: https://doc.rust-lang.org/beta/reference/paths.html#paths-in-expressions
+//name_ref = { identifier | int_number | self_str | super_str | crate_str | Self_str }
+name_ref = { identifier | self_str | super_str | crate_str | Self_str }
 
 lifetime = { lifetime_ident }
 
