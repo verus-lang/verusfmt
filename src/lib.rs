@@ -398,9 +398,9 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::item_list => unsupported(pair),
         Rule::extern_crate => unsupported(pair),
         Rule::rename => unsupported(pair),
-        Rule::r#use => unsupported(pair),
-        Rule::use_tree => unsupported(pair),
-        Rule::use_tree_list => unsupported(pair),
+        Rule::r#use => map_to_doc(ctx, arena, pair),
+        Rule::use_tree => map_to_doc(ctx, arena, pair),
+        Rule::use_tree_list => comma_delimited(ctx, arena, pair).braces().group(),
         Rule::fn_qualifier => map_to_doc(ctx, arena, pair),
         Rule::fn_terminator => map_to_doc(ctx, arena, pair),
         Rule::r#fn => {
