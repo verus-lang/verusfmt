@@ -8,13 +8,13 @@ X - Various "bonus" commas
 
 # Bugs:
 
-- Don't allow breaks for function calls with no arguments:
-    pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
-        ensures
-            res.is_Some() ==> res.get_Some_0().owl__x.view() == parse_owlSpec_t(arg.view()).get_Some_0(
-            ).owlSpec__x,
-    {
-    }
+X- Don't allow breaks for function calls with no arguments:
+X    pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
+X        ensures
+X            res.is_Some() ==> res.get_Some_0().owl__x.view() == parse_owlSpec_t(arg.view()).get_Some_0(
+X            ).owlSpec__x,
+X    {
+X    }
 
 - Improve spacing of items inside an impl block:
     impl cfg_alice {

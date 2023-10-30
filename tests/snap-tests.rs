@@ -21,6 +21,7 @@ pub fn test_function(x: bool, y: bool) -> u32
     decreases x, y,
     ensures
         x,
+        res.is_Some() ==> really_really_really_really_really_really_really_really_long.get_Some_0().foobar,
 {
     let h = |x, y, z: int| {
         let w = y;
@@ -94,6 +95,8 @@ pub const fn bob_addr() -> (a: StrSlice<'static>) {
         decreases x, y,
         ensures
             x,
+            res.is_Some()
+                ==> really_really_really_really_really_really_really_really_long.get_Some_0().foobar,
     {
         let h = |x, y, z: int| 
             {

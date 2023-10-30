@@ -96,13 +96,24 @@ fn sticky_list<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, 
         Brackets => "]",
         Parens => ")",
     };
-    docs![
-        arena,
-        opening,
-        arena.line_(),
-    ].group()
-    .append(map_to_doc(ctx, arena, pair)).group()
-    .append(arena.text(closing))
+    let pairs = pair.into_inner();
+    if pairs.clone().count() == 0 {
+        // Don't allow breaks in the list when the list is empty
+        docs![
+            arena,
+            opening,
+            closing,
+        ].group()
+    } else {
+        let docs = arena.concat(pairs.map(|p| to_doc(ctx, p, arena)));
+        docs![
+            arena,
+            opening,
+            arena.line_(),
+        ].group()
+        .append(docs).group()
+        .append(arena.text(closing))
+    }
 }
 
 /// Surround the doc with braces that have inner spacing only if on a single line
