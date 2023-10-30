@@ -542,9 +542,9 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::array_expr => map_to_doc(ctx, arena, pair),
         Rule::tuple_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
         Rule::tuple_expr => map_to_doc(ctx, arena, pair),
-        Rule::struct_expr => unsupported(pair),
-        Rule::record_expr_field_list => unsupported(pair),
-        Rule::record_expr_field => unsupported(pair),
+        Rule::struct_expr =>  map_to_doc(ctx, arena, pair),
+        Rule::record_expr_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group(),   // TODO: Handle vanishing comma's interaction with rest_pat
+        Rule::record_expr_field =>  map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_list(ctx, arena, pair, Enclosure::Parens),
         Rule::closure_expr =>
             // Put the body of the closure on an indented newline if it doesn't fit the line

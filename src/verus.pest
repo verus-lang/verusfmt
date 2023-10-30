@@ -1019,7 +1019,7 @@ record_expr_field_list = {
     "{" ~
     attr* ~
     (record_expr_field ~ ("," ~ record_expr_field)* ~ ","?)? ~
-    (".." ~ expr)? ~
+    (dot_dot_str ~ expr)? ~
     "}"
 }
 
