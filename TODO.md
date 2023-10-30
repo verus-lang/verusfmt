@@ -8,6 +8,29 @@ X - Various "bonus" commas
 
 # Bugs:
 
+- Don't allow breaks for function calls with no arguments:
+    pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
+        ensures
+            res.is_Some() ==> res.get_Some_0().owl__x.view() == parse_owlSpec_t(arg.view()).get_Some_0(
+            ).owlSpec__x,
+    {
+    }
+
+- Improve spacing of items inside an impl block:
+    impl cfg_alice {
+      #[verifier(external_body)]
+      pub fn func1() {
+      }
+
+      pub fn func2() {
+      }#[verifier(external_body)]
+      pub fn func3() {}
+
+- Don't put extra line breaks after use declarations
+    use foo::bar;
+    use bar::foo;
+    use baz::bar;
+
 X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
 X
 X- Handling of multiline comments
