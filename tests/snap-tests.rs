@@ -9,6 +9,8 @@ use insta::assert_snapshot;
 #[test]
 fn verus_functions() {
     let file = r#"
+verus! {
+
 pub fn test_function(x: bool, y: bool) -> u32
     by (nonlinear_arith)
     requires
@@ -64,12 +66,24 @@ fn test_ghost_unwrap(
     x
 }
 
+pub fn alice_addr() -> u32
+    ensures
+        t@ == ie.0@,
+        a == b
+{
+    0
+}
+
 pub const fn bob_addr() -> (a: StrSlice<'static>) {
     5
+}
+
 }
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
     pub fn test_function(x: bool, y: bool) -> u32
         by (nonlinear_arith)
         requires
@@ -81,20 +95,22 @@ pub const fn bob_addr() -> (a: StrSlice<'static>) {
         ensures
             x,
     {
-        let h = |x, y, z: int| {
-            let w = y;
-            let u = w;
-            u
-        };
-        let i = |x| unsafe {
-            let y = x;
-            y
-        };
+        let h = |x, y, z: int| 
+            {
+                let w = y;
+                let u = w;
+                u
+            };
+        let i = |x| 
+            unsafe {
+                let y = x;
+                y
+            };
         assume(x);
         assert(x);
         assert(c is Seq);
         assert(c has 3 == c has 3);
-        assume(forall|x: int, y: int|
+        assume(forall|x: int, y: int| 
             #![trigger long_long_long_long_long_long_f1(x)]
             #![trigger long_long_long_long_long_long_g1(x)]
             long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
@@ -125,15 +141,27 @@ pub const fn bob_addr() -> (a: StrSlice<'static>) {
         x
     }
 
+    pub fn alice_addr() -> u32
+        ensures
+            t@ == ie.0@,
+            a == b,
+    {
+        0
+    }
+
     pub const fn bob_addr() -> (a: StrSlice<'static>) {
         5
     }
+
+    } // verus!
     "###);
 }
 
 #[test]
 fn verus_assert_by() {
     let file = r#"
+verus!{
+
 pub fn test_function(x: bool, y: bool) -> u32
     by (nonlinear_arith)
 {
@@ -164,9 +192,13 @@ fn assert_by_test() {
         reveal(f1);
     };
 }
+
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus!{
+
     pub fn test_function(x: bool, y: bool) -> u32
         by (nonlinear_arith)
     {
@@ -197,6 +229,8 @@ fn assert_by_test() {
             reveal(f1);
         };
     }
+
+    }
     "###);
 }
 
@@ -204,21 +238,29 @@ fn assert_by_test() {
 #[test]
 fn verus_expr() {
     let file = r#"
+verus! {
+
 pub fn test_function(x: int, y: int) -> u32 {
     let very_very_very_very_very_very_long = very_very_very_very_very_very_x 
         + very_very_very_very_y + very_very_very_very_z;
     assert(a === b);
     5
-}    
+}
+
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
     pub fn test_function(x: int, y: int) -> u32 {
-        let very_very_very_very_very_very_long = very_very_very_very_very_very_x 
-            + very_very_very_very_y + very_very_very_very_z;
+        let very_very_very_very_very_very_long = very_very_very_very_very_very_x + very_very_very_very_y
+            + very_very_very_very_z;
         assert(a === b);
         5
-    }    
+    }
+
+    } // verus!
     "###);
 }
 
@@ -227,6 +269,8 @@ pub fn test_function(x: int, y: int) -> u32 {
 #[test]
 fn verus_match() {
     let file = r#"
+verus! {
+
 fn len<T>(l: List<T>) -> nat {
     match l {
         List::Nil => 0,
@@ -252,9 +296,13 @@ fn len<T>(l: List<T>) -> nat {
         },
     }
 }
+
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
     fn len<T>(l: List<T>) -> nat {
         match l {
             List::Nil => 0,
@@ -280,12 +328,16 @@ fn len<T>(l: List<T>) -> nat {
             },
         }
     }
+
+    } // verus!
     "###);
 }
 
 #[test]
 fn verus_trait() {
     let file = r#"
+verus! {
+
 trait T {
     proof fn my_uninterpreted_fun2(&self, i: int, j: int) -> (r: int)
         requires
@@ -296,9 +348,13 @@ trait T {
             j <= r,
     ;
 }
+
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
     trait T {
         proof fn my_uninterpreted_fun2(&self, i: int, j: int) -> (r: int)
             requires
@@ -309,6 +365,8 @@ trait T {
                 j <= r,
         ;
     }
+
+    } // verus!
     "###);
 }
 

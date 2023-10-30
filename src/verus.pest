@@ -854,6 +854,8 @@ expr_outer = _{
     | expr_is
     // field_expr
     | dot_str ~ name_ref
+    // tuple index
+    | dot_str ~ int_number
     // try_expr
     | question_str
     // view_expr
@@ -881,6 +883,8 @@ expr_outer_no_struct = _{
     | expr_is
     // field_expr
     | dot_str ~ name_ref
+    // tuple index
+    | dot_str ~ int_number
     // try_expr
     | question_str
     // view_expr
@@ -1344,8 +1348,15 @@ comma_delimited_exprs = {
     expr ~ ("," ~ expr)* ~ ","?
 }
 
+// Prohibit top-level struct_expr, to avoid ambiguity for something like:
+//    pub fn alice_addr(a:int) -> (b:int)
+//        ensures a == b 
+//    {
+//        a
+//    }
+// where we could interpret the ensures expression as `a == b { a }`
 comma_delimited_exprs_for_verus_clauses = {
-    expr ~ ("," ~ !verus_clause_non_expr ~ expr)* ~ ","?
+    expr_no_struct ~ ("," ~ !verus_clause_non_expr ~ expr_no_struct)* ~ ","?
 }
 
 groupable_comma_delimited_exprs_for_verus_clauses = {
@@ -1377,11 +1388,11 @@ invariant_clause = {
 }
 
 recommends_clause = {
-    recommends_str ~ comma_delimited_exprs_for_verus_clauses ~ (via_str ~ expr)?
+    recommends_str ~ comma_delimited_exprs_for_verus_clauses ~ (via_str ~ expr_no_struct)?
 }
 
 decreases_clause = {
-    decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr)? ~ (via_str ~ expr)?
+    decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr_no_struct)? ~ (via_str ~ expr_no_struct)?
 }
 
 assert_requires = {

@@ -310,7 +310,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::raw_str |
         Rule::ref_str |
         Rule::return_str |
-        Rule::self_str |
         Rule::Self_str |
         Rule::static_str |
         Rule::struct_str |
@@ -362,6 +361,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::false_str |
         Rule::forall_str |
         Rule::proof_str |
+        Rule::self_str |
         Rule::spec_str |
         Rule::true_str 
             => s,
