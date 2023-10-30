@@ -374,8 +374,12 @@ path_segment = {
   | langle_str ~ path_type ~ (as_str ~ path_type)? ~ rangle_str
 }
 
+generic_args = {
+    generic_arg ~ ("," ~ generic_arg)* ~ ","?
+}
+
 generic_arg_list = {
-    colons_str? ~ langle_str ~ (generic_arg ~ ("," ~ generic_arg)* ~ ","?)? ~ rangle_str
+    colons_str? ~ langle_str ~ generic_args? ~ rangle_str
 }
 
 generic_arg = {

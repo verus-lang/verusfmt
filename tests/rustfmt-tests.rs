@@ -145,6 +145,7 @@ pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
         c,
     );
     let _addr = listener.unwrap();
+    let coins = owl_sample::<int,bool>();
     let f = Foo { field1, field2: 0 };
     let f = Foo {
         very_long_very_long_very_long_expression1,
