@@ -1,4 +1,5 @@
 #![allow(dead_code, unused_imports)] // TEMPORARY
+#![allow(unstable_name_collisions)] // TODO: See Itertools::intersperse                                     
 use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
 use pretty::*;
@@ -8,6 +9,7 @@ use std::str::from_utf8;
 use std::io::Write;
 use std::collections::HashSet;
 use regex::Regex;
+use itertools::Itertools;
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
@@ -140,6 +142,12 @@ fn block_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>, termi
 /// Produce a document that simply combines the result of calling `to_doc` on each child
 fn map_to_doc<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.concat(pair.into_inner().map(|p| to_doc(ctx, p, arena)))
+}
+
+/// Produce a document that combines the result of calling `to_doc` on each child, interspersed
+/// with newlines
+fn map_to_doc_lines<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
+    arena.concat(pair.into_inner().map(|p| to_doc(ctx, p, arena)).intersperse(arena.line().append(arena.line())))
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each pair 
@@ -472,6 +480,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::r#static => unsupported(pair),
         Rule::r#trait => map_to_doc(ctx, arena, pair),
         Rule::trait_alias => unsupported(pair),
+        Rule::assoc_items => map_to_doc_lines(ctx, arena, pair),
         Rule::assoc_item_list => arena.space().append(block_braces(arena, map_to_doc(ctx, arena, pair), true)),
         Rule::assoc_item => map_to_doc(ctx, arena, pair),
         Rule::r#impl => map_to_doc(ctx, arena, pair),

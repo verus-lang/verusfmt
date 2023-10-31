@@ -674,8 +674,12 @@ trait_alias = {
     trait_str ~ name ~ generic_param_list? ~ eq_str ~ type_bound_list? ~ where_clause? ~ semi_str
 }
 
+assoc_items = {
+    assoc_item*
+}
+
 assoc_item_list = {
-    "{" ~ attr* ~ assoc_item* ~ "}"
+    "{" ~ attr* ~ assoc_items ~ "}"
 }
 
 assoc_item = {
