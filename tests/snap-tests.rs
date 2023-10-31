@@ -237,6 +237,70 @@ fn assert_by_test() {
     "###);
 }
 
+
+#[test]
+fn verus_impl() {
+    let file = r#"
+verus! {
+
+#[verifier(external_body)]
+pub fn func1() {
+}
+
+pub fn func2() {
+}
+
+#[verifier(external_body)]
+pub fn func3() {
+}
+
+impl cfg_alice {
+    #[verifier(external_body)]
+    pub fn func1() {
+    }
+    
+    pub fn func2() {
+    }
+    
+    #[verifier(external_body)]
+    pub fn func3() {
+    }
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    #[verifier(external_body)]
+    pub fn func1() {
+    }
+
+    pub fn func2() {
+    }
+
+    #[verifier(external_body)]
+    pub fn func3() {
+    }
+
+    impl cfg_alice {
+        #[verifier(external_body)]
+        pub fn func1() {
+        }
+        
+        pub fn func2() {
+        }
+        
+        #[verifier(external_body)]
+        pub fn func3() {
+        }
+    }
+
+    } // verus!
+    "###);
+}
+
 // We deviate from rustfmt here, so use our own snapshot to check for self-consistency
 #[test]
 fn verus_expr() {
