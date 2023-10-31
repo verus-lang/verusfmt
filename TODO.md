@@ -15,21 +15,31 @@ X            res.is_Some() ==> res.get_Some_0().owl__x.view() == parse_owlSpec_t
 X            ).owlSpec__x,
 X    {
 X    }
-
-- Improve spacing of items inside an impl block:
-    impl cfg_alice {
-      #[verifier(external_body)]
-      pub fn func1() {
-      }
-
-      pub fn func2() {
-      }#[verifier(external_body)]
-      pub fn func3() {}
+X 
+X - Improve spacing of items inside an impl block:
+X     impl cfg_alice {
+X       #[verifier(external_body)]
+X       pub fn func1() {
+X       }
+X 
+X       pub fn func2() {
+X       }#[verifier(external_body)]
+X       pub fn func3() {}
 
 - Don't put extra line breaks after use declarations
     use foo::bar;
     use bar::foo;
     use baz::bar;
+
+
+- Ugly line breaks:
+        pub fn owl_bob_main(
+            &self,
+            Tracked(itree): Tracked<ITreeToken<((), state_bob), Endpoint>>,
+            mut_state: &mut state_bob,
+        ) -> (res: Result<( ()
+    , Tracked<ITreeToken<((), state_bob), Endpoint>> ), OwlError>)
+
 
 X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
 X
