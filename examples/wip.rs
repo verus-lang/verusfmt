@@ -1,26 +1,17 @@
 verus! {
 
-#[verifier(external_body)]
-pub fn func1() {
-}
+pub use extraction_lib::*;
+pub use std::collections::HashMap;
+pub use std::env;
+pub use std::fs;
+pub use std::io::{self, BufRead, Write};
+pub use std::net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
 
-pub fn func2() {
-}
-
-#[verifier(external_body)]
-pub fn func3() {
-}
-
-impl cfg_alice {
-    #[verifier(external_body)]
-    pub fn func1() {
-    }
-    
-    pub fn func2() {
-    }
-    
-    #[verifier(external_body)]
-    pub fn func3() {
+fn syntactic_eq(&self, other: &Self) -> bool {
+    use BndX::*;
+    use TypX::*;
+    match self {
+        A => b,
     }
 }
 

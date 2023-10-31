@@ -2,9 +2,12 @@ X Syntax.rs updates
 X - 2-space inline comments
 X - Various "bonus" commas
 
-# Features:
+# Features
   - Spacing and hardlines for &&& and |||
   - Add more tests for while loops with invariants
+
+# Won't Fix
+  - No plans to sort `use` declarations the way rustfmt does
 
 # Bugs:
 
@@ -25,12 +28,11 @@ X
 X       pub fn func2() {
 X       }#[verifier(external_body)]
 X       pub fn func3() {}
-
-- Don't put extra line breaks after use declarations
-    use foo::bar;
-    use bar::foo;
-    use baz::bar;
-
+X 
+X - Don't put extra line breaks after use declarations
+X     use foo::bar;
+X     use bar::foo;
+X     use baz::bar;
 
 - Ugly line breaks:
         pub fn owl_bob_main(

@@ -836,16 +836,32 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 formatted_output += VERUS_PREFIX;
                 let items = body.into_inner();
                 let len = items.clone().count();
+                let mut prev_is_use = false;
                 for (i, item) in items.enumerate() {
                     if item.as_rule() == Rule::COMMENT {
+                        if prev_is_use {
+                            // Add an extra line break, since we don't put line breaks
+                            // between use declarations
+                            formatted_output += "\n";
+                        }
+                        prev_is_use = false;
                         formatted_output += item.as_str();
                         if matches!(&item.as_span().as_str()[..2], "/*") {
                             formatted_output += "\n";
                         }
                     } else {
+                        let is_use = matches!(item.clone().into_inner().next().unwrap().as_rule(), Rule::r#use);
+                        if prev_is_use && !is_use {
+                            // Add an extra line break, since we don't put line breaks
+                            // between use declarations
+                            formatted_output += "\n";
+                        }
+                        prev_is_use = is_use;
+
                         formatted_output += &format_item(&ctx, item);
                         formatted_output += "\n";
-                        if i < len - 1 {
+                        // Add extra space between items, except for use declarations
+                        if i < len - 1 && !is_use {
                             formatted_output += "\n";
                         }
                     }
