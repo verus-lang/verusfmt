@@ -265,9 +265,9 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
             => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()), 
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()), 
-        Rule::triple_and |
-        Rule::triple_or =>
-            docs![arena, arena.hardline(), s, arena.space()].nest(INDENT_SPACES),
+//        Rule::triple_and |
+//        Rule::triple_or =>
+//            docs![arena, arena.hardline(), s, arena.space()].nest(INDENT_SPACES),
         Rule::colon_str => 
             docs![
                 arena,
@@ -337,6 +337,8 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::tracked_str |
         Rule::trait_str |
         Rule::trigger_str |
+        Rule::triple_and |
+        Rule::triple_or |
         Rule::try_str |
         Rule::type_str |
         Rule::u128_str |
@@ -555,9 +557,22 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
             let mapped = map_pairs_to_doc(ctx, arena, &pairs);
             block_braces(arena, mapped, terminal_expr(&pairs))
         }
-        Rule::prefix_expr => map_to_doc(ctx, arena, pair),
+        Rule::prefix_expr => {
+            // TODO: Simplify
+            let is_triple_prefix = pair.clone().into_inner().find(|p| 
+                match p.as_rule() {
+                    Rule::triple_or | Rule::triple_and => true,
+                    _ => false,
+                }).is_some();
+            if is_triple_prefix {
+                //map_to_doc(ctx, arena, pair).append(arena.hardline())
+                map_to_doc(ctx, arena, pair)
+            } else {
+                map_to_doc(ctx, arena, pair)
+            }
+        }
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
-        Rule::bin_expr_ops_special => map_to_doc(ctx, arena, pair),
+        Rule::bin_expr_ops_special => arena.line().append(map_to_doc(ctx, arena, pair)),
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
         Rule::bin_expr_ops => map_to_doc(ctx, arena, pair),
         Rule::paren_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
