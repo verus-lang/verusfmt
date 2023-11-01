@@ -572,7 +572,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
             }
         }
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
-        Rule::bin_expr_ops_special => arena.line().append(map_to_doc(ctx, arena, pair)),
+        Rule::bin_expr_ops_special => arena.hardline().append(map_to_doc(ctx, arena, pair)),
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
         Rule::bin_expr_ops => map_to_doc(ctx, arena, pair),
         Rule::paren_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),

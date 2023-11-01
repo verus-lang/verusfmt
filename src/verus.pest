@@ -813,6 +813,7 @@ expr_inner_no_struct = _{
   | block_expr
   | box_expr
   | break_expr
+  | prefix_expr
   | closure_expr
   | continue_expr
   | for_expr
@@ -822,7 +823,6 @@ expr_inner_no_struct = _{
   | macro_call
   | match_expr
   | paren_expr
-  | prefix_expr
   | ref_expr
   | return_expr
   | tuple_expr
