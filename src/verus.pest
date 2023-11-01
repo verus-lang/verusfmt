@@ -973,23 +973,31 @@ fn_block_expr = {
 }
 
 prefix_expr = {
-    attr* ~ (dash_str | bang_str | star_str | triple_and | triple_or) ~ expr
+    attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr
 }
 
 assignment_ops = {
     "=" | "+=" | "/=" | "*=" | "%=" | ">>=" | "<<=" | "-=" | "|=" | "&=" | "^="
 }
 
+bin_expr_ops_special = {
+    triple_or | triple_and
+}
+
+bin_expr_ops_normal = {
+    | ("||" | "|")
+    | ("&&" | "&")
+    | "<==>"
+    | "==="
+    | "==>" | "<=="
+    | "!=="
+    | "==" | "!=" | "<=" | ">=" | "<" | ">"
+    | "+" | "*" | "-" | "/" | "%" | "<<" | ">>" | "^"
+    | assignment_ops
+}
+
 bin_expr_ops = {
-    ("|||" | "||" | "|")
-  | ("&&&" | "&&" | "&")
-  | "<==>"
-  | "==="
-  | "==>" | "<=="
-  | "!=="
-  | "==" | "!=" | "<=" | ">=" | "<" | ">"
-  | "+" | "*" | "-" | "/" | "%" | "<<" | ">>" | "^"
-  | assignment_ops
+    bin_expr_ops_special | bin_expr_ops_normal
 }
 
 paren_expr_inner = {

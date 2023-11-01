@@ -261,12 +261,13 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::semi_str |
         Rule::star_str |
         Rule::tilde_str |
-        Rule::triple_and |
-        Rule::triple_or |
         Rule::underscore_str
             => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()), 
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()), 
+        Rule::triple_and |
+        Rule::triple_or =>
+            docs![arena, arena.hardline(), s, arena.space()].nest(INDENT_SPACES),
         Rule::colon_str => 
             docs![
                 arena,
@@ -556,7 +557,9 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         }
         Rule::prefix_expr => map_to_doc(ctx, arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
-        Rule::bin_expr_ops => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
+        Rule::bin_expr_ops_special => map_to_doc(ctx, arena, pair),
+        Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
+        Rule::bin_expr_ops => map_to_doc(ctx, arena, pair),
         Rule::paren_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
         Rule::paren_expr => map_to_doc(ctx, arena, pair),
         Rule::array_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Brackets),
