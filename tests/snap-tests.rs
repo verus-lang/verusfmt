@@ -239,6 +239,48 @@ fn assert_by_test() {
 
 
 #[test]
+fn verus_macro_calls() {
+    let file = r#"
+verus!{
+
+    println!("{} {} {}", 
+        very_very_very_very_very_very_long_e1 + 42, 
+        very_very_very_very_very_very_long_e2, 
+        very_very_very_very_very_very_long_e3
+    );
+    unknown_macro1!("{} {} {}", very_very_very_very_very_very_long_e1, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
+    unknown_macro2!("
+        intro h1;
+        simpl;
+        cong;
+        done;
+    ");
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus!{
+
+        println!("{} {} {}", 
+            very_very_very_very_very_very_long_e1 + 42, 
+            very_very_very_very_very_very_long_e2, 
+            very_very_very_very_very_very_long_e3
+        );
+        unknown_macro1!("{} {} {}", very_very_very_very_very_very_long_e1, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
+        unknown_macro2!("
+            intro h1;
+            simpl;
+            cong;
+            done;
+        ");
+
+    }
+    "###);
+}
+
+
+#[test]
 fn verus_impl() {
     let file = r#"
 verus! {

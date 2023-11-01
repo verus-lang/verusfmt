@@ -1,18 +1,14 @@
 verus! {
 
-pub use extraction_lib::*;
-pub use std::collections::HashMap;
-pub use std::env;
-pub use std::fs;
-pub use std::io::{self, BufRead, Write};
-pub use std::net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
-
-fn syntactic_eq(&self, other: &Self) -> bool {
-    use BndX::*;
-    use TypX::*;
-    match self {
-        A => b,
-    }
+fn macro_calls() {
+    println!("{} {} {}", very_very_very_very_very_very_long_e1 + 42, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
+    unknown_macro1!("{} {} {}", very_very_very_very_very_very_long_e1, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
+    unknown_macro2!("
+        intro h1;
+        simpl;
+        cong;
+        done;
+    ");
 }
 
 } // verus!

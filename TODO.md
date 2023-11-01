@@ -9,6 +9,9 @@ X - Various "bonus" commas
 # Won't Fix
   - No plans to sort `use` declarations the way rustfmt does
 
+# Future Work
+  - Special handling for commonly used macros, like `println!`, `state_machine!`
+
 # Bugs:
 
 - When we run on the owl! macro, we remove spaces between its keywords,
