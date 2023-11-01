@@ -11,6 +11,12 @@ X - Various "bonus" commas
 
 # Bugs:
 
+- When we run on the owl! macro, we remove spaces between its keywords,
+  so that it doesn't function.  We should probably just dump macro
+  call arguments verbatim, without trying to format them.  Is that
+  what rustfmt does?  If so, does it special case common macros,
+  like `println!`?
+
 X- Don't allow breaks for function calls with no arguments:
 X    pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
 X        ensures
