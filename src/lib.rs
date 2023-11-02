@@ -168,6 +168,21 @@ fn map_pairs_to_doc<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pairs: &Pairs<'a,
     arena.concat(pairs.clone().map(|p| to_doc(ctx, p, arena)))
 }
 
+
+fn comment_to_doc<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, add_newline: bool) -> DocBuilder<'a,Arena<'a>> {
+    assert!(matches!(pair.as_rule(), Rule::COMMENT));
+    let (line, _col) = pair.line_col();
+    let s = arena.text(pair.as_str().trim());
+    if ctx.inline_comment_lines.contains(&line) {
+        arena.text(format!("{:indent$}", "", indent=INLINE_COMMENT_SPACE))
+            .append(s)
+            .append(arena.text(INLINE_COMMENT_FIXUP))
+            .append(if add_newline { arena.line() } else { arena.nil() })
+    } else {
+        s.append(arena.line())
+    }
+}
+
 fn format_doc(doc: RefDoc<()>) -> String {
     let mut w = Vec::new();
     doc.render(NUMBER_OF_COLUMNS, &mut w).unwrap();
@@ -464,7 +479,8 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                            if saw_param_list {
                                saw_comment_after_param_list = true;
                            };
-                           d
+                           // Special case where we don't want an extra newline after the possibly inline comment
+                           comment_to_doc(ctx, arena, p, false)
                        }
                        Rule::param_list => {
                            saw_param_list = true;
@@ -712,17 +728,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
-        Rule::COMMENT => { 
-            let (line, _col) = pair.line_col();
-            if ctx.inline_comment_lines.contains(&line) {
-                arena.text(format!("{:indent$}", "", indent=INLINE_COMMENT_SPACE))
-                    .append(s)
-                    .append(arena.text(INLINE_COMMENT_FIXUP))
-                    .append(arena.line())
-            } else {
-                s.append(arena.line())
-            }
-        }
+        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::verus_macro_body | Rule::EOI => unreachable!(),
 
