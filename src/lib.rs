@@ -480,7 +480,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                                saw_comment_after_param_list = true;
                            };
                            // Special case where we don't want an extra newline after the possibly inline comment
-                           comment_to_doc(ctx, arena, p, false)
+                           comment_to_doc(ctx, arena, p, !has_qualifier)
                        }
                        Rule::param_list => {
                            saw_param_list = true;

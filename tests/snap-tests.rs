@@ -526,6 +526,21 @@ fn test_my_funs(x: u32, y: u32)
     }
 }
 
+fn test_ghost_unwrap(x: int)  // unwrap so that y has typ u32, not Ghost<u32>
+    requires
+        y < 100,
+{
+}
+
+fn test_ghost_unwrap(
+    x: u32,
+    y: very_very_very_very_very_long_type,
+)  // unwrap so that y has typ u32, not Ghost<u32>
+    requires
+        x < 100,
+{
+}
+
 } // verus!
 "#;
 
@@ -568,6 +583,21 @@ fn test_my_funs(x: u32, y: u32)
             let u = my_spec_fun(x as int, y as int);  // inline comment 1
             my_proof_fun(u / 2, y as int);  // inline comment 2
         }
+    }
+
+    fn test_ghost_unwrap(x: int)  // unwrap so that y has typ u32, not Ghost<u32>
+        requires
+            y < 100,
+    {
+    }
+
+    fn test_ghost_unwrap(
+        x: u32,
+        y: very_very_very_very_very_long_type,
+    )  // unwrap so that y has typ u32, not Ghost<u32>
+        requires
+            x < 100,
+    {
     }
 
     } // verus!
