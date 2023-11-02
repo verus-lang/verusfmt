@@ -47,18 +47,35 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
     if pairs.clone().count() == 0 {
         arena.nil()
     } else {
-        arena.line_()
-            .append(arena.intersperse(
-                    pairs.map(|i| to_doc(ctx, i, arena)), 
-                    docs![arena, 
-                    ",", 
-                    arena.line()
-                    ]
-                    )
-                   )
-            .append(conditional_comma(arena))
-            .nest(INDENT_SPACES)
-            .append(arena.line_())
+        let num_non_comments = pairs.clone().filter(|p| !matches!(p.as_rule(), Rule::COMMENT)).count();
+        println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+        let mut non_comment_index = 0;
+        let mut trailing_comment = false;
+        let comma_separated = pairs.map(|p| 
+            match p.as_rule() {
+                Rule::COMMENT => {
+                    trailing_comment = true;
+                    to_doc(ctx, p, arena)
+                }
+                _ => {
+                    trailing_comment = false;
+                    if non_comment_index < num_non_comments - 1 {
+                        non_comment_index += 1;
+                        to_doc(ctx, p, arena).append(docs![arena, ",", arena.line()])
+                    } else {
+                        to_doc(ctx, p, arena)
+                    }
+                }
+            }
+        );
+        let doc = arena.line_().append(arena.concat(comma_separated));
+        if trailing_comment {
+            doc.nest(INDENT_SPACES)
+        } else {
+            doc.append(conditional_comma(arena))
+               .nest(INDENT_SPACES)
+               .append(arena.line_())
+        }
     }
 }
 

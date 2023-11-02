@@ -541,6 +541,12 @@ fn test_ghost_unwrap(
 {
 }
 
+fn test_my_funs2(
+    a: u32, // long comment1 
+    b: u32, // long comment2 
+) {
+}
+
 } // verus!
 "#;
 
@@ -598,6 +604,12 @@ fn test_ghost_unwrap(
         requires
             x < 100,
     {
+    }
+
+    fn test_my_funs2(
+        a: u32,  // long comment1
+        b: u32  // long comment2
+    ) {
     }
 
     } // verus!
