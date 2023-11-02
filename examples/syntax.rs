@@ -241,7 +241,6 @@ fn test_assert_forall_by() {
     };
     assert(f1(1) + f1(2) == 5);
     assert(f1(3) + f1(4) == 9);
-
     // to prove forall|...| P ==> Q, write assert forall|...| P implies Q by {...}
     assert(forall|x: int| x < 10 implies f1(x) < 11) by {
         assert(x < 10);
@@ -258,7 +257,6 @@ fn test_choose() {
         let x_witness = choose|x: int| f1(x) == 10;
         assert(f1(x_witness) == 10);
     }
-
     assume(exists|x: int, y: int| f1(x) + f1(y) == 30);
     proof {
         let (x_witness, y_witness): (int, int) = choose|x: int, y: int| f1(x) + f1(y) == 30;
@@ -274,6 +272,7 @@ fn test_single_trigger1() {
         f1(x) < 100 && f1(y) < 100 ==> #[trigger]
         my_spec_fun(x, y) >= x);
 }
+
 fn test_single_trigger2() {
     // Use [f1(x), f1(y)] as the trigger
     assume(forall|x: int, y: int| 
@@ -316,6 +315,7 @@ spec fn simple_conjuncts(x: int, y: int) -> bool {
     &&& x < 100
     &&& y < 100
 }
+
 spec fn complex_conjuncts(x: int, y: int) -> bool {
     let b = x < y;
     &&& b
@@ -432,16 +432,18 @@ fn test_ghost_wrappers(x: u32, y: Ghost<u32>)
     proof {
         v@ = v@ + 1;  // proof code may assign to the view of exec variables of type Ghost/Tracked
     }
-    let w: Ghost<int> = Ghost({
-        // proof block that returns a ghost value
-        let temp = v@ + 1;
-        temp + 1
-    });
+    let w: Ghost<int> = Ghost(
+        {
+            // proof block that returns a ghost value
+            let temp = v@ + 1;
+            temp + 1
+        },
+    );
     assert(w@ == x + y@ + 4);
 }
 
 fn test_consume(t: Tracked<int>)
-    requires 
+    requires
         t@ <= 7,
 {
     proof {
@@ -452,7 +454,10 @@ fn test_consume(t: Tracked<int>)
 }
 
 /// Ghost(...) and Tracked(...) patterns can unwrap Ghost<...> and Tracked<...> values:
-fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>)  // unwrap so that y has typ u32, not Ghost<u32>
+fn test_ghost_unwrap(
+    x: u32,
+    Ghost(y): Ghost<u32>,
+)  // unwrap so that y has typ u32, not Ghost<u32>
     requires
         x < 100,
         y < 100,
@@ -464,11 +469,13 @@ fn test_ghost_unwrap(x: u32, Ghost(y): Ghost<u32>)  // unwrap so that y has typ 
     proof {
         v = v + 1;  // assign directly to ghost mut v
     }
-    let Ghost(w): Ghost<int> = Ghost({
-        // proof block that returns a ghost value
-        let temp = v + 1;
-        temp + 1
-    });
+    let Ghost(w): Ghost<int> = Ghost(
+        {
+            // proof block that returns a ghost value
+            let temp = v + 1;
+            temp + 1
+        },
+    );
     assert(w == x + y + 4);
 }
 
