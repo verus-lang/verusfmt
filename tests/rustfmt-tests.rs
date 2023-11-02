@@ -340,7 +340,9 @@ fn rust_type_alias() {
 impl View for owl_t {
     type V = owlSpec_t;
 }
+
 type LongLongLongLongLongLongLongLongLongLongType = LongerLongLongLongLongLongLongLongLongLongLongType;
+
 type NoSpaceTypeA=NoSpaceTypeB;
 "#;
     compare(file);
