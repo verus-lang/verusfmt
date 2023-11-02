@@ -354,6 +354,7 @@ pub fn test_function(x: int, y: int) -> u32 {
         + very_very_very_very_y + very_very_very_very_z;
     assert(a === b);
     assume(forall|x: int| #![auto] f1(x) < 100);
+    let ghost (g1, g2) = g;
     5
 }
 
@@ -368,6 +369,7 @@ pub fn test_function(x: int, y: int) -> u32 {
             + very_very_very_very_z;
         assert(a === b);
         assume(forall|x: int| #![auto] f1(x) < 100);
+        let ghost (g1, g2) = g;
         5
     }
 

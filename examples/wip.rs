@@ -1,7 +1,7 @@
 verus! {
 
 fn test() {
-    assume(forall|x: int| #![auto] f1(x) < 100);
+    let ghost (g1, g2) = g;
 }
 
 } // verus!

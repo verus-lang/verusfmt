@@ -771,10 +771,10 @@ meta = {
 stmt = {
     semi_str
   | proof_block
+  | let_stmt
   | expr ~ semi_str
   | expr_with_block ~ semi_str?
   | item
-  | let_stmt
 }
 
 let_stmt = {
