@@ -7,7 +7,11 @@ spec fn simple_conjuncts() {
 }
 */
 
-fn test_disjunects() 
+fn test_disjuncts() 
+    ensures ({ very_very_very_very_very_very_very_very_x  + very_very_very_very_very_very_very_very_y == z }),
+{}
+
+fn test_disjuncts() 
     ensures ({ 
         ||| x
         ||| y

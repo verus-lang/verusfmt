@@ -122,9 +122,9 @@ fn sticky_list<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, 
 fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
     docs![
         arena,
-        arena.nil().flat_alt(arena.space()),
+        arena.line().flat_alt(arena.space()),
         doc,
-        arena.nil().flat_alt(arena.space()),
+        arena.line().flat_alt(arena.space()),
     ].braces()
 }
 
@@ -536,7 +536,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                 // - it is either used in expression position (not statement position) or is an unsafe block in statement position
                 // - contains a single-line expression and no statements
                 // - contains no comments
-                spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)).group()
+                spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)) //.group()
             } else {
                 println!("Processing that's not empty and not an expr_only_block");
                 let mapped = arena.concat(pairs.clone().map(|i| to_doc(ctx, i, arena)));
