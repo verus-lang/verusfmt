@@ -314,7 +314,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::f32_str |
         Rule::f64_str |
         Rule::fn_str |
-        Rule::for_str |
         Rule::ghost_str |
         Rule::i128_str |
         Rule::i16_str |
@@ -371,6 +370,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         
         Rule::as_str |
         Rule::by_str_inline |
+        Rule::for_str |
         Rule::has_str |
         Rule::implies_str |
         Rule::is_str
