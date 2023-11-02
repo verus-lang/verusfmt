@@ -84,19 +84,30 @@ enum Enclosure {
     Parens,
 }
 
-/// Wrap a comma-delimited list with an optional final comma,
-/// where the opening enclosure's symbol tries to "stick" to the previous line if needed
-fn sticky_list<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure) -> DocBuilder<'a,Arena<'a>> {
+/// Wrap a document in delimiters where the opening delimter tries to "stick" to the previous line if needed
+fn sticky_delims<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, enc: Enclosure) -> DocBuilder<'a,Arena<'a>> {
     use Enclosure::*;
+    // Braces get a space when placed on a single line; the rest don't
     let opening = match enc {
         Braces => "{",
         Brackets => "[",
         Parens => "(",
     };
+    // Braces get a space when placed on a single line; the rest don't
+    let opening_space = match enc {
+        Braces => arena.line(), 
+        Brackets => arena.line_(),
+        Parens => arena.line_(),
+    };
     let closing = match enc {
         Braces => "}",
         Brackets => "]",
         Parens => ")",
+    };
+    let closing_space = match enc {
+        Braces => arena.text(" "), 
+        Brackets => arena.nil(),
+        Parens => arena.nil(),
     };
     let pairs = pair.into_inner();
     if pairs.clone().count() == 0 {
@@ -111,9 +122,10 @@ fn sticky_list<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, 
         docs![
             arena,
             opening,
-            arena.line_(),
+            opening_space,
         ].group()
         .append(docs).group()
+        .append(closing_space)
         .append(arena.text(closing))
     }
 }
@@ -122,9 +134,9 @@ fn sticky_list<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>, 
 fn spaced_braces<'a>(arena:&'a Arena<'a,()>, doc: DocBuilder<'a,Arena<'a>>) -> DocBuilder<'a,Arena<'a>> {
     docs![
         arena,
-        arena.line().flat_alt(arena.space()),
+        arena.nil().flat_alt(arena.space()),
         doc,
-        arena.line().flat_alt(arena.space()),
+        arena.nil().flat_alt(arena.space()),
     ].braces()
 }
 
@@ -526,7 +538,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::path_expr => map_to_doc(ctx, arena, pair),
         Rule::stmt_list => {
             let rule = pair.as_rule();
-            let pairs = pair.into_inner();
+            let pairs = pair.clone().into_inner();
             if pairs.len() == 0 {
                 // Rust says: "An empty block should be written as {}"
                 arena.text("{}")
@@ -536,7 +548,8 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                 // - it is either used in expression position (not statement position) or is an unsafe block in statement position
                 // - contains a single-line expression and no statements
                 // - contains no comments
-                spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)) //.group()
+                //spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)).nest(INDENT_SPACES) //.group()
+                sticky_delims(ctx, arena, pair, Enclosure::Braces)
             } else {
                 println!("Processing that's not empty and not an expr_only_block");
                 let mapped = arena.concat(pairs.clone().map(|i| to_doc(ctx, i, arena)));
@@ -577,16 +590,16 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::bin_expr_ops_special => arena.hardline().append(map_to_doc(ctx, arena, pair)),
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
         Rule::bin_expr_ops => map_to_doc(ctx, arena, pair),
-        Rule::paren_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
+        Rule::paren_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens),
         Rule::paren_expr => map_to_doc(ctx, arena, pair),
-        Rule::array_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Brackets),
+        Rule::array_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Brackets),
         Rule::array_expr => map_to_doc(ctx, arena, pair),
-        Rule::tuple_expr_inner => sticky_list(ctx, arena, pair, Enclosure::Parens),
+        Rule::tuple_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens),
         Rule::tuple_expr => map_to_doc(ctx, arena, pair),
         Rule::struct_expr =>  map_to_doc(ctx, arena, pair),
         Rule::record_expr_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group(),   // TODO: Handle vanishing comma's interaction with rest_pat
         Rule::record_expr_field =>  map_to_doc(ctx, arena, pair),
-        Rule::arg_list => sticky_list(ctx, arena, pair, Enclosure::Parens),
+        Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens),
         Rule::closure_expr =>
             // Put the body of the closure on an indented newline if it doesn't fit the line
             arena.concat(
