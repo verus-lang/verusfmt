@@ -3,7 +3,7 @@ X - 2-space inline comments
 X - Various "bonus" commas
 
 # Features
-  - Spacing and hardlines for &&& and |||
+  XX - Spacing and hardlines for &&& and |||
   - Add more tests for while loops with invariants
 
 # Won't Fix
