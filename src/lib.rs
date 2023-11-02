@@ -515,7 +515,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::self_param => map_to_doc(ctx, arena, pair),
         Rule::param => map_to_doc(ctx, arena, pair),
         Rule::ret_type => map_to_doc(ctx, arena, pair),
-        Rule::type_alias => unsupported(pair),
+        Rule::type_alias => map_to_doc(ctx, arena, pair),
         Rule::r#struct => map_to_doc(ctx, arena, pair),
         Rule::record_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)),
         Rule::condensable_record_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group(),

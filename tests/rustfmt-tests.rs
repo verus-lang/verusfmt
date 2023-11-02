@@ -333,3 +333,17 @@ pub fn test_function() -> u32 {
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_type_alias() {
+    let file = r#"
+impl View for owl_t {
+    type V = owlSpec_t;
+}
+
+type LongLongLongLongLongLongLongLongLongLongType = LongerLongLongLongLongLongLongLongLongLongLongType;
+
+type NoSpaceTypeA=NoSpaceTypeB;
+"#;
+    compare(file);
+}
