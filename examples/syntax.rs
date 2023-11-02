@@ -161,8 +161,8 @@ proof fn dec0_decreases(a: int) {
 ///   - variables in spec code are always ghost
 /// For example:
 fn test_my_funs2(
-    a: u32, // exec variable
-    b: u32, // exec variable
+    a: u32,  // exec variable
+    b: u32,  // exec variable
 )
     requires
         a < 100,
