@@ -320,12 +320,12 @@ spec fn complex_conjuncts(x: int, y: int) -> bool {
     let b = x < y;
     &&& b
     &&& if false {
-            &&& b ==> b
-            &&& !b ==> !b
-        } else {
-            ||| b ==> b
-            ||| !b
-        }
+        &&& b ==> b
+        &&& !b ==> !b
+    } else {
+        ||| b ==> b
+        ||| !b
+    }
     &&& false ==> true
 }
 
