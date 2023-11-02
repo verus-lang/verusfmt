@@ -47,7 +47,8 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
     if pairs.clone().count() == 0 {
         arena.nil()
     } else {
-        let num_non_comments = pairs.clone().filter(|p| !matches!(p.as_rule(), Rule::COMMENT)).count();
+        let num_comments = pairs.clone().filter(|p| matches!(p.as_rule(), Rule::COMMENT)).count();
+        let num_non_comments = pairs.len() - num_comments;
         //println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
         let mut non_comment_index = 0;
         let mut trailing_comment = false;
@@ -61,7 +62,9 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
                     trailing_comment = false;
                     if non_comment_index < num_non_comments - 1 {
                         non_comment_index += 1;
-                        to_doc(ctx, p, arena).append(docs![arena, ",", arena.line()])
+                        to_doc(ctx, p, arena).append(docs![arena, ",", if num_comments > 0 { arena.hardline() } else { arena.line() }])
+                    } else if num_non_comments > 0 {
+                        to_doc(ctx, p, arena).append(conditional_comma(arena))
                     } else {
                         to_doc(ctx, p, arena)
                     }
@@ -70,11 +73,11 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
         );
         let doc = arena.line_().append(arena.concat(comma_separated));
         if trailing_comment {
+            //println!("Trailing comma: Yes");
             doc.nest(INDENT_SPACES)
         } else {
-            doc.append(conditional_comma(arena))
-               .nest(INDENT_SPACES)
-               .append(arena.line_())
+            //println!("Trailing comma: No");
+            doc.nest(INDENT_SPACES).append(arena.line_())
         }
     }
 }

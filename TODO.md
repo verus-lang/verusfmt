@@ -14,6 +14,8 @@ X - Various "bonus" commas
 
 # Bugs:
 
+- Parser rejects programs with /* */ comments at the end of the Verus macro
+
 X- Don't allow breaks for function calls with no arguments:
 X    pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
 X        ensures

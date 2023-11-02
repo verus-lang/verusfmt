@@ -79,6 +79,10 @@ pub const fn bob_addr() -> (a: StrSlice<'static>) {
     5
 }
 
+fn test_my_funs3(a: u32) {
+    test_my_funs3(a + a + a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a);
+}
+
 }
 "#;
 
@@ -154,6 +158,13 @@ pub const fn bob_addr() -> (a: StrSlice<'static>) {
 
     pub const fn bob_addr() -> (a: StrSlice<'static>) {
         5
+    }
+
+    fn test_my_funs3(a: u32) {
+        test_my_funs3(
+            a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a + a
+                + a + a + a + a + a + a,
+        );
     }
 
     } // verus!
@@ -547,6 +558,15 @@ fn test_my_funs2(
 ) {
 }
 
+
+fn test_my_funs3(
+    // exec variable
+    a: u32,
+    // exec variable
+    b: u32,
+) {
+}
+
 } // verus!
 "#;
 
@@ -608,7 +628,15 @@ fn test_my_funs2(
 
     fn test_my_funs2(
         a: u32,  // long comment1
-        b: u32  // long comment2
+        b: u32,  // long comment2
+    ) {
+    }
+
+    fn test_my_funs3(
+        // exec variable
+        a: u32,
+        // exec variable
+        b: u32,
     ) {
     }
 
