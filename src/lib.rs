@@ -608,7 +608,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                                             Rule::expr => 
                                                 arena.line_().append(to_doc(ctx, p, arena)).nest(INDENT_SPACES),
                                             Rule::attr_inner => 
-                                                arena.line_().append(to_doc(ctx, p, arena)).nest(INDENT_SPACES),
+                                                arena.line_().append(to_doc(ctx, p, arena)).append(arena.nil().flat_alt(arena.text(" "))).nest(INDENT_SPACES),
                                                 _ => to_doc(ctx, p, arena)
                                           }
                                      )
