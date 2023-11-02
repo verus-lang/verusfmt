@@ -48,7 +48,7 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
         arena.nil()
     } else {
         let num_non_comments = pairs.clone().filter(|p| !matches!(p.as_rule(), Rule::COMMENT)).count();
-        println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+        //println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
         let mut non_comment_index = 0;
         let mut trailing_comment = false;
         let comma_separated = pairs.map(|p| 
