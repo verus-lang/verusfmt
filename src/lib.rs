@@ -95,7 +95,7 @@ fn sticky_delims<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>
     };
     // Braces get a space when placed on a single line; the rest don't
     let opening_space = match enc {
-        Braces => arena.line(), 
+        Braces => arena.line_(), 
         Brackets => arena.line_(),
         Parens => arena.line_(),
     };
@@ -105,7 +105,7 @@ fn sticky_delims<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>
         Parens => ")",
     };
     let closing_space = match enc {
-        Braces => arena.text(" "), 
+        Braces => arena.line(), //.text(" "), 
         Brackets => arena.nil(),
         Parens => arena.nil(),
     };
@@ -124,9 +124,10 @@ fn sticky_delims<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>
             opening,
             opening_space,
         ].group()
+        .append(if matches!(enc, Braces) { arena.line() } else { arena.nil() })
         .append(docs).group()
         .append(closing_space)
-        .append(arena.text(closing))
+        .append(arena.text(closing)).group()
     }
 }
 
