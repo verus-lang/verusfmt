@@ -4,8 +4,8 @@ An opinionated formatter for [Verus] code.
 
 ## WARNING
 
-Verusfmt is highly experimental code. Make backups of your files before trying
-Verusfmt on them.
+`verusfmt` is highly experimental code. Make backups of your files before trying
+`verusfmt` on them.
 
 ## Goals
 
@@ -13,19 +13,21 @@ Verusfmt on them.
    formatting it in a consistent style (added bonus: eliminating soul-crushing
    arguments about style).
 2. Produce acceptably "pretty" output.
-3. Run fast!  Verusfmt may be run in pre-submit scripts, CI, etc., so it can't
+3. Run fast!  `verusfmt` may be run in pre-submit scripts, CI, etc., so it can't
    be slow.
 4. Keep the code reasonably simple. Pretty printers are [notoriously
    hard](https://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/),
-   so we try to take steps to reduce that difficulty, so that Verusfmt can be
+   so we try to take steps to reduce that difficulty, so that `verusfmt` can be
    updated and adapted with a reasonable amount of effort. 
 
 ### FAQ
 
 1. Why not adapt [`rustfmt`] for [Verus] idioms?
+
  **TODO**: jayb
 
 1. Why not build this as a feature of [Verus]?
+
 By the time Verus receives an AST from `rustc`, we've already lost information
 about whitespace and comments, meaning that we couldn't preserve the comments
 in the reformatted code.  Plus, firing up all of `rustc` just to format some
@@ -52,7 +54,7 @@ code seems heavyweight.
 
 In general, we try to adhere to Rust's style guide.  Tests for such adherence live in
 [tests/rustfmt-tests.rs](tests/rustfmt-tests.rs).  These tests will compare the output
-of [rustfmt](https://github.com/rust-lang/rustfmt) to that of `verusfmt`.  You can run
+of [`rustfmt`] to that of `verusfmt`.  You can run
 them via `cargo test`.
 
 ### Verus-like formatting
@@ -68,11 +70,8 @@ Insta recommends installing the `cargo-insta` tool for an improved review experi
 cargo install cargo-insta
 ```
 
-You can run the tests normally with `cargo test`, but if we end up with
-multiple snapshot assertions in a single test function, we might want to use
-`cargo insta test` instead which collects all snapshot changes in one go.
-
-You can run the tests and review the results via:
+You can run the tests normally with `cargo test`, but it's often more convenient
+to run the tests and review the results via:
 ```
 cargo insta test
 cargo insta review
@@ -83,5 +82,5 @@ cargo insta test --review
 ```
 
 
-[Verus](https://github.com/verus-lang/verus)
-[`rustfmt`](https://github.com/rust-lang/rustfmt)
+[Verus]: https://github.com/verus-lang/verus
+[`rustfmt`]: https://github.com/rust-lang/rustfmt
