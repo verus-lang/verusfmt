@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use anyhow::anyhow;
 use clap::Parser as ClapParser;
 use fs_err as fs;
-use tracing::{error, info};   // debug, trace
+use tracing::{error, info}; // debug, trace
 use verusfmt::parse_and_format;
 
 /// An opinionated formatter for Verus code

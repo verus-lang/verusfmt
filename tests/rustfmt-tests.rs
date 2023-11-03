@@ -1,8 +1,7 @@
-use verusfmt::{VERUS_PREFIX, VERUS_SUFFIX, parse_and_format, rustfmt};
+use verusfmt::{parse_and_format, rustfmt, VERUS_PREFIX, VERUS_SUFFIX};
 
 /// Tests to check that when formatting standard Rust syntax,
 /// we match rustfmt
-
 
 fn compare(file: &str) {
     let verus_file = format!("{}{}{}", VERUS_PREFIX, file, VERUS_SUFFIX);
@@ -157,7 +156,6 @@ pub fn test_function3<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     compare(file);
 }
 
-
 #[test]
 fn rust_blocks() {
     let file = r#"
@@ -293,7 +291,6 @@ pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
 "#;
     compare(file);
 }
-
 
 // TODO: Need to differentiate if-expressions in different contexts
 #[test]

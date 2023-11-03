@@ -1,5 +1,5 @@
-use verusfmt::parse_and_format;
 use insta::assert_snapshot;
+use verusfmt::parse_and_format;
 
 /// Tests of Verus-specific formatting
 
@@ -248,7 +248,6 @@ fn assert_by_test() {
     "###);
 }
 
-
 #[test]
 fn verus_macro_calls() {
     let file = r#"
@@ -289,7 +288,6 @@ verus!{
     }
     "###);
 }
-
 
 #[test]
 fn verus_impl() {
@@ -387,7 +385,6 @@ pub fn test_function(x: int, y: int) -> u32 {
     } // verus!
     "###);
 }
-
 
 // We deviate from rustfmt here, so use our own snapshot to check for self-consistency
 #[test]
@@ -664,4 +661,3 @@ fn my_proof_fun(x: int, y: int)
     } // verus!
     "###);
 }
-
