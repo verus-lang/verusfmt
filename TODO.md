@@ -11,6 +11,8 @@ X - Various "bonus" commas
 
 # Future Work
   - Special handling for commonly used macros, like `println!`, `state_machine!`
+  - Enforce the naming policy? https://doc.rust-lang.org/beta/style-guide/advice.html#names
+  - In `record_expr_field_list` and `record_pat_field_list`, handle vanishing comma's interaction with `rest_pat`
 
 # Bugs:
 

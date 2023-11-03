@@ -1,5 +1,5 @@
 #![allow(dead_code, unused_imports)] // TEMPORARY
-#![allow(unstable_name_collisions)] // TODO: See Itertools::intersperse                                     
+#![allow(unstable_name_collisions)]  // Needed due to Itertools::intersperse                                     
 use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
 use pretty::*;
@@ -15,9 +15,8 @@ use itertools::Itertools;
 #[grammar = "verus.pest"]
 pub struct VerusParser;
 
-// XXX: Should we expose these to the user as a configurable option where we pick a default? I think
-// even this should be opinionated, but might be useful to expose this as an unstable option or
-// something.
+// JB: Should we expose these to the user as configurable options where we pick a default? 
+// I think even this should be opinionated, but might be useful to expose this as an unstable option or something.
 // rustfmt sets this to 100: https://rust-lang.github.io/rustfmt/?version=v1.6.0&search=#max_width
 const NUMBER_OF_COLUMNS: usize = 100;
 const INDENT_SPACES: isize = 4;
@@ -83,6 +82,7 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
 }
 
 /// Comma-delimited list with a required final comma
+// TODO: Update with comment-handling logic from comma_delimited
 fn comma_delimited_full<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
     arena.line()
         .append(arena.intersperse(
@@ -251,12 +251,8 @@ fn debug_print(pair: Pair<Rule>, indent: usize) {
     }
 }
 
-// TODO: Be sure that comments are being handled properly.  `//` comments should start with a space
-
 fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> DocBuilder<'a,Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
-    // TODO: Apply naming policy: https://doc.rust-lang.org/beta/style-guide/advice.html#names
-    //debug!("Processing rule {:?} on line {}", pair.as_rule(), line);
     debug!("Processing rule {:?}", pair.as_rule());
     match pair.as_rule() {
         //***********************//
@@ -451,7 +447,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::assoc_type_arg => unsupported(pair),
         Rule::lifetime_arg => unsupported(pair),
         Rule::const_arg => unsupported(pair),
-        Rule::macro_call => s, // TODO: Add special handling for common macros, like println!, state_machine!, etc.
+        Rule::macro_call => s,
         Rule::punctuation => map_to_doc(ctx, arena, pair),
         Rule::token => map_to_doc(ctx, arena, pair),
         Rule::delim_token_tree => map_to_doc(ctx, arena, pair),
@@ -556,7 +552,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         // Statements and Expressions //
         //****************************//
         Rule::stmt => map_to_doc(ctx, arena, pair).append(arena.hardline()),
-        // TODO: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
+        // NOTE: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
         //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
         Rule::let_stmt => map_to_doc(ctx, arena, pair).group(),
         Rule::let_else => unsupported(pair),
@@ -593,14 +589,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
                 block_braces(arena, mapped, terminal_expr(&pairs))
             }
         }
-        // TODO: Try this example once we support calls:
-//            let _ = {
-//                a_call(
-//                    an_argument,
-//                    another_arg,
-//                )
-//            };
-
         Rule::ref_expr => map_to_doc(ctx, arena, pair),
         Rule::proof_block => map_to_doc(ctx, arena, pair),
         Rule::block_expr => map_to_doc(ctx, arena, pair),
@@ -609,20 +597,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
             let mapped = map_pairs_to_doc(ctx, arena, &pairs);
             block_braces(arena, mapped, terminal_expr(&pairs))
         }
-        Rule::prefix_expr => {
-            // TODO: Simplify
-            let is_triple_prefix = pair.clone().into_inner().find(|p| 
-                match p.as_rule() {
-                    Rule::triple_or | Rule::triple_and => true,
-                    _ => false,
-                }).is_some();
-            if is_triple_prefix {
-                //map_to_doc(ctx, arena, pair).append(arena.hardline())
-                map_to_doc(ctx, arena, pair)
-            } else {
-                map_to_doc(ctx, arena, pair)
-            }
-        }
+        Rule::prefix_expr => map_to_doc(ctx, arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
         Rule::bin_expr_ops_special => arena.hardline().append(map_to_doc(ctx, arena, pair)),
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()].nest(INDENT_SPACES).group(),
@@ -634,7 +609,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::tuple_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens),
         Rule::tuple_expr => map_to_doc(ctx, arena, pair),
         Rule::struct_expr =>  map_to_doc(ctx, arena, pair),
-        Rule::record_expr_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group(),   // TODO: Handle vanishing comma's interaction with rest_pat
+        Rule::record_expr_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group(),
         Rule::record_expr_field =>  map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens),
         Rule::closure_expr =>
@@ -709,7 +684,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
         Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),
         Rule::record_pat => map_to_doc(ctx, arena, pair),
-        Rule::record_pat_field_list => comma_delimited(ctx, arena, pair).braces().group(),   // TODO: Handle vanishing comma's interaction with rest_pat
+        Rule::record_pat_field_list => comma_delimited(ctx, arena, pair).braces().group(),
         Rule::record_pat_field => map_to_doc(ctx, arena, pair),
         Rule::tuple_struct_pat_inner => comma_delimited(ctx, arena, pair).parens().group(),
         Rule::tuple_struct_pat => map_to_doc(ctx, arena, pair), 
@@ -718,8 +693,7 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::slice_pat => comma_delimited(ctx, arena, pair).brackets().group(),
         Rule::path_pat => map_to_doc(ctx, arena, pair),
         Rule::box_pat => map_to_doc(ctx, arena, pair),
-        Rule::rest_pat => map_to_doc(ctx, arena, pair),  // TODO: Should the attributes on this be on
-                                                    // the same line?
+        Rule::rest_pat => map_to_doc(ctx, arena, pair),
         Rule::macro_pat => unsupported(pair),
         Rule::const_block_pat => unsupported(pair),
 
@@ -751,11 +725,6 @@ fn to_doc<'a>(ctx: &Context, pair: Pair<'a, Rule>, arena:&'a Arena<'a,()>) -> Do
         Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::verus_macro_body | Rule::EOI => unreachable!(),
-
-//        _ => {
-//            error!("TODO: format {:?} before returning", pair.as_rule());
-//            arena.text(pair.as_str().to_owned())
-//        }
     }
 }
 
