@@ -72,30 +72,48 @@ fn comma_delimited<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rul
         );
         let doc = arena.line_().append(arena.concat(comma_separated));
         if trailing_comment {
-            //println!("Trailing comma: Yes");
+            //println!("Trailing comment: Yes");
             doc.nest(INDENT_SPACES)
         } else {
-            //println!("Trailing comma: No");
+            //println!("Trailing comment: No");
             doc.nest(INDENT_SPACES).append(arena.line_())
         }
     }
 }
 
 /// Comma-delimited list with a required final comma
-// TODO: Update with comment-handling logic from comma_delimited
 fn comma_delimited_full<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a, Rule>) -> DocBuilder<'a,Arena<'a>> {
-    arena.line()
-        .append(arena.intersperse(
-                    pair.into_inner().map(|i| to_doc(ctx, i, arena)), 
-                    docs![arena, 
-                          ",", 
-                          arena.line()
-                    ]
-                    )
-        )
-        .append(arena.text(","))
-        .nest(INDENT_SPACES)
-        //.append(arena.line_())
+    let pairs = pair.into_inner();
+    let num_comments = pairs.clone().filter(|p| matches!(p.as_rule(), Rule::COMMENT)).count();
+    let num_non_comments = pairs.len() - num_comments;
+    //println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+    let mut non_comment_index = 0;
+    let mut trailing_comment = false;
+    let comma_separated = pairs.map(|p| 
+        match p.as_rule() {
+            Rule::COMMENT => {
+                trailing_comment = true;
+                to_doc(ctx, p, arena)
+            }
+            _ => {
+                trailing_comment = false;
+                if non_comment_index < num_non_comments - 1 {
+                    non_comment_index += 1;
+                    to_doc(ctx, p, arena).append(docs![arena, ",", if num_comments > 0 { arena.hardline() } else { arena.line() }])
+                } else {
+                    to_doc(ctx, p, arena).append(arena.text(","))
+                }
+            }
+        }
+    );
+    let doc = arena.line().append(arena.concat(comma_separated));
+    if trailing_comment {
+        //println!("Trailing comment: Yes");
+        doc.nest(INDENT_SPACES)
+    } else {
+        //println!("Trailing comment: No");
+        doc.nest(INDENT_SPACES)
+    }
 }
 
 enum Enclosure {
@@ -773,7 +791,7 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
-    //println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
+    println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
     let mut fixed_str:String = String::new();
     let mut prev_str:String = "".to_string();
     let mut first_iteration = true;

@@ -1,21 +1,12 @@
 verus! {
-
-fn test_my_funs3(a: u32) {
-    test_my_funs3(a + a + a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a+ a);
-}
-
-fn test_my_funs1(
-    // exec variable
-    a: u32,
-    // exec variable
-    b: u32,
-) {
-}
-
-fn test_my_funs2(
-    a: u32,  // exec variable
-    b: u32,  // exec variable
-) {
+fn my_proof_fun(x: int, y: int)
+    requires
+        x < 100,  // Very important!
+        y < 100,  // So, so
+    ensures
+        sum < 200,  // Definitely want this
+        x < 200,  // And this
+{
 }
 
 } // verus!

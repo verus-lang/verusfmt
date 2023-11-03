@@ -567,6 +567,16 @@ fn test_my_funs3(
 ) {
 }
 
+fn my_proof_fun(x: int, y: int)
+    requires
+        x < 100,  // Very important!
+        y < 100,  // This gets parsed as a top-level comment, hence extra newline
+    ensures
+        sum < 200,  // Definitely want this
+        x < 200,  // And this
+{
+}
+
 } // verus!
 "#;
 
@@ -638,6 +648,17 @@ fn test_my_funs3(
         // exec variable
         b: u32,
     ) {
+    }
+
+    fn my_proof_fun(x: int, y: int)
+        requires
+            x < 100,  // Very important!
+            y < 100,  // This gets parsed as a top-level comment, hence extra newline
+
+        ensures
+            sum < 200,  // Definitely want this
+            x < 200,  // And this
+    {
     }
 
     } // verus!
