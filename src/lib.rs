@@ -88,15 +88,12 @@ fn comma_delimited_full<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a
     let num_non_comments = pairs.len() - num_comments;
     //println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
     let mut non_comment_index = 0;
-    let mut trailing_comment = false;
     let comma_separated = pairs.map(|p| 
         match p.as_rule() {
             Rule::COMMENT => {
-                trailing_comment = true;
                 to_doc(ctx, p, arena)
             }
             _ => {
-                trailing_comment = false;
                 if non_comment_index < num_non_comments - 1 {
                     non_comment_index += 1;
                     to_doc(ctx, p, arena).append(docs![arena, ",", if num_comments > 0 { arena.hardline() } else { arena.line() }])
@@ -106,14 +103,7 @@ fn comma_delimited_full<'a>(ctx: &Context, arena:&'a Arena<'a,()>, pair: Pair<'a
             }
         }
     );
-    let doc = arena.line().append(arena.concat(comma_separated));
-    if trailing_comment {
-        //println!("Trailing comment: Yes");
-        doc.nest(INDENT_SPACES)
-    } else {
-        //println!("Trailing comment: No");
-        doc.nest(INDENT_SPACES)
-    }
+    arena.line().append(arena.concat(comma_separated)).nest(INDENT_SPACES)
 }
 
 enum Enclosure {
