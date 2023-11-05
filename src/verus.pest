@@ -202,6 +202,7 @@ triple_or = { "|||" }
 underscore_str = { "_" }
 as_str = { "as" }
 assert_str = { "assert" }
+assert_space_str = { "assert" }
 assume_str = { "assume" }
 async_str = { "async" }
 auto_str = { "auto" }
@@ -919,6 +920,7 @@ expr_with_block = {
   | if_expr
   | match_expr
   | assert_by_block_expr
+  | assert_forall_expr
 }
 
 macro_expr = {
@@ -1438,7 +1440,7 @@ assume_expr = {
 }
 
 assert_forall_expr = {
-    attr* ~ assert_str ~ lparen_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ rparen_str ~ by_str_inline ~ block_expr
+    attr* ~ assert_space_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ by_str_inline ~ block_expr
 }
 
 inline_prover = {

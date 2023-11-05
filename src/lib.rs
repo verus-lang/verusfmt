@@ -409,7 +409,8 @@ fn to_doc<'a>(
             .nest(INDENT_SPACES - 1)
             .group(),
         Rule::else_str => docs![arena, arena.space(), s, arena.space()],
-        Rule::async_str
+        Rule::assert_space_str
+        | Rule::async_str
         | Rule::auto_str
         | Rule::await_str
         | Rule::box_str
