@@ -69,7 +69,7 @@ non_verus = @{
 
 /// An actual use of the `verus! { ... }` macro
 verus_macro_use = ${
-    "verus!" ~ WHITESPACE* ~ "{" ~ WHITESPACE* ~ verus_macro_body ~ WHITESPACE* ~ "}" ~ WHITESPACE* ~ ("//" ~ WHITESPACE* ~ "verus!")?
+    "verus!" ~ WHITESPACE* ~ "{" ~ (WHITESPACE | COMMENT)* ~ verus_macro_body ~ (WHITESPACE | COMMENT)* ~ "}" ~ WHITESPACE* ~ ("//" ~ WHITESPACE* ~ "verus!")?
 }
 
 /// Anything inside the `verus! { ... }` macro

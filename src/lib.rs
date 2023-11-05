@@ -995,9 +995,25 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
             }
             Rule::verus_macro_use => {
                 let body = pair.into_inner().collect::<Vec<_>>();
-                assert_eq!(body.len(), 1);
-                let body = body.into_iter().next().unwrap();
+                let (prefix_comments, body, suffix_comments) = {
+                    assert_eq!(
+                        body.iter().filter(|p| p.as_rule() != Rule::COMMENT).count(),
+                        1
+                    );
+                    let body_index = body
+                        .iter()
+                        .position(|p| p.as_rule() != Rule::COMMENT)
+                        .unwrap();
+                    let mut body_iter = body.into_iter();
+                    let prefix_comments: Vec<_> = body_iter.by_ref().take(body_index).collect();
+                    let body = body_iter.by_ref().next().unwrap();
+                    let suffix_comments: Vec<_> = body_iter.collect();
+                    (prefix_comments, body, suffix_comments)
+                };
                 formatted_output += VERUS_PREFIX;
+                for comment in prefix_comments {
+                    formatted_output += comment.as_str();
+                }
                 let items = body.into_inner();
                 let len = items.clone().count();
                 let mut prev_is_use = false;
@@ -1032,6 +1048,9 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                             formatted_output += "\n";
                         }
                     }
+                }
+                for comment in suffix_comments {
+                    formatted_output += comment.as_str();
                 }
                 formatted_output += VERUS_SUFFIX;
             }
