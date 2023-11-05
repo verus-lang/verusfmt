@@ -1060,7 +1060,10 @@ closure_expr = {
     expr
 }
 
-condition = { expr_no_struct }
+condition = {
+    bang_str ~ condition
+  | expr_no_struct
+}
 
 if_expr = {
     attr* ~ if_str ~ condition ~ fn_block_expr ~
