@@ -1385,7 +1385,6 @@ verus_clause_non_expr = _{
   | ensures_str
   | invariant_str
   | recommends_str
-  | recommends_str
   | via_str
   | decreases_str
   | when_str
