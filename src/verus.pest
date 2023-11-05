@@ -410,7 +410,7 @@ const_arg = {
 
 // TODO: Special handling for the calc! and state_machine! macros?
 macro_call = {
-    attr* ~ path ~ bang_str ~ token_tree ~ semi_str?
+    attr* ~ path ~ bang_str ~ !"=" ~ token_tree ~ semi_str?
 }
 
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
