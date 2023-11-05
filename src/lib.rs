@@ -799,7 +799,7 @@ fn to_doc<'a>(
         Rule::pat_inner => map_to_doc(ctx, arena, pair),
         Rule::literal_pat => map_to_doc(ctx, arena, pair),
         Rule::ident_pat => map_to_doc(ctx, arena, pair),
-        //Rule::wildcard_pat => arena.text("_"),
+        Rule::wildcard_pat => map_to_doc(ctx, arena, pair),
         Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
         Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),
         Rule::record_pat => map_to_doc(ctx, arena, pair),
