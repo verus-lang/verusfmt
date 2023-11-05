@@ -779,9 +779,9 @@ stmt = {
 }
 
 let_stmt = {
-    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ pat ~ (colon_str ~ type)? ~
-    eq_str ~ expr ~
-    let_else? ~
+    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ mut_str? ~ pat ~ (colon_str ~ type)? ~
+    (eq_str ~ expr ~
+    let_else?)? ~
     semi_str
 }
 
