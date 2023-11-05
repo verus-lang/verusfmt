@@ -1112,7 +1112,7 @@ match_arm_lhs = {
 }
 
 match_arm = {
-    match_arm_lhs ~ "=>" ~ ((stmt_list ~ ","?) | (expr ~ ","))
+    match_arm_lhs ~ "=>" ~ ((expr_with_block ~ ","?) | (expr ~ ","))
 }
 
 match_guard = {
