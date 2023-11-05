@@ -836,7 +836,10 @@ fn to_doc<'a>(
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),
-        Rule::assert_expr => map_to_doc(ctx, arena, pair).group(),
+        Rule::assert_expr_prefix
+        | Rule::assert_by_block_expr
+        | Rule::assert_by_prover_expr
+        | Rule::assert_expr => map_to_doc(ctx, arena, pair).group(),
         Rule::assume_expr => map_to_doc(ctx, arena, pair),
         Rule::assert_forall_expr => map_to_doc(ctx, arena, pair),
         Rule::prover => map_to_doc(ctx, arena, pair),

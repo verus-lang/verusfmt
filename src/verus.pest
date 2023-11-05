@@ -772,8 +772,8 @@ stmt = {
     semi_str
   | proof_block
   | let_stmt
-  | expr ~ semi_str
   | expr_with_block ~ semi_str?
+  | expr ~ semi_str
   | item
 }
 
@@ -918,6 +918,7 @@ expr_with_block = {
   | loop_expr
   | if_expr
   | match_expr
+  | assert_by_block_expr
 }
 
 macro_expr = {
@@ -1414,8 +1415,22 @@ assert_requires = {
     requires_clause
 }
 
+assert_expr_prefix = {
+    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str
+}
+
+assert_by_block_expr = {
+    assert_expr_prefix ~ inline_prover ~ assert_requires? ~ block_expr
+}
+
+assert_by_prover_expr = {
+    assert_by_block_expr
+  | assert_expr_prefix ~ inline_prover ~ assert_requires?
+}
+
 assert_expr = {
-    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str ~ (inline_prover ~ assert_requires? ~ block_expr?)?
+    assert_by_prover_expr
+  | assert_expr_prefix
 }
 
 assume_expr = {
