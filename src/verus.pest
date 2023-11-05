@@ -343,11 +343,11 @@ keyword = {
     | do_str
     | "final"
     | macro_str
-    | "override_str"
-    | "priv_str"
-    | "typeof_str"
-    | "unsized_str"
-    | "virtual_str"
+    | "override"
+    | "priv"
+    | "typeof"
+    | "unsized"
+    | "virtual"
     | yield_str
     | try_str  
 }
