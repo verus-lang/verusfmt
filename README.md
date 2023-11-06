@@ -78,7 +78,7 @@ Reference](https://doc.rust-lang.org/beta/reference/introduction.html).
 Rather than try to format things ourselves, we rely on the
 [pretty](https://crates.io/crates/pretty) crate, based on [Philip
 Wadler's](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf)
-design for a pretty printer.  The core idea is you create a set of possible
+design for a pretty printer.  The core idea is that you create a set of possible
 code layouts, and the pretty printer then uses its internal heuristics to pick
 the prettiest version.  Typically this means that we specify where, say, line breaks
 can occur if the code needs to be placed on multiple lines, but you can also
@@ -86,12 +86,12 @@ use the `group` operator to say that for a particular code snippet, the pretty p
 should also consider placing everying in the group on a single line.
 
 As much as possible, we try to keep the formatter simple by arranging for the 
-formatting of a node to be formatted by simply formatting each of its children.
+formatting of a node to be computed by simply formatting each of its children.
 Sometimes this requires splitting a node in the parser, so that we can format
 the same item in two different ways, depending on its context.  Rust contexts
 can be tricky to track dynamically (since Rust allows expressions in statements,
-and statements in expression), so we try to keep the formatter stateless as much
-as possible.
+and statements in expression), so we try to keep the formatter stateless to reduce
+the scope for errors.
 
 ## Contributing
 
