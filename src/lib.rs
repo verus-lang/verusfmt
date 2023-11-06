@@ -901,7 +901,7 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
-    println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
+    //println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
     let mut fixed_str: String = String::new();
     let mut prev_str: String = "".to_string();
     let mut first_iteration = true;
