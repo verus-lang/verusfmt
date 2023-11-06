@@ -47,20 +47,20 @@ code seems heavyweight.
 
 ## Design Overview
 
-Our design is heavily influenced by the [Goals](#Goals) above.  
-Rather than write everything from scratch ([a notoriously
-hard undertaking](https://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/)),
-we use a parser-generator to read in Verus source code, and
-a pretty-printing library to format it on the way out.  We
-try to keep each phase as performant as possible, and we largely try
-to keep the formatter stateless, for performance reasons
-but more importantly to try to keep the code reasonably simple 
-and easy to reason about.
+Our design is heavily influenced by the [Goals](#Goals) above.  Rather than
+write everything from scratch ([a notoriously hard
+undertaking](https://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/)),
+we use a parser-generator to read in Verus source code, and a pretty-printing
+library to format it on the way out.  We try to keep each phase as performant
+as possible, and we largely try to keep the formatter stateless, for
+performance reasons but more importantly to try to keep the code reasonably
+simple and easy to reason about.  Hence we sometimes deviate from Rust's style
+guidelines for the sake of simplicity.
 
 ### Parsing
 
 We define the syntax of Verus source code using [this
-grammar](source/verus.pest), which is processed by the [Pest](https://pest.rs/)
+grammar](src/verus.pest), which is processed by the [Pest](https://pest.rs/)
 parser generator, which relies on Parsing Expression Grammars
 ([PEG](https://en.wikipedia.org/wiki/Parsing_expression_grammar)s).  It
 conveniently allows us to define our notion of whitespace and comments, which
