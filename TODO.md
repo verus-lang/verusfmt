@@ -6,14 +6,6 @@ X - Various "bonus" commas
   XX - Spacing and hardlines for &&& and |||
   - Add more tests for while loops with invariants
 
-# Won't Fix
-  - No plans to sort `use` declarations the way rustfmt does
-
-# Future Work
-  - Special handling for commonly used macros, like `println!`, `state_machine!`
-  - Enforce the naming policy? https://doc.rust-lang.org/beta/style-guide/advice.html#names
-  - In `record_expr_field_list` and `record_pat_field_list`, handle vanishing comma's interaction with `rest_pat`
-
 # Bugs:
 
 - Parser rejects programs with /* */ comments at the end of the Verus macro

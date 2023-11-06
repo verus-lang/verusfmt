@@ -40,13 +40,61 @@ code seems heavyweight.
 
 ## Non-Future Work
 - We currently have no plans to sort `use` declarations the way [`rustfmt`] does
+- We do not intend to parse code that [Verus] itself cannot parse.  Sometimes `verusfmt` 
+  happens to parse such code, but that is unintentional and cannot be counted upon.
 - Perfectly match the formatting produced by [`rustfmt`]
+- Handle comments perfectly -- they're surprisingly hard!
 
-## Code Overview
+## Design Overview
+
+Our design is heavily influenced by the [Goals](#Goals) above.  
+Rather than write everything from scratch ([a notoriously
+hard undertaking](https://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/)),
+we use a parser-generator to read in Verus source code, and
+a pretty-printing library to format it on the way out.  We
+try to keep each phase as performant as possible, and we largely try
+to keep the formatter stateless, for performance reasons
+but more importantly to try to keep the code reasonably simple 
+and easy to reason about.
+
+### Parsing
+
+We define the syntax of Verus source code using [this
+grammar](source/verus.pest), which is processed by the [Pest](https://pest.rs/)
+parser generator, which relies on Parsing Expression Grammars
+([PEG](https://en.wikipedia.org/wiki/Parsing_expression_grammar)s).  It
+conveniently allows us to define our notion of whitespace and comments, which
+the remaining rules can then ignore; Pest will handle them implicitly.  We
+explicitly ignore the code outside the `verus!` macro, leaving it to
+[`rustfmt`].  We prefer using explicit rules for string constants, since it
+allows a more uniform style when formatting the code.  In some places, we have
+multiple definitions for the same Verus construct, so that we can format it
+differently depending on the context (see, e.g., `attr_core`).  Many of the
+rules are designed to follow the corresponding description in [The Rust
+Reference](https://doc.rust-lang.org/beta/reference/introduction.html).
+
+### Formatting
+
+[pretty](https://crates.io/crates/pretty) crate, based on [Philip Wadler's](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf) design.
 
 **TODO**
 
 ## Contributing
+
+We welcome contributions! Please read on for details.
+
+We consider it a bug in `verusfmt` if you provide `verusfmt` with code
+that [Verus] accepts and `verusfmt` produces code that Verus does not accept
+or code that has different semantics from the original.  When this happens,
+please open a GitHub issue with a minimal example of the offending code
+before and after formatting.
+
+If `verusfmt` produces valid code but you dislike the formatting, please open
+a GitHub pull request with your proposed changes and rationale for those changes.
+Please ensure that existing test cases still pass (see below for more details),
+unless your goal is to change how some of those test cases are handled.  Please
+also include new/updated tests that exercise your proposed changes.
+
 
 ## Testing
 
