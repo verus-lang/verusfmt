@@ -271,7 +271,8 @@ fn comment_to_doc<'a>(
     let (line, _col) = pair.line_col();
     let s = arena.text(pair.as_str().trim());
     if ctx.inline_comment_lines.contains(&line) {
-        arena
+        //println!("contains(line = <<{}>>), with {}", pair.as_str(), add_newline);
+        let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
             .append(s)
             .append(arena.text(INLINE_COMMENT_FIXUP))
@@ -279,7 +280,9 @@ fn comment_to_doc<'a>(
                 arena.line()
             } else {
                 arena.nil()
-            })
+            });
+        //println!("result: {:?}", d);
+        d
     } else {
         s.append(arena.line())
     }
@@ -582,7 +585,7 @@ fn to_doc<'a>(
                             saw_comment_after_param_list = true;
                         };
                         // Special case where we don't want an extra newline after the possibly inline comment
-                        comment_to_doc(ctx, arena, p, !has_qualifier)
+                        comment_to_doc(ctx, arena, p, !has_qualifier || !saw_comment_after_param_list)
                     }
                     Rule::param_list => {
                         saw_param_list = true;

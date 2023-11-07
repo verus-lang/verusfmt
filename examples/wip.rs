@@ -1,11 +1,9 @@
 verus! {
-fn my_proof_fun(x: int, y: int)
+
+#[verifier(external_body)]  // inline comment
+pub exec fn foo()
     requires
-        x < 100,  // Very important!
-        y < 100,  // So, so
-    ensures
-        sum < 200,  // Definitely want this
-        x < 200,  // And this
+        a > 5,
 {
 }
 

@@ -574,6 +574,13 @@ fn my_proof_fun(x: int, y: int)
 {
 }
 
+#[verifier(external_body)]  // inline comment
+pub exec fn foo()
+    requires
+        a > 5,
+{
+}
+
 } // verus!
 "#;
 
@@ -655,6 +662,13 @@ fn my_proof_fun(x: int, y: int)
         ensures
             sum < 200,  // Definitely want this
             x < 200,  // And this
+    {
+    }
+
+    #[verifier(external_body)]  // inline comment
+    pub exec fn foo()
+        requires
+            a > 5,
     {
     }
 
