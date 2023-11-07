@@ -1469,5 +1469,5 @@ prover = {
 }
 
 trigger_attribute = {
-    "#" ~ "!" ~ "[" ~ trigger_str ~ comma_delimited_exprs? ~ "]"
+    pound_str ~ bang_str? ~ "[" ~ trigger_str ~ comma_delimited_exprs? ~ "]"
 }
