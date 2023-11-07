@@ -185,7 +185,7 @@ spec fn f1(i: int) -> int {
 fn assert_by_test() {
     assert(f1(3) > 3) by {
         reveal(f1);  // reveal f1's definition just inside this block
-    };
+    }
     assert(f1(3) > 3);
 }
 
@@ -238,7 +238,7 @@ fn test_quantifier() {
 fn test_assert_forall_by() {
     assert forall|x: int, y: int| f1(x) + f1(y) == x + y + 2 by {
         reveal(f1);
-    };
+    }
     assert(f1(1) + f1(2) == 5);
     assert(f1(3) + f1(4) == 9);
     // to prove forall|...| P ==> Q, write assert forall|...| P implies Q by {...}
@@ -246,7 +246,7 @@ fn test_assert_forall_by() {
         assert(x < 10);
         reveal(f1);
         assert(f1(x) < 11);
-    };
+    }
     assert(f1(3) < 11);
 }
 
