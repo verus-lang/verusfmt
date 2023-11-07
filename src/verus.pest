@@ -475,8 +475,8 @@ item = {
   | extern_crate
   | fn
   | impl
-  | macro_call
   | macro_rules
+  | macro_call
   | macro_def
   | module
   | static
