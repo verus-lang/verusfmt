@@ -715,13 +715,13 @@ fn to_doc<'a>(
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens),
-        Rule::closure_expr =>
+        Rule::closure_expr | Rule::quantifier_expr =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
             arena
                 .concat(pair.into_inner().map(|p| {
                     match p.as_rule() {
-                        Rule::expr => arena
+                        Rule::expr | Rule::expr_no_struct => arena
                             .line_()
                             .append(to_doc(ctx, p, arena))
                             .nest(INDENT_SPACES),
