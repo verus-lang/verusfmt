@@ -1144,8 +1144,8 @@ underscore_expr = {
     attr* ~ "_"
 }
 
-box_expr = {
-    attr* ~ box_str ~ expr
+box_expr = ${
+    attr* ~ box_str ~ WHITESPACE+ ~ expr
 }
 
 //*************************//
