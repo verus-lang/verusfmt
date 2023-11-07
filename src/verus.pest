@@ -69,7 +69,7 @@ non_verus = @{
 
 /// An actual use of the `verus! { ... }` macro
 verus_macro_use = ${
-    "verus!" ~ WHITESPACE* ~ "{" ~ WHITESPACE* ~ verus_macro_body ~ WHITESPACE* ~ "}" ~ WHITESPACE* ~ ("//" ~ WHITESPACE* ~ "verus!")?
+    "verus!" ~ WHITESPACE* ~ "{" ~ (WHITESPACE | COMMENT)* ~ verus_macro_body ~ (WHITESPACE | COMMENT)* ~ "}" ~ WHITESPACE* ~ ("//" ~ WHITESPACE* ~ "verus!")?
 }
 
 /// Anything inside the `verus! { ... }` macro
@@ -202,6 +202,7 @@ triple_or = { "|||" }
 underscore_str = { "_" }
 as_str = { "as" }
 assert_str = { "assert" }
+assert_space_str = { "assert" }
 assume_str = { "assume" }
 async_str = { "async" }
 auto_str = { "auto" }
@@ -343,11 +344,11 @@ keyword = {
     | do_str
     | "final"
     | macro_str
-    | "override_str"
-    | "priv_str"
-    | "typeof_str"
-    | "unsized_str"
-    | "virtual_str"
+    | "override"
+    | "priv"
+    | "typeof"
+    | "unsized"
+    | "virtual"
     | yield_str
     | try_str  
 }
@@ -409,7 +410,7 @@ const_arg = {
 
 // TODO: Special handling for the calc! and state_machine! macros?
 macro_call = {
-    attr* ~ path ~ bang_str ~ token_tree ~ semi_str?
+    attr* ~ path ~ bang_str ~ !"=" ~ token_tree
 }
 
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
@@ -474,8 +475,8 @@ item = {
   | extern_crate
   | fn
   | impl
-  | macro_call
   | macro_rules
+  | macro_call
   | macro_def
   | module
   | static
@@ -533,7 +534,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    prover? ~ where_clause? ~ requires_clause? ~ recommends_clause? ~ decreases_clause? ~ ensures_clause?
+    prover? ~ where_clause? ~ (requires_clause | recommends_clause | ensures_clause | decreases_clause)*
 }
 
 fn_terminator = {
@@ -772,20 +773,25 @@ stmt = {
     semi_str
   | proof_block
   | let_stmt
-  | expr ~ semi_str
+  | assignment_stmt
   | expr_with_block ~ semi_str?
+  | expr ~ semi_str
   | item
 }
 
 let_stmt = {
-    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ pat ~ (colon_str ~ type)? ~
-    eq_str ~ expr ~
-    let_else? ~
+    attr* ~ let_str ~ ghost_str? ~ tracked_str? ~ mut_str? ~ pat ~ (colon_str ~ type)? ~
+    (eq_str ~ expr ~
+    let_else?)? ~
     semi_str
 }
 
 let_else = {
     else_str ~ block_expr
+}
+
+assignment_stmt = {
+    star_str* ~ path ~ assignment_ops ~ expr ~ semi_str
 }
 
 // This split of `expr` and `expr_inner` is to simply break the left-recursion
@@ -815,6 +821,7 @@ expr_inner_no_struct = _{
   | break_expr
   | prefix_expr
   | closure_expr
+  | quantifier_expr
   | continue_expr
   | for_expr
   | if_expr
@@ -917,7 +924,11 @@ expr_with_block = {
     block_expr
   | loop_expr
   | if_expr
+  | while_expr
+  | for_expr
   | match_expr
+  | assert_by_block_expr
+  | assert_forall_expr
 }
 
 macro_expr = {
@@ -988,12 +999,12 @@ bin_expr_ops_normal = {
     | ("||" | "|")
     | ("&&" | "&")
     | "<==>"
-    | "==="
+    | "===" | "=~=" | "=~~="
     | "==>" | "<=="
     | "!=="
     | "==" | "!=" | "<=" | ">=" | "<" | ">"
-    | "+" | "*" | "-" | "/" | "%" | "<<" | ">>" | "^"
     | assignment_ops
+    | "+" | "*" | "-" | "/" | "%" | "<<" | ">>" | "^"
 }
 
 bin_expr_ops = {
@@ -1049,13 +1060,24 @@ arg_list = {
 
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
-    const_str? ~ static_str? ~ async_str? ~ move_str? ~ forall_str? ~ exists_str? ~ choose_str? ~
+    const_str? ~ static_str? ~ async_str? ~ move_str? ~
     closure_param_list ~ ret_type? ~
     attr_inner* ~
     expr
 }
 
-condition = { expr_no_struct }
+quantifier_expr = {
+    attr* ~
+    (forall_str | exists_str | choose_str) ~
+    closure_param_list ~ ret_type? ~
+    attr_inner* ~
+    expr_no_struct
+}
+
+condition = {
+    bang_str ~ condition
+  | expr_no_struct
+}
 
 if_expr = {
     attr* ~ if_str ~ condition ~ fn_block_expr ~
@@ -1072,7 +1094,7 @@ for_expr = {
 }
 
 while_expr = {
-    attr* ~ label? ~ while_str ~ condition ~ invariant_clause? ~ decreases_clause? ~
+    attr* ~ label? ~ while_str ~ condition ~ invariant_clause? ~ ensures_clause? ~ decreases_clause? ~
     fn_block_expr
 }
 
@@ -1104,7 +1126,7 @@ match_arm_lhs = {
 }
 
 match_arm = {
-    match_arm_lhs ~ "=>" ~ expr ~ ","?
+    match_arm_lhs ~ "=>" ~ ((expr_with_block ~ ","?) | (expr ~ ((!"}" ~ ",") | ","?)))
 }
 
 match_guard = {
@@ -1131,8 +1153,8 @@ underscore_expr = {
     attr* ~ "_"
 }
 
-box_expr = {
-    attr* ~ box_str ~ expr
+box_expr = ${
+    attr* ~ box_str ~ WHITESPACE+ ~ expr
 }
 
 //*************************//
@@ -1143,6 +1165,7 @@ type = {
     array_type
   | dyn_trait_type
   | fn_ptr_type
+  | fn_trait_type
   | for_type
   | impl_trait_type
   | infer_type
@@ -1198,6 +1221,17 @@ infer_type = {
 
 fn_ptr_type = {
     const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_str ~ param_list ~ ret_type?
+}
+
+fn_traits = {
+    "FnOnce"
+  | "FnMut"
+  | "FnSpec" // note: fnspec is not _really_ a trait, but parses same as others, so we keep it here
+  | "Fn"
+}
+
+fn_trait_type = {
+    fn_traits ~ param_list ~ ret_type?
 }
 
 for_type = {
@@ -1385,7 +1419,6 @@ verus_clause_non_expr = _{
   | ensures_str
   | invariant_str
   | recommends_str
-  | recommends_str
   | via_str
   | decreases_str
   | when_str
@@ -1415,8 +1448,22 @@ assert_requires = {
     requires_clause
 }
 
+assert_expr_prefix = {
+    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str
+}
+
+assert_by_block_expr = {
+    assert_expr_prefix ~ inline_prover ~ assert_requires? ~ block_expr
+}
+
+assert_by_prover_expr = {
+    assert_by_block_expr
+  | assert_expr_prefix ~ inline_prover ~ assert_requires?
+}
+
 assert_expr = {
-    attr* ~ assert_str ~ lparen_str ~ expr ~ rparen_str ~ (inline_prover ~ assert_requires? ~ block_expr?)?
+    assert_by_prover_expr
+  | assert_expr_prefix
 }
 
 assume_expr = {
@@ -1424,7 +1471,7 @@ assume_expr = {
 }
 
 assert_forall_expr = {
-    attr* ~ assert_str ~ lparen_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ rparen_str ~ by_str_inline ~ block_expr
+    attr* ~ assert_space_str ~ forall_str ~ closure_expr ~ (implies_str ~ expr)? ~ by_str_inline ~ block_expr
 }
 
 inline_prover = {
@@ -1436,5 +1483,5 @@ prover = {
 }
 
 trigger_attribute = {
-    "#" ~ "!" ~ "[" ~ trigger_str ~ comma_delimited_exprs? ~ "]"
+    pound_str ~ bang_str? ~ "[" ~ trigger_str ~ comma_delimited_exprs? ~ "]"
 }

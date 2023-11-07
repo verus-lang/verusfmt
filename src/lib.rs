@@ -397,6 +397,7 @@ fn to_doc<'a>(
         | Rule::star_str
         | Rule::tilde_str
         | Rule::underscore_str => s,
+        Rule::fn_traits => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()),
         //        Rule::triple_and |
@@ -409,7 +410,8 @@ fn to_doc<'a>(
             .nest(INDENT_SPACES - 1)
             .group(),
         Rule::else_str => docs![arena, arena.space(), s, arena.space()],
-        Rule::async_str
+        Rule::assert_space_str
+        | Rule::async_str
         | Rule::auto_str
         | Rule::await_str
         | Rule::box_str
@@ -652,6 +654,7 @@ fn to_doc<'a>(
         //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
         Rule::let_stmt => map_to_doc(ctx, arena, pair).group(),
         Rule::let_else => unsupported(pair),
+        Rule::assignment_stmt => map_to_doc(ctx, arena, pair).group(),
         Rule::expr => map_to_doc(ctx, arena, pair),
         Rule::expr_inner => map_to_doc(ctx, arena, pair),
         Rule::expr_inner_no_struct => map_to_doc(ctx, arena, pair),
@@ -712,13 +715,13 @@ fn to_doc<'a>(
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens),
-        Rule::closure_expr =>
+        Rule::closure_expr | Rule::quantifier_expr =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
             arena
                 .concat(pair.into_inner().map(|p| {
                     match p.as_rule() {
-                        Rule::expr => arena
+                        Rule::expr | Rule::expr_no_struct => arena
                             .line_()
                             .append(to_doc(ctx, p, arena))
                             .nest(INDENT_SPACES),
@@ -784,6 +787,7 @@ fn to_doc<'a>(
         Rule::slice_type => map_to_doc(ctx, arena, pair).brackets(),
         Rule::infer_type => map_to_doc(ctx, arena, pair),
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
+        Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),
         Rule::impl_trait_type => map_to_doc(ctx, arena, pair),
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
@@ -836,7 +840,10 @@ fn to_doc<'a>(
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),
-        Rule::assert_expr => map_to_doc(ctx, arena, pair).group(),
+        Rule::assert_expr_prefix
+        | Rule::assert_by_block_expr
+        | Rule::assert_by_prover_expr
+        | Rule::assert_expr => map_to_doc(ctx, arena, pair).group(),
         Rule::assume_expr => map_to_doc(ctx, arena, pair),
         Rule::assert_forall_expr => map_to_doc(ctx, arena, pair),
         Rule::prover => map_to_doc(ctx, arena, pair),
@@ -991,9 +998,25 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
             }
             Rule::verus_macro_use => {
                 let body = pair.into_inner().collect::<Vec<_>>();
-                assert_eq!(body.len(), 1);
-                let body = body.into_iter().next().unwrap();
+                let (prefix_comments, body, suffix_comments) = {
+                    assert_eq!(
+                        body.iter().filter(|p| p.as_rule() != Rule::COMMENT).count(),
+                        1
+                    );
+                    let body_index = body
+                        .iter()
+                        .position(|p| p.as_rule() != Rule::COMMENT)
+                        .unwrap();
+                    let mut body_iter = body.into_iter();
+                    let prefix_comments: Vec<_> = body_iter.by_ref().take(body_index).collect();
+                    let body = body_iter.by_ref().next().unwrap();
+                    let suffix_comments: Vec<_> = body_iter.collect();
+                    (prefix_comments, body, suffix_comments)
+                };
                 formatted_output += VERUS_PREFIX;
+                for comment in prefix_comments {
+                    formatted_output += comment.as_str();
+                }
                 let items = body.into_inner();
                 let len = items.clone().count();
                 let mut prev_is_use = false;
@@ -1028,6 +1051,9 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                             formatted_output += "\n";
                         }
                     }
+                }
+                for comment in suffix_comments {
+                    formatted_output += comment.as_str();
                 }
                 formatted_output += VERUS_SUFFIX;
             }
