@@ -1256,6 +1256,7 @@ pat_inner = {
   | literal_pat
   | macro_pat
   | paren_pat
+//  | wildcard_pat
   | end_only_range_pat
   | record_pat
   | ref_pat
@@ -1265,7 +1266,6 @@ pat_inner = {
   | const_block_pat
   | path_pat
   | ident_pat
-  | wildcard_pat
 }
 
 literal_pat = {
@@ -1276,9 +1276,9 @@ ident_pat = {
     attr* ~ ref_str? ~ mut_str? ~ name ~ (at_str ~ pat)?
 }
 
-wildcard_pat = {
-    underscore_str
-}
+//wildcard_pat = {
+//    "_"
+//}
 
 end_only_range_pat = {
     (dot_dot_eq_str | dot_dot_str) ~ pat
