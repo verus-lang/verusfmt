@@ -769,7 +769,7 @@ fn to_doc<'a>(
         //*************************//
         //          Types          //
         //*************************//
-        Rule::r#type => s,
+        Rule::r#type => map_to_doc(ctx, arena, pair),
         Rule::paren_type => map_to_doc(ctx, arena, pair).parens(),
         Rule::never_type => map_to_doc(ctx, arena, pair),
         Rule::macro_type => map_to_doc(ctx, arena, pair),
