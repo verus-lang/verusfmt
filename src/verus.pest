@@ -773,6 +773,7 @@ stmt = {
     semi_str
   | proof_block
   | let_stmt
+  | assignment_stmt
   | expr_with_block ~ semi_str?
   | expr ~ semi_str
   | item
@@ -787,6 +788,10 @@ let_stmt = {
 
 let_else = {
     else_str ~ block_expr
+}
+
+assignment_stmt = {
+    star_str* ~ path ~ assignment_ops ~ expr ~ semi_str
 }
 
 // This split of `expr` and `expr_inner` is to simply break the left-recursion
