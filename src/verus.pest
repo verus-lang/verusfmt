@@ -534,7 +534,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    prover? ~ where_clause? ~ requires_clause? ~ recommends_clause? ~ decreases_clause? ~ ensures_clause?
+    prover? ~ where_clause? ~ (requires_clause | recommends_clause | ensures_clause | decreases_clause)*
 }
 
 fn_terminator = {
