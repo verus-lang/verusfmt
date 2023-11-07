@@ -397,6 +397,7 @@ fn to_doc<'a>(
         | Rule::star_str
         | Rule::tilde_str
         | Rule::underscore_str => s,
+        Rule::fn_traits => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()),
         //        Rule::triple_and |
@@ -785,6 +786,7 @@ fn to_doc<'a>(
         Rule::slice_type => map_to_doc(ctx, arena, pair).brackets(),
         Rule::infer_type => map_to_doc(ctx, arena, pair),
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
+        Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),
         Rule::impl_trait_type => map_to_doc(ctx, arena, pair),
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
