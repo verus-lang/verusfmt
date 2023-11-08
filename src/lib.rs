@@ -774,7 +774,7 @@ fn to_doc<'a>(
         Rule::never_type => map_to_doc(ctx, arena, pair),
         Rule::macro_type => map_to_doc(ctx, arena, pair),
         Rule::path_type => map_to_doc(ctx, arena, pair),
-        Rule::tuple_type => comma_delimited(ctx, arena, pair).braces().group(),
+        Rule::tuple_type => comma_delimited(ctx, arena, pair).parens().group(),
         Rule::ptr_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
         Rule::ref_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
         Rule::array_type =>
