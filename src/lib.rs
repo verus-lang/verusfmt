@@ -524,7 +524,7 @@ fn to_doc<'a>(
         Rule::generic_arg => map_to_doc(ctx, arena, pair),
         Rule::type_arg => map_to_doc(ctx, arena, pair),
         Rule::assoc_type_arg => unsupported(pair),
-        Rule::lifetime_arg => unsupported(pair),
+        Rule::lifetime_arg => map_to_doc(ctx, arena, pair),
         Rule::const_arg => unsupported(pair),
         Rule::macro_call => s,
         Rule::punctuation => map_to_doc(ctx, arena, pair),
@@ -776,7 +776,7 @@ fn to_doc<'a>(
         Rule::path_type => map_to_doc(ctx, arena, pair),
         Rule::tuple_type => comma_delimited(ctx, arena, pair).parens().group(),
         Rule::ptr_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
-        Rule::ref_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
+        Rule::ref_type => arena.text("&").append(map_to_doc(ctx, arena, pair)),
         Rule::array_type =>
         // In this context, the semicolon must have a space following it
         {
