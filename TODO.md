@@ -8,8 +8,8 @@ X - Various "bonus" commas
 
 # Bugs:
 
-- Parser rejects programs with /* */ comments at the end of the Verus macro
-
+X- Parser rejects programs with /* */ comments at the end of the Verus macro
+X
 X- Don't allow breaks for function calls with no arguments:
 X    pub exec fn parse_owl_t(arg: &[u8]) -> (res: Option<owl_t>)
 X        ensures
@@ -76,12 +76,12 @@ X       -        let x_witness = choose|x: int| f1(x) == 10;
 X       +        let x_witness = choose |x: int| f1(x) == 10;
 X   - Should be consistent with forall and exists
 X 
-
-- Ugly line break here:
-    -    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger] my_spec_fun(x, y) >= x);
-    +    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger]
-    +    my_spec_fun(x, y) >= x);
-
+X
+X- Ugly line break here:
+X    -    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger] my_spec_fun(x, y) >= x);
+X    +    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger]
+X    +    my_spec_fun(x, y) >= x);
+X
 X- And here:
 X    -    assume(forall|x: int, y: int|
 X    -        #![trigger my_spec_fun(x, y)]
