@@ -32,16 +32,16 @@ X - Don't put extra line breaks after use declarations
 X     use foo::bar;
 X     use bar::foo;
 X     use baz::bar;
-
-- Ugly line breaks:
-        pub fn owl_bob_main(
-            &self,
-            Tracked(itree): Tracked<ITreeToken<((), state_bob), Endpoint>>,
-            mut_state: &mut state_bob,
-        ) -> (res: Result<( ()
-    , Tracked<ITreeToken<((), state_bob), Endpoint>> ), OwlError>)
-
-
+X 
+X - Ugly line breaks:
+X         pub fn owl_bob_main(
+X             &self,
+X             Tracked(itree): Tracked<ITreeToken<((), state_bob), Endpoint>>,
+X             mut_state: &mut state_bob,
+X         ) -> (res: Result<( ()
+X     , Tracked<ITreeToken<((), state_bob), Endpoint>> ), OwlError>)
+X 
+X 
 X - "assert(f1(3) > 3);" is being parsed as "as" "ert(...)", yielding "as sert(f1(3) > 3);"
 X
 X- Handling of multiline comments
