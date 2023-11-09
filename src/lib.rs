@@ -543,7 +543,7 @@ fn to_doc<'a>(
         Rule::module => unsupported(pair),
         Rule::item_list => unsupported(pair),
         Rule::extern_crate => unsupported(pair),
-        Rule::rename => unsupported(pair),
+        Rule::rename => map_to_doc(ctx, arena, pair),
         Rule::r#use => map_to_doc(ctx, arena, pair),
         Rule::use_tree => map_to_doc(ctx, arena, pair),
         Rule::use_tree_list => comma_delimited(ctx, arena, pair).braces().group(),
