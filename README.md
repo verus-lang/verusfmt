@@ -24,17 +24,35 @@ An opinionated formatter for [Verus] code.
 
 1. Why not adapt [`rustfmt`] for [Verus] idioms?
 
- **TODO**: jayb
+    While Verus has Rust-like syntax, it necessarily also deviates from it to
+    support its idioms naturally, and thus not only would the parser for
+    `rustfmt` need updates, but also careful changes to the emitter would be
+    needed to have code look natural. Additionally, since practically all Verus
+    code is inside the `verus!{}` macro (and `rustfmt` does not easily support
+    formatting even regular Rust inside macros), a non-trivial amount of effort
+    would be required to perform the plumbing and maintenance required to
+    support both formatting _outside_ the `verus!{}` macro (as Rust code), while
+    also formatting Verus code _inside_ the macro.
+
+1. Does `verusfmt` match [`rustfmt`] on code outside the `verus!{}` macro?
+
+    Code outside the macro is left unchanged. This works out great since
+    `rustfmt` will not touch code inside the macro. Thus, if a project contains
+    both Verus code and Rust code (treated as "external" by Verus), then we
+    recommend running _both_ `verusfmt` and `rustfmt`. Neither should clash with
+    the other or override each other's formatting changes. Thus, this makes it
+    easier to incrementally verify small amounts of code inside a larger
+    unverified Rust crate.
 
 1. Why not build this as a feature of [Verus]?
 
-By the time Verus receives an AST from `rustc`, we've already lost information
-about whitespace and comments, meaning that we couldn't preserve the comments
-in the reformatted code.  Plus, firing up all of `rustc` just to format some
-code seems heavyweight.
+    By the time Verus receives an AST from `rustc`, we've already lost
+    information about whitespace and comments, meaning that we couldn't preserve
+    the comments in the reformatted code. Plus, firing up all of `rustc` just to
+    format some code seems heavyweight.
 
 ## Future Work
-- Special handling for commonly used macros, like `println!`, `state_machine!`
+- Special handling for commonly used macros, like `println!`, `state_machine!`, `calc!`
 - In `record_expr_field_list` and `record_pat_field_list`, handle vanishing comma's interaction with `rest_pat`
 - Enforce the [Rust naming policy](https://doc.rust-lang.org/beta/style-guide/advice.html#names)? 
 
