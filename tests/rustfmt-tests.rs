@@ -345,3 +345,12 @@ type NoSpaceTypeA=NoSpaceTypeB;
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_rename() {
+    let file = r#"
+use crate::parse_serialize::View as _;
+use LongLongLongLongLongLongLongLongLongLongType as LongerLongLongLongLongLongLongLongLongLongLongType;
+"#;
+    compare(file);
+}
