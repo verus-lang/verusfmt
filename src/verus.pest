@@ -200,100 +200,100 @@ tilde_str = { "~" }
 triple_and = { "&&&" }
 triple_or = { "|||" }
 underscore_str = { "_" }
-as_str = { "as" }
-assert_str = { "assert" }
-assert_space_str = { "assert" }
-assume_str = { "assume" }
-async_str = { "async" }
-auto_str = { "auto" }
-await_str = { "await" }
-box_str = { "box" }
-break_str = { "break" }
-by_str = { "by" }
-by_str_inline = { "by" }
-checked_str = { "checked" }
-choose_str = { "choose" }
-closed_str = { "closed" }
-const_str = { "const" }
-continue_str = { "continue" }
-crate_str = { "crate" }
-decreases_str = { "decreases" }
-default_str = { "default" }
-do_str = { "do" }
-dyn_str = { "dyn" }
-else_str = { "else" }
-ensures_str = { "ensures" }
-enum_str = { "enum" }
-exec_str = { "exec" }
-exists_str = { "exists" }
-extern_str = { "extern" }
-f32_str = { "f32" }
-f64_str = { "f64" }
-false_str = { "false" }
-fn_str = { "fn" }
-for_str = { "for" }
-forall_str = { "forall" }
-ghost_str = { "ghost" }
-has_str = { "has" }
-i128_str = { "i128" }
-i16_str = { "i16" }
-i32_str = { "i32" }
-i64_str = { "i64" }
-i8_str = { "i8" }
-if_str = { "if" }
-impl_str = { "impl" }
-implies_str = { "implies" }
-in_str = { "in" }
-int_str = { "int" }
-invariant_str = { "invariant" }
-is_str = { "is" }
-isize_str = { "isize" }
-let_str = { "let" }
-loop_str = { "loop" }
-macro_str = { "macro" }
-macro_rules_str = { "macro_rules" }
-match_str = { "match" }
-mod_str = { "mod" }
-move_str = { "move" }
-mut_str = { "mut" }
-nat_str = { "nat" }
-open_str = { "open" }
-proof_str = { "proof" }
-proof_space_str = { "proof" }
-pub_str = { "pub" }
-r_str = { "r" }
-raw_str = { "raw" }
-recommends_str = { "recommends" }
-ref_str = { "ref" }
-requires_str = { "requires" }
-return_str = { "return" }
-self_str = { "self" }
-Self_str = { "Self" }
-spec_str = { "spec" }
-static_str = { "static" }
-struct_str = { "struct" }
-super_str = { "super" }
-tracked_str = { "tracked" }
-trait_str = { "trait" }
-trigger_str = { "trigger" }
-true_str = { "true" }
-try_str = { "try" }
-type_str = { "type" }
-u128_str = { "u128" }
-u16_str = { "u16" }
-u32_str = { "u32" }
-u64_str = { "u64" }
-u8_str = { "u8" }
-union_str = { "union" }
-unsafe_str = { "unsafe" }
-use_str = { "use" }
-usize_str = { "usize" }
-via_str = { "via" }
-when_str = { "when" }
-where_str = { "where" }
-while_str = { "while" }
-yeet_str = { "yeet" }
-yield_str = { "yield" }
+as_str = ${ "as" ~ !("_" | ASCII_ALPHANUMERIC) }
+assert_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
+assert_space_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
+assume_str = ${ "assume" ~ !("_" | ASCII_ALPHANUMERIC) }
+async_str = ${ "async" ~ !("_" | ASCII_ALPHANUMERIC) }
+auto_str = ${ "auto" ~ !("_" | ASCII_ALPHANUMERIC) }
+await_str = ${ "await" ~ !("_" | ASCII_ALPHANUMERIC) }
+box_str = ${ "box" ~ !("_" | ASCII_ALPHANUMERIC) }
+break_str = ${ "break" ~ !("_" | ASCII_ALPHANUMERIC) }
+by_str = ${ "by" ~ !("_" | ASCII_ALPHANUMERIC) }
+by_str_inline = ${ "by" ~ !("_" | ASCII_ALPHANUMERIC) }
+checked_str = ${ "checked" ~ !("_" | ASCII_ALPHANUMERIC) }
+choose_str = ${ "choose" ~ !("_" | ASCII_ALPHANUMERIC) }
+closed_str = ${ "closed" ~ !("_" | ASCII_ALPHANUMERIC) }
+const_str = ${ "const" ~ !("_" | ASCII_ALPHANUMERIC) }
+continue_str = ${ "continue" ~ !("_" | ASCII_ALPHANUMERIC) }
+crate_str = ${ "crate" ~ !("_" | ASCII_ALPHANUMERIC) }
+decreases_str = ${ "decreases" ~ !("_" | ASCII_ALPHANUMERIC) }
+default_str = ${ "default" ~ !("_" | ASCII_ALPHANUMERIC) }
+do_str = ${ "do" ~ !("_" | ASCII_ALPHANUMERIC) }
+dyn_str = ${ "dyn" ~ !("_" | ASCII_ALPHANUMERIC) }
+else_str = ${ "else" ~ !("_" | ASCII_ALPHANUMERIC) }
+ensures_str = ${ "ensures" ~ !("_" | ASCII_ALPHANUMERIC) }
+enum_str = ${ "enum" ~ !("_" | ASCII_ALPHANUMERIC) }
+exec_str = ${ "exec" ~ !("_" | ASCII_ALPHANUMERIC) }
+exists_str = ${ "exists" ~ !("_" | ASCII_ALPHANUMERIC) }
+extern_str = ${ "extern" ~ !("_" | ASCII_ALPHANUMERIC) }
+f32_str = ${ "f32" ~ !("_" | ASCII_ALPHANUMERIC) }
+f64_str = ${ "f64" ~ !("_" | ASCII_ALPHANUMERIC) }
+false_str = ${ "false" ~ !("_" | ASCII_ALPHANUMERIC) }
+fn_str = ${ "fn" ~ !("_" | ASCII_ALPHANUMERIC) }
+for_str = ${ "for" ~ !("_" | ASCII_ALPHANUMERIC) }
+forall_str = ${ "forall" ~ !("_" | ASCII_ALPHANUMERIC) }
+ghost_str = ${ "ghost" ~ !("_" | ASCII_ALPHANUMERIC) }
+has_str = ${ "has" ~ !("_" | ASCII_ALPHANUMERIC) }
+i128_str = ${ "i128" ~ !("_" | ASCII_ALPHANUMERIC) }
+i16_str = ${ "i16" ~ !("_" | ASCII_ALPHANUMERIC) }
+i32_str = ${ "i32" ~ !("_" | ASCII_ALPHANUMERIC) }
+i64_str = ${ "i64" ~ !("_" | ASCII_ALPHANUMERIC) }
+i8_str = ${ "i8" ~ !("_" | ASCII_ALPHANUMERIC) }
+if_str = ${ "if" ~ !("_" | ASCII_ALPHANUMERIC) }
+impl_str = ${ "impl" ~ !("_" | ASCII_ALPHANUMERIC) }
+implies_str = ${ "implies" ~ !("_" | ASCII_ALPHANUMERIC) }
+in_str = ${ "in" ~ !("_" | ASCII_ALPHANUMERIC) }
+int_str = ${ "int" ~ !("_" | ASCII_ALPHANUMERIC) }
+invariant_str = ${ "invariant" ~ !("_" | ASCII_ALPHANUMERIC) }
+is_str = ${ "is" ~ !("_" | ASCII_ALPHANUMERIC) }
+isize_str = ${ "isize" ~ !("_" | ASCII_ALPHANUMERIC) }
+let_str = ${ "let" ~ !("_" | ASCII_ALPHANUMERIC) }
+loop_str = ${ "loop" ~ !("_" | ASCII_ALPHANUMERIC) }
+macro_str = ${ "macro" ~ !("_" | ASCII_ALPHANUMERIC) }
+macro_rules_str = ${ "macro_rules" ~ !("_" | ASCII_ALPHANUMERIC) }
+match_str = ${ "match" ~ !("_" | ASCII_ALPHANUMERIC) }
+mod_str = ${ "mod" ~ !("_" | ASCII_ALPHANUMERIC) }
+move_str = ${ "move" ~ !("_" | ASCII_ALPHANUMERIC) }
+mut_str = ${ "mut" ~ !("_" | ASCII_ALPHANUMERIC) }
+nat_str = ${ "nat" ~ !("_" | ASCII_ALPHANUMERIC) }
+open_str = ${ "open" ~ !("_" | ASCII_ALPHANUMERIC) }
+proof_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
+proof_space_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
+pub_str = ${ "pub" ~ !("_" | ASCII_ALPHANUMERIC) }
+r_str = ${ "r" ~ !("_" | ASCII_ALPHANUMERIC) }
+raw_str = ${ "raw" ~ !("_" | ASCII_ALPHANUMERIC) }
+recommends_str = ${ "recommends" ~ !("_" | ASCII_ALPHANUMERIC) }
+ref_str = ${ "ref" ~ !("_" | ASCII_ALPHANUMERIC) }
+requires_str = ${ "requires" ~ !("_" | ASCII_ALPHANUMERIC) }
+return_str = ${ "return" ~ !("_" | ASCII_ALPHANUMERIC) }
+self_str = ${ "self" ~ !("_" | ASCII_ALPHANUMERIC) }
+Self_str = ${ "Self" ~ !("_" | ASCII_ALPHANUMERIC) }
+spec_str = ${ "spec" ~ !("_" | ASCII_ALPHANUMERIC) }
+static_str = ${ "static" ~ !("_" | ASCII_ALPHANUMERIC) }
+struct_str = ${ "struct" ~ !("_" | ASCII_ALPHANUMERIC) }
+super_str = ${ "super" ~ !("_" | ASCII_ALPHANUMERIC) }
+tracked_str = ${ "tracked" ~ !("_" | ASCII_ALPHANUMERIC) }
+trait_str = ${ "trait" ~ !("_" | ASCII_ALPHANUMERIC) }
+trigger_str = ${ "trigger" ~ !("_" | ASCII_ALPHANUMERIC) }
+true_str = ${ "true" ~ !("_" | ASCII_ALPHANUMERIC) }
+try_str = ${ "try" ~ !("_" | ASCII_ALPHANUMERIC) }
+type_str = ${ "type" ~ !("_" | ASCII_ALPHANUMERIC) }
+u128_str = ${ "u128" ~ !("_" | ASCII_ALPHANUMERIC) }
+u16_str = ${ "u16" ~ !("_" | ASCII_ALPHANUMERIC) }
+u32_str = ${ "u32" ~ !("_" | ASCII_ALPHANUMERIC) }
+u64_str = ${ "u64" ~ !("_" | ASCII_ALPHANUMERIC) }
+u8_str = ${ "u8" ~ !("_" | ASCII_ALPHANUMERIC) }
+union_str = ${ "union" ~ !("_" | ASCII_ALPHANUMERIC) }
+unsafe_str = ${ "unsafe" ~ !("_" | ASCII_ALPHANUMERIC) }
+use_str = ${ "use" ~ !("_" | ASCII_ALPHANUMERIC) }
+usize_str = ${ "usize" ~ !("_" | ASCII_ALPHANUMERIC) }
+via_str = ${ "via" ~ !("_" | ASCII_ALPHANUMERIC) }
+when_str = ${ "when" ~ !("_" | ASCII_ALPHANUMERIC) }
+where_str = ${ "where" ~ !("_" | ASCII_ALPHANUMERIC) }
+while_str = ${ "while" ~ !("_" | ASCII_ALPHANUMERIC) }
+yeet_str = ${ "yeet" ~ !("_" | ASCII_ALPHANUMERIC) }
+yield_str = ${ "yield" ~ !("_" | ASCII_ALPHANUMERIC) }
 
 // See https://doc.rust-lang.org/reference/keywords.html
 keyword = {
@@ -841,19 +841,16 @@ expr_inner_no_struct = _{
   | path_expr   // Needs to be last, or it matches against keywords like "while"  
 }
 
-// The next three rules are defined to be atomic, since they
-// all require one or more explicit whitespace tokens.
-// This avoids, e.g., parsing "assert" has "as sert".
-expr_as = ${
-    as_str ~ WHITESPACE+ ~ type
+expr_as = {
+    as_str ~ type
 }
 
-expr_has = ${
-    has_str ~ WHITESPACE+ ~ expr
+expr_has = {
+    has_str ~ expr
 }
 
-expr_is = ${
-    is_str ~ WHITESPACE+ ~ type
+expr_is = {
+    is_str ~ type
 }
 
 expr_outer = _{
@@ -1153,8 +1150,8 @@ underscore_expr = {
     attr* ~ "_"
 }
 
-box_expr = ${
-    attr* ~ box_str ~ WHITESPACE+ ~ expr
+box_expr = {
+    attr* ~ box_str ~ expr
 }
 
 //*************************//

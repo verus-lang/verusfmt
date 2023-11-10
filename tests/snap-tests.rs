@@ -694,3 +694,26 @@ pub exec fn foo()
     } // verus!
     "###);
 }
+
+#[test]
+fn keyword_prefixed_identifier_parsing() {
+    let file = r#"
+verus! {
+pub exec fn foo(mut_state: &mut Blah, selfie_stick: SelfieStick) {
+    let a = { b(&mut_state.c) };
+    bar(selfie_stick);
+}
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub exec fn foo(mut_state: &mut Blah, selfie_stick: SelfieStick) {
+        let a = { b(&mut_state.c) };
+        bar(selfie_stick);
+    }
+
+    } // verus!
+    "###);
+}
