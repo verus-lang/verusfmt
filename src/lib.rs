@@ -788,7 +788,7 @@ fn to_doc<'a>(
                 .brackets()
         }
         Rule::slice_type => map_to_doc(ctx, arena, pair).brackets(),
-        Rule::infer_type => arena.text("_").append(map_to_doc(ctx, arena, pair)),
+        Rule::infer_type => map_to_doc(ctx, arena, pair),
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
         Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),

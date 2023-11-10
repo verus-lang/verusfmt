@@ -516,7 +516,7 @@ extern_crate = {
 }
 
 rename = {
-    as_str ~ (name | "_")
+    as_str ~ (name | underscore_str)
 }
 
 use = {
@@ -1213,7 +1213,7 @@ slice_type = {
 }
 
 infer_type = {
-    "_"
+    underscore_str
 }
 
 fn_ptr_type = {
