@@ -354,3 +354,20 @@ use LongLongLongLongLongLongLongLongLongLongType as LongerLongLongLongLongLongLo
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_wildcard_type_annotation() {
+    let file = r#"
+fn foo() {
+    let x: _ = bar();
+}
+
+fn blah() {
+let (temp_owl__x607, Tracked(itree)): ( _
+, Tracked<ITreeToken<(Seq<u8>, state_Initiator), Endpoint>> ) = { baz(); };
+}
+"#;
+    compare(file);
+    
+}
+
