@@ -696,7 +696,7 @@ pub exec fn foo()
 }
 
 #[test]
-fn keyword_prefixed_identifier_parsing() {
+fn verus_keyword_prefixed_identifier_parsing() {
     let file = r#"
 verus! {
 pub exec fn foo(mut_state: &mut Blah, selfie_stick: SelfieStick) {
@@ -712,6 +712,52 @@ pub exec fn foo(mut_state: &mut Blah, selfie_stick: SelfieStick) {
     pub exec fn foo(mut_state: &mut Blah, selfie_stick: SelfieStick) {
         let a = { b(&mut_state.c) };
         bar(selfie_stick);
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_loops() {
+    let file = r#"
+verus! {
+
+pub fn clone_vec_u8() {
+    let i = 0;
+    while i < v.len()
+        invariant
+            i <= v.len(),
+            i == out.len(),
+            forall |j| #![auto] 0 <= j < i  ==> out@[j] == v@[j],
+        ensures
+            i > 0,
+        decreases
+            72,
+    {
+        i = i + 1;
+    }
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub fn clone_vec_u8() {
+        let i = 0;
+        while i < v.len() 
+            invariant
+                i <= v.len(),
+                i == out.len(),
+                forall|j| #![auto] 0 <= j < i ==> out@[j] == v@[j],
+            ensures
+                i > 0,
+            decreases 72,
+        {
+            i = i + 1;
+        }
     }
 
     } // verus!
