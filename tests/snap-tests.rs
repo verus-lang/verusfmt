@@ -719,6 +719,51 @@ pub exec fn foo(mut_state: &mut Blah, selfie_stick: SelfieStick) {
 }
 
 #[test]
+fn verus_impl_bounds() {
+    let file = r#"
+verus! {
+struct StrictlyOrderedVec<K: KeyTrait> {
+    a: int
+}
+
+struct DelegationMap<#[verifier(maybe_negative)] K: KeyTrait + VerusClone> {
+    b: int
+}
+
+impl<K: KeyTrait + VerusClone> DelegationMap<K> {
+    fn view() -> Map<K,AbstractEndPoint> {
+        c
+    }
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    struct StrictlyOrderedVec<K: KeyTrait> {
+        a: int,
+    }
+
+    struct DelegationMap<
+        #[verifier(maybe_negative)]
+        K: KeyTrait + VerusClone,
+    > {
+        b: int,
+    }
+
+    impl<K: KeyTrait + VerusClone> DelegationMap<K> {
+        fn view() -> Map<K, AbstractEndPoint> {
+            c
+        }
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_loops() {
     let file = r#"
 verus! {

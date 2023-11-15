@@ -19,7 +19,7 @@ fn compare(file: &str) {
         3,
         Some(("rust", "verus")),
     );
-    assert_eq!(rust_fmt, verus_inner, "{diff}");
+    assert_eq!(rust_fmt, verus_inner, "\n{diff}");
 }
 
 #[test]
