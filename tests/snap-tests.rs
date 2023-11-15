@@ -833,3 +833,26 @@ pub fn clone_vec_u8() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_lifetimes() {
+    let file = r#"
+verus! {
+
+fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
+    a
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
+        a
+    }
+
+    } // verus!
+    "###);
+}

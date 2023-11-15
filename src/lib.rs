@@ -553,7 +553,9 @@ fn to_doc<'a>(
         //*************************//
         // Names, Paths and Macros //
         //*************************//
-        Rule::name | Rule::name_ref | Rule::lifetime => s,
+        Rule::name | Rule::name_ref => s,
+        Rule::lifetime => s.append(arena.space()),
+        Rule::lifetime_no_space => s,
         Rule::path => map_to_doc(ctx, arena, pair),
         Rule::path_segment => map_to_doc(ctx, arena, pair),
         Rule::generic_arg_list => map_to_doc(ctx, arena, pair),
@@ -702,7 +704,7 @@ fn to_doc<'a>(
         Rule::generic_param => map_to_doc(ctx, arena, pair),
         Rule::type_param => map_to_doc(ctx, arena, pair),
         Rule::const_param => unsupported(pair),
-        Rule::lifetime_param => unsupported(pair),
+        Rule::lifetime_param => map_to_doc(ctx, arena, pair),
         Rule::where_clause => unsupported(pair),
         Rule::where_pred => unsupported(pair),
         Rule::visibility => s.append(arena.space()),
