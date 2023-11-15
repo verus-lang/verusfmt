@@ -1,20 +1,8 @@
 verus! {
 
-struct StrictlyOrderedVec<K: KeyTrait> {
-    a: int,
+fn get<'a>(&'a self) -> (o: Option<&'a V>) {
+    a
 }
 
-struct DelegationMap<
-    #[verifier(maybe_negative)]
-    K: KeyTrait + VerusClone,
-> {
-    b: int,
-}
-
-impl<K: KeyTrait + VerusClone> DelegationMap<K> {
-    fn view() -> Map<K, AbstractEndPoint> {
-        c
-    }
-}
 
 } // verus!

@@ -666,7 +666,7 @@ fn to_doc<'a>(
         Rule::generic_param => map_to_doc(ctx, arena, pair),
         Rule::type_param => map_to_doc(ctx, arena, pair),
         Rule::const_param => unsupported(pair),
-        Rule::lifetime_param => unsupported(pair),
+        Rule::lifetime_param => map_to_doc(ctx, arena, pair),
         Rule::where_clause => unsupported(pair),
         Rule::where_pred => unsupported(pair),
         Rule::visibility => s.append(arena.space()),
