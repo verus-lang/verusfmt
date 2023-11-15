@@ -600,6 +600,19 @@ pub exec fn foo()
 {
 }
 
+
+impl AbstractEndPoint {
+    fn abstractable() {
+        0
+    }
+    
+    // Multiline comment
+    // that should stay together
+    fn valid_ipv4() {
+        true
+    }
+}
+
 } // verus!
 "#;
 
@@ -689,6 +702,18 @@ pub exec fn foo()
         requires
             a > 5,
     {
+    }
+
+    impl AbstractEndPoint {
+        fn abstractable() {
+            0
+        }
+        
+        // Multiline comment
+        // that should stay together
+        fn valid_ipv4() {
+            true
+        }
     }
 
     } // verus!
