@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::str::from_utf8;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, enabled, error, info, trace, Level};
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
@@ -58,7 +58,11 @@ fn comma_delimited<'a>(
             .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
             .count();
         let num_non_comments = pairs.len() - num_comments;
-        //println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+        debug!(
+            "Found {} non-comments out of {} pairs",
+            num_non_comments,
+            pairs.len()
+        );
         let mut non_comment_index = 0;
         let mut trailing_comment = false;
         let comma_separated = pairs.map(|p| match p.as_rule() {
@@ -88,10 +92,10 @@ fn comma_delimited<'a>(
         });
         let doc = arena.line_().append(arena.concat(comma_separated));
         if trailing_comment {
-            //println!("Trailing comment: Yes");
+            debug!("Trailing comment: Yes");
             doc.nest(INDENT_SPACES)
         } else {
-            //println!("Trailing comment: No");
+            debug!("Trailing comment: No");
             doc.nest(INDENT_SPACES).append(arena.line_())
         }
     }
@@ -109,7 +113,11 @@ fn comma_delimited_full<'a>(
         .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
         .count();
     let num_non_comments = pairs.len() - num_comments;
-    //println!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+    debug!(
+        "Found {} non-comments out of {} pairs",
+        num_non_comments,
+        pairs.len()
+    );
     let mut non_comment_index = 0;
     let comma_separated = pairs.map(|p| match p.as_rule() {
         Rule::COMMENT => to_doc(ctx, p, arena),
@@ -239,17 +247,41 @@ fn map_to_doc<'a>(
 }
 
 /// Produce a document that combines the result of calling `to_doc` on each child, interspersed
-/// with newlines
+/// with newlines.  This requires special handling for comments, so we don't add excessive
+/// newlines around `//` style comments.
 fn map_to_doc_lines<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
 ) -> DocBuilder<'a, Arena<'a>> {
-    arena.concat(
-        pair.into_inner()
-            .map(|p| to_doc(ctx, p, arena))
-            .intersperse(arena.line().append(arena.line())),
-    )
+    let pairs = pair.into_inner();
+    if pairs.clone().count() == 0 {
+        arena.nil()
+    } else {
+        let num_comments = pairs
+            .clone()
+            .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
+            .count();
+        let num_non_comments = pairs.len() - num_comments;
+        debug!(
+            "Found {} non-comments out of {} pairs",
+            num_non_comments,
+            pairs.len()
+        );
+        let mut non_comment_index = 0;
+        let newline_separated = pairs.map(|p| match p.as_rule() {
+            Rule::COMMENT => to_doc(ctx, p, arena),
+            _ => {
+                if non_comment_index < num_non_comments - 1 {
+                    non_comment_index += 1;
+                    to_doc(ctx, p, arena).append(docs![arena, arena.line(), arena.line(),])
+                } else {
+                    to_doc(ctx, p, arena)
+                }
+            }
+        });
+        arena.concat(newline_separated)
+    }
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each pair
@@ -271,7 +303,11 @@ fn comment_to_doc<'a>(
     let (line, _col) = pair.line_col();
     let s = arena.text(pair.as_str().trim());
     if ctx.inline_comment_lines.contains(&line) {
-        //println!("contains(line = <<{}>>), with {}", pair.as_str(), add_newline);
+        debug!(
+            "contains(line = <<{}>>), with {}",
+            pair.as_str(),
+            add_newline
+        );
         let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
             .append(s)
@@ -281,7 +317,7 @@ fn comment_to_doc<'a>(
             } else {
                 arena.nil()
             });
-        //println!("result: {:?}", d);
+        debug!("result: {:?}", d);
         d
     } else {
         s.append(arena.line())
@@ -348,7 +384,7 @@ fn to_doc<'a>(
     arena: &'a Arena<'a, ()>,
 ) -> DocBuilder<'a, Arena<'a>> {
     let s = arena.text(pair.as_str().trim());
-    debug!("Processing rule {:?}", pair.as_rule());
+    info!("Processing rule {:?}", pair.as_rule());
     match pair.as_rule() {
         //***********************//
         // General common things //
@@ -585,7 +621,12 @@ fn to_doc<'a>(
                             saw_comment_after_param_list = true;
                         };
                         // Special case where we don't want an extra newline after the possibly inline comment
-                        comment_to_doc(ctx, arena, p, !has_qualifier || !saw_comment_after_param_list)
+                        comment_to_doc(
+                            ctx,
+                            arena,
+                            p,
+                            !has_qualifier || !saw_comment_after_param_list,
+                        )
                     }
                     Rule::param_list => {
                         saw_param_list = true;
@@ -683,10 +724,10 @@ fn to_doc<'a>(
                 // - contains a single-line expression and no statements
                 // - contains no comments
                 //spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)).nest(INDENT_SPACES) //.group()
-                //println!("Processing an expr_only_block");
+                debug!("Processing an expr_only_block");
                 sticky_delims(ctx, arena, pair, Enclosure::Braces)
             } else {
-                //println!("Processing that's not empty and not an expr_only_block");
+                debug!("Processing that's not empty and not an expr_only_block");
                 let mapped = arena.concat(pairs.clone().map(|i| to_doc(ctx, i, arena)));
                 block_braces(arena, mapped, terminal_expr(&pairs))
             }
@@ -911,7 +952,10 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
-    //println!("Formatted:\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
+    debug!(
+        "Formatted output (before comment fixes):\n>>>>>>>\n{}\n<<<<<<<<<<<\n",
+        s
+    );
     let mut fixed_str: String = String::new();
     let mut prev_str: String = "".to_string();
     let mut first_iteration = true;
@@ -992,7 +1036,9 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let mut formatted_output = String::new();
 
     for pair in parsed_file {
-        //debug_print(pair.clone(), 0);
+        if enabled!(Level::DEBUG) {
+            debug_print(pair.clone(), 0);
+        }
         let rule = pair.as_rule();
         debug!(?rule, "Processing top-level");
         match rule {
