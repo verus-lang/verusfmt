@@ -1,7 +1,9 @@
 verus! {
 
-fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
-    a
+fn test() {
+    for CKeyKV { k, v } in v {
+        res.insert(k, v);
+    }
 }
 
 } // verus!
