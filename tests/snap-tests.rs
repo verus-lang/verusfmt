@@ -824,7 +824,7 @@ fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
     verus! {
 
-    fn get<'a>(&'aself, k: &K) -> (o: Option<&'aV>) {
+    fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
         a
     }
 

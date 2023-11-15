@@ -1,8 +1,7 @@
 verus! {
 
-fn get<'a>(&'a self) -> (o: Option<&'a V>) {
+fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
     a
 }
-
 
 } // verus!

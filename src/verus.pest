@@ -366,6 +366,7 @@ name = { identifier | self_str }
 name_ref = { identifier | self_str | super_str | crate_str | Self_str }
 
 lifetime = { lifetime_ident }
+lifetime_no_space = { lifetime }  // A lifetime that shouldn't be followed by a space
 
 path = { (path_segment ~ colons_str)* ~ path_segment }
 
@@ -402,7 +403,7 @@ assoc_type_arg = {
 }
 
 lifetime_arg = {
-    lifetime
+    lifetime_no_space
 }
 
 const_arg = {
@@ -739,7 +740,7 @@ const_param = {
 }
 
 lifetime_param = {
-    attr* ~ lifetime ~ (colon_str ~ type_bound_list)?
+    attr* ~ lifetime_no_space ~ (colon_str ~ type_bound_list)?
 }
 
 where_clause = {
@@ -747,7 +748,7 @@ where_clause = {
 }
 
 where_pred = {
-    (for_str ~ generic_param_list)? ~ (lifetime | type) ~ colon_str ~ type_bound_list?
+    (for_str ~ generic_param_list)? ~ (lifetime_no_space | type) ~ colon_str ~ type_bound_list?
 }
 
 visibility = {
@@ -1102,7 +1103,7 @@ while_expr = {
 }
 
 label = {
-    lifetime ~ colon_str
+    lifetime_no_space ~ colon_str
 }
 
 break_expr = {
@@ -1254,7 +1255,7 @@ type_bound_list = {
 }
 
 type_bound = {
-    lifetime
+    lifetime_no_space
   | ("?" | "~" ~ const_str)? ~ type
 }
 
