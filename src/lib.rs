@@ -477,7 +477,6 @@ fn to_doc<'a>(
         | Rule::impl_str
         | Rule::in_str
         | Rule::int_str
-        | Rule::invariant_str
         | Rule::isize_str
         | Rule::let_str
         | Rule::loop_str
@@ -533,9 +532,11 @@ fn to_doc<'a>(
             .append(arena.space())
             .nest(INDENT_SPACES),
 
-        Rule::decreases_str | Rule::ensures_str | Rule::recommends_str | Rule::requires_str => {
-            arena.hardline().append(s).nest(INDENT_SPACES)
-        }
+        Rule::decreases_str
+        | Rule::ensures_str
+        | Rule::invariant_str
+        | Rule::recommends_str
+        | Rule::requires_str => arena.hardline().append(s).nest(INDENT_SPACES),
 
         Rule::assert_str
         | Rule::assume_str
@@ -783,7 +784,28 @@ fn to_doc<'a>(
         Rule::if_expr => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => unsupported(pair),
         Rule::for_expr => unsupported(pair),
-        Rule::while_expr => map_to_doc(ctx, arena, pair),
+        Rule::while_expr => {
+            // We need to add a newline after the very last clause,
+            // so that the opening brace of the loop body is on a fresh line
+            let mut last_clause = None;
+            pair.clone().into_inner().for_each(|p| match p.as_rule() {
+                Rule::invariant_clause => last_clause = Some(Rule::invariant_clause),
+                Rule::ensures_clause => last_clause = Some(Rule::ensures_clause),
+                Rule::decreases_clause => last_clause = Some(Rule::decreases_clause),
+                _ => (),
+            });
+            arena.concat(pair.into_inner().map(|p| {
+                if let Some(c) = last_clause {
+                    if p.as_rule() == c {
+                        to_doc(ctx, p, arena).append(arena.line())
+                    } else {
+                        to_doc(ctx, p, arena)
+                    }
+                } else {
+                    to_doc(ctx, p, arena)
+                }
+            }))
+        }
         Rule::label => unsupported(pair),
         Rule::break_expr => map_to_doc(ctx, arena, pair),
         Rule::continue_expr => map_to_doc(ctx, arena, pair),
@@ -880,7 +902,7 @@ fn to_doc<'a>(
         Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),
         Rule::requires_clause => map_to_doc(ctx, arena, pair),
         Rule::ensures_clause => map_to_doc(ctx, arena, pair),
-        Rule::invariant_clause => unsupported(pair),
+        Rule::invariant_clause => map_to_doc(ctx, arena, pair),
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),

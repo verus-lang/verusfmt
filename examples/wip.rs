@@ -1,14 +1,18 @@
 verus! {
 
-impl AbstractEndPoint {
-    fn abstractable() {
-        0
-    }
-    
-    // TODO: attempt to translate Dafny/Distributed/Impl/Common/UdpClient.i.dfy
-    // but verus EndPoint does not have IPV4 fields
-    fn valid_ipv4() {
-        true
+pub fn clone_vec_u8() {
+    let i = 0;
+    while i < v.len()
+        invariant
+            i <= v.len(),
+            i == out.len(),
+            forall |j| #![auto] 0 <= j < i  ==> out@[j] == v@[j],
+        ensures
+            i > 0,
+        decreases
+            72,
+    {
+        i = i + 1;
     }
 }
 
