@@ -436,9 +436,8 @@ fn to_doc<'a>(
         | Rule::star_str
         | Rule::tilde_str
         | Rule::underscore_str => s,
-        Rule::fn_traits => s,
+        Rule::fn_traits | Rule::impl_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
-        Rule::rarrow_str => docs!(arena, arena.space(), s, arena.space()),
         //        Rule::triple_and |
         //        Rule::triple_or =>
         //            docs![arena, arena.hardline(), s, arena.space()].nest(INDENT_SPACES),
@@ -448,7 +447,9 @@ fn to_doc<'a>(
         Rule::eq_str => docs![arena, arena.space(), s, arena.line_(), arena.space()]
             .nest(INDENT_SPACES - 1)
             .group(),
-        Rule::else_str => docs![arena, arena.space(), s, arena.space()],
+        Rule::plus_str | Rule::rarrow_str | Rule::else_str => {
+            docs![arena, arena.space(), s, arena.space()]
+        }
         Rule::assert_space_str
         | Rule::async_str
         | Rule::auto_str
@@ -474,7 +475,6 @@ fn to_doc<'a>(
         | Rule::i64_str
         | Rule::i8_str
         | Rule::if_str
-        | Rule::impl_str
         | Rule::in_str
         | Rule::int_str
         | Rule::isize_str
@@ -674,11 +674,31 @@ fn to_doc<'a>(
                 .append(block_braces(arena, map_to_doc(ctx, arena, pair), true))
         }
         Rule::assoc_item => map_to_doc(ctx, arena, pair),
-        Rule::r#impl => map_to_doc(ctx, arena, pair),
+        Rule::r#impl => {
+            let has_generic_params = pair
+                .clone()
+                .into_inner()
+                .find(|p| matches!(p.as_rule(), Rule::spaced_generic_param_list));
+            arena.concat(pair.into_inner().map(|p| {
+                let r = p.as_rule();
+                let d = to_doc(ctx, p, arena);
+                match r {
+                    Rule::impl_str => {
+                        if has_generic_params.is_none() {
+                            d.append(arena.space())
+                        } else {
+                            d
+                        }
+                    }
+                    _ => d,
+                }
+            }))
+        }
         Rule::extern_block => unsupported(pair),
         Rule::extern_item_list => unsupported(pair),
         Rule::extern_item => unsupported(pair),
         Rule::generic_param_list => comma_delimited(ctx, arena, pair).angles().group(),
+        Rule::spaced_generic_param_list => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::generic_param => map_to_doc(ctx, arena, pair),
         Rule::type_param => map_to_doc(ctx, arena, pair),
         Rule::const_param => unsupported(pair),
@@ -857,7 +877,7 @@ fn to_doc<'a>(
         Rule::for_type => map_to_doc(ctx, arena, pair),
         Rule::impl_trait_type => map_to_doc(ctx, arena, pair),
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
-        Rule::type_bound_list => unsupported(pair),
+        Rule::type_bound_list => map_to_doc(ctx, arena, pair),
         Rule::type_bound => map_to_doc(ctx, arena, pair),
 
         //************************//

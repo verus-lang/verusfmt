@@ -187,6 +187,7 @@ lbrace_str = { "{" }
 lbracket_str = { "[" }
 lparen_str = { "(" }
 pipe_str = { "|" }
+plus_str = { "+" }
 pound_str = { "#" }
 question_str = { "?" }
 rangle_str = { ">" }
@@ -693,7 +694,7 @@ assoc_item = {
 impl = {
     attr* ~ visibility? ~
     default_str? ~ unsafe_str? ~
-    impl_str ~ generic_param_list? ~ (const_str? ~ bang_str? ~ type ~ for_str)? ~ type ~ where_clause? ~
+    impl_str ~ spaced_generic_param_list? ~ (const_str? ~ bang_str? ~ type ~ for_str)? ~ type ~ where_clause? ~
     assoc_item_list
 }
 
@@ -714,6 +715,11 @@ extern_item = {
 
 generic_param_list = {
     "<" ~ (generic_param ~ ("," ~ generic_param)* ~ ","?)? ~ ">"
+}
+
+// A generic_param_list that should be followed by a space
+spaced_generic_param_list = {
+    generic_param_list
 }
 
 generic_param = {
@@ -1244,7 +1250,7 @@ dyn_trait_type = {
 }
 
 type_bound_list = {
-    type_bound ~ ("+" ~ type_bound)* ~ "+"?
+    type_bound ~ (plus_str ~ type_bound)* ~ plus_str?
 }
 
 type_bound = {
