@@ -58,7 +58,11 @@ fn comma_delimited<'a>(
             .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
             .count();
         let num_non_comments = pairs.len() - num_comments;
-        debug!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+        debug!(
+            "Found {} non-comments out of {} pairs",
+            num_non_comments,
+            pairs.len()
+        );
         let mut non_comment_index = 0;
         let mut trailing_comment = false;
         let comma_separated = pairs.map(|p| match p.as_rule() {
@@ -109,7 +113,11 @@ fn comma_delimited_full<'a>(
         .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
         .count();
     let num_non_comments = pairs.len() - num_comments;
-    debug!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+    debug!(
+        "Found {} non-comments out of {} pairs",
+        num_non_comments,
+        pairs.len()
+    );
     let mut non_comment_index = 0;
     let comma_separated = pairs.map(|p| match p.as_rule() {
         Rule::COMMENT => to_doc(ctx, p, arena),
@@ -239,7 +247,7 @@ fn map_to_doc<'a>(
 }
 
 /// Produce a document that combines the result of calling `to_doc` on each child, interspersed
-/// with newlines.  This requires special handling for comments, so we don't add excessive 
+/// with newlines.  This requires special handling for comments, so we don't add excessive
 /// newlines around `//` style comments.
 fn map_to_doc_lines<'a>(
     ctx: &Context,
@@ -255,20 +263,18 @@ fn map_to_doc_lines<'a>(
             .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
             .count();
         let num_non_comments = pairs.len() - num_comments;
-        debug!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+        debug!(
+            "Found {} non-comments out of {} pairs",
+            num_non_comments,
+            pairs.len()
+        );
         let mut non_comment_index = 0;
         let newline_separated = pairs.map(|p| match p.as_rule() {
-            Rule::COMMENT => {
-                to_doc(ctx, p, arena)
-            }
+            Rule::COMMENT => to_doc(ctx, p, arena),
             _ => {
                 if non_comment_index < num_non_comments - 1 {
                     non_comment_index += 1;
-                    to_doc(ctx, p, arena).append(docs![
-                        arena,
-                        arena.line(),
-                        arena.line(),
-                    ])
+                    to_doc(ctx, p, arena).append(docs![arena, arena.line(), arena.line(),])
                 } else {
                     to_doc(ctx, p, arena)
                 }
@@ -297,7 +303,11 @@ fn comment_to_doc<'a>(
     let (line, _col) = pair.line_col();
     let s = arena.text(pair.as_str().trim());
     if ctx.inline_comment_lines.contains(&line) {
-        debug!("contains(line = <<{}>>), with {}", pair.as_str(), add_newline);
+        debug!(
+            "contains(line = <<{}>>), with {}",
+            pair.as_str(),
+            add_newline
+        );
         let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
             .append(s)
@@ -611,7 +621,12 @@ fn to_doc<'a>(
                             saw_comment_after_param_list = true;
                         };
                         // Special case where we don't want an extra newline after the possibly inline comment
-                        comment_to_doc(ctx, arena, p, !has_qualifier || !saw_comment_after_param_list)
+                        comment_to_doc(
+                            ctx,
+                            arena,
+                            p,
+                            !has_qualifier || !saw_comment_after_param_list,
+                        )
                     }
                     Rule::param_list => {
                         saw_param_list = true;
@@ -937,7 +952,10 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
-    debug!("Formatted output (before comment fixes):\n>>>>>>>\n{}\n<<<<<<<<<<<\n", s);
+    debug!(
+        "Formatted output (before comment fixes):\n>>>>>>>\n{}\n<<<<<<<<<<<\n",
+        s
+    );
     let mut fixed_str: String = String::new();
     let mut prev_str: String = "".to_string();
     let mut first_iteration = true;
