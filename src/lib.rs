@@ -239,17 +239,43 @@ fn map_to_doc<'a>(
 }
 
 /// Produce a document that combines the result of calling `to_doc` on each child, interspersed
-/// with newlines
+/// with newlines.  This requires special handling for comments, so we don't add excessive 
+/// newlines around `//` style comments.
 fn map_to_doc_lines<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
 ) -> DocBuilder<'a, Arena<'a>> {
-    arena.concat(
-        pair.into_inner()
-            .map(|p| to_doc(ctx, p, arena))
-            .intersperse(arena.line().append(arena.line())),
-    )
+    let pairs = pair.into_inner();
+    if pairs.clone().count() == 0 {
+        arena.nil()
+    } else {
+        let num_comments = pairs
+            .clone()
+            .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
+            .count();
+        let num_non_comments = pairs.len() - num_comments;
+        debug!("Found {} non-comments out of {} pairs", num_non_comments, pairs.len());
+        let mut non_comment_index = 0;
+        let newline_separated = pairs.map(|p| match p.as_rule() {
+            Rule::COMMENT => {
+                to_doc(ctx, p, arena)
+            }
+            _ => {
+                if non_comment_index < num_non_comments - 1 {
+                    non_comment_index += 1;
+                    to_doc(ctx, p, arena).append(docs![
+                        arena,
+                        arena.line(),
+                        arena.line(),
+                    ])
+                } else {
+                    to_doc(ctx, p, arena)
+                }
+            }
+        });
+        arena.concat(newline_separated)
+    }
 }
 
 /// Produce a document that simply combines the result of calling `to_doc` on each pair
