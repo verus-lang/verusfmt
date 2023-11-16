@@ -637,7 +637,7 @@ fn to_doc<'a>(
                 }
             }))
         }
-        Rule::abi => unsupported(pair),
+        Rule::abi => map_to_doc(ctx, arena, pair).append(arena.text(" ")),
         Rule::param_list => comma_delimited(ctx, arena, pair).parens().group(),
         Rule::closure_param_list => comma_delimited(ctx, arena, pair)
             .enclose(arena.text("|"), arena.text("|"))
