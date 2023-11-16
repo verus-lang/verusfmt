@@ -369,3 +369,15 @@ let (temp_owl__x607, Tracked(itree)): ( _
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_loops() {
+    let file = r#"
+fn test() {
+    for CKeyKV in v {
+        res.insert(k, v);
+    }
+}
+"#;
+    compare(file);
+}

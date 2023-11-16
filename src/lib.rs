@@ -468,6 +468,7 @@ fn to_doc<'a>(
         | Rule::f32_str
         | Rule::f64_str
         | Rule::fn_str
+        | Rule::for_str
         | Rule::ghost_str
         | Rule::i128_str
         | Rule::i16_str
@@ -519,12 +520,9 @@ fn to_doc<'a>(
         | Rule::yeet_str
         | Rule::yield_str => s.append(arena.space()),
 
-        Rule::as_str
-        | Rule::by_str_inline
-        | Rule::for_str
-        | Rule::has_str
-        | Rule::implies_str
-        | Rule::is_str => arena.space().append(s).append(arena.space()),
+        Rule::as_str | Rule::by_str_inline | Rule::has_str | Rule::implies_str | Rule::is_str => {
+            arena.space().append(s).append(arena.space())
+        }
 
         Rule::by_str | Rule::via_str | Rule::when_str => arena
             .line()
@@ -692,6 +690,7 @@ fn to_doc<'a>(
                             d
                         }
                     }
+                    Rule::for_str => arena.text(" ").append(d),
                     _ => d,
                 }
             }))
@@ -805,7 +804,11 @@ fn to_doc<'a>(
         Rule::condition => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::if_expr => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => unsupported(pair),
-        Rule::for_expr => unsupported(pair),
+        Rule::for_expr => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+            Rule::in_str => arena.text(" ").append(to_doc(ctx, p, arena)),
+            Rule::expr_no_struct => to_doc(ctx, p, arena).append(arena.text(" ")),
+            _ => to_doc(ctx, p, arena),
+        })),
         Rule::while_expr => {
             // We need to add a newline after the very last clause,
             // so that the opening brace of the loop body is on a fresh line

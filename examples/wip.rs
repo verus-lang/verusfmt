@@ -1,7 +1,7 @@
 verus! {
 
 fn test() {
-    for CKeyKV { k, v } in v {
+    for CKeyKV in v {
         res.insert(k, v);
     }
 }
