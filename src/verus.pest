@@ -536,7 +536,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    prover? ~ where_clause? ~ (requires_clause | recommends_clause | ensures_clause | decreases_clause)*
+    (requires_clause | recommends_clause | ensures_clause | decreases_clause)*
 }
 
 fn_terminator = {
@@ -548,6 +548,7 @@ fn = {
     attr* ~ visibility? ~ publish? ~
     default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_mode? ~
     fn_str ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
+    prover? ~ where_clause? ~
     fn_qualifier ~
     fn_terminator
 }
@@ -744,7 +745,11 @@ lifetime_param = {
 }
 
 where_clause = {
-    where_str ~ (where_pred ~ ("," ~ where_pred)* ~ ","?)?
+    where_str ~ where_preds?
+}
+
+where_preds = {
+    where_pred ~ ("," ~ where_pred)* ~ ","?
 }
 
 where_pred = {

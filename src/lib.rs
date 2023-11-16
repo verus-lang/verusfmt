@@ -176,7 +176,7 @@ fn sticky_delims<'a>(
         Parens => ")",
     };
     let closing_space = match enc {
-        Braces => arena.line(), //.text(" "),
+        Braces => arena.line(), //.space(),
         Brackets => arena.nil(),
         Parens => arena.nil(),
     };
@@ -637,7 +637,7 @@ fn to_doc<'a>(
                 }
             }))
         }
-        Rule::abi => map_to_doc(ctx, arena, pair).append(arena.text(" ")),
+        Rule::abi => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::param_list => comma_delimited(ctx, arena, pair).parens().group(),
         Rule::closure_param_list => comma_delimited(ctx, arena, pair)
             .enclose(arena.text("|"), arena.text("|"))
@@ -690,7 +690,7 @@ fn to_doc<'a>(
                             d
                         }
                     }
-                    Rule::for_str => arena.text(" ").append(d),
+                    Rule::for_str => arena.space().append(d),
                     _ => d,
                 }
             }))
@@ -704,8 +704,9 @@ fn to_doc<'a>(
         Rule::type_param => map_to_doc(ctx, arena, pair),
         Rule::const_param => unsupported(pair),
         Rule::lifetime_param => map_to_doc(ctx, arena, pair),
-        Rule::where_clause => unsupported(pair),
-        Rule::where_pred => unsupported(pair),
+        Rule::where_clause => arena.space().append(map_to_doc(ctx, arena, pair)),
+        Rule::where_preds => comma_delimited(ctx, arena, pair).group(),
+        Rule::where_pred => map_to_doc(ctx, arena, pair),
         Rule::visibility => s.append(arena.space()),
         Rule::attr_core => arena.text(pair.as_str()),
         Rule::attr => map_to_doc(ctx, arena, pair).append(arena.hardline()),
@@ -794,7 +795,7 @@ fn to_doc<'a>(
                         Rule::attr_inner => arena
                             .line_()
                             .append(to_doc(ctx, p, arena))
-                            .append(arena.nil().flat_alt(arena.text(" ")))
+                            .append(arena.nil().flat_alt(arena.space()))
                             .nest(INDENT_SPACES),
                         _ => to_doc(ctx, p, arena),
                     }
@@ -805,8 +806,8 @@ fn to_doc<'a>(
         Rule::if_expr => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => unsupported(pair),
         Rule::for_expr => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
-            Rule::in_str => arena.text(" ").append(to_doc(ctx, p, arena)),
-            Rule::expr_no_struct => to_doc(ctx, p, arena).append(arena.text(" ")),
+            Rule::in_str => arena.space().append(to_doc(ctx, p, arena)),
+            Rule::expr_no_struct => to_doc(ctx, p, arena).append(arena.space()),
             _ => to_doc(ctx, p, arena),
         })),
         Rule::while_expr => {
@@ -897,7 +898,7 @@ fn to_doc<'a>(
         Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
         Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),
         Rule::record_pat => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
-            Rule::path => to_doc(ctx, p, arena).append(arena.text(" ")),
+            Rule::path => to_doc(ctx, p, arena).append(arena.space()),
             _ => to_doc(ctx, p, arena),
         })),
         Rule::record_pat_field_list => {
