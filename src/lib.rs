@@ -575,7 +575,7 @@ fn to_doc<'a>(
         //          Items          //
         //*************************//
         Rule::item => map_to_doc(ctx, arena, pair),
-        Rule::macro_rules => unsupported(pair),
+        Rule::macro_rules => s, // Don't attempt to format macro rules
         Rule::macro_def => unsupported(pair),
         Rule::module => unsupported(pair),
         Rule::item_list => unsupported(pair),
