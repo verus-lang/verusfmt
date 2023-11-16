@@ -1,24 +1,18 @@
 verus! {
 
-#[allow(unused_macros)]
-macro_rules! no_usize_overflows {
-  ($e:expr,) => {
-    true
-  };
-  ($($e:expr),*) => {
-    no_usize_overflows!(@@internal 0, $($e),*)
-  };
-  (@@internal $total:expr,) => {
-    true
-  };
-  (@@internal $total:expr, $a:expr) => {
-    usize::MAX - $total >= $a
-  };
-  (@@internal $total:expr, $a:expr, $($rest:expr),*) => {
-    usize::MAX - $total >= $a
-      &&
-    no_usize_overflows!(@@internal ($total + $a), $($rest),*)
-  };
+pub fn clone_vec_u8() {
+    let i = 0;
+    while i < v.len() 
+        invariant
+            i <= v.len(),
+            i == out.len(),
+            forall|j| #![auto] 0 <= j < i ==> out@[j] == v@[j],
+        ensures
+            i > 0,
+        decreases 72,
+    {
+        i = i + 1;
+    }
 }
 
 } // verus!

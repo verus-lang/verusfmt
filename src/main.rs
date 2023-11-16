@@ -16,16 +16,46 @@ struct Args {
     /// Run in 'check' mode. Exits with 0 only if the file is formatted correctly.
     #[arg(long = "check")]
     check: bool,
-    /// Input file to be formatted
-    file: PathBuf,
+    /// Input files to be formatted
+    files: Vec<PathBuf>,
     /// Print debugging output (can be repeated for more detail)
     #[arg(short = 'd', long = "debug", action = clap::ArgAction::Count)]
     debug_level: u8,
 }
 
+fn format_file(file: &PathBuf, check: bool) -> anyhow::Result<()> {
+    let unparsed_file = fs::read_to_string(file)?;
+    let formatted_output = parse_and_format(&unparsed_file)?;
+
+    if check {
+        if unparsed_file == formatted_output {
+            info!("✨Perfectly formatted✨");
+            return Ok(());
+        } else {
+            info!("Found some differences in {}", file.display());
+            error!("Input found not to be well formatted");
+            let diff = similar::udiff::unified_diff(
+                similar::Algorithm::Patience,
+                &unparsed_file,
+                &formatted_output,
+                3,
+                Some(("original", "formatted")),
+                );
+            println!("{diff}");
+            return Err(anyhow!("invalid formatting"));
+        }
+    } else {
+        fs::write(file, formatted_output)?;
+        Ok(())
+    }
+}
+
 // TODO: Call rustfmt on the code too (maybe include an option to skip it)
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+    if args.files.len() == 0 {
+        return Err(anyhow!("No files specified"));
+    }
 
     tracing_subscriber::fmt()
         .with_timer(tracing_subscriber::fmt::time::uptime())
@@ -38,29 +68,7 @@ fn main() -> anyhow::Result<()> {
             _ => tracing::Level::TRACE,
         })
         .init();
-
-    let unparsed_file = fs::read_to_string(&args.file)?;
-    let formatted_output = parse_and_format(&unparsed_file)?;
-
-    if args.check {
-        if unparsed_file == formatted_output {
-            info!("✨Perfectly formatted✨");
-            return Ok(());
-        } else {
-            info!("Found some differences");
-            error!("Input found not to be well formatted");
-            let diff = similar::udiff::unified_diff(
-                similar::Algorithm::Patience,
-                &unparsed_file,
-                &formatted_output,
-                3,
-                Some(("original", "formatted")),
-            );
-            println!("{diff}");
-            return Err(anyhow!("invalid formatting"));
-        }
-    } else {
-        fs::write(args.file, formatted_output)?;
-        Ok(())
-    }
+    // TODO: This errors out when we first find an ill-formatted file.
+    //       Consider going through all of the files, regardless.
+    args.files.iter().try_fold((), |_, file| format_file(&file, args.check))
 }
