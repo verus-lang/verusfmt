@@ -1,18 +1,11 @@
 verus! {
 
-pub fn clone_vec_u8() {
-    let i = 0;
-    while i < v.len() 
-        invariant
-            i <= v.len(),
-            i == out.len(),
-            forall|j| #![auto] 0 <= j < i ==> out@[j] == v@[j],
+pub trait VerusClone: Sized {
+    fn clone(&self) -> (o: Self)
         ensures
-            i > 0,
-        decreases 72,
-    {
-        i = i + 1;
-    }
+            o == self,
+    ;  // this is way too restrictive; it kind of demands Copy. But we don't have a View trait yet. :v(
+
 }
 
 } // verus!
