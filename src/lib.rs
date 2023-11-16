@@ -896,8 +896,13 @@ fn to_doc<'a>(
         //Rule::wildcard_pat => arena.text("_"),
         Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
         Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),
-        Rule::record_pat => map_to_doc(ctx, arena, pair),
-        Rule::record_pat_field_list => comma_delimited(ctx, arena, pair).braces().group(),
+        Rule::record_pat => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+            Rule::path => to_doc(ctx, p, arena).append(arena.text(" ")),
+            _ => to_doc(ctx, p, arena),
+        })),
+        Rule::record_pat_field_list => {
+            spaced_braces(arena, comma_delimited(ctx, arena, pair)).group()
+        }
         Rule::record_pat_field => map_to_doc(ctx, arena, pair),
         Rule::tuple_struct_pat_inner => comma_delimited(ctx, arena, pair).parens().group(),
         Rule::tuple_struct_pat => map_to_doc(ctx, arena, pair),

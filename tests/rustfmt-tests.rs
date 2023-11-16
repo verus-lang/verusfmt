@@ -218,6 +218,14 @@ fn len<T>(l: List<T>) -> nat {
         List::Cons(_, tl) => 1 + len(*tl),
     }
 }
+
+fn uses_is(t: ThisOrThat) {
+     match t {
+        ThisOrThat::This(..) => assert(t),
+        ThisOrThat::That{..} => assert(t),
+     }
+}
+
 "#;
     compare(file);
 }
@@ -378,6 +386,13 @@ fn test() {
         res.insert(k, v);
     }
 }
+
+fn test() {
+    for CKeyKV { k, v } in v {
+        res.insert(k, v);
+    }
+}
+
 "#;
     compare(file);
 }
