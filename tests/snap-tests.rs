@@ -191,6 +191,30 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
 }
 
 #[test]
+fn verus_let() {
+    let file = r#"
+verus!{
+    let Some((key, val)) = cur else { 
+        panic!() /* covered by while condition */ 
+    };
+    
+    let Some((key, val)) = cur else { panic!() };
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus!{
+        let Some((key, val)) = cur else { 
+            panic!() /* covered by while condition */ 
+        };
+        
+        let Some((key, val)) = cur else { panic!() };
+    }
+    "###);
+}
+
+
+#[test]
 fn verus_assert_by() {
     let file = r#"
 verus!{

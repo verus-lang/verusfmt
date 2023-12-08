@@ -720,7 +720,7 @@ fn to_doc<'a>(
         // NOTE: The code for let_stmt does not explicitly attempt to replicate the (complex) rules described here:
         //       https://doc.rust-lang.org/beta/style-guide/statements.html#let-statements
         Rule::let_stmt => map_to_doc(ctx, arena, pair).group(),
-        Rule::let_else => unsupported(pair),
+        Rule::let_else => map_to_doc(ctx, arena, pair),
         Rule::assignment_stmt => map_to_doc(ctx, arena, pair).group(),
         Rule::expr => map_to_doc(ctx, arena, pair),
         Rule::expr_inner => map_to_doc(ctx, arena, pair),
