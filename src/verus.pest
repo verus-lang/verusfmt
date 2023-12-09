@@ -120,11 +120,25 @@ int_number = @{
     )?
 }
 
-float_number = @{
+float_decimal = @{
     (ASCII_DIGIT | "_")+ ~
     "." ~
     (ASCII_DIGIT | "_")* ~
-    ("f32" | "f64")?
+    ("f32" | "f64")?   
+}
+
+float_exp = @{
+    (ASCII_DIGIT | "_")+ ~
+    ("e" | "E") ~
+    ("+" | "-")? ~
+    "_"* ~
+    ASCII_DIGIT ~   // Must have at least one digit
+    (ASCII_DIGIT | "_")* ~
+    ("f32" | "f64")?    
+}
+
+float_number = @{
+    float_decimal | float_exp
 }
 
 lifetime_ident = @{
@@ -945,9 +959,9 @@ macro_expr = {
 }
 
 literal = {
-    attr* ~ (
-        int_number
-      | float_number
+    attr* ~ (     
+        float_number
+      | int_number
       | string
       | raw_string
       | byte_string

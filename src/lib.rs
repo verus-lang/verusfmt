@@ -397,6 +397,8 @@ fn to_doc<'a>(
         | Rule::octal_number
         | Rule::binary_number
         | Rule::int_number
+        | Rule::float_decimal
+        | Rule::float_exp
         | Rule::float_number
         | Rule::lifetime_ident
         | Rule::string
