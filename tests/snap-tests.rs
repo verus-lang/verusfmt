@@ -821,6 +821,34 @@ impl<K: KeyTrait + VerusClone> DelegationMap<K> {
 }
 
 #[test]
+fn verus_closures() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let lambda = |key| -> (b: bool) { true };
+    let lambda = |key| -> (b: bool) ensures b == true { true };
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let lambda = |key| -> (b: bool) { true };
+        let lambda = |key| -> (b: bool) 
+            ensures
+                b == true,
+            { true };
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_loops() {
     let file = r#"
 verus! {

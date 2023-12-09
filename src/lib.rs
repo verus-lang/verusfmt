@@ -642,7 +642,7 @@ fn to_doc<'a>(
         Rule::closure_param_list => comma_delimited(ctx, arena, pair)
             .enclose(arena.text("|"), arena.text("|"))
             .group()
-            .append(arena.softline()),
+            .append(arena.softline_()),
         Rule::self_param => map_to_doc(ctx, arena, pair),
         Rule::param => map_to_doc(ctx, arena, pair),
         Rule::ret_type => map_to_doc(ctx, arena, pair),
@@ -785,6 +785,7 @@ fn to_doc<'a>(
         Rule::closure_expr | Rule::quantifier_expr =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
+            let has_ret = pair.clone().into_inner().find(|p| matches!(p.as_rule(), Rule::ret_type)).is_some();
             arena
                 .concat(pair.into_inner().map(|p| {
                     match p.as_rule() {
@@ -797,6 +798,13 @@ fn to_doc<'a>(
                             .append(to_doc(ctx, p, arena))
                             .append(arena.nil().flat_alt(arena.space()))
                             .nest(INDENT_SPACES),
+                        Rule::closure_param_list =>
+                            if has_ret { // Don't add a space, since ret_type already does it
+                                to_doc(ctx, p, arena)
+                            } else {
+                                to_doc(ctx, p, arena).append(arena.space())
+                            }
+                        Rule::ret_type => to_doc(ctx, p, arena).append(arena.space()),
                         _ => to_doc(ctx, p, arena),
                     }
                 }))

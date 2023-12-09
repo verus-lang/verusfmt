@@ -1070,7 +1070,7 @@ arg_list = {
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~
-    closure_param_list ~ ret_type? ~
+    closure_param_list ~ ret_type? ~ ensures_clause? ~
     attr_inner* ~
     expr
 }
