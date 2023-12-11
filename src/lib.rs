@@ -877,7 +877,7 @@ fn to_doc<'a>(
         Rule::macro_type => map_to_doc(ctx, arena, pair),
         Rule::path_type => map_to_doc(ctx, arena, pair),
         Rule::tuple_type => comma_delimited(ctx, arena, pair).parens().group(),
-        Rule::ptr_type => arena.text("*").append(map_to_doc(ctx, arena, pair)),
+        Rule::ptr_type => map_to_doc(ctx, arena, pair),
         Rule::ref_type => arena.text("&").append(map_to_doc(ctx, arena, pair)),
         Rule::array_type =>
         // In this context, the semicolon must have a space following it
