@@ -650,6 +650,7 @@ fn to_doc<'a>(
         Rule::ret_type => map_to_doc(ctx, arena, pair),
         Rule::type_alias => map_to_doc(ctx, arena, pair),
         Rule::r#struct => map_to_doc(ctx, arena, pair),
+        Rule::struct_update_base => arena.text("..").append(map_to_doc(ctx, arena, pair)),
         Rule::record_field_list => extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)),
         Rule::condensable_record_field_list => {
             extra_spaced_braces(arena, comma_delimited(ctx, arena, pair)).group()

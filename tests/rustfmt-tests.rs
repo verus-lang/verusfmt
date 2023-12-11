@@ -116,6 +116,7 @@ struct TrackedAndGhost<T, G>(
 pub struct Bar(String, u8);
 
 struct Unit();
+
 "#;
     compare(file);
 }

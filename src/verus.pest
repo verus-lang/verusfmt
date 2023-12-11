@@ -1065,11 +1065,15 @@ struct_expr = {
     path ~ record_expr_field_list
 }
 
+struct_update_base = {
+    ".." ~ expr
+}
+
 record_expr_field_list = {
     "{" ~
     attr* ~
     (record_expr_field ~ ("," ~ record_expr_field)* ~ ","?)? ~
-    (dot_dot_str ~ expr)? ~
+    struct_update_base? ~
     "}"
 }
 

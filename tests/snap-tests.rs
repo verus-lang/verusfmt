@@ -395,6 +395,31 @@ impl cfg_alice {
     "###);
 }
 
+#[test]
+fn verus_structs() {
+    let file = r#"
+verus! {
+
+spec fn host_ignoring_unparseable(pre: AbstractHostState, post: AbstractHostState) -> bool {
+    post == AbstractHostState { received_packet: None, ..pre }
+}
+
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    spec fn host_ignoring_unparseable(pre: AbstractHostState, post: AbstractHostState) -> bool {
+        post == AbstractHostState { received_packet: None, ..pre }
+    }
+
+    } // verus!
+    "###);
+}
+
+
 // We deviate from rustfmt here, so use our own snapshot to check for self-consistency
 #[test]
 fn verus_expr() {
