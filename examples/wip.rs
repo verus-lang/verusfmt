@@ -5,6 +5,7 @@ spec fn host_ignoring_unparseable(pre: AbstractHostState, post: AbstractHostStat
     post == AbstractHostState { received_packet: None, another_long_field_name: 12345, yet_another_long_field_name: 12345, ..pre }
 }
 
+/*    
 // We add a comma after the ensures, which Verus doesn't like
 fn is_marshalable() -> (res: bool)
     ensures res == self.is_marshalable();
@@ -23,6 +24,7 @@ pub unsafe fn unflatten_args(
 {
     true
 }
+*/
 
 
 } // verus!

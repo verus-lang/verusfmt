@@ -83,7 +83,9 @@ fn comma_delimited<'a>(
                             arena.line()
                         }
                     ])
-                } else if num_non_comments > 0 {
+                } else if num_non_comments > 0 && !matches!(p.as_rule(), Rule::struct_update_base) {
+                    // Even if we would normally include a trailing comma,
+                    // the struct_update_base never gets one
                     to_doc(ctx, p, arena).append(conditional_comma(arena))
                 } else {
                     to_doc(ctx, p, arena)
