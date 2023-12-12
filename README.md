@@ -53,7 +53,6 @@ An opinionated formatter for [Verus] code.
 
 ## Future Work
 - Special handling for commonly used macros, like `println!`, `state_machine!`, `calc!`
-- In `record_expr_field_list` and `record_pat_field_list`, handle vanishing comma's interaction with `rest_pat`
 - Enforce the [Rust naming policy](https://doc.rust-lang.org/beta/style-guide/advice.html#names)? 
 
 ## Non-Future Work
