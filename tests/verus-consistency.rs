@@ -797,6 +797,41 @@ impl AbstractEndPoint {
     "###);
 }
 
+
+#[test]
+fn verus_comment_prefix_suffix() {
+    let file = r#"
+verus! {
+/*
+ This comment shouldn't absorbs he newline that separates it from the struct
+ */
+struct Constants {
+    b: int,
+}
+/*
+ This comment should have some space between it and the struct
+ */
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    /*
+     This comment shouldn't absorbs he newline that separates it from the struct
+     */
+    struct Constants {
+        b: int,
+    }
+
+    /*
+     This comment should have some space between it and the struct
+     */
+    } // verus!
+    "###);
+}
+
+
 #[test]
 fn verus_keyword_prefixed_identifier_parsing() {
     let file = r#"

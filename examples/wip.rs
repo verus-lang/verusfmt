@@ -1,25 +1,13 @@
-use builtin::*;
-use builtin_macros::*;
-use vstd::map::*;
-use vstd::multiset::*;
-use vstd::pervasive::*;
-use vstd::seq::*;
-use vstd::modes::*;
-use vstd::set::*;
-
-use crate::keys_t::*;
-use crate::network_t::*;
-use crate::abstract_end_point_t::*;
-use crate::app_interface_t::*;
-
 verus! {
 
 /*
  This comment absorbes the newline that should separate it from the struct
  */
-struct Constants { b: int }
+struct Constants {
+    b: int,
+}
 
-
+/*
 // The first set of &&& get out-dented, while the second one is absorbed into a single line
 fn clone_value() -> (out: u8)
     ensures
@@ -28,8 +16,8 @@ fn clone_value() -> (out: u8)
                 &&& out.is_Some()
                 &&& out.unwrap()@ == vec@
             },
-            None => { 
-                &&& out.is_None() 
+            None => {
+                &&& out.is_None()
             },
         },
 {
@@ -45,7 +33,7 @@ pub fn clone_up_to_view(&self) -> (c: Self)
         CMessage::SetRequest { k, v } => { CMessage::SetRequest { k: k.clone(), v: CMessage::clone_value(v) } },
     }
 }
-    
+
 // Weird formatting of the return value
 pub open spec fn abstractify_outbound_packets_to_seq_of_lsht_packets(packets: Seq<CPacket>) -> Seq<
     LSHTPacket,
@@ -74,5 +62,5 @@ fn test() -> u64 {
     5
 
 }
-
+*/
 } // verus!

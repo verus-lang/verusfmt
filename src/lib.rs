@@ -1154,8 +1154,11 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                     (prefix_comments, body, suffix_comments)
                 };
                 formatted_output += VERUS_PREFIX;
-                for comment in prefix_comments {
+                for comment in &prefix_comments {
                     formatted_output += comment.as_str();
+                }
+                if prefix_comments.len() > 0 {
+                    formatted_output += "\n";
                 }
                 let items = body.into_inner();
                 let len = items.clone().count();
@@ -1191,6 +1194,9 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                             formatted_output += "\n";
                         }
                     }
+                }
+                if suffix_comments.len() > 0 {
+                    formatted_output += "\n";
                 }
                 for comment in suffix_comments {
                     formatted_output += comment.as_str();
