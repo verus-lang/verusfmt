@@ -482,6 +482,12 @@ fn len<T>(l: List<T>) -> nat {
             x
         },
     }
+    fn test() {
+        match m {
+            CMessage::LongConstructorNameGetRequest{..} => old_self.long_function_next_get_request_preconditions(),
+        }
+    }
+
 }
 
 }
@@ -513,6 +519,13 @@ fn len<T>(l: List<T>) -> nat {
                 let x = something_long_and_complicated();
                 x
             },
+        }
+        fn test() {
+            match m {
+                CMessage::LongConstructorNameGetRequest {
+                    ..
+                } => old_self.long_function_next_get_request_preconditions(),
+            }
         }
     }
 
