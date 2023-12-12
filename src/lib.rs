@@ -435,6 +435,7 @@ fn to_doc<'a>(
         | Rule::lbracket_str
         | Rule::lparen_str
         | Rule::pound_str
+        | Rule::pub_str
         | Rule::question_str
         | Rule::rangle_str
         | Rule::rbrace_str
@@ -498,7 +499,6 @@ fn to_doc<'a>(
         | Rule::nat_str
         | Rule::open_str
         | Rule::proof_space_str
-        | Rule::pub_str
         | Rule::r_str
         | Rule::raw_str
         | Rule::ref_str
@@ -716,7 +716,7 @@ fn to_doc<'a>(
         Rule::where_clause => arena.space().append(map_to_doc(ctx, arena, pair)),
         Rule::where_preds => comma_delimited(ctx, arena, pair).group(),
         Rule::where_pred => map_to_doc(ctx, arena, pair),
-        Rule::visibility => s.append(arena.space()),
+        Rule::visibility => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::attr_core => arena.text(pair.as_str()),
         Rule::attr => map_to_doc(ctx, arena, pair).append(arena.hardline()),
         Rule::attr_inner => map_to_doc(ctx, arena, pair),

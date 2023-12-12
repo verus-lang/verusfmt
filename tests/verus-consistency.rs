@@ -642,6 +642,10 @@ fn test_my_funs2(
 ) {
 }
 
+pub struct SHTKey {
+    pub // workaround
+        ukey: u64,
+}
 
 fn test_my_funs3(
     // exec variable
@@ -744,6 +748,11 @@ impl AbstractEndPoint {
         a: u32,  // long comment1
         b: u32,  // long comment2
     ) {
+    }
+
+    pub struct SHTKey {
+        pub  // workaround
+         ukey: u64,
     }
 
     fn test_my_funs3(

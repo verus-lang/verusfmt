@@ -771,7 +771,7 @@ where_pred = {
 }
 
 visibility = {
-    pub_str ~ ("(" ~ (in_str)? ~ path ~ ")")?
+    pub_str ~ (lparen_str ~ (in_str)? ~ path ~ rparen_str)?
 }
 
 attr_core = {
