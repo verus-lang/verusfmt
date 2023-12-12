@@ -23,6 +23,21 @@ fn compare(file: &str) {
 }
 
 #[test]
+fn rust_literals() {
+    let file = r#"
+fn test() {
+    let a = 123.0f64;
+    let a = 0.1f64;
+    let a = 0.1f32;
+    let a = 12E+99_f64;
+    let x: f64 = 2.;
+    let x = (1,);
+}
+"#;
+    compare(file);
+}
+
+#[test]
 fn rust_attributes() {
     let file = r#"
 #![allow(unused_variables)]
@@ -102,6 +117,7 @@ struct TrackedAndGhost<T, G>(
 pub struct Bar(String, u8);
 
 struct Unit();
+
 "#;
     compare(file);
 }

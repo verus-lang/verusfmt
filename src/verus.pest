@@ -120,11 +120,25 @@ int_number = @{
     )?
 }
 
-float_number = @{
+float_decimal = @{
     (ASCII_DIGIT | "_")+ ~
     "." ~
     (ASCII_DIGIT | "_")* ~
-    ("f32" | "f64")?
+    ("f32" | "f64")?   
+}
+
+float_exp = @{
+    (ASCII_DIGIT | "_")+ ~
+    ("e" | "E") ~
+    ("+" | "-")? ~
+    "_"* ~
+    ASCII_DIGIT ~   // Must have at least one digit
+    (ASCII_DIGIT | "_")* ~
+    ("f32" | "f64")?    
+}
+
+float_number = @{
+    float_decimal | float_exp
 }
 
 lifetime_ident = @{
@@ -757,7 +771,7 @@ where_pred = {
 }
 
 visibility = {
-    pub_str ~ ("(" ~ (in_str)? ~ path ~ ")")?
+    pub_str ~ (lparen_str ~ (in_str)? ~ path ~ rparen_str)?
 }
 
 attr_core = {
@@ -945,9 +959,9 @@ macro_expr = {
 }
 
 literal = {
-    attr* ~ (
-        int_number
-      | float_number
+    attr* ~ (     
+        float_number
+      | int_number
       | string
       | raw_string
       | byte_string
@@ -1039,8 +1053,12 @@ array_expr = {
     attr* ~ array_expr_inner
 }
 
+tuple_comma_delimited_exprs = {
+    comma_delimited_exprs
+}
+
 tuple_expr_inner = {
-    "(" ~ attr* ~ comma_delimited_exprs? ~ ")"
+    "(" ~ attr* ~ tuple_comma_delimited_exprs? ~ ")"
 }
 
 tuple_expr = {
@@ -1051,11 +1069,15 @@ struct_expr = {
     path ~ record_expr_field_list
 }
 
+struct_update_base = {
+    ".." ~ expr
+}
+
 record_expr_field_list = {
     "{" ~
     attr* ~
     (record_expr_field ~ ("," ~ record_expr_field)* ~ ","?)? ~
-    (dot_dot_str ~ expr)? ~
+    struct_update_base? ~
     "}"
 }
 
@@ -1070,7 +1092,7 @@ arg_list = {
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~
-    closure_param_list ~ ret_type? ~
+    closure_param_list ~ ret_type? ~ ensures_clause? ~
     attr_inner* ~
     expr
 }
@@ -1287,7 +1309,7 @@ pat_no_top_alt = {
 
 pat_inner = {
     box_pat
-  | rest_pat
+//  | rest_pat
   | literal_pat
   | macro_pat
   | paren_pat
@@ -1339,7 +1361,7 @@ record_pat_field = {
 }
 
 tuple_struct_pat_inner = {
-    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ rest_pat? ~ ")"
 }
 
 tuple_struct_pat = {
@@ -1347,7 +1369,7 @@ tuple_struct_pat = {
 }
 
 tuple_pat = {
-    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ rest_pat? ~ ")"
 }
 
 paren_pat = {

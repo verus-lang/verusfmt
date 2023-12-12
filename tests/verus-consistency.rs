@@ -191,6 +191,29 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
 }
 
 #[test]
+fn verus_let() {
+    let file = r#"
+verus!{
+    let Some((key, val)) = cur else { 
+        panic!() /* covered by while condition */ 
+    };
+    
+    let Some((key, val)) = cur else { panic!() };
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus!{
+        let Some((key, val)) = cur else { 
+            panic!() /* covered by while condition */ 
+        };
+        
+        let Some((key, val)) = cur else { panic!() };
+    }
+    "###);
+}
+
+#[test]
 fn verus_assert_by() {
     let file = r#"
 verus!{
@@ -371,6 +394,30 @@ impl cfg_alice {
     "###);
 }
 
+#[test]
+fn verus_structs() {
+    let file = r#"
+verus! {
+
+spec fn host_ignoring_unparseable(pre: AbstractHostState, post: AbstractHostState) -> bool {
+    post == AbstractHostState { received_packet: None, ..pre }
+}
+
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    spec fn host_ignoring_unparseable(pre: AbstractHostState, post: AbstractHostState) -> bool {
+        post == AbstractHostState { received_packet: None, ..pre }
+    }
+
+    } // verus!
+    "###);
+}
+
 // We deviate from rustfmt here, so use our own snapshot to check for self-consistency
 #[test]
 fn verus_expr() {
@@ -435,6 +482,12 @@ fn len<T>(l: List<T>) -> nat {
             x
         },
     }
+    fn test() {
+        match m {
+            CMessage::LongConstructorNameGetRequest{..} => old_self.long_function_next_get_request_preconditions(),
+        }
+    }
+
 }
 
 }
@@ -466,6 +519,13 @@ fn len<T>(l: List<T>) -> nat {
                 let x = something_long_and_complicated();
                 x
             },
+        }
+        fn test() {
+            match m {
+                CMessage::LongConstructorNameGetRequest {
+                    ..
+                } => old_self.long_function_next_get_request_preconditions(),
+            }
         }
     }
 
@@ -582,6 +642,10 @@ fn test_my_funs2(
 ) {
 }
 
+pub struct SHTKey {
+    pub // workaround
+        ukey: u64,
+}
 
 fn test_my_funs3(
     // exec variable
@@ -684,6 +748,11 @@ impl AbstractEndPoint {
         a: u32,  // long comment1
         b: u32,  // long comment2
     ) {
+    }
+
+    pub struct SHTKey {
+        pub  // workaround
+         ukey: u64,
     }
 
     fn test_my_funs3(
@@ -790,6 +859,34 @@ impl<K: KeyTrait + VerusClone> DelegationMap<K> {
         fn view() -> Map<K, AbstractEndPoint> {
             c
         }
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_closures() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let lambda = |key| -> (b: bool) { true };
+    let lambda = |key| -> (b: bool) ensures b == true { true };
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let lambda = |key| -> (b: bool) { true };
+        let lambda = |key| -> (b: bool) 
+            ensures
+                b == true,
+            { true };
     }
 
     } // verus!

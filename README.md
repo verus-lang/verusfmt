@@ -53,7 +53,6 @@ An opinionated formatter for [Verus] code.
 
 ## Future Work
 - Special handling for commonly used macros, like `println!`, `state_machine!`, `calc!`
-- In `record_expr_field_list` and `record_pat_field_list`, handle vanishing comma's interaction with `rest_pat`
 - Enforce the [Rust naming policy](https://doc.rust-lang.org/beta/style-guide/advice.html#names)? 
 
 ## Non-Future Work
@@ -133,17 +132,16 @@ also include new/updated tests that exercise your proposed changes.
 ### Rust-like formatting
 
 In general, we try to adhere to Rust's style guide.  Tests for such adherence live in
-[tests/rustfmt-tests.rs](tests/rustfmt-tests.rs).  These tests will compare the output
-of [`rustfmt`] to that of `verusfmt`.  You can run
-them via `cargo test`.
+[tests/rustfmt-matching.rs](tests/rustfmt-matching.rs).  These tests will compare the output
+of [`rustfmt`] to that of `verusfmt`.  You can run them via `cargo test`.
 
 ### Verus-like formatting
 
-In various places, we deviate from Rust's style, either to simplify the formatter
-or to handle [Verus]-specific syntax.  Tests for formatting such code live in
-[tests/snap-tests.rs](tests/snap-tests.rs).  You can add a new test or modify an
-existing one by writing/changing the input code.  The test's correct answer is
-maintained via the [Insta testing framework](https://insta.rs).
+In various places, we deviate from Rust's style, either to simplify the
+formatter or to handle [Verus]-specific syntax.  Tests for formatting such code
+live in [tests/verus-consistency.rs](tests/verus-consistency.rs).  You can add
+a new test or modify an existing one by writing/changing the input code.  The
+test's correct answer is maintained via the [Insta testing framework](https://insta.rs).
 
 Insta recommends installing the `cargo-insta` tool for an improved review experience:
 ```

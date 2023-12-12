@@ -40,7 +40,7 @@ fn format_file(file: &PathBuf, check: bool) -> anyhow::Result<()> {
                 &formatted_output,
                 3,
                 Some(("original", "formatted")),
-                );
+            );
             println!("{diff}");
             return Err(anyhow!("invalid formatting"));
         }
@@ -70,5 +70,7 @@ fn main() -> anyhow::Result<()> {
         .init();
     // TODO: This errors out when we first find an ill-formatted file.
     //       Consider going through all of the files, regardless.
-    args.files.iter().try_fold((), |_, file| format_file(&file, args.check))
+    args.files
+        .iter()
+        .try_fold((), |_, file| format_file(&file, args.check))
 }
