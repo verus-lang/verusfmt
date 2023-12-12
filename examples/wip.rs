@@ -1,8 +1,7 @@
 verus! {
 
-pub struct SHTKey {
-    pub // workaround
-        ukey: u64,
+fn test() {
+    let x = (1,);
 }
 
 } // verus!

@@ -1053,8 +1053,12 @@ array_expr = {
     attr* ~ array_expr_inner
 }
 
+tuple_comma_delimited_exprs = {
+    comma_delimited_exprs
+}
+
 tuple_expr_inner = {
-    "(" ~ attr* ~ comma_delimited_exprs? ~ ")"
+    "(" ~ attr* ~ tuple_comma_delimited_exprs? ~ ")"
 }
 
 tuple_expr = {
