@@ -36,13 +36,12 @@ An opinionated formatter for [Verus] code.
 
 1. Does `verusfmt` match [`rustfmt`] on code outside the `verus!{}` macro?
 
-    Code outside the macro is left unchanged. This works out great since
-    `rustfmt` will not touch code inside the macro. Thus, if a project contains
-    both Verus code and Rust code (treated as "external" by Verus), then we
-    recommend running _both_ `verusfmt` and `rustfmt`. Neither should clash with
-    the other or override each other's formatting changes. Thus, this makes it
-    easier to incrementally verify small amounts of code inside a larger
-    unverified Rust crate.
+    Yes, by default, `verusfmt` handles code inside the `verus!{}` macro, and
+    also runs `rustfmt` to handle code outside the macro. Neither should clash
+    with the other or override each other's formatting changes. Thus, this
+    makes it easier to incrementally verify small amounts of code inside a
+    larger unverified Rust crate.  You can disable the invocation of `rustfmt`
+    using `--verus-only`.
 
 1. Why not build this as a feature of [Verus]?
 

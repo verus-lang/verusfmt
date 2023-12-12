@@ -4,7 +4,7 @@ use anyhow::anyhow;
 use clap::Parser as ClapParser;
 use fs_err as fs;
 use tracing::{error, info}; // debug, trace
-use verusfmt::parse_and_format;
+use verusfmt::{parse_and_format, rustfmt};
 
 /// An opinionated formatter for Verus code
 ///
@@ -18,14 +18,27 @@ struct Args {
     check: bool,
     /// Input files to be formatted
     files: Vec<PathBuf>,
+    /// Only format code inside the Verus macro
+    #[arg(long = "verus-only")]
+    verus_only: bool,
     /// Print debugging output (can be repeated for more detail)
     #[arg(short = 'd', long = "debug", action = clap::ArgAction::Count)]
     debug_level: u8,
 }
 
-fn format_file(file: &PathBuf, check: bool) -> anyhow::Result<()> {
+fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> anyhow::Result<()> {
     let unparsed_file = fs::read_to_string(file)?;
-    let formatted_output = parse_and_format(&unparsed_file)?;
+    let formatted_output = if verus_only {
+        parse_and_format(&unparsed_file)?
+    } else {
+        let rustfmt_out = match rustfmt(&unparsed_file) {
+            None => {
+                return Err(anyhow!("rustfmt failed"));
+            }
+            Some(s) => s,
+        };
+        parse_and_format(&rustfmt_out)?
+    };
 
     if check {
         if unparsed_file == formatted_output {
@@ -70,7 +83,7 @@ fn main() -> anyhow::Result<()> {
         .init();
     // TODO: This errors out when we first find an ill-formatted file.
     //       Consider going through all of the files, regardless.
-    args.files
-        .iter()
-        .try_fold((), |_, file| format_file(&file, args.check))
+    args.files.iter().try_fold((), |_, file| {
+        format_file(&file, args.check, args.verus_only)
+    })
 }
