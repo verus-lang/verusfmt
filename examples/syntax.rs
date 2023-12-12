@@ -1,11 +1,10 @@
 #![allow(unused_imports)]
-use builtin_macros::*;
 use builtin::*;
-use vstd::{*, prelude::*, seq::*, modes::*};
+use builtin_macros::*;
+use vstd::{modes::*, prelude::*, seq::*, *};
 
 #[verifier::external]
-fn main() {
-}
+fn main() {}
 
 verus! {
 
@@ -15,6 +14,7 @@ verus! {
 ///   - proof code: erased before compilation, may have requires/ensures
 ///   - spec code: erased before compilation, no requires/ensures, but may have recommends
 /// exec and proof functions may name their return values inside parentheses, before the return type
+
 fn my_exec_fun(x: u32, y: u32) -> (sum: u32)
     requires
         x < 100,
