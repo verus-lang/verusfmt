@@ -213,7 +213,6 @@ verus!{
     "###);
 }
 
-
 #[test]
 fn verus_assert_by() {
     let file = r#"
@@ -418,7 +417,6 @@ spec fn host_ignoring_unparseable(pre: AbstractHostState, post: AbstractHostStat
     } // verus!
     "###);
 }
-
 
 // We deviate from rustfmt here, so use our own snapshot to check for self-consistency
 #[test]

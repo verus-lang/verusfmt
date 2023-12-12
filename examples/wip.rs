@@ -1,25 +1,23 @@
 verus! {
 
-
-/*    
-// We add a comma after the ensures, which Verus doesn't like
-fn is_marshalable() -> (res: bool)
-    ensures res == self.is_marshalable();
-
 fn test() {
-    // Adds a comma that `reveal` doesn't like
-    reveal(crate::marshal_ironsht_specific_v::ckeyhashmap_max_serialized_size);
-}
-*/
+    match m {
+        CMessage::LongConstructorNameGetRequest{..} => old_self.long_function_next_get_request_preconditions(),
+    }
 
-// We add an extra star in front of the const
-#[verifier(external)]
-fn unflatten_args(
-    arg_lengths: *const i32,
-) -> bool 
-{
-    true
-}
+    fn len<T>(l: List<T>) -> nat {
+        match l {
+            List::Nil => 0,
+            List::Cons(_, tl) => 1 + len(*tl),
+        }
+    }
 
+    fn uses_is(t: ThisOrThat) {
+         match t {
+            ThisOrThat::This(..) => assert(t),
+            ThisOrThat::That{..} => assert(t),
+         }
+    }
+}
 
 } // verus!

@@ -83,9 +83,13 @@ fn comma_delimited<'a>(
                             arena.line()
                         }
                     ])
-                } else if num_non_comments > 0 && !matches!(p.as_rule(), Rule::struct_update_base) {
+                } else if num_non_comments > 0
+                    && !matches!(p.as_rule(), Rule::struct_update_base)
+                    && !matches!(p.as_rule(), Rule::rest_pat)
+                {
                     // Even if we would normally include a trailing comma,
-                    // the struct_update_base never gets one
+                    // never add one for struct_update_base (`..foo`) or
+                    // for a struct pattern etc (`..`)
                     to_doc(ctx, p, arena).append(conditional_comma(arena))
                 } else {
                     to_doc(ctx, p, arena)
@@ -790,7 +794,11 @@ fn to_doc<'a>(
         Rule::closure_expr | Rule::quantifier_expr =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
-            let has_ret = pair.clone().into_inner().find(|p| matches!(p.as_rule(), Rule::ret_type)).is_some();
+            let has_ret = pair
+                .clone()
+                .into_inner()
+                .find(|p| matches!(p.as_rule(), Rule::ret_type))
+                .is_some();
             arena
                 .concat(pair.into_inner().map(|p| {
                     match p.as_rule() {
@@ -803,12 +811,14 @@ fn to_doc<'a>(
                             .append(to_doc(ctx, p, arena))
                             .append(arena.nil().flat_alt(arena.space()))
                             .nest(INDENT_SPACES),
-                        Rule::closure_param_list =>
-                            if has_ret { // Don't add a space, since ret_type already does it
+                        Rule::closure_param_list => {
+                            if has_ret {
+                                // Don't add a space, since ret_type already does it
                                 to_doc(ctx, p, arena)
                             } else {
                                 to_doc(ctx, p, arena).append(arena.space())
                             }
+                        }
                         Rule::ret_type => to_doc(ctx, p, arena).append(arena.space()),
                         _ => to_doc(ctx, p, arena),
                     }

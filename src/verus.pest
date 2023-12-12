@@ -1305,7 +1305,7 @@ pat_no_top_alt = {
 
 pat_inner = {
     box_pat
-  | rest_pat
+//  | rest_pat
   | literal_pat
   | macro_pat
   | paren_pat
@@ -1357,7 +1357,7 @@ record_pat_field = {
 }
 
 tuple_struct_pat_inner = {
-    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ rest_pat? ~ ")"
 }
 
 tuple_struct_pat = {
@@ -1365,7 +1365,7 @@ tuple_struct_pat = {
 }
 
 tuple_pat = {
-    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ ")"
+    "(" ~ (pat ~ ("," ~ pat)* ~ ","?)? ~ rest_pat? ~ ")"
 }
 
 paren_pat = {
