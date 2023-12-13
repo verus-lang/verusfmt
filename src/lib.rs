@@ -354,6 +354,20 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     todo!()
 }
 
+/// Checks if this expr rule is either an &&& or an ||| expression
+fn is_prefix_triple(pair: Pair<Rule>) -> bool {
+    assert!(matches!(pair.as_rule(), Rule::expr));
+    match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::expr_inner)) {
+        None => false,
+        Some(pair) => 
+            match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::prefix_expr)) {
+                None => false,
+                Some(pair) => 
+                    pair.into_inner().find(|p| matches!(p.as_rule(), Rule::triple_and) || matches!(p.as_rule(), Rule::triple_or)).is_some(),
+            }
+    }
+}
+
 /// Checks if a block may be written on a single line.  Rust says this is okay if:
 /// - it is either used in expression position (not statement position) or is an unsafe block in statement position
 /// - contains a single-line expression and no statements
@@ -364,7 +378,11 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
         count
             + match p.as_rule() {
                 Rule::attr | Rule::stmt | Rule::COMMENT => 1,
-                Rule::expr => -1,
+                Rule::expr => {
+                    // We don't want to treat a triple expr as an expr only block,
+                    // since that would result in it being grouped with its surrounding braces
+                    if is_prefix_triple(p.clone()) { 1 } else { -1 }
+                }
                 _ => 0,
             }
     });
