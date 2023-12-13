@@ -1,11 +1,15 @@
 verus! {
 
-// Weird formatting of the constructor in the second case
-fn clone_up_to_view() {
-    match self {
-        GetLongDestructorNameGetRequest { k } => { GetLongConstructorNameGetRequest{ k: 5 } },
-        SetLongDestructorNameSetRequest { k, v } => { SetLongConstructorNameSetRequest { k: k.clone(), v: CMessage::clone_value(v) } },
-    }
+// Why the extra newline for the semi-colon?
+// Answer: The parser sees the `;` as redundant and treats it as a separate statement
+fn test() -> u64 {
+    proof { assert_sets_equal!(a, b); };
+    proof {
+        assert_sets_equal!(a, b);
+        assert_sets_equal!(c, d);
+    };
+    5
+
 }
 
 /*
@@ -32,15 +36,5 @@ proof fn test() {
                                                old(v)@.len() as int));
 }
 
-// Why the extra newline for the semi-colon?
-fn test() -> u64 {
-    proof { assert_sets_equal!(a, b); };
-    proof {
-        assert_sets_equal!(a, b);
-        assert_sets_equal!(c, d);
-    };
-    5
-
-}
 */
 } // verus!
