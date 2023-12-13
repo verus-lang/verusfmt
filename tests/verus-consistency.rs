@@ -467,6 +467,12 @@ fn len<T>(l: List<T>) -> nat {
             t
         },
     }
+    fn clone_up_to_view() {
+        match self {
+            GetLongDestructorNameGetRequest { k } => { GetLongConstructorNameGetRequest{ k: 5 } },
+            SetLongDestructorNameSetRequest { k, v } => { SetLongConstructorNameSetRequest { k: k.clone(), v: CMessage::clone_value(v) } },
+        }
+    }
     match foo {
         foo => bar,
         a_pattern | another_pattern | yet_another_pattern | a_fourth_pattern => { x },
@@ -504,6 +510,14 @@ fn len<T>(l: List<T>) -> nat {
                 let t = 1 + len(*tl);
                 t
             },
+        }
+        fn clone_up_to_view() {
+            match self {
+                GetLongDestructorNameGetRequest { k } => { GetLongConstructorNameGetRequest { k: 5 } },
+                SetLongDestructorNameSetRequest { k, v } => {
+                    SetLongConstructorNameSetRequest { k: k.clone(), v: CMessage::clone_value(v) }
+                },
+            }
         }
         match foo {
             foo => bar,

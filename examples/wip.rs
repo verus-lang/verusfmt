@@ -1,5 +1,13 @@
 verus! {
 
+// Weird formatting of the constructor in the second case
+fn clone_up_to_view() {
+    match self {
+        GetLongDestructorNameGetRequest { k } => { GetLongConstructorNameGetRequest{ k: 5 } },
+        SetLongDestructorNameSetRequest { k, v } => { SetLongConstructorNameSetRequest { k: k.clone(), v: CMessage::clone_value(v) } },
+    }
+}
+
 /*
 // The first set of &&& get out-dented, while the second one is absorbed into a single line
 fn clone_value() -> (out: u8)
@@ -15,18 +23,6 @@ fn clone_value() -> (out: u8)
         },
 {
 }
-
-// Weird formatting of the constructor in the second case
-pub fn clone_up_to_view(&self) -> (c: Self)
-    ensures
-        c@ == self@,
-{
-    match self {
-        CMessage::GetRequest { k } => { CMessage::GetRequest { k: k.clone() } },
-        CMessage::SetRequest { k, v } => { CMessage::SetRequest { k: k.clone(), v: CMessage::clone_value(v) } },
-    }
-}
-
 
 // Weird indenting of the last line
 proof fn test() {

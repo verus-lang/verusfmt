@@ -170,44 +170,41 @@ fn sticky_delims<'a>(
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
     enc: Enclosure,
+    nest: bool,
 ) -> DocBuilder<'a, Arena<'a>> {
     use Enclosure::*;
-    // Braces get a space when placed on a single line; the rest don't
     let opening = match enc {
         Braces => "{",
         Brackets => "[",
         Parens => "(",
     };
-    // Braces get a space when placed on a single line; the rest don't
-    let opening_space = match enc {
-        Braces => arena.line_(),
-        Brackets => arena.line_(),
-        Parens => arena.line_(),
-    };
+    let opening_space = arena.line_();
     let closing = match enc {
         Braces => "}",
         Brackets => "]",
         Parens => ")",
     };
     let closing_space = match enc {
-        Braces => arena.line(), //.space(),
+        Braces => arena.line(),
         Brackets => arena.nil(),
         Parens => arena.nil(),
     };
     let pairs = pair.into_inner();
     if pairs.clone().count() == 0 {
         // Don't allow breaks in the list when the list is empty
-        docs![arena, opening, closing,].group()
+        docs![arena, opening, closing].group()
     } else {
         let docs = arena.concat(pairs.map(|p| to_doc(ctx, p, arena)));
-        docs![arena, opening, opening_space,]
+        let prefix = docs![arena, opening, opening_space]
             .group()
             .append(if matches!(enc, Braces) {
                 arena.line()
             } else {
                 arena.nil()
             })
-            .append(docs)
+            .append(docs);
+        let prefix = if nest { prefix.nest(INDENT_SPACES) } else { prefix };
+        prefix
             .group()
             .append(closing_space)
             .append(arena.text(closing))
@@ -767,7 +764,7 @@ fn to_doc<'a>(
                 // - contains no comments
                 //spaced_braces(arena, map_pairs_to_doc(ctx, arena, &pairs)).nest(INDENT_SPACES) //.group()
                 debug!("Processing an expr_only_block");
-                sticky_delims(ctx, arena, pair, Enclosure::Braces)
+                sticky_delims(ctx, arena, pair, Enclosure::Braces, true)
             } else {
                 debug!("Processing that's not empty and not an expr_only_block");
                 let mapped = arena.concat(pairs.clone().map(|i| to_doc(ctx, i, arena)));
@@ -789,23 +786,23 @@ fn to_doc<'a>(
             .nest(INDENT_SPACES)
             .group(),
         Rule::bin_expr_ops => map_to_doc(ctx, arena, pair),
-        Rule::paren_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens),
+        Rule::paren_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
         Rule::paren_expr => map_to_doc(ctx, arena, pair),
-        Rule::array_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Brackets),
+        Rule::array_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Brackets, false),
         Rule::array_expr => map_to_doc(ctx, arena, pair),
         Rule::tuple_comma_delimited_exprs => {
             // This requires special handling, so that we can tell comma_delimited that
             // we're processing a tuple (which requires a comma if only one element is present)
             comma_delimited(ctx, arena, pair.into_inner().next().unwrap(), true).group()
         }
-        Rule::tuple_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens),
+        Rule::tuple_expr_inner => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
         Rule::tuple_expr => map_to_doc(ctx, arena, pair),
         Rule::struct_expr => map_to_doc(ctx, arena, pair),
         Rule::record_expr_field_list => {
             extra_spaced_braces(arena, comma_delimited(ctx, arena, pair, false)).group()
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
-        Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens),
+        Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
         Rule::closure_expr | Rule::quantifier_expr =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
