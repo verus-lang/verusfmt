@@ -1,13 +1,6 @@
 verus! {
 
 /*
- This comment absorbes the newline that should separate it from the struct
- */
-struct Constants {
-    b: int,
-}
-
-/*
 // The first set of &&& get out-dented, while the second one is absorbed into a single line
 fn clone_value() -> (out: u8)
     ensures
@@ -34,15 +27,6 @@ pub fn clone_up_to_view(&self) -> (c: Self)
     }
 }
 
-// Weird formatting of the return value
-pub open spec fn abstractify_outbound_packets_to_seq_of_lsht_packets(packets: Seq<CPacket>) -> Seq<
-    LSHTPacket,
->
-    recommends
-        cpacket_seq_is_abstractable(packets),
-{
-    []
-}
 
 // Weird indenting of the last line
 proof fn test() {
