@@ -14,7 +14,6 @@ verus! {
 ///   - proof code: erased before compilation, may have requires/ensures
 ///   - spec code: erased before compilation, no requires/ensures, but may have recommends
 /// exec and proof functions may name their return values inside parentheses, before the return type
-
 fn my_exec_fun(x: u32, y: u32) -> (sum: u32)
     requires
         x < 100,

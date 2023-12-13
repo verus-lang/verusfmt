@@ -599,6 +599,10 @@ fn verus_comments() {
 /// External comment 2
 verus! {
 
+// This comment should stay with the function definition, even though it's parsed as a "prefix" comment
+fn clone_value() -> (out: u8) {
+}
+
 spec fn my_spec_fun() -> int {
     2
 }
@@ -706,6 +710,10 @@ impl AbstractEndPoint {
     // External comment 1
     /// External comment 2
     verus! {
+
+    // This comment should stay with the function definition, even though it's parsed as a "prefix" comment
+    fn clone_value() -> (out: u8) {
+    }
 
     spec fn my_spec_fun() -> int {
         2

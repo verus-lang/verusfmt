@@ -1127,6 +1127,11 @@ pub fn rustfmt(value: &str) -> Option<String> {
     None
 }
 
+fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
+    matches!(&pair.as_span().as_str()[..2], "/*")
+}
+
+
 pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let ctx = Context {
         inline_comment_lines: find_inline_comment_lines(s),
@@ -1169,10 +1174,12 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                     (prefix_comments, body, suffix_comments)
                 };
                 formatted_output += VERUS_PREFIX;
+                let mut final_prefix_comment_is_multiline = false;
                 for comment in &prefix_comments {
                     formatted_output += comment.as_str();
+                    final_prefix_comment_is_multiline = is_multiline_comment(&comment);
                 }
-                if prefix_comments.len() > 0 {
+                if prefix_comments.len() > 0 && final_prefix_comment_is_multiline {
                     formatted_output += "\n";
                 }
                 let items = body.into_inner();
@@ -1187,7 +1194,7 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                         }
                         prev_is_use = false;
                         formatted_output += item.as_str();
-                        if matches!(&item.as_span().as_str()[..2], "/*") {
+                        if is_multiline_comment(&item) {
                             formatted_output += "\n";
                         }
                     } else {
