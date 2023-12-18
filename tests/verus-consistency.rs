@@ -1040,6 +1040,15 @@ pub fn clone_vec_u8() {
     }
 }
 
+fn test() {
+    loop
+        invariant
+            x > 0,
+    {
+        x += 1;
+    }
+}
+
 } // verus!
 "#;
 
@@ -1058,6 +1067,15 @@ pub fn clone_vec_u8() {
             decreases 72,
         {
             i = i + 1;
+        }
+    }
+
+    fn test() {
+        loop 
+            invariant
+                x > 0,
+        {
+            x += 1;
         }
     }
 

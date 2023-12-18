@@ -1,6 +1,13 @@
 verus! {
 
-proof fn unbounded_log_append_entries() -> (tracked ret: int) {
+fn test() {
+    loop
+        invariant
+            x > 0,
+    {
+        x += 1;
+    }
+
 }
 
 } // verus!

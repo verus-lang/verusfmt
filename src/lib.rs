@@ -354,6 +354,33 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     todo!()
 }
 
+fn loop_to_doc<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    // We need to add a newline after the very last clause,
+    // so that the opening brace of the loop body is on a fresh line
+    let mut last_clause = None;
+    pair.clone().into_inner().for_each(|p| match p.as_rule() {
+        Rule::invariant_clause => last_clause = Some(Rule::invariant_clause),
+        Rule::ensures_clause => last_clause = Some(Rule::ensures_clause),
+        Rule::decreases_clause => last_clause = Some(Rule::decreases_clause),
+        _ => (),
+    });
+    arena.concat(pair.into_inner().map(|p| {
+        if let Some(c) = last_clause {
+            if p.as_rule() == c {
+                to_doc(ctx, p, arena).append(arena.line())
+            } else {
+                to_doc(ctx, p, arena)
+            }
+        } else {
+            to_doc(ctx, p, arena)
+        }
+    }))
+}
+
 /// Checks if this expr rule is either an &&& or an ||| expression
 fn is_prefix_triple(pair: Pair<Rule>) -> bool {
     assert!(matches!(pair.as_rule(), Rule::expr));
@@ -871,34 +898,13 @@ fn to_doc<'a>(
         }
         Rule::condition => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::if_expr => map_to_doc(ctx, arena, pair),
-        Rule::loop_expr => unsupported(pair),
+        Rule::loop_expr => loop_to_doc(ctx, arena, pair),
         Rule::for_expr => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
             Rule::in_str => arena.space().append(to_doc(ctx, p, arena)),
             Rule::expr_no_struct => to_doc(ctx, p, arena).append(arena.space()),
             _ => to_doc(ctx, p, arena),
         })),
-        Rule::while_expr => {
-            // We need to add a newline after the very last clause,
-            // so that the opening brace of the loop body is on a fresh line
-            let mut last_clause = None;
-            pair.clone().into_inner().for_each(|p| match p.as_rule() {
-                Rule::invariant_clause => last_clause = Some(Rule::invariant_clause),
-                Rule::ensures_clause => last_clause = Some(Rule::ensures_clause),
-                Rule::decreases_clause => last_clause = Some(Rule::decreases_clause),
-                _ => (),
-            });
-            arena.concat(pair.into_inner().map(|p| {
-                if let Some(c) = last_clause {
-                    if p.as_rule() == c {
-                        to_doc(ctx, p, arena).append(arena.line())
-                    } else {
-                        to_doc(ctx, p, arena)
-                    }
-                } else {
-                    to_doc(ctx, p, arena)
-                }
-            }))
-        }
+        Rule::while_expr => loop_to_doc(ctx, arena, pair),
         Rule::label => unsupported(pair),
         Rule::break_expr => map_to_doc(ctx, arena, pair),
         Rule::continue_expr => map_to_doc(ctx, arena, pair),
