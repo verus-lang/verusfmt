@@ -62,6 +62,9 @@ fn test_views() {
     }
 }
 
+proof fn unbounded_log_append_entries() -> (tracked ret: int) {
+}
+
 fn test_ghost_unwrap(
     x: u32,
     Ghost(y): Ghost<u32>,
@@ -151,6 +154,9 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
             assert(s[0] == 10);
             assert(s[1] == 20);
         }
+    }
+
+    proof fn unbounded_log_append_entries() -> (tracked ret: int) {
     }
 
     fn test_ghost_unwrap(

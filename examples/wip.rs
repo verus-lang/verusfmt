@@ -1,10 +1,6 @@
 verus! {
 
-enum ReaderState {
-    Starting {
-        /// Test
-        start: LogIdx,
-    },
+proof fn unbounded_log_append_entries() -> (tracked ret: int) {
 }
 
 } // verus!

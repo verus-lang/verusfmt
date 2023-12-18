@@ -625,7 +625,7 @@ param = {
 }
 
 ret_type = {
-    rarrow_str ~ (tracked_str? ~ (lparen_str ~ name ~ colon_str ~ type ~ rparen_str | type))
+    rarrow_str ~ (lparen_str ~ tracked_str? ~ name ~ colon_str ~ type ~ rparen_str | tracked_str? ~ type)
 }
 
 type_alias = {
