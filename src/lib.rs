@@ -1069,7 +1069,6 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
             comment_lines.insert(line_num + 1);
         }
     }
-    println!("comment_lines = {:?}", comment_lines);
     return comment_lines;
 }
 
