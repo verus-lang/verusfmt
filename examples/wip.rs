@@ -1,17 +1,16 @@
 verus! {
 
-global size_of usize == 4;
-
-global size_of S == 8;
-
-global size_of S<u64> == 8;
-
-global size_of S<U> == 8;
-
-global layout S is size == 8, align == 8;
-
-global layout S<u64> is size == 16, align == 8;
-
-global layout S<u32> is size == 8, align == 4;
+impl AffinityFn {
+    pub fn new(f: impl Fn(ReplicaId) + 'static) -> Self {
+        Self{ f: Box::new(f)}
+    }
+    pub fn call(&self, rid: ReplicaId) {
+        (self.f)(rid)
+    }
+}
 
 } // verus!
+
+/*
+pub type ReplicaId = usize; // $line_count$Trusted$
+*/

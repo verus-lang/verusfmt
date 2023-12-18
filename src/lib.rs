@@ -942,7 +942,15 @@ fn to_doc<'a>(
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
         Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),
-        Rule::impl_trait_type => map_to_doc(ctx, arena, pair),
+        Rule::impl_trait_type => 
+        {
+            // We need to inject a space after the "impl" 
+            arena
+                .concat(pair.into_inner().map(|p| match p.as_rule() {
+                    Rule::impl_str => arena.text("impl "),
+                    _ => to_doc(ctx, p, arena),
+                }))
+        }
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::type_bound_list => map_to_doc(ctx, arena, pair),
         Rule::type_bound => map_to_doc(ctx, arena, pair),
@@ -1061,6 +1069,7 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
             comment_lines.insert(line_num + 1);
         }
     }
+    println!("comment_lines = {:?}", comment_lines);
     return comment_lines;
 }
 
