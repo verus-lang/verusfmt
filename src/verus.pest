@@ -674,7 +674,7 @@ field_list = {
 }
 
 enum = {
-    attr* ~ visibility? ~
+    attr* ~ visibility? ~ data_mode? ~
     enum_str ~ name ~ generic_param_list? ~ where_clause? ~
     variant_list
 }
