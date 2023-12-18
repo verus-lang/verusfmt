@@ -476,7 +476,7 @@ fn to_doc<'a>(
         Rule::colon_str => docs![arena, s, arena.line_(), arena.space()]
             .nest(INDENT_SPACES - 1)
             .group(),
-        Rule::eq_str => docs![arena, arena.space(), s, arena.line_(), arena.space()]
+        Rule::eq_str | Rule::eq_eq_str => docs![arena, arena.space(), s, arena.line_(), arena.space()]
             .nest(INDENT_SPACES - 1)
             .group(),
         Rule::plus_str | Rule::rarrow_str | Rule::else_str => {
@@ -502,6 +502,7 @@ fn to_doc<'a>(
         | Rule::fn_str
         | Rule::for_str
         | Rule::ghost_str
+        | Rule::global_str
         | Rule::i128_str
         | Rule::i16_str
         | Rule::i32_str
@@ -511,6 +512,7 @@ fn to_doc<'a>(
         | Rule::in_str
         | Rule::int_str
         | Rule::isize_str
+        | Rule::layout_str
         | Rule::let_str
         | Rule::loop_str
         | Rule::macro_str
@@ -527,6 +529,8 @@ fn to_doc<'a>(
         | Rule::ref_str
         | Rule::return_str
         | Rule::Self_str
+        | Rule::sizeof_str
+        | Rule::spaced_comma_str
         | Rule::static_str
         | Rule::struct_str
         | Rule::super_str
@@ -607,6 +611,10 @@ fn to_doc<'a>(
         //*************************//
         Rule::item => map_to_doc(ctx, arena, pair),
         Rule::macro_rules => s, // Don't attempt to format macro rules
+        Rule::global_sizeof => map_to_doc(ctx, arena, pair),
+        Rule::global_layout => map_to_doc(ctx, arena, pair),
+        Rule::global_inner => map_to_doc(ctx, arena, pair),
+        Rule::global => map_to_doc(ctx, arena, pair),
         Rule::macro_def => unsupported(pair),
         Rule::module => unsupported(pair),
         Rule::item_list => unsupported(pair),

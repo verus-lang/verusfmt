@@ -195,6 +195,7 @@ dot_dot_str = { ".." }
 dot_dot_eq_str = { "..=" }
 ellipses_str = { "..." }
 eq_str = { "=" }
+eq_eq_str = { "==" }
 fatarrow_str = { "=>" }
 langle_str = { "<" }
 lbrace_str = { "{" }
@@ -249,6 +250,7 @@ fn_str = ${ "fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 for_str = ${ "for" ~ !("_" | ASCII_ALPHANUMERIC) }
 forall_str = ${ "forall" ~ !("_" | ASCII_ALPHANUMERIC) }
 ghost_str = ${ "ghost" ~ !("_" | ASCII_ALPHANUMERIC) }
+global_str = ${ "global" ~ !("_" | ASCII_ALPHANUMERIC) }
 has_str = ${ "has" ~ !("_" | ASCII_ALPHANUMERIC) }
 i128_str = ${ "i128" ~ !("_" | ASCII_ALPHANUMERIC) }
 i16_str = ${ "i16" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -263,6 +265,7 @@ int_str = ${ "int" ~ !("_" | ASCII_ALPHANUMERIC) }
 invariant_str = ${ "invariant" ~ !("_" | ASCII_ALPHANUMERIC) }
 is_str = ${ "is" ~ !("_" | ASCII_ALPHANUMERIC) }
 isize_str = ${ "isize" ~ !("_" | ASCII_ALPHANUMERIC) }
+layout_str = ${ "layout" ~ !("_" | ASCII_ALPHANUMERIC) }
 let_str = ${ "let" ~ !("_" | ASCII_ALPHANUMERIC) }
 loop_str = ${ "loop" ~ !("_" | ASCII_ALPHANUMERIC) }
 macro_str = ${ "macro" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -284,6 +287,7 @@ requires_str = ${ "requires" ~ !("_" | ASCII_ALPHANUMERIC) }
 return_str = ${ "return" ~ !("_" | ASCII_ALPHANUMERIC) }
 self_str = ${ "self" ~ !("_" | ASCII_ALPHANUMERIC) }
 Self_str = ${ "Self" ~ !("_" | ASCII_ALPHANUMERIC) }
+sizeof_str = ${ "size_of" ~ !("_" | ASCII_ALPHANUMERIC) }
 spec_str = ${ "spec" ~ !("_" | ASCII_ALPHANUMERIC) }
 static_str = ${ "static" ~ !("_" | ASCII_ALPHANUMERIC) }
 struct_str = ${ "struct" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -480,6 +484,28 @@ macro_stmts = {
     stmt* ~ expr?
 }
 
+// Detected inside the formatter as a comma that should be followed by a space
+spaced_comma_str = { comma_str }
+
+global_sizeof = {
+    sizeof_str ~ type ~ eq_eq_str ~ expr
+}
+
+global_layout = {
+    layout_str ~ type ~ is_str ~ identifier ~ eq_eq_str ~ literal
+    ~ (spaced_comma_str ~ identifier ~ eq_eq_str ~ literal)?
+}
+
+global_inner = _{
+    global_sizeof
+  | global_layout
+}
+
+global = {
+    attr* ~
+    global_str ~ global_inner ~ semi_str
+}
+
 //*************************//
 //          Items          //
 //*************************//
@@ -490,6 +516,7 @@ item = {
   | extern_block
   | extern_crate
   | fn
+  | global
   | impl
   | macro_rules
   | macro_call

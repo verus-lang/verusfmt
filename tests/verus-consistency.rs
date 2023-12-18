@@ -197,6 +197,49 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
 }
 
 #[test]
+fn verus_global() {
+    let file = r#"
+verus! {
+
+global size_of usize == 4;
+
+global size_of S == 8;
+
+global size_of S<u64> == 8;
+
+global size_of S<U> == 8;
+
+global layout S is size == 8, align == 8;
+
+global layout S<u64> is size == 16, align == 8;
+
+global layout S<u32> is size == 8, align == 4;
+
+} // verus!    
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    global size_of usize == 4;
+
+    global size_of S == 8;
+
+    global size_of S<u64> == 8;
+
+    global size_of S<U> == 8;
+
+    global layout S is size == 8, align == 8;
+
+    global layout S<u64> is size == 16, align == 8;
+
+    global layout S<u32> is size == 8, align == 4;
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_let() {
     let file = r#"
 verus!{
