@@ -668,7 +668,7 @@ union = {
 }
 
 const = {
-    attr* ~ visibility? ~
+    attr* ~ visibility? ~ publish? ~
     default_str? ~
     const_str ~ (name | "_") ~ colon_str ~ type ~
     eq_str ~ expr? ~ semi_str?  // Semi should not be included for const fn

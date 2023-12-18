@@ -11,6 +11,9 @@ fn verus_functions() {
     let file = r#"
 verus! {
 
+// Verus treats constants like functions
+pub open const MAX_REPLICAS_PER_LOG: usize = 16;
+
 pub fn test_function(x: bool, y: bool) -> u32
     by (nonlinear_arith)
     requires
@@ -95,6 +98,9 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
     verus! {
+
+    // Verus treats constants like functions
+    pub open const MAX_REPLICAS_PER_LOG: usize = 16;
 
     pub fn test_function(x: bool, y: bool) -> u32
         by (nonlinear_arith)
