@@ -1,13 +1,12 @@
 verus! {
 
+// TODO: Need to add support for if-let https://doc.rust-lang.org/reference/expressions/if-expr.html
 fn test() {
-    loop
-        invariant
-            x > 0,
-    {
-        x += 1;
+    if let Result::Ok(val) = res {
+        0
+    } else {
+        1
     }
-
 }
 
 } // verus!
