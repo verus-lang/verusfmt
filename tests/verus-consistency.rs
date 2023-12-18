@@ -656,6 +656,13 @@ spec fn my_spec_fun() -> int {
     2
 }
 
+enum ReaderState {
+    Starting {
+        /// Test
+        start: LogIdx,
+    },
+}
+
 /// exec code cannot directly call proof functions or spec functions.
 /// However, exec code can contain proof blocks (proof { ... }),
 /// which contain proof code.
@@ -766,6 +773,13 @@ impl AbstractEndPoint {
 
     spec fn my_spec_fun() -> int {
         2
+    }
+
+    enum ReaderState {
+        Starting {
+            /// Test
+            start: LogIdx,
+        },
     }
 
     /// exec code cannot directly call proof functions or spec functions.

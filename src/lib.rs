@@ -692,7 +692,13 @@ fn to_doc<'a>(
             extra_spaced_braces(arena, comma_delimited(ctx, arena, pair, false))
         }
         Rule::condensable_record_field_list => {
-            extra_spaced_braces(arena, comma_delimited(ctx, arena, pair, false)).group()
+            let doc = extra_spaced_braces(arena, comma_delimited(ctx, arena, pair.clone(), false));
+            if pair.into_inner().clone().filter(|p| matches!(p.as_rule(), Rule::COMMENT)).count() == 0 {
+                doc.group()
+            } else {
+                // Don't group if we detected any comments
+                doc
+            }
         }
         Rule::record_field => map_to_doc(ctx, arena, pair),
         Rule::tuple_field_list => comma_delimited(ctx, arena, pair, false).parens().group(),

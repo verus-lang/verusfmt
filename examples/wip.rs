@@ -1,12 +1,10 @@
 verus! {
 
-impl AffinityFn {
-    pub fn new(f: impl Fn(ReplicaId) + 'static) -> Self {
-        Self{ f: Box::new(f)}
-    }
-    pub fn call(&self, rid: ReplicaId) {
-        (self.f)(rid)
-    }
+enum ReaderState {
+    Starting {
+        /// Test
+        start: LogIdx,
+    },
 }
 
 } // verus!
