@@ -926,7 +926,6 @@ fn to_doc<'a>(
         Rule::return_expr => map_to_doc(ctx, arena, pair),
         Rule::yield_expr => map_to_doc(ctx, arena, pair),
         Rule::yeet_expr => map_to_doc(ctx, arena, pair),
-        Rule::let_expr => map_to_doc(ctx, arena, pair),
         Rule::let_expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::underscore_expr => map_to_doc(ctx, arena, pair).append(arena.text("_")),
         Rule::box_expr => map_to_doc(ctx, arena, pair),
