@@ -1,7 +1,16 @@
 verus! {
 
 fn test() {
-    let shifted = (w >> (b - 2) as u64) as u8;
+    loop
+        invariant
+            false,
+        invariant_ensures
+            true,
+        ensures
+            next_idx + count <= 512,
+    {
+        x
+    }
 }
 
 } // verus!

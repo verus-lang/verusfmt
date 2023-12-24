@@ -263,6 +263,7 @@ implies_str = ${ "implies" ~ !("_" | ASCII_ALPHANUMERIC) }
 in_str = ${ "in" ~ !("_" | ASCII_ALPHANUMERIC) }
 int_str = ${ "int" ~ !("_" | ASCII_ALPHANUMERIC) }
 invariant_str = ${ "invariant" ~ !("_" | ASCII_ALPHANUMERIC) }
+invariant_ensures_str = ${ "invariant_ensures" ~ !("_" | ASCII_ALPHANUMERIC) }
 is_str = ${ "is" ~ !("_" | ASCII_ALPHANUMERIC) }
 isize_str = ${ "isize" ~ !("_" | ASCII_ALPHANUMERIC) }
 layout_str = ${ "layout" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -1144,7 +1145,7 @@ if_expr = {
 }
 
 loop_expr = {
-    attr* ~ label? ~ loop_str ~ invariant_clause? ~ fn_block_expr
+    attr* ~ label? ~ loop_str ~ invariant_clause? ~ invariant_ensures_clause? ~ ensures_clause? ~ fn_block_expr
 }
 
 for_expr = {
@@ -1153,7 +1154,7 @@ for_expr = {
 }
 
 while_expr = {
-    attr* ~ label? ~ while_str ~ condition ~ invariant_clause? ~ ensures_clause? ~ decreases_clause? ~
+    attr* ~ label? ~ while_str ~ condition ~ invariant_clause? ~ invariant_ensures_clause? ~ ensures_clause? ~ decreases_clause? ~
     fn_block_expr
 }
 
@@ -1481,6 +1482,7 @@ verus_clause_non_expr = _{
   | requires_str
   | ensures_str
   | invariant_str
+  | invariant_ensures_str
   | recommends_str
   | via_str
   | decreases_str
@@ -1497,6 +1499,10 @@ ensures_clause = {
 
 invariant_clause = {
     invariant_str ~ comma_delimited_exprs_for_verus_clauses
+}
+
+invariant_ensures_clause = {
+    invariant_ensures_str ~ comma_delimited_exprs_for_verus_clauses
 }
 
 recommends_clause = {

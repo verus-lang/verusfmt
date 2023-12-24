@@ -364,6 +364,7 @@ fn loop_to_doc<'a>(
     let mut last_clause = None;
     pair.clone().into_inner().for_each(|p| match p.as_rule() {
         Rule::invariant_clause => last_clause = Some(Rule::invariant_clause),
+        Rule::invariant_ensures_clause => last_clause = Some(Rule::invariant_ensures_clause),
         Rule::ensures_clause => last_clause = Some(Rule::ensures_clause),
         Rule::decreases_clause => last_clause = Some(Rule::decreases_clause),
         _ => (),
@@ -595,6 +596,7 @@ fn to_doc<'a>(
         Rule::decreases_str
         | Rule::ensures_str
         | Rule::invariant_str
+        | Rule::invariant_ensures_str
         | Rule::recommends_str
         | Rule::requires_str => arena.hardline().append(s).nest(INDENT_SPACES),
 
@@ -1016,6 +1018,7 @@ fn to_doc<'a>(
         Rule::requires_clause => map_to_doc(ctx, arena, pair),
         Rule::ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::invariant_clause => map_to_doc(ctx, arena, pair),
+        Rule::invariant_ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),

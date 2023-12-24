@@ -1049,6 +1049,19 @@ fn test() {
     }
 }
 
+fn test() {
+    loop
+        invariant
+            false,
+        invariant_ensures
+            true,
+        ensures
+            next_idx + count <= 512,
+    {
+        x
+    }
+}
+
 } // verus!
 "#;
 
@@ -1076,6 +1089,19 @@ fn test() {
                 x > 0,
         {
             x += 1;
+        }
+    }
+
+    fn test() {
+        loop
+            invariant
+                false,
+            invariant_ensures
+                true,
+            ensures
+                next_idx + count <= 512,
+        {
+            x
         }
     }
 

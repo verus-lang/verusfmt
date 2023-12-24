@@ -30,6 +30,10 @@ Format:
 ```
 cargo run -- ~/git/verus-systems-code/memory-allocators/verus-mimalloc/*rs
 ```
+or to identify errors, run:
+```
+for f in ~/git/verus-systems-code/memory-allocators/verus-mimalloc/*rs; do cargo run -- $f || break ; done
+```
 
 Verify. First run the setup:
 ```
