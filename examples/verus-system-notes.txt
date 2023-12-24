@@ -1,0 +1,25 @@
+
+# IronFleet
+
+Format:
+```
+cargo run -- ~/git/verus-systems-code/ironfleet-comparison/ironsht/src/{*.rs,verus_extra/*.rs}
+```
+Verify:
+```
+scons --verus-path=/Users/parno/git/verus/
+
+```
+
+
+# NR
+
+Format:
+```
+cargo run -- ~/git/verus-systems-code/nr/verus-nr/src/{*.rs,spec/*.rs,exec/*.rs}
+```
+
+Verify:
+```
+verus-systems-code/nr/verus-nr $ verus --crate-type lib  src/lib.rs 
+```
