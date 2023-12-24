@@ -1128,6 +1128,15 @@ fn fix_inline_comments(s: String) -> String {
     return fixed_str;
 }
 
+fn strip_whitespace(s: String) -> String {
+    let mut fixed_str: String = String::new();
+    for line in s.lines() {
+        fixed_str += line.trim_end();
+        fixed_str += "\n";
+    }
+    fixed_str
+}
+
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
 pub const VERUS_SUFFIX: &str = "\n} // verus!\n";
 
@@ -1261,5 +1270,6 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
         }
     }
     let fixed_output = fix_inline_comments(formatted_output);
+    let fixed_output = strip_whitespace(fixed_output);
     Ok(fixed_output)
 }

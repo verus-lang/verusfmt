@@ -118,13 +118,13 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
             res.is_Some()
                 ==> really_really_really_really_really_really_really_really_long.get_Some_0().foobar,
     {
-        let h = |x, y, z: int| 
+        let h = |x, y, z: int|
             {
                 let w = y;
                 let u = w;
                 u
             };
-        let i = |x| 
+        let i = |x|
             unsafe {
                 let y = x;
                 y
@@ -133,7 +133,7 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
         assert(x);
         assert(c is Seq);
         assert(c has 3 == c has 3);
-        assume(forall|x: int, y: int| 
+        assume(forall|x: int, y: int|
             #![trigger long_long_long_long_long_long_f1(x)]
             #![trigger long_long_long_long_long_long_g1(x)]
             long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
@@ -259,10 +259,10 @@ verus!{
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
     verus!{
-        let Some((key, val)) = cur else { 
-            panic!() /* covered by while condition */ 
+        let Some((key, val)) = cur else {
+            panic!() /* covered by while condition */
         };
-        
+
         let Some((key, val)) = cur else { panic!() };
     }
     "###);
@@ -369,9 +369,9 @@ verus!{
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
     verus!{
 
-        println!("{} {} {}", 
-            very_very_very_very_very_very_long_e1 + 42, 
-            very_very_very_very_very_very_long_e2, 
+        println!("{} {} {}",
+            very_very_very_very_very_very_long_e1 + 42,
+            very_very_very_very_very_very_long_e2,
             very_very_very_very_very_very_long_e3
         );
         unknown_macro1!("{} {} {}", very_very_very_very_very_very_long_e1, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
@@ -436,10 +436,10 @@ impl cfg_alice {
         #[verifier(external_body)]
         pub fn func1() {
         }
-        
+
         pub fn func2() {
         }
-        
+
         #[verifier(external_body)]
         pub fn func3() {
         }
@@ -876,7 +876,7 @@ impl AbstractEndPoint {
         fn abstractable() {
             0
         }
-        
+
         // Multiline comment
         // that should stay together
         fn valid_ipv4() {
@@ -1009,7 +1009,7 @@ fn test() {
 
     fn test() {
         let lambda = |key| -> (b: bool) { true };
-        let lambda = |key| -> (b: bool) 
+        let lambda = |key| -> (b: bool)
             ensures
                 b == true,
             { true };
@@ -1057,7 +1057,7 @@ fn test() {
 
     pub fn clone_vec_u8() {
         let i = 0;
-        while i < v.len() 
+        while i < v.len()
             invariant
                 i <= v.len(),
                 i == out.len(),
@@ -1071,7 +1071,7 @@ fn test() {
     }
 
     fn test() {
-        loop 
+        loop
             invariant
                 x > 0,
         {
