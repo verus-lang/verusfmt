@@ -918,8 +918,6 @@ expr_outer = _{
     | expr_has
     // datatype test
     | expr_is
-    // field_expr
-    | dot_str ~ name_ref
     // tuple index
     | dot_str ~ int_number
     // try_expr
@@ -930,6 +928,8 @@ expr_outer = _{
     | lbracket_str ~ expr ~ rbracket_str
     // method_call_expr
     | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
+    // field_expr
+    | dot_str ~ name_ref
     // bin_expr
     | bin_expr_ops ~ expr
     // range_expr
@@ -947,8 +947,6 @@ expr_outer_no_struct = _{
     | expr_has
     // datatype test
     | expr_is
-    // field_expr
-    | dot_str ~ name_ref
     // tuple index
     | dot_str ~ int_number
     // try_expr
@@ -959,6 +957,8 @@ expr_outer_no_struct = _{
     | lbracket_str ~ expr_no_struct ~ rbracket_str
     // method_call_expr
     | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
+    // field_expr
+    | dot_str ~ name_ref
     // bin_expr
     | bin_expr_ops ~ expr_no_struct
     // range_expr

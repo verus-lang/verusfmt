@@ -1,16 +1,7 @@
 verus! {
 
 fn test() {
-    loop
-        invariant
-            false,
-        invariant_ensures
-            true,
-        ensures
-            next_idx + count <= 512,
-    {
-        x
-    }
+    let tracked mut points_to = points_to_raw.into_typed::<Page>(pt as int);
 }
 
 } // verus!

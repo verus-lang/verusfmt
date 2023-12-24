@@ -325,6 +325,7 @@ fn rust_exprs() {
     let file = r#"
 fn test_function() {
     let shifted = (w >> (b - 2) as u64) as u8;
+    let mut points_to = points_to_raw.into_typed::<Page>(pt as u64);
 }
 "#;
     compare(file);
