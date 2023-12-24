@@ -890,8 +890,8 @@ expr_inner_no_struct = _{
   | yield_expr
   | yeet_expr
   | let_expr_no_struct
-  | underscore_expr
-  | path_expr   // Needs to be last, or it matches against keywords like "while"  
+  | path_expr   // Needs to be late in this list, or it matches against keywords like "while"  
+  | underscore_expr // Needs to follow path_expr, so we don't parse "_x" as "_" followed by an unexpected "x"
 }
 
 expr_as = {

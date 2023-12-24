@@ -1105,3 +1105,26 @@ fn get<'a>(&'a self, k: &K) -> (o: Option<&'a V>) {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_statements() {
+    let file = r#"
+verus! {
+
+fn test(thread_token: &mut bool) {
+    thread_token = _thread_token;
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test(thread_token: &mut bool) {
+        thread_token = _thread_token;
+    }
+
+    } // verus!
+    "###);
+}
