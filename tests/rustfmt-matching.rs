@@ -297,6 +297,9 @@ fn test_function() {
     } else {
         3
     }
+    if let Result::Ok(x) = y {
+        x
+    }
 }
 
 fn test_rec2(x: int, y: int) -> int
@@ -312,6 +315,16 @@ fn test_rec2(x: int, y: int) -> int
 
 pub fn test_function<A, B, C>(a: u32, b: bool, c: LongTypeName) -> u32 {
     if y > 0 { 1 + test_rec2(x, y - 1) } else if x > 0 { 2 + test_rec2(x - 1, 100) } else { 3 }
+}
+"#;
+    compare(file);
+}
+
+#[test]
+fn rust_exprs() {
+    let file = r#"
+fn test_function() {
+    let shifted = (w >> (b - 2) as u64) as u8;
 }
 "#;
     compare(file);

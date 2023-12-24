@@ -1,7 +1,7 @@
 verus! {
 
 fn test() {
-    local.thread_token = _thread_token;
+    let shifted = (w >> (b - 2) as u64) as u8;
 }
 
 } // verus!
