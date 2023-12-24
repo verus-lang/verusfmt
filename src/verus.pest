@@ -889,7 +889,7 @@ expr_inner_no_struct = _{
   | while_expr
   | yield_expr
   | yeet_expr
-  | let_expr
+  | let_expr_no_struct
   | underscore_expr
   | path_expr   // Needs to be last, or it matches against keywords like "while"  
 }
@@ -1205,6 +1205,10 @@ yeet_expr = {
 
 let_expr = {
     attr* ~ let_str ~ pat ~ eq_str ~ expr
+}
+
+let_expr_no_struct = {
+    attr* ~ let_str ~ pat ~ eq_str ~ expr_no_struct
 }
 
 underscore_expr = {
