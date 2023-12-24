@@ -1,5 +1,9 @@
 verus! {
 
-exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+fn count_size_overflow()
+    ensures !x.1 ==> x.0 == count * size
+{
+    true
+}
 
 } // verus!

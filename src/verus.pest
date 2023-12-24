@@ -1035,7 +1035,7 @@ fn_block_expr = {
 }
 
 prefix_expr = {
-    attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr
+    attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr_no_struct
 }
 
 assignment_ops = {

@@ -46,6 +46,12 @@ pub fn test_function(x: bool, y: bool) -> u32
     5
 }
 
+fn count_size_overflow()
+    ensures !x.1 ==> x.0 == count * size
+{
+    true
+}
+
 spec fn dec0(a: int) -> int
     decreases a,
     when a
@@ -138,6 +144,13 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
             #![trigger long_long_long_long_long_long_g1(x)]
             long_long_long_long_long_long_f1(x) < 100 && f1(y) < 100 ==> my_spec_fun(x, y) >= x);
         5
+    }
+
+    fn count_size_overflow()
+        ensures
+            !x.1 ==> x.0 == count * size,
+    {
+        true
     }
 
     spec fn dec0(a: int) -> int
