@@ -703,7 +703,7 @@ const = {
 }
 
 static = {
-    attr* ~ visibility? ~
+    attr* ~ visibility? ~ fn_mode? ~
     static_str ~ mut_str? ~ name ~ colon_str ~ type ~
     (eq_str ~ expr)? ~ semi_str
 }

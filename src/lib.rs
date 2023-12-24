@@ -741,7 +741,7 @@ fn to_doc<'a>(
         Rule::union => unsupported(pair),
         //Rule::initializer => soft_indent(arena, map_to_doc(ctx, arena, pair)),
         Rule::r#const => map_to_doc(ctx, arena, pair),
-        Rule::r#static => unsupported(pair),
+        Rule::r#static => map_to_doc(ctx, arena, pair),
         Rule::r#trait => map_to_doc(ctx, arena, pair),
         Rule::trait_alias => unsupported(pair),
         Rule::assoc_items => map_to_doc_lines(ctx, arena, pair),

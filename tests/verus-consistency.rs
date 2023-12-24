@@ -1154,3 +1154,22 @@ fn test(thread_token: &mut bool) {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_statics() {
+    let file = r#"
+verus! {
+
+exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+
+    } // verus!
+    "###);
+}

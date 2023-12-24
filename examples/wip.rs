@@ -1,7 +1,5 @@
 verus! {
 
-fn test() {
-    let tracked mut points_to = points_to_raw.into_typed::<Page>(pt as int);
-}
+exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
 
 } // verus!
