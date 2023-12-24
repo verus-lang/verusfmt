@@ -1205,10 +1205,6 @@ yeet_expr = {
     attr* ~ do_str ~ yeet_str ~ expr?
 }
 
-let_expr = {
-    attr* ~ let_str ~ pat ~ eq_str ~ expr
-}
-
 let_expr_no_struct = {
     attr* ~ let_str ~ pat ~ eq_str ~ expr_no_struct
 }
