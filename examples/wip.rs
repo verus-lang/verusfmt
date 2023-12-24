@@ -1,13 +1,38 @@
+use vstd::prelude::*;
+
 verus! {
 
-// TODO: Need to add support for if-let https://doc.rust-lang.org/reference/expressions/if-expr.html
-fn test() {
-    if let Result::Ok(val) = res {
-        0
-    } else {
-        1
-    }
+/*
+spec fn test_rec2(x: int, y: int) -> int
+    decreases x, y,
+{
+    3
 }
+*/
+
+spec fn add0(a: nat, b: nat) -> nat
+    recommends
+        a > 0,
+    via add0_recommends,
+{
+    a
+}
+
+#[via_fn]
+proof fn add0_recommends(a: nat, b: nat) {
+    // proof
+}
+
+/*
+spec fn rids_match(bools_start: nat) -> bool
+    decreases bools_start,
+    when 0 <= bools_start <= bools_end <= bools.len() && 0 <= rids_start <= rids_end <= rids.len()
+{
+    true
+}
+*/
+
+fn main() {}
 
 } // verus!
 
