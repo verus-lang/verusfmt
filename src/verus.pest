@@ -873,7 +873,7 @@ expr_inner_no_struct = _{
   | block_expr
   | box_expr
   | break_expr
-  | prefix_expr
+  | prefix_expr_no_struct
   | closure_expr
   | quantifier_expr_no_struct
   | continue_expr
@@ -969,6 +969,7 @@ expr_inner = {
     if_expr  // Must precede struct_expr or struct_expr thinks `if {}` is a struct
   | struct_expr // Must precede expr_inner_no_struct or `my_struct { }` will be `my_struct`: path_expr
   | quantifier_expr
+  | prefix_expr
   | expr_inner_no_struct
 }
 
@@ -1036,6 +1037,10 @@ fn_block_expr = {
 }
 
 prefix_expr = {
+    attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr
+}
+
+prefix_expr_no_struct = {
     attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr_no_struct
 }
 

@@ -388,7 +388,7 @@ fn is_prefix_triple(pair: Pair<Rule>) -> bool {
     match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::expr_inner)) {
         None => false,
         Some(pair) => 
-            match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::prefix_expr)) {
+            match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::prefix_expr) || matches!(p.as_rule(), Rule::prefix_expr_no_struct)) {
                 None => false,
                 Some(pair) => 
                     pair.into_inner().find(|p| matches!(p.as_rule(), Rule::triple_and) || matches!(p.as_rule(), Rule::triple_or)).is_some(),
@@ -841,6 +841,7 @@ fn to_doc<'a>(
             block_braces(arena, mapped, terminal_expr(&pairs))
         }
         Rule::prefix_expr => map_to_doc(ctx, arena, pair),
+        Rule::prefix_expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
         Rule::bin_expr_ops_special => arena.hardline().append(map_to_doc(ctx, arena, pair)),
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()]
