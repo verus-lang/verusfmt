@@ -864,7 +864,7 @@ fn to_doc<'a>(
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
-        Rule::closure_expr | Rule::quantifier_expr =>
+        Rule::closure_expr | Rule::quantifier_expr | Rule::quantifier_expr_no_struct =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
             let has_ret = pair

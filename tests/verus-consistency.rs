@@ -501,6 +501,15 @@ pub fn test_function(x: int, y: int) -> u32 {
     5
 }
 
+fn has_new_pointsto() {
+    (forall |addr: int| mem_protect == MemProtect { read: true })
+}
+
+fn foo()
+    ensures forall|x:int| x == x
+{
+}
+
 }
 "#;
 
@@ -514,6 +523,16 @@ pub fn test_function(x: int, y: int) -> u32 {
         assume(forall|x: int| #![auto] f1(x) < 100);
         let ghost (g1, g2) = g;
         5
+    }
+
+    fn has_new_pointsto() {
+        (forall|addr: int| mem_protect == MemProtect { read: true })
+    }
+
+    fn foo()
+        ensures
+            forall|x: int| x == x,
+    {
     }
 
     } // verus!

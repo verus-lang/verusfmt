@@ -875,7 +875,7 @@ expr_inner_no_struct = _{
   | break_expr
   | prefix_expr
   | closure_expr
-  | quantifier_expr
+  | quantifier_expr_no_struct
   | continue_expr
   | for_expr
   | if_expr
@@ -968,6 +968,7 @@ expr_outer_no_struct = _{
 expr_inner = {
     if_expr  // Must precede struct_expr or struct_expr thinks `if {}` is a struct
   | struct_expr // Must precede expr_inner_no_struct or `my_struct { }` will be `my_struct`: path_expr
+  | quantifier_expr
   | expr_inner_no_struct
 }
 
@@ -1127,6 +1128,14 @@ closure_expr = {
 }
 
 quantifier_expr = {
+    attr* ~
+    (forall_str | exists_str | choose_str) ~
+    closure_param_list ~ ret_type? ~
+    attr_inner* ~
+    expr
+}
+
+quantifier_expr_no_struct = {
     attr* ~
     (forall_str | exists_str | choose_str) ~
     closure_param_list ~ ret_type? ~
