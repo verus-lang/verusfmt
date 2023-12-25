@@ -935,7 +935,6 @@ impl AbstractEndPoint {
     "###);
 }
 
-
 #[test]
 fn verus_comment_prefix_suffix() {
     let file = r#"
@@ -968,7 +967,6 @@ struct Constants {
     } // verus!
     "###);
 }
-
 
 #[test]
 fn verus_keyword_prefixed_identifier_parsing() {

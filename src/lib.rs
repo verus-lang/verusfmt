@@ -203,7 +203,11 @@ fn sticky_delims<'a>(
                 arena.nil()
             })
             .append(docs);
-        let prefix = if nest { prefix.nest(INDENT_SPACES) } else { prefix };
+        let prefix = if nest {
+            prefix.nest(INDENT_SPACES)
+        } else {
+            prefix
+        };
         prefix
             .group()
             .append(closing_space)
@@ -385,14 +389,24 @@ fn loop_to_doc<'a>(
 /// Checks if this expr rule is either an &&& or an ||| expression
 fn is_prefix_triple(pair: Pair<Rule>) -> bool {
     assert!(matches!(pair.as_rule(), Rule::expr));
-    match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::expr_inner)) {
+    match pair
+        .into_inner()
+        .find(|p| matches!(p.as_rule(), Rule::expr_inner))
+    {
         None => false,
-        Some(pair) => 
-            match pair.into_inner().find(|p| matches!(p.as_rule(), Rule::prefix_expr) || matches!(p.as_rule(), Rule::prefix_expr_no_struct)) {
-                None => false,
-                Some(pair) => 
-                    pair.into_inner().find(|p| matches!(p.as_rule(), Rule::triple_and) || matches!(p.as_rule(), Rule::triple_or)).is_some(),
-            }
+        Some(pair) => match pair.into_inner().find(|p| {
+            matches!(p.as_rule(), Rule::prefix_expr)
+                || matches!(p.as_rule(), Rule::prefix_expr_no_struct)
+        }) {
+            None => false,
+            Some(pair) => pair
+                .into_inner()
+                .find(|p| {
+                    matches!(p.as_rule(), Rule::triple_and)
+                        || matches!(p.as_rule(), Rule::triple_or)
+                })
+                .is_some(),
+        },
     }
 }
 
@@ -409,7 +423,11 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
                 Rule::expr => {
                     // We don't want to treat a triple expr as an expr only block,
                     // since that would result in it being grouped with its surrounding braces
-                    if is_prefix_triple(p.clone()) { 1 } else { -1 }
+                    if is_prefix_triple(p.clone()) {
+                        1
+                    } else {
+                        -1
+                    }
                 }
                 _ => 0,
             }
@@ -504,9 +522,11 @@ fn to_doc<'a>(
         Rule::colon_str => docs![arena, s, arena.line_(), arena.space()]
             .nest(INDENT_SPACES - 1)
             .group(),
-        Rule::eq_str | Rule::eq_eq_str => docs![arena, arena.space(), s, arena.line_(), arena.space()]
-            .nest(INDENT_SPACES - 1)
-            .group(),
+        Rule::eq_str | Rule::eq_eq_str => {
+            docs![arena, arena.space(), s, arena.line_(), arena.space()]
+                .nest(INDENT_SPACES - 1)
+                .group()
+        }
         Rule::plus_str | Rule::rarrow_str | Rule::else_str => {
             docs![arena, arena.space(), s, arena.space()]
         }
@@ -722,7 +742,13 @@ fn to_doc<'a>(
         }
         Rule::condensable_record_field_list => {
             let doc = extra_spaced_braces(arena, comma_delimited(ctx, arena, pair.clone(), false));
-            if pair.into_inner().clone().filter(|p| matches!(p.as_rule(), Rule::COMMENT)).count() == 0 {
+            if pair
+                .into_inner()
+                .clone()
+                .filter(|p| matches!(p.as_rule(), Rule::COMMENT))
+                .count()
+                == 0
+            {
                 doc.group()
             } else {
                 // Don't group if we detected any comments
@@ -923,14 +949,13 @@ fn to_doc<'a>(
         Rule::match_arm => map_to_doc(ctx, arena, pair)
             .append(arena.text(","))
             .append(arena.line()),
-        Rule::match_guard => 
+        Rule::match_guard =>
         // In this context, the "if" needs a space preceding it
         {
-            arena
-                .concat(pair.into_inner().map(|p| match p.as_rule() {
-                    Rule::if_str => arena.text(" if "),
-                    _ => to_doc(ctx, p, arena),
-                }))
+            arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+                Rule::if_str => arena.text(" if "),
+                _ => to_doc(ctx, p, arena),
+            }))
         }
         Rule::return_expr => map_to_doc(ctx, arena, pair),
         Rule::yield_expr => map_to_doc(ctx, arena, pair),
@@ -965,14 +990,12 @@ fn to_doc<'a>(
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
         Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),
-        Rule::impl_trait_type => 
-        {
-            // We need to inject a space after the "impl" 
-            arena
-                .concat(pair.into_inner().map(|p| match p.as_rule() {
-                    Rule::impl_str => arena.text("impl "),
-                    _ => to_doc(ctx, p, arena),
-                }))
+        Rule::impl_trait_type => {
+            // We need to inject a space after the "impl"
+            arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+                Rule::impl_str => arena.text("impl "),
+                _ => to_doc(ctx, p, arena),
+            }))
         }
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::type_bound_list => map_to_doc(ctx, arena, pair),
@@ -1179,7 +1202,6 @@ pub fn rustfmt(value: &str) -> Option<String> {
 fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
     matches!(&pair.as_span().as_str()[..2], "/*")
 }
-
 
 pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
     let ctx = Context {
