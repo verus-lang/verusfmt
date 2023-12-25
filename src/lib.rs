@@ -923,7 +923,15 @@ fn to_doc<'a>(
         Rule::match_arm => map_to_doc(ctx, arena, pair)
             .append(arena.text(","))
             .append(arena.line()),
-        Rule::match_guard => unsupported(pair),
+        Rule::match_guard => 
+        // In this context, the "if" needs a space preceding it
+        {
+            arena
+                .concat(pair.into_inner().map(|p| match p.as_rule() {
+                    Rule::if_str => arena.text(" if "),
+                    _ => to_doc(ctx, p, arena),
+                }))
+        }
         Rule::return_expr => map_to_doc(ctx, arena, pair),
         Rule::yield_expr => map_to_doc(ctx, arena, pair),
         Rule::yeet_expr => map_to_doc(ctx, arena, pair),

@@ -1,7 +1,10 @@
 verus! {
 
-fn local_direct_update(loc1: Local, loc2: Local, i: int, j: int, pq: int) -> bool {
-    &&& loc2 == Local { heap: loc2.heap, ..loc1 }
+fn test() {
+    match popped {
+        SegmentCreating(sid) if sid == page_id.segment_id => true,
+        _ => false,
+    }
 }
 
 } // verus!

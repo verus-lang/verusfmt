@@ -586,6 +586,10 @@ fn len<T>(l: List<T>) -> nat {
         match m {
             CMessage::LongConstructorNameGetRequest{..} => old_self.long_function_next_get_request_preconditions(),
         }
+        match popped {
+            SegmentCreating(sid) if sid == page_id.segment_id => true,
+            _ => false,
+        }
     }
 
 }
@@ -633,6 +637,10 @@ fn len<T>(l: List<T>) -> nat {
                 CMessage::LongConstructorNameGetRequest {
                     ..
                 } => old_self.long_function_next_get_request_preconditions(),
+            }
+            match popped {
+                SegmentCreating(sid) if sid == page_id.segment_id => true,
+                _ => false,
             }
         }
     }
