@@ -779,7 +779,14 @@ fn to_doc<'a>(
         Rule::variant => map_to_doc(ctx, arena, pair),
         Rule::union => unsupported(pair),
         //Rule::initializer => soft_indent(arena, map_to_doc(ctx, arena, pair)),
-        Rule::r#const => map_to_doc(ctx, arena, pair),
+        Rule::r#const => 
+        // In this context, if there's an ensures clause, we need to add a line
+        {
+            arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+                Rule::ensures_clause => to_doc(ctx, p, arena).append(arena.line()),
+                _ => to_doc(ctx, p, arena),
+            }))
+        }
         Rule::r#static => map_to_doc(ctx, arena, pair),
         Rule::r#trait => map_to_doc(ctx, arena, pair),
         Rule::trait_alias => unsupported(pair),

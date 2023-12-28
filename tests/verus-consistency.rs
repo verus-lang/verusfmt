@@ -16,6 +16,11 @@ pub open const MAX_REPLICAS_PER_LOG: usize = 16;
 
 pub spec const MASK_ADDR_SPEC: u64 = bitmask_inc!(12u64, MAX_PHYADDR_WIDTH - 1);
 
+pub exec const MASK_L1_PG_ADDR: u64 ensures MASK_L1_PG_ADDR == MASK_L1_PG_ADDR_SPEC {
+    axiom_max_phyaddr_width_facts();
+    bitmask_inc!(30u64, MAX_PHYADDR_WIDTH - 1)
+}
+
 pub fn test_function(x: bool, y: bool) -> u32
     by (nonlinear_arith)
     requires
@@ -114,6 +119,14 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
     pub open const MAX_REPLICAS_PER_LOG: usize = 16;
 
     pub spec const MASK_ADDR_SPEC: u64 = bitmask_inc!(12u64, MAX_PHYADDR_WIDTH - 1);
+
+    pub exec const MASK_L1_PG_ADDR: u64
+        ensures
+            MASK_L1_PG_ADDR == MASK_L1_PG_ADDR_SPEC,
+    {
+        axiom_max_phyaddr_width_facts();
+        bitmask_inc!(30u64, MAX_PHYADDR_WIDTH - 1)
+    }
 
     pub fn test_function(x: bool, y: bool) -> u32
         by (nonlinear_arith)
