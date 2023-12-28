@@ -1122,6 +1122,7 @@ verus! {
 fn test() {
     let lambda = |key| -> (b: bool) { true };
     let lambda = |key| -> (b: bool) ensures b == true { true };
+    let op = |x: i32| -> (y: i32) requires x < 100000 ensures y > x { x + 1 };
 }
 
 } // verus!
@@ -1136,6 +1137,12 @@ fn test() {
             ensures
                 b == true,
             { true };
+        let op = |x: i32| -> (y: i32)
+            requires
+                x < 100000,
+            ensures
+                y > x,
+            { x + 1 };
     }
 
     } // verus!
