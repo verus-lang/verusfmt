@@ -1,22 +1,5 @@
 verus! {
 
-#[inline]
-pub fn heap_malloc()  // $line_count$Trusted$
-    -> (t: (int, nat)) // $line_count$Trusted$
-    requires // $line_count$Trusted$
-        heap.wf(), // $line_count$Trusted$
-        heap.is_in(), // $line_count$Trusted$
-    ensures // $line_count$Trusted$
-        local.wf(), // $line_count$Trusted$
-        local.instance == old(local).instance, // $line_count$Trusted$
-        ({ // $line_count$Trusted$
-            let (ptr, points_to_raw, dealloc) = t; // $line_count$Trusted$
-            dealloc@.wf() // $line_count$Trusted$
-              && dealloc@.instance() == local.instance  // $line_count$Trusted$
-              && dealloc@.size == size  // $line_count$Trusted$
-        })  // $line_count$Trusted$
-{
-    a
-}
+pub spec const MASK_ADDR_SPEC: u64 = bitmask_inc!(12u64, MAX_PHYADDR_WIDTH - 1);
 
 } // verus!

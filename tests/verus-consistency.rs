@@ -14,6 +14,8 @@ verus! {
 // Verus treats constants like functions
 pub open const MAX_REPLICAS_PER_LOG: usize = 16;
 
+pub spec const MASK_ADDR_SPEC: u64 = bitmask_inc!(12u64, MAX_PHYADDR_WIDTH - 1);
+
 pub fn test_function(x: bool, y: bool) -> u32
     by (nonlinear_arith)
     requires
@@ -110,6 +112,8 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
 
     // Verus treats constants like functions
     pub open const MAX_REPLICAS_PER_LOG: usize = 16;
+
+    pub spec const MASK_ADDR_SPEC: u64 = bitmask_inc!(12u64, MAX_PHYADDR_WIDTH - 1);
 
     pub fn test_function(x: bool, y: bool) -> u32
         by (nonlinear_arith)

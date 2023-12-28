@@ -43,3 +43,22 @@ Then run:
 ```
 verus-systems-code/memory-allocators/verus-mimalloc $ VERUS_SINGULAR_PATH=/opt/homebrew/bin/singular verus --extern libc=../build/liblibc.rlib lib.rs "$@" --triggers-silent -- -Zproc-macro-backtrace
 ```
+
+# page table
+
+Acquire:
+```
+git clone https://github.com/utaal/verified-nrkernel.git 
+```
+
+Format
+```
+for f in `find ~/git/verus-systems-code/verified-nrkernel/page-table -name "*rs" `; do cargo run  -- $f || break ; done
+```
+
+Verify:
+```
+~/git/verus-systems-code/verified-nrkernel/page-table $ VERUS_SINGULAR_PATH=/opt/homebrew/bin/singular verus main.rs 
+```
+
+
