@@ -70,6 +70,7 @@ git clone https://github.com/microsoft/verified-storage.git
 
 Format:
 ```
+for f in `ls ~/git/verus-systems-code/verified-storage/pmemlog/src/*.rs `; do cargo run  -- $f || break ; done
 ```
 
 Verify:
