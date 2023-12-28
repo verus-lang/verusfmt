@@ -1,5 +1,5 @@
-/*
- 
+verus! {
+
 #[inline]
 pub fn heap_malloc()  // $line_count$Trusted$
     -> (t: (int, nat)) // $line_count$Trusted$
@@ -15,17 +15,6 @@ pub fn heap_malloc()  // $line_count$Trusted$
               && dealloc@.instance() == local.instance  // $line_count$Trusted$
               && dealloc@.size == size  // $line_count$Trusted$
         })  // $line_count$Trusted$
-{
-    a
-}
-*/
-
-verus! {
-
-fn heap_malloc()  // $line_count$Trusted$ 1
-    -> (t: nat) // $line_count$Trusted$ 2
-    requires
-        true,
 {
     a
 }
