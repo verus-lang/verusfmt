@@ -390,7 +390,8 @@ fn items_to_doc<'a>(
             // Don't allow breaks in the list when the list is empty
             arena.text("{}")
         } else {
-            let prefix = docs![arena, " {", arena.line_()].group()
+            let prefix = docs![arena, " {", arena.line_()]
+                .group()
                 .append(arena.line())
                 .append(res);
             let prefix = prefix.nest(INDENT_SPACES);
@@ -845,7 +846,7 @@ fn to_doc<'a>(
         Rule::variant => map_to_doc(ctx, arena, pair),
         Rule::union => unsupported(pair),
         //Rule::initializer => soft_indent(arena, map_to_doc(ctx, arena, pair)),
-        Rule::r#const => 
+        Rule::r#const =>
         // In this context, if there's an ensures clause, we need to add a line
         {
             arena.concat(pair.into_inner().map(|p| match p.as_rule() {
@@ -1153,10 +1154,7 @@ fn to_doc<'a>(
         Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
-        Rule::file
-        | Rule::non_verus
-        | Rule::verus_macro_use
-        | Rule::EOI => unreachable!(),
+        Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::EOI => unreachable!(),
     }
 }
 
@@ -1312,6 +1310,9 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
         match rule {
             Rule::non_verus | Rule::COMMENT => {
                 formatted_output += pair.as_str();
+                if matches!(pair.as_rule(), Rule::COMMENT) && is_multiline_comment(&pair) {
+                    formatted_output += "\n";
+                }
             }
             Rule::verus_macro_use => {
                 let body = pair.into_inner().collect::<Vec<_>>();
@@ -1341,7 +1342,7 @@ pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
                 }
 
                 formatted_output += &format_item(&ctx, body);
- 
+
                 if suffix_comments.len() > 0 {
                     formatted_output += "\n";
                 }

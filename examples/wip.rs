@@ -1,16 +1,15 @@
+/*
+
+  This file models the abstraction of an infinite log that our log
+  implementation is supposed to implement.
+
+*/
+use vstd::set::*;
+
 verus! {
 
-const y: int = 5;
-
-/* TODO
-pub open(crate) spec fn my_pub_spec_fun2(x: u32, y: u32) -> u32 {
-    // function visible to all, body visible to crate
-    x / 2 + y / 2
+pub struct AbstractInfiniteLogState {
+    pub head: int,
 }
-*/
-
-// TODO(main_new) pub(crate) is not being handled correctly
-// TODO(main_new) pub(crate) is not being handled correctly
-const x: int = 5;
 
 } // verus!

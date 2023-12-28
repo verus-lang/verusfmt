@@ -61,4 +61,18 @@ Verify:
 ~/git/verus-systems-code/verified-nrkernel/page-table $ VERUS_SINGULAR_PATH=/opt/homebrew/bin/singular verus main.rs 
 ```
 
+# Verified Storage
 
+Acquire:
+```
+git clone https://github.com/microsoft/verified-storage.git
+```
+
+Format:
+```
+```
+
+Verify:
+```
+~/git/verus-systems-code/verified-storage/pmemlog/src $ verus main.rs
+```
