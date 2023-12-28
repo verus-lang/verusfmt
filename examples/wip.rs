@@ -1,8 +1,12 @@
 verus! {
 
-pub exec const MASK_L1_PG_ADDR: u64 ensures MASK_L1_PG_ADDR == MASK_L1_PG_ADDR_SPEC {
-    axiom_max_phyaddr_width_facts();
-    bitmask_inc!(30u64, MAX_PHYADDR_WIDTH - 1)
+pub mod PT {
+    const bar: nat = 5;
+
+    pub open spec fn test() -> int { 5 }
+
+    pub open spec fn test2() -> int { 5 }
+
 }
 
 } // verus!

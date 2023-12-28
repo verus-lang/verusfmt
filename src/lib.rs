@@ -665,8 +665,63 @@ fn to_doc<'a>(
         Rule::global_inner => map_to_doc(ctx, arena, pair),
         Rule::global => map_to_doc(ctx, arena, pair),
         Rule::macro_def => unsupported(pair),
-        Rule::module => unsupported(pair),
-        Rule::item_list => unsupported(pair),
+        Rule::module => map_to_doc(ctx, arena, pair),
+        Rule::item_list => {
+            // TODO: Unify this logic with the logic in `parse_and_format` below
+            let items = pair.into_inner();
+            let len = items.clone().count();
+            let mut prev_is_use = false;
+            let mut res = arena.nil();
+            for (i, item) in items.enumerate() {
+                if item.as_rule() == Rule::COMMENT {
+                    if prev_is_use {
+                        // Add an extra line break, since we don't put line breaks
+                        // between use declarations
+                        res = res.append(arena.line());
+                    }
+                    prev_is_use = false;
+                    let multiline_comment = is_multiline_comment(&item);
+                    res = res.append(map_to_doc(ctx, arena, item));
+                    if multiline_comment {
+                        res = res.append(arena.line());
+                    }
+                } else {
+                    let is_use = matches!(
+                        item.clone().into_inner().next().unwrap().as_rule(),
+                        Rule::r#use
+                    );
+                    if prev_is_use && !is_use {
+                        // Add an extra line break, since we don't put line breaks
+                        // between use declarations
+                        res = res.append(arena.line());
+                    }
+                    prev_is_use = is_use;
+
+                    res = res.append(map_to_doc(ctx, arena, item));
+                    res = res.append(arena.line());
+                    // Add extra space between items, except for use declarations
+                    if i < len - 1 && !is_use {
+                        res = res.append(arena.line());
+                    }
+                }
+            }
+
+            // Special case of sticky_delims
+            if len == 0 {
+                // Don't allow breaks in the list when the list is empty
+                arena.text("{}")
+            } else {
+                let prefix = docs![arena, " {", arena.line_()].group()
+                    .append(arena.line())
+                    .append(res);
+                let prefix = prefix.nest(INDENT_SPACES);
+                prefix
+                    .group()
+                    .append(arena.line())
+                    .append(arena.text("}"))
+                    .group()
+            }
+        }
         Rule::extern_crate => unsupported(pair),
         Rule::rename => map_to_doc(ctx, arena, pair),
         Rule::r#use => map_to_doc(ctx, arena, pair),

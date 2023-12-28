@@ -233,6 +233,43 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
 }
 
 #[test]
+fn verus_modules() {
+    let file = r#"
+verus! {
+
+pub mod PT {
+    const bar: nat = 5;
+
+    pub open spec fn test() -> int { 5 }
+
+    pub open spec fn test2() -> int { 5 }
+
+}
+
+} // verus!    
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub mod PT {
+        const bar: nat = 5;
+
+        pub open spec fn test() -> int {
+            5
+        }
+
+        pub open spec fn test2() -> int {
+            5
+        }
+
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_global() {
     let file = r#"
 verus! {
