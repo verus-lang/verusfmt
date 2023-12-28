@@ -725,7 +725,9 @@ fn to_doc<'a>(
                             ctx,
                             arena,
                             p,
-                            !has_qualifier || !saw_comment_after_param_list || (has_ret_type && pre_ret_type),
+                            !has_qualifier
+                                || !saw_comment_after_param_list
+                                || (has_ret_type && pre_ret_type),
                         )
                     }
                     Rule::param_list => {
