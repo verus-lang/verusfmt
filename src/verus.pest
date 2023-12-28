@@ -511,7 +511,7 @@ global = {
 //          Items          //
 //*************************//
 
-item = {
+item_no_macro_call = _{
     const
   | enum
   | extern_block
@@ -520,7 +520,6 @@ item = {
   | global
   | impl
   | macro_rules
-  | macro_call
   | macro_def
   | module
   | static
@@ -530,6 +529,11 @@ item = {
   | type_alias
   | union
   | use
+}
+
+item = {
+    item_no_macro_call
+  | macro_call
 }
 
 macro_rules = {
@@ -831,7 +835,7 @@ stmt = {
   | assignment_stmt
   | expr_with_block ~ semi_str?
   | expr ~ semi_str
-  | item
+  | item_no_macro_call
 }
 
 let_stmt = {

@@ -1,6 +1,8 @@
 
 verus! {
 
-exec static LAZY_X: Lazy<X> ensures LAZY_X.wf() { Lazy::<X>::new() }
+fn bits_of_int() {
+    seq![0].add(a) 
+}
 
 } // verus!

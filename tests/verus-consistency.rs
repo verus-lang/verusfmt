@@ -562,6 +562,10 @@ pub fn test_function(x: int, y: int) -> u32 {
     5
 }
 
+fn bits_of_int() {
+    seq![0].add(a) 
+}
+
 fn has_new_pointsto() {
     (forall |addr: int| mem_protect == MemProtect { read: true })
 }
@@ -584,6 +588,10 @@ fn foo()
         assume(forall|x: int| #![auto] f1(x) < 100);
         let ghost (g1, g2) = g;
         5
+    }
+
+    fn bits_of_int() {
+        seq![0].add(a)
     }
 
     fn has_new_pointsto() {

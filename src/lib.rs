@@ -726,6 +726,7 @@ fn to_doc<'a>(
         //          Items          //
         //*************************//
         Rule::item => map_to_doc(ctx, arena, pair),
+        Rule::item_no_macro_call => map_to_doc(ctx, arena, pair),
         Rule::macro_rules => s, // Don't attempt to format macro rules
         Rule::global_sizeof => map_to_doc(ctx, arena, pair),
         Rule::global_layout => map_to_doc(ctx, arena, pair),
