@@ -763,6 +763,14 @@ fn test_ghost_unwrap(
 {
 }
 
+fn heap_malloc()  // $line_count$Trusted$ 1
+-> (t: nat) // $line_count$Trusted$ 2
+    requires
+        true,
+{
+    a
+}
+
 fn test_my_funs2(
     a: u32, // long comment1 
     b: u32, // long comment2 
@@ -880,6 +888,14 @@ impl AbstractEndPoint {
         requires
             x < 100,
     {
+    }
+
+    fn heap_malloc()  // $line_count$Trusted$ 1
+     -> (t: nat)  // $line_count$Trusted$ 2
+        requires
+            true,
+    {
+        a
     }
 
     fn test_my_funs2(

@@ -682,8 +682,15 @@ fn to_doc<'a>(
                     matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0
                 })
                 .is_some();
+            let has_ret_type = pairs
+                .clone()
+                .find(|p| {
+                    matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0
+                })
+                .is_some();
             let mut saw_param_list = false;
             let mut saw_comment_after_param_list = false;
+            let mut pre_ret_type = true;
             arena.concat(pairs.map(|p| {
                 let d = to_doc(ctx, p.clone(), arena);
                 match p.as_rule() {
@@ -705,6 +712,10 @@ fn to_doc<'a>(
                             }
                         }
                     }
+                    Rule::ret_type => {
+                        pre_ret_type = false;
+                        d
+                    }
                     Rule::COMMENT => {
                         if saw_param_list {
                             saw_comment_after_param_list = true;
@@ -714,7 +725,7 @@ fn to_doc<'a>(
                             ctx,
                             arena,
                             p,
-                            !has_qualifier || !saw_comment_after_param_list,
+                            !has_qualifier || !saw_comment_after_param_list || (has_ret_type && pre_ret_type),
                         )
                     }
                     Rule::param_list => {
