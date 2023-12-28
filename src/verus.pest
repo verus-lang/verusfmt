@@ -533,7 +533,7 @@ item_no_macro_call = _{
 
 item = {
     item_no_macro_call
-  | macro_call
+  | macro_call ~ semi_str?
 }
 
 macro_rules = {
