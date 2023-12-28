@@ -1265,7 +1265,7 @@ pub fn rustfmt(value: &str) -> Option<String> {
         .arg("--edition=2021")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::null())
+        .stderr(Stdio::piped())
         .spawn()
     {
         {
