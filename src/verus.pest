@@ -706,7 +706,7 @@ const = {
 static = {
     attr* ~ visibility? ~ fn_mode? ~
     static_str ~ mut_str? ~ name ~ colon_str ~ type ~
-    (eq_str ~ expr)? ~ semi_str
+    (((eq_str ~ expr)? ~ semi_str) | (ensures_clause ~ fn_block_expr))
 }
 
 trait = {

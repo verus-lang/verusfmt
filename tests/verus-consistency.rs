@@ -1277,6 +1277,8 @@ verus! {
 
 exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
 
+exec static LAZY_X: Lazy<X> ensures LAZY_X.wf() { Lazy::<X>::new() }
+
 } // verus!
 "#;
 
@@ -1284,6 +1286,13 @@ exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::
     verus! {
 
     exec static THREAD_COUNT: core::sync::atomic::AtomicUsize = core::sync::atomic::AtomicUsize::new(0);
+
+    exec static LAZY_X: Lazy<X>
+        ensures
+            LAZY_X.wf(),
+    {
+        Lazy::<X>::new()
+    }
 
     } // verus!
     "###);
