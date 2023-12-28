@@ -72,6 +72,7 @@ pub open(crate) spec fn my_pub_spec_fun2(x: u32, y: u32) -> u32 {
     x / 2 + y / 2
 }
 */
+
 // TODO(main_new) pub(crate) is not being handled correctly
 // pub(crate) open spec fn my_pub_spec_fun3(x: int, y: int) -> int {
 //     // function and body visible to crate
