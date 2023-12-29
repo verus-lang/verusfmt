@@ -389,8 +389,24 @@ lifetime_no_space = { lifetime }  // A lifetime that shouldn't be followed by a 
 
 path = { (path_segment ~ colons_str)* ~ path_segment }
 
+// A version of path without supporting `a<x>`, to allow for proper parsing of
+// clauses such as
+//
+//   requires foo < 3, foo > 0,
+//
+// See https://github.com/jaybosamiya/verusfmt/issues/19 for more details on
+// what prompted this change.
+path_no_generics = { (path_segment_no_generics ~ colons_str)* ~ path_segment_no_generics }
+
 path_segment = {
     colons_str? ~ name_ref ~ generic_arg_list?
+  | colons_str? ~ name_ref ~ param_list ~ ret_type?
+  | colons_str? ~ name_ref
+  | langle_str ~ path_type ~ (as_str ~ path_type)? ~ rangle_str
+}
+
+path_segment_no_generics = {
+    colons_str? ~ name_ref ~ generic_arg_list_with_colons?
   | colons_str? ~ name_ref ~ param_list ~ ret_type?
   | colons_str? ~ name_ref
   | langle_str ~ path_type ~ (as_str ~ path_type)? ~ rangle_str
@@ -402,6 +418,10 @@ generic_args = {
 
 generic_arg_list = {
     colons_str? ~ langle_str ~ generic_args? ~ rangle_str
+}
+
+generic_arg_list_with_colons = {
+    colons_str ~ langle_str ~ generic_args? ~ rangle_str
 }
 
 generic_arg = {
@@ -896,7 +916,7 @@ expr_inner_no_struct = _{
   | yield_expr
   | yeet_expr
   | let_expr_no_struct
-  | path_expr   // Needs to be late in this list, or it matches against keywords like "while"  
+  | path_expr_no_generics   // Needs to be late in this list, or it matches against keywords like "while"
   | underscore_expr // Needs to follow path_expr, so we don't parse "_x" as "_" followed by an unexpected "x"
 }
 
@@ -976,6 +996,7 @@ expr_inner = {
   | quantifier_expr
   | prefix_expr
   | expr_inner_no_struct
+  | path_expr
 }
 
 expr_with_block = {
@@ -1010,6 +1031,10 @@ literal = {
 
 path_expr = {
     attr* ~ path
+}
+
+path_expr_no_generics = {
+    attr* ~ path_no_generics
 }
 
 stmt_list = {
