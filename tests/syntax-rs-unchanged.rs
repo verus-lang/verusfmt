@@ -10,5 +10,5 @@ use verusfmt::parse_and_format;
 #[test]
 fn syntax_rs_unchanged() {
     let syntax_rs = include_str!("../examples/syntax.rs").to_owned();
-    assert_eq!(parse_and_format(&syntax_rs), Ok(syntax_rs));
+    assert_eq!(parse_and_format(&syntax_rs).unwrap(), syntax_rs);
 }
