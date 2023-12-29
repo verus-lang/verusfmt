@@ -1276,7 +1276,10 @@ pub fn rustfmt(value: &str) -> Option<String> {
             if output.status.success() {
                 return Some(from_utf8(&output.stdout).unwrap().into());
             } else {
-                eprintln!("rustfmt failed! {}", from_utf8(&output.stderr).unwrap());
+                eprintln!(
+                    "\nrustfmt failed! {}\n\tConsider running with --verus-only\n",
+                    from_utf8(&output.stderr).unwrap()
+                );
             }
         }
     }
