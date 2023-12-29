@@ -706,8 +706,11 @@ fn to_doc<'a>(
         Rule::lifetime => s.append(arena.space()),
         Rule::lifetime_no_space => s,
         Rule::path => map_to_doc(ctx, arena, pair),
+        Rule::path_no_generics => map_to_doc(ctx, arena, pair),
         Rule::path_segment => map_to_doc(ctx, arena, pair),
+        Rule::path_segment_no_generics => map_to_doc(ctx, arena, pair),
         Rule::generic_arg_list => map_to_doc(ctx, arena, pair),
+        Rule::generic_arg_list_with_colons => map_to_doc(ctx, arena, pair),
         Rule::generic_args => comma_delimited(ctx, arena, pair, false).group(),
         Rule::generic_arg => map_to_doc(ctx, arena, pair),
         Rule::type_arg => map_to_doc(ctx, arena, pair),
@@ -925,6 +928,7 @@ fn to_doc<'a>(
         Rule::macro_expr => unsupported(pair),
         Rule::literal => map_to_doc(ctx, arena, pair),
         Rule::path_expr => map_to_doc(ctx, arena, pair),
+        Rule::path_expr_no_generics => map_to_doc(ctx, arena, pair),
         Rule::stmt_list => {
             let rule = pair.as_rule();
             let pairs = pair.clone().into_inner();
