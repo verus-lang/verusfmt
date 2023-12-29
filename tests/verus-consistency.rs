@@ -1312,3 +1312,31 @@ exec static LAZY_X: Lazy<X> ensures LAZY_X.wf() { Lazy::<X>::new() }
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_requires_clauses_confusable_with_generics() {
+    // Regression test for https://github.com/jaybosamiya/verusfmt/issues/19
+    let file = r#"
+verus! {
+
+fn test()
+    requires i < 0, len > 0,
+{
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test()
+        requires
+            i < 0,
+            len > 0,
+    {
+    }
+
+    } // verus!
+    "###);
+}
