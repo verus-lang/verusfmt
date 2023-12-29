@@ -5,16 +5,17 @@ edition = "2021"
 autoexamples = false
 
 [dependencies]
-anyhow = "1.0.71"
 clap = { version = "4.3.11", features = ["derive"] }
 fs-err = "2.9.0"
 insta = "1.30.0"
 itertools = "0.11.0"
+miette = { version = "5.10.0", features = ["fancy"] }
 pest = "2.0"
 pest_derive = "2.0"
 pretty = "0.12.1"
 regex = "1.9.6"
 similar = "2.2.1"
+thiserror = "1.0.52"
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17" }
 

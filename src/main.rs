@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use anyhow::anyhow;
 use clap::Parser as ClapParser;
 use fs_err as fs;
+use miette::{miette, IntoDiagnostic, NamedSource};
 use tracing::{error, info}; // debug, trace
 use verusfmt::{parse_and_format, rustfmt};
 
@@ -26,18 +26,20 @@ struct Args {
     debug_level: u8,
 }
 
-fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> anyhow::Result<()> {
-    let unparsed_file = fs::read_to_string(file)?;
+fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> miette::Result<()> {
+    let unparsed_file = fs::read_to_string(file).into_diagnostic()?;
+
+    let verus_fmted = parse_and_format(&unparsed_file).map_err(|e| {
+        e.with_source_code(NamedSource::new(
+            file.to_string_lossy(),
+            unparsed_file.clone(),
+        ))
+    })?;
+
     let formatted_output = if verus_only {
-        parse_and_format(&unparsed_file)?
+        verus_fmted
     } else {
-        let rustfmt_out = match rustfmt(&unparsed_file) {
-            None => {
-                return Err(anyhow!("rustfmt failed"));
-            }
-            Some(s) => s,
-        };
-        parse_and_format(&rustfmt_out)?
+        rustfmt(&unparsed_file).ok_or(miette!("rustfmt failed"))?
     };
 
     if check {
@@ -55,19 +57,19 @@ fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> anyhow::Result<
                 Some(("original", "formatted")),
             );
             println!("{diff}");
-            return Err(anyhow!("invalid formatting"));
+            return Err(miette!("invalid formatting"));
         }
     } else {
-        fs::write(file, formatted_output)?;
+        fs::write(file, formatted_output).into_diagnostic()?;
         Ok(())
     }
 }
 
 // TODO: Call rustfmt on the code too (maybe include an option to skip it)
-fn main() -> anyhow::Result<()> {
+fn main() -> miette::Result<()> {
     let args = Args::parse();
     if args.files.len() == 0 {
-        return Err(anyhow!("No files specified"));
+        return Err(miette!("No files specified"));
     }
 
     tracing_subscriber::fmt()

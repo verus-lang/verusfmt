@@ -1290,11 +1290,86 @@ fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
     matches!(&pair.as_span().as_str()[..2], "/*")
 }
 
-pub fn parse_and_format(s: &str) -> Result<String, pest::error::Error<Rule>> {
+#[derive(thiserror::Error, Debug)]
+pub enum ParseAndFormatError {
+    #[error("Failed to parse")]
+    ParseError { pest_err: pest::error::Error<Rule> },
+}
+
+impl From<pest::error::Error<Rule>> for ParseAndFormatError {
+    fn from(pest_err: pest::error::Error<Rule>) -> Self {
+        Self::ParseError { pest_err }
+    }
+}
+
+impl miette::Diagnostic for ParseAndFormatError {
+    fn help<'a>(&'a self) -> Option<Box<dyn std::fmt::Display + 'a>> {
+        match self {
+            ParseAndFormatError::ParseError { pest_err, .. } => {
+                let mut help = String::new();
+                match &pest_err.variant {
+                    pest::error::ErrorVariant::ParsingError {
+                        positives,
+                        negatives,
+                    } => {
+                        if !positives.is_empty() {
+                            help += "Expected one of: ";
+                            for (i, p) in positives.iter().enumerate() {
+                                if i > 0 {
+                                    help += ", ";
+                                }
+                                help += format!("{:?}", p).as_str();
+                            }
+                        }
+                        if !negatives.is_empty() {
+                            if !help.is_empty() {
+                                help += "; ";
+                            }
+                            help += "Negatives: ";
+                            for (i, n) in negatives.iter().enumerate() {
+                                if i > 0 {
+                                    help += ", ";
+                                }
+                                help += format!("{:?}", n).as_str();
+                            }
+                        }
+                        if help.is_empty() {
+                            return None;
+                        }
+                    }
+                    pest::error::ErrorVariant::CustomError { message } => {
+                        help += message;
+                    }
+                }
+                Some(Box::new(help))
+            }
+        }
+    }
+
+    fn labels(&self) -> Option<Box<dyn Iterator<Item = miette::LabeledSpan> + '_>> {
+        match self {
+            ParseAndFormatError::ParseError { pest_err, .. } => {
+                let (start, len) = match pest_err.location {
+                    pest::error::InputLocation::Pos(start) => (start, 1),
+                    pest::error::InputLocation::Span((start, end)) => (start, end - start),
+                };
+
+                Some(Box::new(std::iter::once(miette::LabeledSpan::new(
+                    Some("here".to_owned()),
+                    start,
+                    len,
+                ))))
+            }
+        }
+    }
+}
+
+pub fn parse_and_format(s: &str) -> miette::Result<String> {
     let ctx = Context {
         inline_comment_lines: find_inline_comment_lines(s),
     };
-    let parsed_file = VerusParser::parse(Rule::file, s)?
+    let parsed_file = VerusParser::parse(Rule::file, s)
+        .map_err(ParseAndFormatError::from)?
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")
         .into_inner();
