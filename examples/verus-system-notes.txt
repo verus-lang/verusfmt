@@ -41,7 +41,7 @@ verus-systems-code/memory-allocators $ ./setup-libc-dependency.sh
 ```
 Then run:
 ```
-verus-systems-code/memory-allocators/verus-mimalloc $ VERUS_SINGULAR_PATH=/opt/homebrew/bin/singular verus --extern libc=../build/liblibc.rlib lib.rs "$@" --triggers-silent -- -Zproc-macro-backtrace
+verus-systems-code/memory-allocators/verus-mimalloc $ VERUS_SINGULAR_PATH=/opt/homebrew/bin/singular verus --rlimit 50 --extern libc=../build/liblibc.rlib lib.rs "$@" --triggers-silent -- -Zproc-macro-backtrace
 ```
 
 # page table
