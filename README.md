@@ -7,6 +7,23 @@ An opinionated formatter for [Verus] code.
 `verusfmt` is highly experimental code. Make backups of your files before trying
 `verusfmt` on them.
 
+## Installing and Using Verusfmt
+
+Install the latest version using:
+
+``` sh
+cargo install --git https://github.com/jaybosamiya/verusfmt --locked
+```
+
+This will install the `verusfmt` binary. You can then run it on a file using an
+invocation using:
+
+``` sh
+verusfmt foo.rs
+```
+
+See `verusfmt --help` for more options and details.
+
 ## Goals
 
 1. Make it easier to read and contribute to [Verus] code by automatically
