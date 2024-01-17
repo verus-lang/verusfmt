@@ -8,8 +8,8 @@ use verusfmt::{parse_and_format, rustfmt};
 
 /// An opinionated formatter for Verus code
 ///
-/// Formats code that is inside the `verus!{}` macro. Best utilized in conjunction with rustfmt
-/// which will format everything outside the verus macro.
+/// Formats code both inside and outside the `verus!{}` macro (using rustfmt for code outside it).
+/// Use `--verus-only` to restrict formatting to only be inside the macro.
 #[derive(ClapParser)]
 #[command(version, about)]
 struct Args {
