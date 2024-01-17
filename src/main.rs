@@ -39,7 +39,7 @@ fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> miette::Result<
     let formatted_output = if verus_only {
         verus_fmted
     } else {
-        rustfmt(&unparsed_file).ok_or(miette!("rustfmt failed"))?
+        rustfmt(&verus_fmted).ok_or(miette!("rustfmt failed"))?
     };
 
     if check {
