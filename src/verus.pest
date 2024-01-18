@@ -64,7 +64,7 @@ file = {
 
 /// Region of code that doesn't contain any Verus macro use whatsoever
 non_verus = @{
-  (!("verus!" ~ WHITESPACE ~ "{") ~ ANY)*
+  (!("verus!" ~ WHITESPACE* ~ "{") ~ ANY)*
 }
 
 /// An actual use of the `verus! { ... }` macro

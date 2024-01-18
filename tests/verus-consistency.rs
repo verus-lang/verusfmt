@@ -316,22 +316,25 @@ global layout S<u32> is size == 8, align == 4;
 fn verus_let() {
     let file = r#"
 verus!{
+pub fn test() {
     let Some((key, val)) = cur else { 
         panic!() /* covered by while condition */ 
     };
     
     let Some((key, val)) = cur else { panic!() };
 }
+}
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
-    verus!{
-        let Some((key, val)) = cur else {
-            panic!() /* covered by while condition */
-        };
+    verus! {
 
+    pub fn test() {
+        let Some((key, val)) = cur else { panic!()  /* covered by while condition */  };
         let Some((key, val)) = cur else { panic!() };
     }
+
+    } // verus!
     "###);
 }
 
@@ -366,7 +369,7 @@ fn assert_by_test() {
         reveal(f1);  // reveal f1's definition just inside this block
     };
     assert(f1(3) > 3);
-    assert(forall|x: int| x < 10 implies x < 11) by {
+    assert forall|x: int| x < 10 implies x < 11 by {
         reveal(f1);
     };
 }
@@ -375,11 +378,10 @@ fn assert_by_test() {
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
-    verus!{
+    verus! {
 
     pub fn test_function(x: bool, y: bool) -> u32
-        by (nonlinear_arith)
-    {
+        by (nonlinear_arith) {
         assert(x) by (bit_vector);
         assert(f1(3)) by {
             reveal(f1);
@@ -403,12 +405,12 @@ fn assert_by_test() {
             reveal(f1);  // reveal f1's definition just inside this block
         };
         assert(f1(3) > 3);
-        assert(forall|x: int| x < 10 implies x < 11) by {
+        assert forall|x: int| x < 10 implies x < 11 by {
             reveal(f1);
         };
     }
 
-    }
+    } // verus!
     "###);
 }
 
@@ -434,22 +436,24 @@ verus!{
 "#;
 
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
-    verus!{
+    verus! {
 
-        println!("{} {} {}",
+    println!("{} {} {}",
             very_very_very_very_very_very_long_e1 + 42,
             very_very_very_very_very_very_long_e2,
             very_very_very_very_very_very_long_e3
         );
-        unknown_macro1!("{} {} {}", very_very_very_very_very_very_long_e1, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
-        unknown_macro2!("
+
+    unknown_macro1!("{} {} {}", very_very_very_very_very_very_long_e1, very_very_very_very_very_very_long_e2, very_very_very_very_very_very_long_e3);
+
+    unknown_macro2!("
             intro h1;
             simpl;
             cong;
             done;
         ");
 
-    }
+    } // verus!
     "###);
 }
 
