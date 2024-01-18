@@ -15,8 +15,7 @@ Install the latest version using:
 cargo install --git https://github.com/jaybosamiya/verusfmt --locked
 ```
 
-This will install the `verusfmt` binary. You can then run it on a file using an
-invocation using:
+This will install the `verusfmt` binary. You can then run it on a file using: 
 
 ``` sh
 verusfmt foo.rs
