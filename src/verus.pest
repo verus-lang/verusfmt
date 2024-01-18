@@ -62,9 +62,16 @@ file = {
     EOI
 }
 
-/// Region of code that doesn't contain any Verus macro use whatsoever
+/// Region of code that doesn't contain any Verus macro use whatsoever.
+///
+/// Notice that we explicitly also first check for `macro_rules` (which is
+/// marked non-atomic to break out of the atomic `non_verus`); this is because
+/// someone might define a macro-rules macro _outside_ the verus! macro, but use
+/// a verus! inside of the macro body itself, to generate Verus code; if that
+/// happens, then we need to make sure that we aren't accidentally starting
+/// parsing in the middle of the macro_rules macro body itself.
 non_verus = @{
-  (!("verus!" ~ WHITESPACE* ~ "{") ~ ANY)*
+  (!("verus!" ~ WHITESPACE* ~ "{") ~ (macro_rules | ANY))*
 }
 
 /// An actual use of the `verus! { ... }` macro
@@ -556,7 +563,10 @@ item = {
   | macro_call ~ semi_str?
 }
 
-macro_rules = {
+/// Explicitly non-atomic rule (notice the '!'): this is so that it can be used
+/// inside atomic rules, and still have the correct whitespace/comment behavior;
+/// the atomic rule it is used for is `non_verus`.
+macro_rules = !{
     attr* ~ visibility? ~
     macro_rules_str ~ bang_str ~ name ~
     token_tree
