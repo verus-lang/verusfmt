@@ -2,6 +2,9 @@
 //!
 //! Explicitly ignores regions of the code that are outside the `verus!` macro.
 
+// Useful documentation on Rust's grammar can be found in the Rust Reference manual, e.g.,
+//   https://doc.rust-lang.org/reference/expressions.html
+
 // Legend:
 //
 //    //!                - documentation comment, for the full grammar
