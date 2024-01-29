@@ -12,7 +12,7 @@ An opinionated formatter for [Verus] code.
 Install the latest version using:
 
 ``` sh
-cargo install --git https://github.com/jaybosamiya/verusfmt --locked
+cargo install verusfmt --locked
 ```
 
 This will install the `verusfmt` binary. You can then run it on a file using an
