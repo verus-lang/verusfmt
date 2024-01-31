@@ -54,7 +54,10 @@ fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> miette::Result<
                 &unparsed_file,
                 &formatted_output,
                 3,
-                Some(("original", "formatted")),
+                Some((
+                    &file.to_string_lossy(),
+                    &format!("{}.formatted", file.to_string_lossy()),
+                )),
             );
             println!("{diff}");
             return Err(miette!("invalid formatting"));
