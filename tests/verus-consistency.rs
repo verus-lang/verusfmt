@@ -886,6 +886,18 @@ impl AbstractEndPoint {
     }
 }
 
+const y: int = 5;
+
+// Comment
+const x: int = 5;
+
+impl a {
+    // My favorite function
+    fn b()
+    //
+    ;
+}
+
 } // verus!
 "#;
 
@@ -1011,6 +1023,17 @@ impl AbstractEndPoint {
         fn valid_ipv4() {
             true
         }
+    }
+
+    const y: int = 5;
+
+    // Comment
+    const x: int = 5;
+
+    impl a {
+        // My favorite function
+        fn b()  //
+        ;
     }
 
     } // verus!

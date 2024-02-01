@@ -313,11 +313,12 @@ fn comment_to_doc<'a>(
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
     add_newline: bool,
+    treat_as_inline: bool,
 ) -> DocBuilder<'a, Arena<'a>> {
     assert!(matches!(pair.as_rule(), Rule::COMMENT));
     let (line, _col) = pair.line_col();
     let s = arena.text(pair.as_str().trim());
-    if ctx.inline_comment_lines.contains(&line) {
+    if ctx.inline_comment_lines.contains(&line) || treat_as_inline {
         debug!(
             "contains(line = <<{}>>), with {}",
             pair.as_str(),
@@ -799,6 +800,7 @@ fn to_doc<'a>(
                             !has_qualifier
                                 || !saw_comment_after_param_list
                                 || (has_ret_type && pre_ret_type),
+                            true,
                         )
                     }
                     Rule::param_list => {
@@ -1155,7 +1157,7 @@ fn to_doc<'a>(
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
-        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
+        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true, false),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::EOI => unreachable!(),

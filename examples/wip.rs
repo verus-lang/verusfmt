@@ -1,7 +1,14 @@
 verus! {
+
+const y: int = 5;
+
+// Comment
+const x: int = 5;
+
 impl a {
-    fn b()
-    //
+    // My favorite function
+    fn b()  //
     ;
 }
-}
+
+} // verus!
