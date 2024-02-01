@@ -9,10 +9,16 @@ An opinionated formatter for [Verus] code.
 
 ## Installing and Using Verusfmt
 
-Install the latest version using:
+Install the latest release using:
 
 ``` sh
 cargo install verusfmt --locked
+```
+
+Alternatively, install the latest git commit using:
+
+```sh
+cargo install --git https://github.com/jaybosamiya/verusfmt --locked
 ```
 
 This will install the `verusfmt` binary. You can then run it on a file using: 
