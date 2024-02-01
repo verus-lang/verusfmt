@@ -320,15 +320,22 @@ fn comment_to_doc<'a>(
     let s = arena.text(pair.as_str().trim());
     if ctx.inline_comment_lines.contains(&line) || treat_as_inline {
         debug!(
-            "contains(line = <<{}>>) = {}, with {}",
+            "contains(line = <<{}>>) = {}, with add_newline: {}, and treat_as_inline: {}",
             pair.as_str(),
             ctx.inline_comment_lines.contains(&line),
-            add_newline
+            add_newline,
+            treat_as_inline,
         );
         let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
             .append(s)
-            .append(if treat_as_inline && !ctx.inline_comment_lines.contains(&line) { arena.text(FAUX_INLINE_COMMENT_FIXUP) } else { arena.text(INLINE_COMMENT_FIXUP)})
+            .append(
+                if treat_as_inline && !ctx.inline_comment_lines.contains(&line) {
+                    arena.text(FAUX_INLINE_COMMENT_FIXUP)
+                } else {
+                    arena.text(INLINE_COMMENT_FIXUP)
+                },
+            )
             .append(if add_newline {
                 arena.line()
             } else {

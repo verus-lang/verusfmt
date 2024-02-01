@@ -1,6 +1,6 @@
 verus! {
 
-fn try_parse() -> u32
+fn try_parse() -> (u: u32)
   //    1
   //    2
   //    3
