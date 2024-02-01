@@ -1,14 +1,11 @@
 verus! {
 
-const y: int = 5;
-
-// Comment
-const x: int = 5;
-
-impl a {
-    // My favorite function
-    fn b()  //
-    ;
+fn try_parse() -> u32
+  //    1
+  //    2
+  //    3
+{
+    8
 }
 
 } // verus!

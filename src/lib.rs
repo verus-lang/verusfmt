@@ -320,14 +320,15 @@ fn comment_to_doc<'a>(
     let s = arena.text(pair.as_str().trim());
     if ctx.inline_comment_lines.contains(&line) || treat_as_inline {
         debug!(
-            "contains(line = <<{}>>), with {}",
+            "contains(line = <<{}>>) = {}, with {}",
             pair.as_str(),
+            ctx.inline_comment_lines.contains(&line),
             add_newline
         );
         let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
             .append(s)
-            .append(arena.text(INLINE_COMMENT_FIXUP))
+            .append(if treat_as_inline && !ctx.inline_comment_lines.contains(&line) { arena.text(FAUX_INLINE_COMMENT_FIXUP) } else { arena.text(INLINE_COMMENT_FIXUP)})
             .append(if add_newline {
                 arena.line()
             } else {
@@ -1188,6 +1189,7 @@ fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
  */
 
 const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
+const FAUX_INLINE_COMMENT_FIXUP: &str = "FORMATTER_FAUX_FIXUP";
 
 // Identify lines where non-whitespace precedes the start of a comment (re_inline_candidate);
 // we also have to check for an earlier whitespace-prefixed comment (re_spaced_comment) that
@@ -1219,16 +1221,21 @@ fn fix_inline_comments(s: String) -> String {
     let mut prev_str: String = "".to_string();
     let mut first_iteration = true;
 
-    let re = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    let re_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    let re_faux_inline = Regex::new(FAUX_INLINE_COMMENT_FIXUP).unwrap();
     let re_still_inline = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
     for line in s.lines() {
         fixed_str += &prev_str;
-        if re.captures(line).is_some() {
-            if re_still_inline.captures(line).is_some() {
+        if re_inline.captures(line).is_some() || re_faux_inline.captures(line).is_some() {
+            if re_still_inline.captures(line).is_some() || re_faux_inline.captures(line).is_some() {
                 // After we formatted the inline comment, it's still inline,
                 // so just remove our marker but otherwise leave the line alone
                 fixed_str += "\n";
-                prev_str = line.replace(INLINE_COMMENT_FIXUP, "");
+                if re_inline.captures(line).is_some() {
+                    prev_str = line.replace(INLINE_COMMENT_FIXUP, "");
+                } else {
+                    prev_str = line.replace(FAUX_INLINE_COMMENT_FIXUP, "");
+                }
             } else {
                 // The formerly inline comment is now on a line by itself, so move it back to the
                 // previous line
