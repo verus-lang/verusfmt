@@ -434,6 +434,20 @@ fn unsupported(pair: Pair<Rule>) -> DocBuilder<Arena> {
     todo!()
 }
 
+fn if_expr_to_doc<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    arena.concat(pair.into_inner().map(|p| {
+        if p.as_rule() == Rule::condition {
+            to_doc(ctx, p, arena).append(arena.space())
+        } else {
+            to_doc(ctx, p, arena)
+        }
+    }))
+}
+
 fn loop_to_doc<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
@@ -450,7 +464,9 @@ fn loop_to_doc<'a>(
         _ => (),
     });
     arena.concat(pair.into_inner().map(|p| {
-        if let Some(c) = last_clause {
+        if p.as_rule() == Rule::condition {
+            to_doc(ctx, p, arena).append(arena.space())
+        } else if let Some(c) = last_clause {
             if p.as_rule() == c {
                 to_doc(ctx, p, arena).append(arena.line())
             } else {
@@ -1026,8 +1042,8 @@ fn to_doc<'a>(
                 }))
                 .group()
         }
-        Rule::condition => map_to_doc(ctx, arena, pair).append(arena.space()),
-        Rule::if_expr => map_to_doc(ctx, arena, pair),
+        Rule::condition => map_to_doc(ctx, arena, pair),
+        Rule::if_expr => if_expr_to_doc(ctx, arena, pair),
         Rule::loop_expr => loop_to_doc(ctx, arena, pair),
         Rule::for_expr => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
             Rule::in_str => arena.space().append(to_doc(ctx, p, arena)),
