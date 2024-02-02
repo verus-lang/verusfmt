@@ -464,6 +464,20 @@ macro_call = {
     attr* ~ path ~ bang_str ~ !"=" ~ token_tree
 }
 
+// NOTE: By convention, stmt-like or item-like macros (e.g., calc!{}) tend to
+// use curly braces; this is only a convention though, and _technically_ one
+// could use parens or square brackets for the same. However, we use this to
+// disambiguate unknown macros when used in statement lists _without_
+// semi-colons; if it is intended as an expr, the user better be using parens.
+//
+// Another alternative is to use `!(expr ~ "}") ~ macro_call` rather than
+// `macro_call_stmt`, but as of now, I believe this to be a better choice; we
+// can switch to the alternative if we find situations where it might be better
+// suited.
+macro_call_stmt = {
+    attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
+}
+
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
 punctuation = {
     bin_expr_ops
@@ -869,6 +883,7 @@ stmt = {
   | expr_with_block ~ semi_str?
   | expr ~ semi_str
   | item_no_macro_call
+  | macro_call_stmt
 }
 
 let_stmt = {

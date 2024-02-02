@@ -458,6 +458,59 @@ verus!{
 }
 
 #[test]
+fn verus_macro_statements() {
+    let file = r#"
+verus! {
+
+// Notice that the semicolon is optional
+proof fn foo() {
+    calc! {
+        (==)
+        1int; {}
+        (0int + 1int); {}
+    };
+    calc! {
+        (==)
+        1int; {}
+        (0int + 1int); {}
+    }
+    calc! {
+        (==)
+        1int; {}
+        (0int + 1int); {}
+    }
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    // Notice that the semicolon is optional
+    proof fn foo() {
+        calc! {
+            (==)
+            1int; {}
+            (0int + 1int); {}
+        };
+        calc! {
+            (==)
+            1int; {}
+            (0int + 1int); {}
+        }
+        calc! {
+            (==)
+            1int; {}
+            (0int + 1int); {}
+        }
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_impl() {
     let file = r#"
 verus! {
