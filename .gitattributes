@@ -1,2 +1,1 @@
-examples/syntax.rs linguist-vendored
-
+examples/*.rs linguist-vendored
