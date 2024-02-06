@@ -114,7 +114,7 @@ Reference](https://doc.rust-lang.org/beta/reference/introduction.html).
 ### Formatting
 
 Rather than try to format things ourselves, we rely on the
-[pretty](https://crates.io/crates/pretty) crate, based on [Philip
+[pretty] crate, based on [Philip
 Wadler's](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf)
 design for a pretty printer.  The core idea is that you create a set of possible
 code layouts, and the pretty printer then uses its internal heuristics to pick
@@ -147,6 +147,32 @@ Please ensure that existing test cases still pass (see below for more details),
 unless your goal is to change how some of those test cases are handled.  Please
 also include new/updated tests that exercise your proposed changes.
 
+### Tips for Developing a Fix or an Improvement
+
+1. Write out a small example `.rs` file focusing on the specific thing you want
+   to improve.  Test `verusfmt` on your reduced example to make sure the issue
+   still manifests; running with `--check` is very helpful with this process.
+   The smaller your example file, the easier subsequent steps will be.
+2. When running with `--check`, you can also add `-dd` to see 2nd level debug
+   output, which includes the parse tree.  Look through the parse tree and
+   identify rules relevant to your particular example.
+3. Once you find the relevant rule names, if the issue seems to be a misparse,
+   jump over to `src/verus.pest` to find the relevant rule(s) and see if the
+   grammar needs to be fixed or improved.
+4. If the parsing is fine but the printing is an issue, then look for the
+   relevant rule(s) in the `to_doc` function in `src/lib.rs. This might be a
+   bit difficult to understand immediately, so having the [pretty] docs handy
+   is quite helpful.  Also, it is helpful to look at the relevant debug print
+   (using `-d` or `-dd`), which gives a serialized version of the recursively
+   expanded `doc`, right before it has been optimized, so figuring out which
+   particular bit of it is not behaving as you like is quite helpful.
+5. Attempt fixes until the small example succeeds.
+6. Add the example into the tests---see the [Testing] section below.
+7. If fixing the rule for your small example succeeds but breaks other tests,
+   you may need to split the relevant rule in the parsing grammar into two
+   separate cases, so that each case can be formatted independently.  See
+   `comma_delimited_exprs_for_verus_clauses`  and
+   `groupable_comma_delimited_exprs_for_verus_clauses`, for example.
 
 ## Testing
 
@@ -183,3 +209,4 @@ cargo insta test --review
 
 [Verus]: https://github.com/verus-lang/verus
 [`rustfmt`]: https://github.com/rust-lang/rustfmt
+[pretty]: https://crates.io/crates/pretty
