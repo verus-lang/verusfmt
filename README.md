@@ -160,14 +160,14 @@ also include new/updated tests that exercise your proposed changes.
    jump over to `src/verus.pest` to find the relevant rule(s) and see if the
    grammar needs to be fixed or improved.
 4. If the parsing is fine but the printing is an issue, then look for the
-   relevant rule(s) in the `to_doc` function in `src/lib.rs. This might be a
+   relevant rule(s) in the `to_doc` function in `src/lib.rs`. This might be a
    bit difficult to understand immediately, so having the [pretty] docs handy
    is quite helpful.  Also, it is helpful to look at the relevant debug print
    (using `-d` or `-dd`), which gives a serialized version of the recursively
    expanded `doc`, right before it has been optimized, so figuring out which
    particular bit of it is not behaving as you like is quite helpful.
 5. Attempt fixes until the small example succeeds.
-6. Add the example into the tests---see the [Testing] section below.
+6. Add the example into the tests---see the [Testing](#testing) section below.
 7. If fixing the rule for your small example succeeds but breaks other tests,
    you may need to split the relevant rule in the parsing grammar into two
    separate cases, so that each case can be formatted independently.  See
