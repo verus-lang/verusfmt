@@ -1435,3 +1435,20 @@ fn test()
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_quantifier_and_bulleted_expr_precedence() {
+    // Regression test for https://github.com/jaybosamiya/verusfmt/issues/25
+    let file = r#"  verus! { spec fn foo() { &&& forall|x:int| f &&& g } }  "#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    spec fn foo() {
+        &&& forall|x: int| f
+        &&& g
+    }
+
+    } // verus!
+    "###);
+}

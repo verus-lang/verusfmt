@@ -952,6 +952,25 @@ fn to_doc<'a>(
         Rule::expr_outer => map_to_doc(ctx, arena, pair),
         Rule::expr_outer_no_struct => map_to_doc(ctx, arena, pair),
         Rule::expr_no_struct => map_to_doc(ctx, arena, pair),
+        Rule::bulleted_expr => block_braces(arena, map_to_doc(ctx, arena, pair), true),
+        Rule::bulleted_expr_inner => {
+            let pairs = pair.into_inner();
+            let mut first = true;
+            arena.concat(pairs.map(|p| {
+                let d = to_doc(ctx, p.clone(), arena);
+                match p.as_rule() {
+                    Rule::triple_and | Rule::triple_or => {
+                        if first {
+                            first = false;
+                            d
+                        } else {
+                            arena.hardline().append(d)
+                        }
+                    }
+                    _ => d,
+                }
+            }))
+        }
         Rule::macro_expr => unsupported(pair),
         Rule::literal => map_to_doc(ctx, arena, pair),
         Rule::path_expr => map_to_doc(ctx, arena, pair),
@@ -982,12 +1001,18 @@ fn to_doc<'a>(
         Rule::fn_block_expr => {
             let pairs = pair.into_inner();
             let mapped = map_pairs_to_doc(ctx, arena, &pairs);
-            block_braces(arena, mapped, terminal_expr(&pairs))
+            block_braces(
+                arena,
+                mapped,
+                terminal_expr(&pairs)
+                    || pairs
+                        .clone()
+                        .any(|x| x.as_rule() == Rule::bulleted_expr_inner),
+            )
         }
         Rule::prefix_expr => map_to_doc(ctx, arena, pair),
         Rule::prefix_expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
-        Rule::bin_expr_ops_special => arena.hardline().append(map_to_doc(ctx, arena, pair)),
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()]
             .nest(INDENT_SPACES)
             .group(),

@@ -923,6 +923,8 @@ expr_inner_no_struct = _{
   | assert_expr
   | assume_expr
   | assert_forall_expr
+  | bulleted_expr
+  | bulleted_expr_inner
   | block_expr
   | box_expr
   | break_expr
@@ -1038,6 +1040,15 @@ expr_with_block = {
   | assert_forall_expr
 }
 
+bulleted_expr = {
+    "{" ~ bulleted_expr_inner ~ "}"
+}
+
+bulleted_expr_inner = {
+    (triple_and ~ expr)+
+  | (triple_or ~ expr)+
+}
+
 macro_expr = {
     macro_call
 }
@@ -1091,28 +1102,25 @@ fn_block_expr = {
     attr* ~
     stmt* ~
     expr? ~
-    "}"     
+    "}"
+  | "{" ~ bulleted_expr_inner ~ "}"
 }
 
 prefix_expr = {
-    attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr
+    attr* ~ (dash_str | bang_str | star_str) ~ expr
 }
 
 prefix_expr_no_struct = {
-    attr* ~ (dash_str | bang_str | star_str | triple_or | triple_and) ~ expr_no_struct
+    attr* ~ (dash_str | bang_str | star_str) ~ expr_no_struct
 }
 
 assignment_ops = {
     "=" | "+=" | "/=" | "*=" | "%=" | ">>=" | "<<=" | "-=" | "|=" | "&=" | "^="
 }
 
-bin_expr_ops_special = {
-    triple_or | triple_and
-}
-
 bin_expr_ops_normal = {
-    | ("||" | "|")
-    | ("&&" | "&")
+    | (!"|||" ~ ("||" | "|"))
+    | (!"&&&" ~ ("&&" | "&"))
     | "<==>"
     | "===" | "=~=" | "=~~="
     | "==>" | "<=="
@@ -1124,7 +1132,7 @@ bin_expr_ops_normal = {
 }
 
 bin_expr_ops = {
-    bin_expr_ops_special | bin_expr_ops_normal
+    bin_expr_ops_normal
 }
 
 paren_expr_inner = {
