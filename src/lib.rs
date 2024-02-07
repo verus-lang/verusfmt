@@ -743,6 +743,7 @@ fn to_doc<'a>(
         Rule::lifetime_arg => map_to_doc(ctx, arena, pair),
         Rule::const_arg => unsupported(pair),
         Rule::macro_call => s,
+        Rule::macro_call_stmt => s,
         Rule::punctuation => map_to_doc(ctx, arena, pair),
         Rule::token => map_to_doc(ctx, arena, pair),
         Rule::delim_token_tree => map_to_doc(ctx, arena, pair),
