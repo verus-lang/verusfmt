@@ -1256,6 +1256,15 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     return comment_lines;
 }
 
+fn is_inline(s: String) -> bool {
+    let re_is_inline = Regex::new(r"(^.*\S.*[^/])//|/\*.*").unwrap();
+    if let Some(caps) = re_is_inline.captures(s) {
+        return is_inline(caps[1]);
+    } else {
+        return false;
+    }
+}
+
 // Put inline comments back on their original line, rather than a line of their own
 fn fix_inline_comments(s: String) -> String {
     debug!(
@@ -1263,8 +1272,10 @@ fn fix_inline_comments(s: String) -> String {
         s
     );
 
+
     // Finds comments that started life as inline comments
     let re_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    use is_line()
     let re_is_inline = Regex::new(r"(^.*\S.*[^/])((//|/\*).*)").unwrap();
     // Finds comments that started life not inline
     let re_noninline = Regex::new(NONINLINE_COMMENT_MARKER).unwrap();
