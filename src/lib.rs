@@ -1278,6 +1278,7 @@ fn fix_inline_comments(s: String) -> String {
 
     for line in s.lines() {
         fixed_str += &prev_str;
+        //debug!("In for loop, after adding prev_str, we have:\n>>>>>>>>\n{}\n<<<<<<<<<\n", &fixed_str);
         if re_inline.captures(line).is_some() {
             if re_is_inline.captures(line).is_some() {
                 // After we formatted the inline comment, it's still inline,
@@ -1295,27 +1296,32 @@ fn fix_inline_comments(s: String) -> String {
                 );
             }
         } else if re_noninline.captures(line).is_some() {
-            if let Some(caps) = re_inline.captures(line) {
+            if let Some(caps) = re_is_inline.captures(line) {
                 // This previously independent comment was absorbed into the preceding line
                 // Move it to the next line in place of the destination marker we created
-                comment_replacement = Some(caps[2].to_string());
+                comment_replacement = Some(caps[2].to_string().replace(NONINLINE_COMMENT_MARKER, ""));
                 fixed_str += "\n";
                 prev_str = caps[1].to_string();
                 debug!("Found inlined noninline and broke it into:\n\t{}\n\t{}", &caps[2], &caps[1]);
             } else {
-                debug!("Failed to find the re_noninline marker");
+                debug!("noninline marker has not been inlined");
                 // This independent comment is still independent, so leave it there,
                 // but remove the marker we added to the next line
                 comment_replacement = None;
                 fixed_str += "\n";
                 prev_str = line.replace(NONINLINE_COMMENT_MARKER, "");
+                print!("\tset prev_str = {}", &prev_str);
             }
         } else if re_noninline_dst.captures(line).is_some() {
+            debug!("Found noninline dst");
             match comment_replacement {
                 None => {
+                    println!("\tReplacement is none");
                     // We want to delete this line entirely, so don't add a newline to the fixed_str
+                    prev_str = "".to_string();
                 }
                 Some(ref c) => {
+                    println!("\tReplacement is {}", &c);
                     fixed_str += "\n";
                     prev_str = line.replace(NONINLINE_COMMENT_DST, &c);
                 }
