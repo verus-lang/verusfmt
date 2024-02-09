@@ -1265,7 +1265,7 @@ fn fix_inline_comments(s: String) -> String {
 
     // Finds comments that started life as inline comments
     let re_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
-    let re_is_inline = Regex::new(r"(^.*\S.*[^/])(//|/\*)").unwrap();
+    let re_is_inline = Regex::new(r"(^.*\S.*[^/])((//|/\*).*)").unwrap();
     // Finds comments that started life not inline
     let re_noninline = Regex::new(NONINLINE_COMMENT_MARKER).unwrap();
     // Finds the destination marker for noninline comments
@@ -1298,11 +1298,12 @@ fn fix_inline_comments(s: String) -> String {
             if let Some(caps) = re_inline.captures(line) {
                 // This previously independent comment was absorbed into the preceding line
                 // Move it to the next line in place of the destination marker we created
-
                 comment_replacement = Some(caps[2].to_string());
                 fixed_str += "\n";
                 prev_str = caps[1].to_string();
+                debug!("Found inlined noninline and broke it into:\n\t{}\n\t{}", &caps[2], &caps[1]);
             } else {
+                debug!("Failed to find the re_noninline marker");
                 // This independent comment is still independent, so leave it there,
                 // but remove the marker we added to the next line
                 comment_replacement = None;
