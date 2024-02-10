@@ -336,7 +336,10 @@ fn comment_to_doc<'a>(
         debug!("result: {:?}", d);
         d
     } else if !is_multiline_comment(&pair) {
-        s.append(NONINLINE_COMMENT_MARKER).append(arena.hardline()).append(NONINLINE_COMMENT_DST).append(arena.hardline())
+        s.append(NONINLINE_COMMENT_MARKER)
+            .append(arena.hardline())
+            .append(NONINLINE_COMMENT_DST)
+            .append(arena.hardline())
     } else {
         s.append(arena.line())
     }
@@ -1306,11 +1309,13 @@ fn fix_inline_comments(s: String) -> String {
                 );
             }
         } else if re_noninline.is_match(line) {
-            if is_inline_comment(line) {  // Use is_inline_comment to account for comments about comments
+            if is_inline_comment(line) {
+                // Use is_inline_comment to account for comments about comments
                 // This previously independent comment was absorbed into the preceding line
                 // Move it to the next line in place of the destination marker we created
                 let caps = re_find_inline.captures(line).unwrap();
-                comment_replacement = Some(caps[2].to_string().replace(NONINLINE_COMMENT_MARKER, ""));
+                comment_replacement =
+                    Some(caps[2].to_string().replace(NONINLINE_COMMENT_MARKER, ""));
                 fixed_str += "\n";
                 prev_str = caps[1].to_string();
             } else {
