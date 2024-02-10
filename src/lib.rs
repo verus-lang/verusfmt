@@ -308,6 +308,14 @@ fn map_pairs_to_doc<'a>(
     arena.concat(pairs.clone().map(|p| to_doc(ctx, p, arena)))
 }
 
+// During formatting, rather than trying to dynamically decide when a single-line comment should be
+// placed on its own line based on its context, when we encounter a single-line comment, we add a
+// marker indicating whether it was originally inline.  If it wasn't inline, we also add a
+// destination marker on the next line.  After everything is formatted, in `fix_inline_comments`,
+// we can scan for the markers.  If an originally inline comment has been moved to its own line, we
+// move it back.  If an originally non-inline comment has been inlined, we move it to its
+// corresponding destination marker.  We need the destination marker to tells us how much the
+// comment should be indented when moved to the next line.
 fn comment_to_doc<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
@@ -1269,7 +1277,8 @@ fn is_inline_comment(s: &str) -> bool {
     re_non_whitespace.is_match(prefix)
 }
 
-// Put inline comments back on their original line, rather than a line of their own
+// Make sure single-line comments end up inline if they started inline or non-inline if they
+// started non-inline. See `comment_to_doc` for details.
 fn fix_inline_comments(s: String) -> String {
     debug!(
         "Formatted output (before comment fixes):\n>>>>>>>\n{}\n<<<<<<<<<<<\n",
