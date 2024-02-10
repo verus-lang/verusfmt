@@ -313,18 +313,16 @@ fn comment_to_doc<'a>(
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
     add_newline: bool,
-    treat_as_inline: bool,
 ) -> DocBuilder<'a, Arena<'a>> {
     assert!(matches!(pair.as_rule(), Rule::COMMENT));
     let (line, _col) = pair.line_col();
     let s = arena.text(pair.as_str().trim());
     if ctx.inline_comment_lines.contains(&line) {
         debug!(
-            "contains(line = <<{}>>) = {}, with add_newline: {}, and treat_as_inline: {}",
+            "contains(line = <<{}>>) = {}, with add_newline: {}",
             pair.as_str(),
             ctx.inline_comment_lines.contains(&line),
             add_newline,
-            treat_as_inline,
         );
         let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
@@ -821,7 +819,6 @@ fn to_doc<'a>(
                             !has_qualifier
                                 || !saw_comment_after_param_list
                                 || (has_ret_type && pre_ret_type),
-                            true,
                         )
                     }
                     Rule::param_list => {
@@ -1203,7 +1200,7 @@ fn to_doc<'a>(
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
-        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true, false),
+        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::EOI => unreachable!(),
@@ -1234,7 +1231,6 @@ fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
  */
 
 const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
-const FAUX_INLINE_COMMENT_FIXUP: &str = "FORMATTER_FAUX_FIXUP";
 const NONINLINE_COMMENT_MARKER: &str = "FORMATTER_NOT_INLINE_MARKER";
 const NONINLINE_COMMENT_DST: &str = "FORMATTER_NOT_INLINE_DST";
 
@@ -1279,6 +1275,7 @@ fn fix_inline_comments(s: String) -> String {
 
     // Finds comments that started life as inline comments
     let re_was_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    // Find a comment that got inlined
     let re_find_inline = Regex::new(r"(^.*\S.*[^/])((//|/\*).*)").unwrap();
     // Finds comments that started life not inline
     let re_noninline = Regex::new(NONINLINE_COMMENT_MARKER).unwrap();
@@ -1309,10 +1306,10 @@ fn fix_inline_comments(s: String) -> String {
                 );
             }
         } else if re_noninline.is_match(line) {
-            if is_inline_comment(line) {
-                let caps = re_find_inline.captures(line).unwrap();
+            if is_inline_comment(line) {  // Use is_inline_comment to account for comments about comments
                 // This previously independent comment was absorbed into the preceding line
                 // Move it to the next line in place of the destination marker we created
+                let caps = re_find_inline.captures(line).unwrap();
                 comment_replacement = Some(caps[2].to_string().replace(NONINLINE_COMMENT_MARKER, ""));
                 fixed_str += "\n";
                 prev_str = caps[1].to_string();
@@ -1322,17 +1319,15 @@ fn fix_inline_comments(s: String) -> String {
                 comment_replacement = None;
                 fixed_str += "\n";
                 prev_str = line.replace(NONINLINE_COMMENT_MARKER, "");
-                //print!("\tset prev_str = {}", &prev_str);
             }
         } else if re_noninline_dst.is_match(line) {
             match comment_replacement {
                 None => {
-                    //println!("\tReplacement is none");
                     // We want to delete this line entirely, so don't add a newline to the fixed_str
                     prev_str = "".to_string();
                 }
                 Some(ref c) => {
-                    //println!("\tReplacement is {}", &c);
+                    // Replace our marker with the comment
                     fixed_str += "\n";
                     prev_str = line.replace(NONINLINE_COMMENT_DST, &c);
                 }
