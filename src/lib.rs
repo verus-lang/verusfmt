@@ -337,8 +337,10 @@ fn comment_to_doc<'a>(
             });
         debug!("result: {:?}", d);
         d
-    } else {
+    } else if !is_multiline_comment(&pair) {
         s.append(NONINLINE_COMMENT_MARKER).append(arena.hardline()).append(NONINLINE_COMMENT_DST).append(arena.hardline())
+    } else {
+        s.append(arena.line())
     }
 }
 
@@ -1257,7 +1259,12 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
 }
 
 fn is_inline_comment(s: &str) -> bool {
-    let comment_start = s.find("//").unwrap();
+    let comment_start = match (s.find("//"), s.find("/*")) {
+        (Some(l), Some(r)) => std::cmp::min(l, r),
+        (Some(l), None) => l,
+        (None, Some(r)) => r,
+        (None, None) => panic!("Failed to find a comment!: {}", s),
+    };
     let prefix = &s[0..comment_start];
     let re_non_whitespace = Regex::new(r"^.*\S.*").unwrap();
     re_non_whitespace.is_match(prefix)
@@ -1318,18 +1325,18 @@ fn fix_inline_comments(s: String) -> String {
                 comment_replacement = None;
                 fixed_str += "\n";
                 prev_str = line.replace(NONINLINE_COMMENT_MARKER, "");
-                print!("\tset prev_str = {}", &prev_str);
+                //print!("\tset prev_str = {}", &prev_str);
             }
         } else if re_noninline_dst.is_match(line) {
             //debug!("Found noninline dst");
             match comment_replacement {
                 None => {
-                    println!("\tReplacement is none");
+                    //println!("\tReplacement is none");
                     // We want to delete this line entirely, so don't add a newline to the fixed_str
                     prev_str = "".to_string();
                 }
                 Some(ref c) => {
-                    println!("\tReplacement is {}", &c);
+                    //println!("\tReplacement is {}", &c);
                     fixed_str += "\n";
                     prev_str = line.replace(NONINLINE_COMMENT_DST, &c);
                 }
