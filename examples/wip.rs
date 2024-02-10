@@ -13,5 +13,4 @@ fn test_my_funs(x: u32, y: u32)
     }
 }
 
-
 } // verus!

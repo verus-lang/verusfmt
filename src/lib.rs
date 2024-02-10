@@ -1256,13 +1256,11 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     return comment_lines;
 }
 
-fn is_inline(s: String) -> bool {
-    let re_is_inline = Regex::new(r"(^.*\S.*[^/])//|/\*.*").unwrap();
-    if let Some(caps) = re_is_inline.captures(s) {
-        return is_inline(caps[1]);
-    } else {
-        return false;
-    }
+fn is_inline_comment(s: &str) -> bool {
+    let comment_start = s.find("//").unwrap();
+    let prefix = &s[0..comment_start];
+    let re_non_whitespace = Regex::new(r"^.*\S.*").unwrap();
+    re_non_whitespace.is_match(prefix)
 }
 
 // Put inline comments back on their original line, rather than a line of their own
@@ -1272,11 +1270,9 @@ fn fix_inline_comments(s: String) -> String {
         s
     );
 
-
     // Finds comments that started life as inline comments
-    let re_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
-    use is_line()
-    let re_is_inline = Regex::new(r"(^.*\S.*[^/])((//|/\*).*)").unwrap();
+    let re_was_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    let re_find_inline = Regex::new(r"(^.*\S.*[^/])((//|/\*).*)").unwrap();
     // Finds comments that started life not inline
     let re_noninline = Regex::new(NONINLINE_COMMENT_MARKER).unwrap();
     // Finds the destination marker for noninline comments
@@ -1290,8 +1286,8 @@ fn fix_inline_comments(s: String) -> String {
     for line in s.lines() {
         fixed_str += &prev_str;
         //debug!("In for loop, after adding prev_str, we have:\n>>>>>>>>\n{}\n<<<<<<<<<\n", &fixed_str);
-        if re_inline.captures(line).is_some() {
-            if re_is_inline.captures(line).is_some() {
+        if re_was_inline.is_match(line) {
+            if is_inline_comment(line) {
                 // After we formatted the inline comment, it's still inline,
                 // so just remove our marker but otherwise leave the line alone
                 fixed_str += "\n";
@@ -1306,16 +1302,17 @@ fn fix_inline_comments(s: String) -> String {
                     indent = INLINE_COMMENT_SPACE
                 );
             }
-        } else if re_noninline.captures(line).is_some() {
-            if let Some(caps) = re_is_inline.captures(line) {
+        } else if re_noninline.is_match(line) {
+            if is_inline_comment(line) {
+                let caps = re_find_inline.captures(line).unwrap();
                 // This previously independent comment was absorbed into the preceding line
                 // Move it to the next line in place of the destination marker we created
                 comment_replacement = Some(caps[2].to_string().replace(NONINLINE_COMMENT_MARKER, ""));
                 fixed_str += "\n";
                 prev_str = caps[1].to_string();
-                debug!("Found inlined noninline and broke it into:\n\t{}\n\t{}", &caps[2], &caps[1]);
+                //debug!("Found inlined noninline and broke it into:\n\t{}\n\t{}", &caps[2], &caps[1]);
             } else {
-                debug!("noninline marker has not been inlined");
+                //debug!("noninline marker has not been inlined");
                 // This independent comment is still independent, so leave it there,
                 // but remove the marker we added to the next line
                 comment_replacement = None;
@@ -1323,8 +1320,8 @@ fn fix_inline_comments(s: String) -> String {
                 prev_str = line.replace(NONINLINE_COMMENT_MARKER, "");
                 print!("\tset prev_str = {}", &prev_str);
             }
-        } else if re_noninline_dst.captures(line).is_some() {
-            debug!("Found noninline dst");
+        } else if re_noninline_dst.is_match(line) {
+            //debug!("Found noninline dst");
             match comment_replacement {
                 None => {
                     println!("\tReplacement is none");
