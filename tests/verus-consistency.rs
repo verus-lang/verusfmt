@@ -959,6 +959,12 @@ fn try_parse() -> (u: u32)
     8
 }
 
+pub fn test() {
+    if false {
+    }// No space between the one character indicating non-inline and the comment
+}
+
+
 } // verus!
 "#;
 
@@ -1104,6 +1110,12 @@ fn try_parse() -> (u: u32)
     //    3
     {
         8
+    }
+
+    pub fn test() {
+        if false {
+        }  // No space between the one character indicating non-inline and the comment
+
     }
 
     } // verus!

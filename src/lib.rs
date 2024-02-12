@@ -1253,7 +1253,7 @@ const NONINLINE_COMMENT_DST: &str = "FORMATTER_NOT_INLINE_DST";
 //   let y = 5;
 fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     let mut comment_lines = HashSet::new();
-    let re_inline_candidate = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
+    let re_inline_candidate = Regex::new(r"^.*\S.*(//|/\*)").unwrap();
     let re_spaced_comment = Regex::new(r"^\s*(///|//|/\*)").unwrap();
     for (line_num, line) in s.lines().enumerate() {
         if re_inline_candidate.captures(line).is_some()
@@ -1288,7 +1288,7 @@ fn fix_inline_comments(s: String) -> String {
     // Finds comments that started life as inline comments
     let re_was_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
     // Find a comment that got inlined
-    let re_find_inline = Regex::new(r"(^.*\S.*[^/])((//|/\*).*)").unwrap();
+    let re_find_inline = Regex::new(r"(^.*\S.*)((//|/\*).*)").unwrap();
     // Finds comments that started life not inline
     let re_noninline = Regex::new(NONINLINE_COMMENT_MARKER).unwrap();
     // Finds the destination marker for noninline comments
