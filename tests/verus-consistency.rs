@@ -856,6 +856,14 @@ spec fn adder(x: int) -> spec_fn(int) -> int {
     |y: int| x + y
 }
 
+fn borrow_join<'a>(tracked &'a self) {
+    2
+}
+
+fn borrow_join2<'a>(tracked &'a self, x: u32) {
+    2
+}
+
 }
 "#;
 
@@ -883,6 +891,14 @@ spec fn adder(x: int) -> spec_fn(int) -> int {
 
     spec fn adder(x: int) -> spec_fn(int) -> int {
         |y: int| x + y
+    }
+
+    fn borrow_join<'a>(tracked &'a self) {
+        2
+    }
+
+    fn borrow_join2<'a>(tracked &'a self, x: u32) {
+        2
     }
 
     } // verus!

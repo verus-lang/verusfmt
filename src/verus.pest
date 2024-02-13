@@ -659,10 +659,9 @@ abi = {
 }
 
 param_list = {
-    "(" ~ (
-        (self_param ~ ",")? ~ param ~ ("," ~ param)*
-      | self_param
-    )? ~ ","? ~ ")"
+    | "(" ~ ")"
+    | "(" ~ self_param ~ ","? ~ ")"
+    | "(" ~  (self_param ~ ",")? ~ param ~ ("," ~ param)* ~ ","? ~ ")"    
 }
 
 closure_param_list = {
@@ -670,7 +669,7 @@ closure_param_list = {
 }
 
 self_param = {
-    attr* ~ (
+    attr* ~ tracked_str? ~ (
         (amp_str ~ lifetime?)? ~ mut_str? ~ self_str
       | mut_str? ~ self_str ~ colon_str ~ type
     )

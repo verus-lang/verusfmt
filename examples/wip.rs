@@ -1,23 +1,11 @@
 verus! {
 
-fn test1()
-    requires
-        true,
-    ensures
-        true,
-    opens_invariants none
-{
-    5
+fn borrow_join<'a>(tracked &'a self) {
+    2
 }
 
-fn test2()
-    requires
-        true,
-    ensures
-        true,
-    opens_invariants any
-{
-    5
+fn borrow_join2<'a>(tracked &'a self, x: u32) {
+    2
 }
 
 } // verus!
