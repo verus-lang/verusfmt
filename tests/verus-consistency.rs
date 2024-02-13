@@ -539,6 +539,12 @@ impl cfg_alice {
     }
 }
 
+impl<F: FnOnce<Output=OType>> Foo for FnWithRequiresEnsures {
+    fn ensures() {
+        1
+    }
+}
+
 } // verus!
 "#;
 
@@ -566,6 +572,12 @@ impl cfg_alice {
 
         #[verifier(external_body)]
         pub fn func3() {
+        }
+    }
+
+    impl<F: FnOnce<Output = OType>> Foo for FnWithRequiresEnsures {
+        fn ensures() {
+            1
         }
     }
 

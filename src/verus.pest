@@ -257,6 +257,10 @@ f32_str = ${ "f32" ~ !("_" | ASCII_ALPHANUMERIC) }
 f64_str = ${ "f64" ~ !("_" | ASCII_ALPHANUMERIC) }
 false_str = ${ "false" ~ !("_" | ASCII_ALPHANUMERIC) }
 fn_str = ${ "fn" ~ !("_" | ASCII_ALPHANUMERIC) }
+FnOnce_str = ${ "FnOnce" ~ !("_" | ASCII_ALPHANUMERIC) }
+FnMut_str = ${ "FnMut" ~ !("_" | ASCII_ALPHANUMERIC) }
+FnSpec_str = ${ "FnMut" ~ !("_" | ASCII_ALPHANUMERIC) }
+Fn_str = ${ "Fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 for_str = ${ "for" ~ !("_" | ASCII_ALPHANUMERIC) }
 forall_str = ${ "forall" ~ !("_" | ASCII_ALPHANUMERIC) }
 ghost_str = ${ "ghost" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -300,6 +304,7 @@ self_str = ${ "self" ~ !("_" | ASCII_ALPHANUMERIC) }
 Self_str = ${ "Self" ~ !("_" | ASCII_ALPHANUMERIC) }
 sizeof_str = ${ "size_of" ~ !("_" | ASCII_ALPHANUMERIC) }
 spec_str = ${ "spec" ~ !("_" | ASCII_ALPHANUMERIC) }
+spec_fn_str = ${ "spec_fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 static_str = ${ "static" ~ !("_" | ASCII_ALPHANUMERIC) }
 struct_str = ${ "struct" ~ !("_" | ASCII_ALPHANUMERIC) }
 super_str = ${ "super" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -1364,15 +1369,15 @@ fn_ptr_type = {
 }
 
 fn_traits = {
-    "FnOnce"
-  | "FnMut"
-  | "FnSpec" // note: fnspec is not _really_ a trait, but parses same as others, so we keep it here
-  | "Fn"
-  | "spec_fn"
+    FnOnce_str
+  | FnMut_str
+  | FnSpec_str // note: fnspec is not _really_ a trait, but parses same as others, so we keep it here
+  | Fn_str
+  | spec_fn_str
 }
 
 fn_trait_type = {
-    fn_traits ~ param_list ~ ret_type?
+    fn_traits ~ generic_param_list? ~ param_list? ~ ret_type?
 }
 
 for_type = {

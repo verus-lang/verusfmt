@@ -645,6 +645,10 @@ fn to_doc<'a>(
         | Rule::f32_str
         | Rule::f64_str
         | Rule::fn_str
+        | Rule::FnOnce_str
+        | Rule::FnMut_str
+        | Rule::FnSpec_str
+        | Rule::Fn_str
         | Rule::for_str
         | Rule::ghost_str
         | Rule::global_str
@@ -676,6 +680,7 @@ fn to_doc<'a>(
         | Rule::Self_str
         | Rule::sizeof_str
         | Rule::spaced_comma_str
+        | Rule::spec_fn_str
         | Rule::static_str
         | Rule::struct_str
         | Rule::super_str
