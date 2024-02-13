@@ -1,0 +1,32 @@
+# Publishes a release to crates.io
+#
+# Manually copied over from
+# https://github.com/axodotdev/cargo-dist/blob/main/.github/workflows/publish-crates.yml,
+# from
+# https://github.com/axodotdev/cargo-dist/tree/77c490910ff9f6a43a07e28a2a475888553d7902
+#
+# Also manually added `publish-jobs = ["./publish-crates"]` to `Cargo.toml`
+name: PublishRelease
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  # publish the current repo state to crates.io
+  cargo-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - run: cargo publish -p cargo-dist-schema --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+      - run: cargo publish -p cargo-dist --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
