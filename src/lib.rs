@@ -308,34 +308,34 @@ fn map_pairs_to_doc<'a>(
     arena.concat(pairs.clone().map(|p| to_doc(ctx, p, arena)))
 }
 
+// During formatting, rather than trying to dynamically decide when a single-line comment should be
+// placed on its own line based on its context, when we encounter a single-line comment, we add a
+// marker indicating whether it was originally inline.  If it wasn't inline, we also add a
+// destination marker on the next line.  After everything is formatted, in `fix_inline_comments`,
+// we can scan for the markers.  If an originally inline comment has been moved to its own line, we
+// move it back.  If an originally non-inline comment has been inlined, we move it to its
+// corresponding destination marker.  We need the destination marker to tells us how much the
+// comment should be indented when moved to the next line.
 fn comment_to_doc<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
     add_newline: bool,
-    treat_as_inline: bool,
 ) -> DocBuilder<'a, Arena<'a>> {
     assert!(matches!(pair.as_rule(), Rule::COMMENT));
     let (line, _col) = pair.line_col();
     let s = arena.text(pair.as_str().trim());
-    if ctx.inline_comment_lines.contains(&line) || treat_as_inline {
+    if ctx.inline_comment_lines.contains(&line) {
         debug!(
-            "contains(line = <<{}>>) = {}, with add_newline: {}, and treat_as_inline: {}",
+            "contains(line = <<{}>>) = {}, with add_newline: {}",
             pair.as_str(),
             ctx.inline_comment_lines.contains(&line),
             add_newline,
-            treat_as_inline,
         );
         let d = arena
             .text(format!("{:indent$}", "", indent = INLINE_COMMENT_SPACE))
             .append(s)
-            .append(
-                if treat_as_inline && !ctx.inline_comment_lines.contains(&line) {
-                    arena.text(FAUX_INLINE_COMMENT_FIXUP)
-                } else {
-                    arena.text(INLINE_COMMENT_FIXUP)
-                },
-            )
+            .append(arena.text(INLINE_COMMENT_FIXUP))
             .append(if add_newline {
                 arena.line()
             } else {
@@ -343,6 +343,11 @@ fn comment_to_doc<'a>(
             });
         debug!("result: {:?}", d);
         d
+    } else if !is_multiline_comment(&pair) {
+        s.append(NONINLINE_COMMENT_MARKER)
+            .append(arena.hardline())
+            .append(NONINLINE_COMMENT_DST)
+            .append(arena.hardline())
     } else {
         s.append(arena.line())
     }
@@ -825,7 +830,6 @@ fn to_doc<'a>(
                             !has_qualifier
                                 || !saw_comment_after_param_list
                                 || (has_ret_type && pre_ret_type),
-                            true,
                         )
                     }
                     Rule::param_list => {
@@ -1207,7 +1211,7 @@ fn to_doc<'a>(
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
-        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true, false),
+        Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::EOI => unreachable!(),
@@ -1238,7 +1242,8 @@ fn format_item(ctx: &Context, item: Pair<Rule>) -> String {
  */
 
 const INLINE_COMMENT_FIXUP: &str = "FORMATTER_FIXUP";
-const FAUX_INLINE_COMMENT_FIXUP: &str = "FORMATTER_FAUX_FIXUP";
+const NONINLINE_COMMENT_MARKER: &str = "FORMATTER_NOT_INLINE_MARKER";
+const NONINLINE_COMMENT_DST: &str = "FORMATTER_NOT_INLINE_DST";
 
 // Identify lines where non-whitespace precedes the start of a comment (re_inline_candidate);
 // we also have to check for an earlier whitespace-prefixed comment (re_spaced_comment) that
@@ -1248,7 +1253,7 @@ const FAUX_INLINE_COMMENT_FIXUP: &str = "FORMATTER_FAUX_FIXUP";
 //   let y = 5;
 fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     let mut comment_lines = HashSet::new();
-    let re_inline_candidate = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
+    let re_inline_candidate = Regex::new(r"^.*\S.*(//|/\*)").unwrap();
     let re_spaced_comment = Regex::new(r"^\s*(///|//|/\*)").unwrap();
     for (line_num, line) in s.lines().enumerate() {
         if re_inline_candidate.captures(line).is_some()
@@ -1260,31 +1265,48 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
     return comment_lines;
 }
 
-// Put inline comments back on their original line, rather than a line of their own
+fn is_inline_comment(s: &str) -> bool {
+    let comment_start = match (s.find("//"), s.find("/*")) {
+        (Some(l), Some(r)) => std::cmp::min(l, r),
+        (Some(l), None) => l,
+        (None, Some(r)) => r,
+        (None, None) => panic!("Failed to find a comment!: {}", s),
+    };
+    let prefix = &s[0..comment_start];
+    let re_non_whitespace = Regex::new(r"^.*\S.*").unwrap();
+    re_non_whitespace.is_match(prefix)
+}
+
+// Make sure single-line comments end up inline if they started inline or non-inline if they
+// started non-inline. See `comment_to_doc` for details.
 fn fix_inline_comments(s: String) -> String {
     debug!(
         "Formatted output (before comment fixes):\n>>>>>>>\n{}\n<<<<<<<<<<<\n",
         s
     );
+
+    // Finds comments that started life as inline comments
+    let re_was_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
+    // Find a comment that got inlined
+    let re_find_inline = Regex::new(r"(^.*\S.*)((//|/\*).*)").unwrap();
+    // Finds comments that started life not inline
+    let re_noninline = Regex::new(NONINLINE_COMMENT_MARKER).unwrap();
+    // Finds the destination marker for noninline comments
+    let re_noninline_dst = Regex::new(NONINLINE_COMMENT_DST).unwrap();
+
     let mut fixed_str: String = String::new();
     let mut prev_str: String = "".to_string();
     let mut first_iteration = true;
+    let mut comment_replacement = None;
 
-    let re_inline = Regex::new(INLINE_COMMENT_FIXUP).unwrap();
-    let re_faux_inline = Regex::new(FAUX_INLINE_COMMENT_FIXUP).unwrap();
-    let re_still_inline = Regex::new(r"^.*\S.*[^/](//|/\*)").unwrap();
     for line in s.lines() {
         fixed_str += &prev_str;
-        if re_inline.captures(line).is_some() || re_faux_inline.captures(line).is_some() {
-            if re_still_inline.captures(line).is_some() || re_faux_inline.captures(line).is_some() {
+        if re_was_inline.is_match(line) {
+            if is_inline_comment(line) {
                 // After we formatted the inline comment, it's still inline,
                 // so just remove our marker but otherwise leave the line alone
                 fixed_str += "\n";
-                if re_inline.captures(line).is_some() {
-                    prev_str = line.replace(INLINE_COMMENT_FIXUP, "");
-                } else {
-                    prev_str = line.replace(FAUX_INLINE_COMMENT_FIXUP, "");
-                }
+                prev_str = line.replace(INLINE_COMMENT_FIXUP, "");
             } else {
                 // The formerly inline comment is now on a line by itself, so move it back to the
                 // previous line
@@ -1294,6 +1316,35 @@ fn fix_inline_comments(s: String) -> String {
                     line.trim_start().replace(INLINE_COMMENT_FIXUP, ""),
                     indent = INLINE_COMMENT_SPACE
                 );
+            }
+        } else if re_noninline.is_match(line) {
+            if is_inline_comment(line) {
+                // Use is_inline_comment to account for comments about comments
+                // This previously independent comment was absorbed into the preceding line
+                // Move it to the next line in place of the destination marker we created
+                let caps = re_find_inline.captures(line).unwrap();
+                comment_replacement =
+                    Some(caps[2].to_string().replace(NONINLINE_COMMENT_MARKER, ""));
+                fixed_str += "\n";
+                prev_str = caps[1].to_string();
+            } else {
+                // This independent comment is still independent, so leave it there,
+                // but remove the marker we added to the next line
+                comment_replacement = None;
+                fixed_str += "\n";
+                prev_str = line.replace(NONINLINE_COMMENT_MARKER, "");
+            }
+        } else if re_noninline_dst.is_match(line) {
+            match comment_replacement {
+                None => {
+                    // We want to delete this line entirely, so don't add a newline to the fixed_str
+                    prev_str = "".to_string();
+                }
+                Some(ref c) => {
+                    // Replace our marker with the comment
+                    fixed_str += "\n";
+                    prev_str = line.replace(NONINLINE_COMMENT_DST, &c);
+                }
             }
         } else {
             if !first_iteration {

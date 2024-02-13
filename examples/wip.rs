@@ -1,11 +1,9 @@
 verus! {
 
-fn try_parse() -> (u: u32)
-  //    1
-  //    2
-  //    3
-{
-    8
+pub fn test() {
+    if false {
+    }  // Never going to take that branch
+
 }
 
 } // verus!
