@@ -931,7 +931,7 @@ fn to_doc<'a>(
         Rule::spaced_generic_param_list => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::generic_param => map_to_doc(ctx, arena, pair),
         Rule::type_param => map_to_doc(ctx, arena, pair),
-        Rule::const_param => unsupported(pair),
+        Rule::const_param => map_to_doc(ctx, arena, pair),
         Rule::lifetime_param => map_to_doc(ctx, arena, pair),
         Rule::where_clause => arena.space().append(map_to_doc(ctx, arena, pair)),
         Rule::where_preds => comma_delimited(ctx, arena, pair, false).group(),

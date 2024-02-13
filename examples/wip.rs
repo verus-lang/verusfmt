@@ -1,9 +1,8 @@
 verus! {
 
-impl<F: FnOnce<Output=OType>> Foo for FnWithRequiresEnsures {
-    fn ensures() {
-        1
-    }
+impl<T, const N: usize> ArrayAdditionalSpecFns<T> for [T; N] {
+    spec fn view(&self) -> Seq<T>;
+
 }
 
 } // verus!
