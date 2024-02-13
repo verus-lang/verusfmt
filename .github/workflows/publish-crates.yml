@@ -1,6 +1,6 @@
 # Publishes a release to crates.io
 #
-# Manually copied over from
+# Manually copied over (and updated) from
 # https://github.com/axodotdev/cargo-dist/blob/main/.github/workflows/publish-crates.yml,
 # from
 # https://github.com/axodotdev/cargo-dist/tree/77c490910ff9f6a43a07e28a2a475888553d7902
@@ -24,9 +24,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - run: cargo publish -p cargo-dist-schema --token ${CRATES_TOKEN}
-        env:
-          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
-      - run: cargo publish -p cargo-dist --token ${CRATES_TOKEN}
+      - run: cargo publish -p verusfmt --token ${CRATES_TOKEN}
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
