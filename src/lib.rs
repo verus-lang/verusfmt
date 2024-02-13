@@ -581,6 +581,16 @@ fn to_doc<'a>(
         | Rule::r#char
         | Rule::byte => s,
 
+        //****************//
+        // verusfmt::skip //
+        //****************//
+        Rule::verusfmt_skip_attribute => arena.text("#[verusfmt::skip]").append(arena.hardline()),
+        Rule::verusfmt_skipped_item
+        | Rule::verusfmt_skipped_assoc_item
+        | Rule::verusfmt_skipped_stmt
+        | Rule::verusfmt_skipped_expr
+        | Rule::verusfmt_skipped_expr_no_struct => s,
+
         //***********************************************************//
         // Fixed strings we want to preserve in the formatted output //
         //***********************************************************//

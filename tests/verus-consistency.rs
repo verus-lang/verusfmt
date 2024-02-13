@@ -1558,3 +1558,47 @@ fn verus_quantifier_and_bulleted_expr_precedence() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_skip_leaves_code_unchanged() {
+    let file = r#"  verus! { spec fn foo() { 1 + 2 } #[verusfmt::skip]  spec fn bar() { 1 + 2 }
+
+fn baz() {
+    #[verusfmt::skip]
+    let x = {
+        a &&
+        b ||
+            c
+    };
+    let y = {
+        a &&
+        b ||
+            c
+    };
+}
+
+ }  "#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    spec fn foo() {
+        1 + 2
+    }
+
+    #[verusfmt::skip]
+    spec fn bar() { 1 + 2 }
+
+    fn baz() {
+        #[verusfmt::skip]
+        let x = {
+            a &&
+            b ||
+                c
+        };
+        let y = { a && b || c };
+    }
+
+    } // verus!
+    "###);
+}

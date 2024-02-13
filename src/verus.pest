@@ -333,6 +333,10 @@ while_str = ${ "while" ~ !("_" | ASCII_ALPHANUMERIC) }
 yeet_str = ${ "yeet" ~ !("_" | ASCII_ALPHANUMERIC) }
 yield_str = ${ "yield" ~ !("_" | ASCII_ALPHANUMERIC) }
 
+verusfmt_skip_attribute = {
+    "#" ~ "[" ~ "verusfmt" ~ "::" ~ "skip"  ~ "]"
+}
+
 // See https://doc.rust-lang.org/reference/keywords.html
 keyword = {
     // Strict
@@ -583,8 +587,13 @@ item_no_macro_call = _{
   | use
 }
 
+verusfmt_skipped_item = {
+    item
+}
+
 item = {
-    item_no_macro_call
+    (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_item)
+  | item_no_macro_call
   | macro_call ~ semi_str?
 }
 
@@ -787,8 +796,13 @@ assoc_item_list = {
     "{" ~ attr* ~ assoc_items ~ "}"
 }
 
+verusfmt_skipped_assoc_item = {
+    assoc_item
+}
+
 assoc_item = {
-    const
+    (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_assoc_item)
+  | const
   | fn
   | macro_call
   | type_alias
@@ -863,7 +877,7 @@ visibility = {
 
 attr_core = {
     trigger_attribute
-    | "#" ~ bang_str? ~ "[" ~ meta ~ "]"
+    | "#" ~ bang_str? ~ "[" ~ !"verusfmt" ~ meta ~ "]"
 }
 // Two aliases for attr_core, so that we can print them differently
 attr = {
@@ -882,8 +896,13 @@ meta = {
 // Statements and Expressions //
 //****************************//
 
+verusfmt_skipped_stmt = {
+    stmt
+}
+
 stmt = {
-    semi_str
+    (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_stmt)
+  | semi_str
   | proof_block
   | let_stmt
   | assignment_stmt
@@ -908,15 +927,25 @@ assignment_stmt = {
     star_str* ~ path ~ assignment_ops ~ expr ~ semi_str
 }
 
+verusfmt_skipped_expr = {
+    expr
+}
+
+verusfmt_skipped_expr_no_struct = {
+    expr_no_struct
+}
+
 // This split of `expr` and `expr_inner` is to simply break the left-recursion
 // that would happen otherwise.
 expr = {
-    expr_inner ~
+    (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_expr)
+  | expr_inner ~
     expr_outer*
 }
 
 expr_no_struct = {
-    expr_inner_no_struct ~
+    (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_expr_no_struct)
+  | expr_inner_no_struct ~
     expr_outer_no_struct*
 }
 
