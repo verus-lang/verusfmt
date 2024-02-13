@@ -1368,6 +1368,7 @@ fn_traits = {
   | "FnMut"
   | "FnSpec" // note: fnspec is not _really_ a trait, but parses same as others, so we keep it here
   | "Fn"
+  | "spec_fn"
 }
 
 fn_trait_type = {
