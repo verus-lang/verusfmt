@@ -9,19 +9,41 @@ An opinionated formatter for [Verus] code.
 
 ## Installing and Using Verusfmt
 
-Install the latest release using:
+We support multiple install methods:
 
-``` sh
-cargo install verusfmt --locked
-```
+* [Latest release](https://github.com/jaybosamiya/verusfmt/releases/latest) using:
 
-Alternatively, install the latest git commit using:
+  - <details><summary>Pre-built binary on Linux/MacOS (click to expand)</summary>
 
-```sh
-cargo install --git https://github.com/jaybosamiya/verusfmt --locked
-```
+    ```sh
+    curl --proto '=https' --tlsv1.2 -LsSf https://github.com/jaybosamiya/verusfmt/releases/latest/download/verusfmt-installer.sh | sh
+    ```
+    </details>
 
-This will install the `verusfmt` binary. You can then run it on a file using: 
+  - <details><summary>Pre-built binary on Windows (click to expand)</summary>
+
+    ```sh
+    irm https://github.com/jaybosamiya/verusfmt/releases/latest/download/verusfmt-installer.ps1 | iex
+    ```
+    </details>
+
+  - <details><summary>cargo install (click to expand)</summary>
+
+    ``` sh
+    cargo install verusfmt --locked
+    ```
+    </details>
+
+* Bleeding-edge latest git commit
+
+  - <details><summary>cargo install (click to expand)</summary>
+
+    ```sh
+    cargo install --git https://github.com/jaybosamiya/verusfmt --locked
+    ```
+
+
+These will install the `verusfmt` binary. You can then run it on a file using:
 
 ``` sh
 verusfmt foo.rs
