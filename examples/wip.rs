@@ -1,8 +1,23 @@
 verus! {
 
-impl<T, const N: usize> ArrayAdditionalSpecFns<T> for [T; N] {
-    spec fn view(&self) -> Seq<T>;
+fn test1()
+    requires
+        true,
+    ensures
+        true,
+    opens_invariants none
+{
+    5
+}
 
+fn test2()
+    requires
+        true,
+    ensures
+        true,
+    opens_invariants any
+{
+    5
 }
 
 } // verus!

@@ -719,10 +719,12 @@ fn to_doc<'a>(
         | Rule::ensures_str
         | Rule::invariant_str
         | Rule::invariant_ensures_str
+        | Rule::opens_invariants_str
         | Rule::recommends_str
         | Rule::requires_str => arena.hardline().append(s).nest(INDENT_SPACES),
 
-        Rule::assert_str
+        Rule::any_str
+        | Rule::assert_str
         | Rule::assume_str
         | Rule::checked_str
         | Rule::choose_str
@@ -730,6 +732,7 @@ fn to_doc<'a>(
         | Rule::exists_str
         | Rule::false_str
         | Rule::forall_str
+        | Rule::none_str
         | Rule::proof_str
         | Rule::self_str
         | Rule::spec_str
@@ -1204,6 +1207,8 @@ fn to_doc<'a>(
         Rule::invariant_ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
+        Rule::opens_invariants_mode => arena.space().append(map_to_doc(ctx, arena, pair)),
+        Rule::opens_invariants_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),
         Rule::assert_expr_prefix
         | Rule::assert_by_block_expr

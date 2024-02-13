@@ -226,6 +226,7 @@ tilde_str = { "~" }
 triple_and = { "&&&" }
 triple_or = { "|||" }
 underscore_str = { "_" }
+any_str = ${ "any" ~ !("_" | ASCII_ALPHANUMERIC) }
 as_str = ${ "as" ~ !("_" | ASCII_ALPHANUMERIC) }
 assert_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
 assert_space_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -290,7 +291,9 @@ mod_str = ${ "mod" ~ !("_" | ASCII_ALPHANUMERIC) }
 move_str = ${ "move" ~ !("_" | ASCII_ALPHANUMERIC) }
 mut_str = ${ "mut" ~ !("_" | ASCII_ALPHANUMERIC) }
 nat_str = ${ "nat" ~ !("_" | ASCII_ALPHANUMERIC) }
+none_str = ${ "none" ~ !("_" | ASCII_ALPHANUMERIC) }
 open_str = ${ "open" ~ !("_" | ASCII_ALPHANUMERIC) }
+opens_invariants_str = ${ "opens_invariants" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_space_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
 pub_str = ${ "pub" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -634,7 +637,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    (requires_clause | recommends_clause | ensures_clause | decreases_clause)*
+    (requires_clause | recommends_clause | ensures_clause | decreases_clause | opens_invariants_clause)*
 }
 
 fn_terminator = {
@@ -1569,6 +1572,7 @@ verus_clause_non_expr = _{
   | via_str
   | decreases_str
   | when_str
+  | opens_invariants_str
 }
 
 requires_clause = {
@@ -1593,6 +1597,15 @@ recommends_clause = {
 
 decreases_clause = {
     decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr_no_struct)? ~ (via_str ~ expr_no_struct)?
+}
+
+opens_invariants_mode = {
+    any_str
+  | none_str
+}
+
+opens_invariants_clause = {
+    opens_invariants_str ~ opens_invariants_mode
 }
 
 assert_requires = {

@@ -109,6 +109,26 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
  {
  }
 
+fn test1()
+    requires
+        true,
+    ensures
+        true,
+    opens_invariants none
+{
+    5
+}
+
+fn test2()
+    requires
+        true,
+    ensures
+        true,
+    opens_invariants any
+{
+    5
+}
+
 }
 "#;
 
@@ -226,6 +246,26 @@ ensures  res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state))
         ensures
             res.is_Ok() ==> (res.get_Ok_0().1)@@.results_in(((), *mut_state)),
     {
+    }
+
+    fn test1()
+        requires
+            true,
+        ensures
+            true,
+        opens_invariants none
+    {
+        5
+    }
+
+    fn test2()
+        requires
+            true,
+        ensures
+            true,
+        opens_invariants any
+    {
+        5
     }
 
     } // verus!
