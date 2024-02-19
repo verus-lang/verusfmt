@@ -1631,3 +1631,31 @@ proof fn uses_arrow_matches_1(t: ThisOrThat)
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_matches_expr() {
+    let file = r#"
+verus! {
+
+proof fn uses_arrow_matches_1(t: ThisOrThat) { assert(t matches ThisOrThat::This(k) ==> k == 4);
+    assert(t matches ThisOrThat::That { v } ==> v == 3); assert({ &&& t matches ThisOrThat::This(k)
+    &&& baz }); }
+
+}
+
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn uses_arrow_matches_1(t: ThisOrThat) {
+        assert(t matches ThisOrThat::This(k) ==> k == 4);
+        assert(t matches ThisOrThat::That { v } ==> v == 3);
+        assert({
+            &&& t matches ThisOrThat::This(k)
+            &&& baz
+        });
+    }
+
+    } // verus!
+    "###);
+}
