@@ -620,7 +620,8 @@ fn to_doc<'a>(
         | Rule::semi_str
         | Rule::star_str
         | Rule::tilde_str
-        | Rule::underscore_str => s,
+        | Rule::underscore_str
+        | Rule::arrow_expr_str => s,
         Rule::fn_traits | Rule::impl_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         //        Rule::triple_and |

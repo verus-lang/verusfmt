@@ -998,6 +998,12 @@ expr_is = {
     is_str ~ type
 }
 
+// Separate rule for `->` (rarrow_str) because rarrow_str is normally used for
+// functions, and that introduces spaces before and after.
+arrow_expr_str = {
+    rarrow_str
+}
+
 expr_outer = _{
     // await_expr
     dot_str ~ await_str
@@ -1021,6 +1027,8 @@ expr_outer = _{
     | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
     // field_expr
     | dot_str ~ name_ref
+    // arrow_expr
+    | arrow_expr_str ~ (int_number | name_ref)
     // bin_expr
     | bin_expr_ops ~ expr
     // range_expr
@@ -1050,6 +1058,8 @@ expr_outer_no_struct = _{
     | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
     // field_expr
     | dot_str ~ name_ref
+    // arrow_expr
+    | arrow_expr_str ~ (int_number | name_ref)
     // bin_expr
     | bin_expr_ops ~ expr_no_struct
     // range_expr

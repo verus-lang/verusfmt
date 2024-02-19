@@ -1602,3 +1602,32 @@ fn baz() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_arrow_expr() {
+    let file = r#"
+verus! {
+
+proof fn uses_arrow_matches_1(t: ThisOrThat)
+    requires
+        t is That ==> t->v == 3,
+        t is This ==> t->0 == 4,
+{
+}
+
+}
+
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn uses_arrow_matches_1(t: ThisOrThat)
+        requires
+            t is That ==> t->v == 3,
+            t is This ==> t->0 == 4,
+    {
+    }
+
+    } // verus!
+    "###);
+}
