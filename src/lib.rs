@@ -620,7 +620,8 @@ fn to_doc<'a>(
         | Rule::semi_str
         | Rule::star_str
         | Rule::tilde_str
-        | Rule::underscore_str => s,
+        | Rule::underscore_str
+        | Rule::arrow_expr_str => s,
         Rule::fn_traits | Rule::impl_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         //        Rule::triple_and |
@@ -715,9 +716,12 @@ fn to_doc<'a>(
         | Rule::yeet_str
         | Rule::yield_str => s.append(arena.space()),
 
-        Rule::as_str | Rule::by_str_inline | Rule::has_str | Rule::implies_str | Rule::is_str => {
-            arena.space().append(s).append(arena.space())
-        }
+        Rule::as_str
+        | Rule::by_str_inline
+        | Rule::has_str
+        | Rule::implies_str
+        | Rule::is_str
+        | Rule::matches_str => arena.space().append(s).append(arena.space()),
 
         Rule::by_str | Rule::via_str | Rule::when_str => arena
             .line()
@@ -971,6 +975,7 @@ fn to_doc<'a>(
         Rule::expr_as => map_to_doc(ctx, arena, pair),
         Rule::expr_has => map_to_doc(ctx, arena, pair),
         Rule::expr_is => map_to_doc(ctx, arena, pair),
+        Rule::expr_matches => map_to_doc(ctx, arena, pair),
         Rule::expr_outer => map_to_doc(ctx, arena, pair),
         Rule::expr_outer_no_struct => map_to_doc(ctx, arena, pair),
         Rule::expr_no_struct => map_to_doc(ctx, arena, pair),

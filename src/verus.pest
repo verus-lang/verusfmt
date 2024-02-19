@@ -287,6 +287,7 @@ loop_str = ${ "loop" ~ !("_" | ASCII_ALPHANUMERIC) }
 macro_str = ${ "macro" ~ !("_" | ASCII_ALPHANUMERIC) }
 macro_rules_str = ${ "macro_rules" ~ !("_" | ASCII_ALPHANUMERIC) }
 match_str = ${ "match" ~ !("_" | ASCII_ALPHANUMERIC) }
+matches_str = ${ "matches" ~ !("_" | ASCII_ALPHANUMERIC) }
 mod_str = ${ "mod" ~ !("_" | ASCII_ALPHANUMERIC) }
 move_str = ${ "move" ~ !("_" | ASCII_ALPHANUMERIC) }
 mut_str = ${ "mut" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -998,6 +999,16 @@ expr_is = {
     is_str ~ type
 }
 
+expr_matches = {
+    matches_str ~ pat
+}
+
+// Separate rule for `->` (rarrow_str) because rarrow_str is normally used for
+// functions, and that introduces spaces before and after.
+arrow_expr_str = {
+    rarrow_str
+}
+
 expr_outer = _{
     // await_expr
     dot_str ~ await_str
@@ -1021,6 +1032,10 @@ expr_outer = _{
     | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
     // field_expr
     | dot_str ~ name_ref
+    // arrow_expr
+    | arrow_expr_str ~ (int_number | name_ref)
+    // matches_expr
+    | expr_matches
     // bin_expr
     | bin_expr_ops ~ expr
     // range_expr
@@ -1050,6 +1065,10 @@ expr_outer_no_struct = _{
     | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
     // field_expr
     | dot_str ~ name_ref
+    // arrow_expr
+    | arrow_expr_str ~ (int_number | name_ref)
+    // matches_expr
+    | expr_matches
     // bin_expr
     | bin_expr_ops ~ expr_no_struct
     // range_expr
