@@ -507,6 +507,27 @@ fn is_prefix_triple(pair: Pair<Rule>) -> bool {
     }
 }
 
+/// Checks if this rule is a trigger attribute without specific expressions
+fn is_bare_trigger(pair: Pair<Rule>) -> bool {
+    assert!(matches!(pair.as_rule(), Rule::attr) || matches!(pair.as_rule(), Rule::attr_inner));
+    let core = pair
+        .into_inner()
+        .find(|p| matches!(p.as_rule(), Rule::attr_core));
+    match core {
+        None => false,
+        Some(core) => match core
+            .into_inner()
+            .find(|p| matches!(p.as_rule(), Rule::trigger_attribute))
+        {
+            None => false,
+            Some(trigger) => trigger
+                .into_inner()
+                .find(|p| matches!(p.as_rule(), Rule::comma_delimited_exprs))
+                .is_none(),
+        },
+    }
+}
+
 /// Checks if a block may be written on a single line.  Rust says this is okay if:
 /// - it is either used in expression position (not statement position) or is an unsafe block in statement position
 /// - contains a single-line expression and no statements
@@ -955,7 +976,15 @@ fn to_doc<'a>(
         Rule::where_pred => map_to_doc(ctx, arena, pair),
         Rule::visibility => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::attr_core => arena.text(pair.as_str()),
-        Rule::attr => map_to_doc(ctx, arena, pair).append(arena.hardline()),
+        Rule::attr => {
+            let d = map_to_doc(ctx, arena, pair.clone());
+            if is_bare_trigger(pair) {
+                // As a special case, allow trigger attributes the option of staying inline
+                d.append(arena.space())
+            } else {
+                d.append(arena.hardline())
+            }
+        }
         Rule::attr_inner => map_to_doc(ctx, arena, pair),
         Rule::meta => unsupported(pair),
 
@@ -1076,11 +1105,17 @@ fn to_doc<'a>(
                             .line_()
                             .append(to_doc(ctx, p, arena))
                             .nest(INDENT_SPACES),
-                        Rule::attr_inner => arena
-                            .line_()
-                            .append(to_doc(ctx, p, arena))
-                            .append(arena.nil().flat_alt(arena.space()))
-                            .nest(INDENT_SPACES),
+                        Rule::attr_inner => {
+                            if is_bare_trigger(p.clone()) {
+                                to_doc(ctx, p, arena).append(arena.space())
+                            } else {
+                                arena
+                                    .line_()
+                                    .append(to_doc(ctx, p, arena))
+                                    .append(arena.nil().flat_alt(arena.space()))
+                                    .nest(INDENT_SPACES)
+                            }
+                        }
                         Rule::closure_param_list => {
                             if has_ret {
                                 // Don't add a space, since ret_type already does it

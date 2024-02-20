@@ -268,17 +268,13 @@ fn test_choose() {
 /// or proving an exists, use #[trigger]:
 fn test_single_trigger1() {
     // Use [my_spec_fun(x, y)] as the trigger
-    assume(forall|x: int, y: int|
-        f1(x) < 100 && f1(y) < 100 ==> #[trigger]
-        my_spec_fun(x, y) >= x);
+    assume(forall|x: int, y: int| f1(x) < 100 && f1(y) < 100 ==> #[trigger] my_spec_fun(x, y) >= x);
 }
 
 fn test_single_trigger2() {
     // Use [f1(x), f1(y)] as the trigger
-    assume(forall|x: int, y: int|
-        #[trigger]
-        f1(x) < 100 && #[trigger]
-        f1(y) < 100 ==> my_spec_fun(x, y) >= x);
+    assume(forall|x: int, y: int| #[trigger]
+        f1(x) < 100 && #[trigger] f1(y) < 100 ==> my_spec_fun(x, y) >= x);
 }
 
 /// To manually specify multiple triggers, use #![trigger]:

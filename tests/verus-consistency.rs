@@ -46,6 +46,7 @@ pub fn test_function(x: bool, y: bool) -> u32
     assert(x);
     assert(c is Seq);
     assert(c has 3 == c has 3);
+    assert(forall|x, y| #[trigger] r(x, y) == #[trigger] r(y, x));
     assume(forall|x: int, y: int|
         #![trigger long_long_long_long_long_long_f1(x)]
         #![trigger long_long_long_long_long_long_g1(x)]
@@ -176,6 +177,7 @@ fn test2()
         assert(x);
         assert(c is Seq);
         assert(c has 3 == c has 3);
+        assert(forall|x, y| #[trigger] r(x, y) == #[trigger] r(y, x));
         assume(forall|x: int, y: int|
             #![trigger long_long_long_long_long_long_f1(x)]
             #![trigger long_long_long_long_long_long_g1(x)]
