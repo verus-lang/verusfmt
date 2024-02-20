@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.2.2
+
 * Allow (bare) trigger attributes to be inline, rather than always on their own line
 
 # v0.2.1
