@@ -1448,7 +1448,7 @@ type_bound_list = {
 
 type_bound = {
     lifetime_no_space
-  | ("?" | "~" ~ const_str)? ~ type
+  | (question_str | tilde_str ~ const_str)? ~ type
 }
 
 //************************//
