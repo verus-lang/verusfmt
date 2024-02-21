@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.2.3
+
+* Don't drop "?" or "~" from type bounds
+
 # v0.2.2
 
 * Allow (bare) trigger attributes to be inline, rather than always on their own line
