@@ -1,12 +1,12 @@
 [package]
 name = "verusfmt"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 autoexamples = false
 license = "MIT"
 description = "An opinionated formatter for Verus"
-homepage = "https://github.com/jaybosamiya/verusfmt"
-repository = "https://github.com/jaybosamiya/verusfmt"
+homepage = "https://github.com/verus-lang/verusfmt"
+repository = "https://github.com/verus-lang/verusfmt"
 readme = "README.md"
 keywords = ["verus", "formatter", "pretty-printer"]
 categories = ["development-tools"]

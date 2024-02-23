@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.2.4
+
+* Move verusfmt to the verus-lang organization: https://github.com/verus-lang/verusfmt
+
 # v0.2.3
 
 * Don't drop "?" or "~" from type bounds
