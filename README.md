@@ -11,19 +11,19 @@ An opinionated formatter for [Verus] code.
 
 We support multiple install methods:
 
-* [Latest release](https://github.com/jaybosamiya/verusfmt/releases/latest) using:
+* [Latest release](https://github.com/verus-lang/verusfmt/releases/latest) using:
 
   - <details><summary>Pre-built binary on Linux/MacOS (click to expand)</summary>
 
     ```sh
-    curl --proto '=https' --tlsv1.2 -LsSf https://github.com/jaybosamiya/verusfmt/releases/latest/download/verusfmt-installer.sh | sh
+    curl --proto '=https' --tlsv1.2 -LsSf https://github.com/verus-lang/verusfmt/releases/latest/download/verusfmt-installer.sh | sh
     ```
     </details>
 
   - <details><summary>Pre-built binary on Windows (click to expand)</summary>
 
     ```sh
-    irm https://github.com/jaybosamiya/verusfmt/releases/latest/download/verusfmt-installer.ps1 | iex
+    irm https://github.com/verus-lang/verusfmt/releases/latest/download/verusfmt-installer.ps1 | iex
     ```
     </details>
 
@@ -39,7 +39,7 @@ We support multiple install methods:
   - <details><summary>cargo install (click to expand)</summary>
 
     ```sh
-    cargo install --git https://github.com/jaybosamiya/verusfmt --locked
+    cargo install --git https://github.com/verus-lang/verusfmt --locked
     ```
 
 
