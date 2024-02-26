@@ -47,7 +47,6 @@ fn owl_output_rs_unchanged() {
 }
 
 #[test]
-#[ignore] // Due to https://github.com/verus-lang/verusfmt/issues/33
 fn pagetable_rs_unchanged() {
     check_snapshot(include_str!("../examples/pagetable.rs"));
 }
