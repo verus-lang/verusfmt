@@ -30,13 +30,13 @@ fn ironfleet_rs_unchanged() {
 }
 
 #[test]
-#[ignore] // Due to "fatal runtime error: stack overflow" during testing
+#[ignore] // Due to "fatal runtime error: stack overflow" during `cargo test`, and comment failure during regular execution
 fn mimalloc_rs_unchanged() {
     check_snapshot(include_str!("../examples/mimalloc.rs"));
 }
 
 #[test]
-#[ignore] // Due to https://github.com/verus-lang/verusfmt/issues/33
+#[ignore] // Due to a version of https://github.com/verus-lang/verusfmt/issues/33 on the `state_machine` macro
 fn nr_rs_unchanged() {
     check_snapshot(include_str!("../examples/nr.rs"));
 }
