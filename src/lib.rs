@@ -1431,11 +1431,12 @@ fn strip_whitespace(s: String) -> String {
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
 pub const VERUS_SUFFIX: &str = "\n} // verus!\n";
 
-/// Run rustfmt
+/// Run rustfmt, only on code outside the `verus!` macro
 pub fn rustfmt(value: &str) -> Option<String> {
     if let Ok(mut proc) = Command::new("rustfmt")
         .arg("--emit=stdout")
         .arg("--edition=2021")
+        .arg(r#"--config=skip_macro_invocations=["verus"]"#)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
