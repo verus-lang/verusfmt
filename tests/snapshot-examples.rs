@@ -25,7 +25,6 @@ fn syntax_rs_unchanged() {
 }
 
 #[test]
-#[ignore] // Due to https://github.com/verus-lang/verusfmt/issues/33
 fn ironfleet_rs_unchanged() {
     check_snapshot(include_str!("../examples/ironfleet.rs"));
 }
