@@ -68,7 +68,6 @@ fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> miette::Result<
     }
 }
 
-// TODO: Call rustfmt on the code too (maybe include an option to skip it)
 fn main() -> miette::Result<()> {
     let args = Args::parse();
     if args.files.len() == 0 {
@@ -86,9 +85,20 @@ fn main() -> miette::Result<()> {
             _ => tracing::Level::TRACE,
         })
         .init();
-    // TODO: This errors out when we first find an ill-formatted file.
-    //       Consider going through all of the files, regardless.
-    args.files.iter().try_fold((), |_, file| {
-        format_file(&file, args.check, args.verus_only)
-    })
+
+    let mut errors = vec![];
+    for file in args.files {
+        match format_file(&file, args.check, args.verus_only) {
+            Ok(()) => {}
+            Err(e) => {
+                errors.push(e);
+            }
+        }
+    }
+
+    match errors.len() {
+        0 => Ok(()),
+        1 => Err(errors.pop().unwrap()),
+        _ => Err(miette!("Multiple errors found: {errors:?}")),
+    }
 }
