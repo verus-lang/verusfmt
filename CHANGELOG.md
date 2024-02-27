@@ -1,5 +1,7 @@
 # Unreleased
 
+* When running verusfmt on multiple files, continue attempting files even if one in the middle fails
+
 # v0.2.5
 
 * Fix `FnSpec` parsing
