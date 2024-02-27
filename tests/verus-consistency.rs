@@ -1058,6 +1058,12 @@ pub fn test() {
     }// No space between the one character indicating non-inline and the comment
 }
 
+fn test() {
+    let x = 1;/* inline multi-line comment stays inline */
+    let y = 1; /* Long
+                  dangling 
+                  comment doesn't */
+}
 
 } // verus!
 "#;
@@ -1210,6 +1216,14 @@ pub fn test() {
         if false {
         }  // No space between the one character indicating non-inline and the comment
 
+    }
+
+    fn test() {
+        let x = 1;  /* inline multi-line comment stays inline */
+        let y = 1;
+        /* Long
+                      dangling
+                      comment doesn't */
     }
 
     } // verus!
