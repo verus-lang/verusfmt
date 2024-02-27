@@ -1363,7 +1363,7 @@ fn fix_inline_comments(s: String) -> String {
     for line in s.lines() {
         fixed_str += &prev_str;
         //println!("Processing line {}", line_num);
-        line_num += 1;
+        //line_num += 1;
         if re_was_inline.is_match(line) {
             if is_inline_comment(line) {
                 // After we formatted the inline comment, it's still inline,
