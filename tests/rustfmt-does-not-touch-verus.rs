@@ -12,7 +12,7 @@ fn mod_macro_item_idempotent() {
     }
   }
 "#;
-    let formatted1 = verusfmt::rustfmt(&verusfmt::parse_and_format(file).unwrap()).unwrap();
-    let formatted2 = verusfmt::rustfmt(&verusfmt::parse_and_format(&formatted1).unwrap()).unwrap();
+    let formatted1 = verusfmt::run(file, Default::default()).unwrap();
+    let formatted2 = verusfmt::run(&formatted1, Default::default()).unwrap();
     assert_eq!(formatted1, formatted2);
 }

@@ -1616,3 +1616,41 @@ pub fn parse_and_format(s: &str) -> miette::Result<String> {
     let fixed_output = strip_whitespace(fixed_output);
     Ok(fixed_output)
 }
+
+/// Options to pass to [`run`]
+pub struct RunOptions {
+    /// The file name. If provided, improves diagnostics.
+    pub file_name: Option<String>,
+    /// Whether to run rustfmt on non-verus parts of code.
+    pub run_rustfmt: bool,
+}
+
+impl Default for RunOptions {
+    fn default() -> Self {
+        Self {
+            file_name: None,
+            run_rustfmt: true,
+        }
+    }
+}
+
+pub fn run(s: &str, opts: RunOptions) -> miette::Result<String> {
+    let unparsed_file = s;
+
+    let file_name = opts.file_name.clone().unwrap_or("<input>".into());
+
+    let verus_fmted = parse_and_format(&unparsed_file).map_err(|e| {
+        e.with_source_code(miette::NamedSource::new(
+            file_name,
+            unparsed_file.to_owned(),
+        ))
+    })?;
+
+    let formatted_output = if !opts.run_rustfmt {
+        verus_fmted
+    } else {
+        rustfmt(&verus_fmted).ok_or(miette::miette!("rustfmt failed"))?
+    };
+
+    Ok(formatted_output)
+}
