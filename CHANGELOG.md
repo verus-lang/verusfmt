@@ -1,5 +1,9 @@
 # Unreleased
 
+* Fix `FnSpec` parsing
+  - Despite Verus having deprecated `FnSpec` with the introduction of `spec_fn`, verusfmt still supports it for projects on older Verus
+* Fix idempotency issue of macro-items inside `verus!` inside in-file `mod`ules
+
 # v0.2.4
 
 * Move verusfmt to the verus-lang organization: https://github.com/verus-lang/verusfmt
@@ -18,7 +22,7 @@
 * Update handling for `fn_trait_types`
 * Add support for `const` params
 * Add support for `opens_invariants`
-* Improve handling of comples self-params (e.g., `tracked '&a self`)
+* Improve handling of complex self-params (e.g., `tracked '&a self`)
 * Introduce `#[verusfmt::skip]` (#31)
 * Add support for new `->` and `matches` expressions (#32)
 
