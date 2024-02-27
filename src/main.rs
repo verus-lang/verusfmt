@@ -1,9 +1,17 @@
 use std::path::PathBuf;
 
-use clap::Parser as ClapParser;
+use clap::{Parser as ClapParser, ValueEnum};
 use fs_err as fs;
 use miette::{miette, IntoDiagnostic};
 use tracing::{error, info}; // debug, trace
+
+/// A collection of options that should not be relied upon existing long-term, added primarily for
+/// verusfmt developers to use.
+#[derive(Clone, ValueEnum)]
+enum UnstableCommand {
+    /// Run idempotency test. Exits with 0 only if an idempotency issue is found.
+    IdempotencyTest,
+}
 
 /// An opinionated formatter for Verus code
 ///
@@ -23,6 +31,9 @@ struct Args {
     /// Print debugging output (can be repeated for more detail)
     #[arg(short = 'd', long = "debug", action = clap::ArgAction::Count)]
     debug_level: u8,
+    /// Use unstable CLI features
+    #[arg(short = 'Z', long = "unstable")]
+    unstable_command: Option<UnstableCommand>,
 }
 
 fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
@@ -55,6 +66,35 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
             );
             println!("{diff}");
             return Err(miette!("invalid formatting"));
+        }
+    } else if matches!(
+        args.unstable_command,
+        Some(UnstableCommand::IdempotencyTest)
+    ) {
+        let reformatted = verusfmt::run(
+            &formatted_output,
+            verusfmt::RunOptions {
+                file_name: Some(file.to_string_lossy().into()),
+                run_rustfmt: !args.verus_only,
+            },
+        )?;
+        if formatted_output == reformatted {
+            return Err(miette!("✨Idempotent run✨"));
+        } else {
+            info!("Non-idempotency found in {}", file.display());
+            error!("😱Formatting found to not be idempotent😱");
+            let diff = similar::udiff::unified_diff(
+                similar::Algorithm::Patience,
+                &formatted_output,
+                &reformatted,
+                3,
+                Some((
+                    &format!("{}.formatted-once", file.to_string_lossy()),
+                    &format!("{}.formatted-twice", file.to_string_lossy()),
+                )),
+            );
+            println!("{diff}");
+            return Ok(());
         }
     } else {
         fs::write(file, formatted_output).into_diagnostic()?;
