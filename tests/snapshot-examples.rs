@@ -49,3 +49,8 @@ fn owl_output_rs_unchanged() {
 fn pagetable_rs_unchanged() {
     check_snapshot(include_str!("../examples/pagetable.rs"));
 }
+
+#[test]
+fn vstd_rs_unchanged() {
+    check_snapshot(include_str!("../examples/vstd.rs"));
+}
