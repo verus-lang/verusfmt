@@ -1,0 +1,69 @@
+//! An extremely minimal grammar for Verus, intended for quickly splitting out !
+//! regions inside and outside the `verus!` macro.
+
+/// Allowed whitespace between any tokens in the grammar; completely ignored when the parsing is
+/// done (except in cases such as strings or comments)
+WHITESPACE = _{
+  " " | "\t" | NEWLINE
+}
+
+/// Comment syntax; NOT ignored in the syntax tree that is parsed. Allowed to
+/// exist between any tokens (except atomic tokens, of course).
+COMMENT = @{
+    // Outer docstring
+    ("//!" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+    // Inner docstring
+  | ("///" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+    // Multiline comment
+  | multiline_comment
+    // Singleline comment
+  | ("//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+}
+
+multiline_comment = @{
+    "/*" ~ (multiline_comment | (!"*/" ~ ANY))* ~ "*/"
+}
+
+/// The entirety of a Verus source file
+file = {
+    SOI ~
+    (non_verus ~ verus_macro_use)* ~
+    non_verus? ~
+    EOI
+}
+
+/// Region of code that doesn't contain any Verus macro use whatsoever
+non_verus = @{
+  (!("verus!" ~ WHITESPACE* ~ "{") ~ ANY)*
+}
+
+/// An actual use of the `verus! { ... }` macro
+verus_macro_use = ${
+    "verus!" ~ WHITESPACE* ~ "{" ~ (WHITESPACE | COMMENT)* ~ verus_macro_body ~ (WHITESPACE | COMMENT)* ~ "}" ~ WHITESPACE* ~ ("//" ~ WHITESPACE* ~ "verus!" ~ WHITESPACE*)?
+}
+
+/// Anything inside the `verus! { ... }` macro
+verus_macro_body = !{
+    tt*
+}
+
+tt = {
+    curly_tree
+  | square_tree
+  | paren_tree
+  | token
+}
+curly_tree = {
+    "{" ~ tt* ~ "}"
+}
+square_tree = {
+    "[" ~ tt* ~ "]"
+}
+paren_tree = {
+    "(" ~ tt* ~ ")"
+}
+
+/// _Technically_ not a Rust token, but we're trying to do a minimal parser _anyways_
+token = {
+    !("{" | "}" | "[" | "]" | "(" | ")") ~ ANY
+}
