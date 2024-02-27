@@ -5,7 +5,7 @@
 //! modified by any change.
 
 fn check_snapshot(original: &str) {
-    let formatted = verusfmt::rustfmt(&verusfmt::parse_and_format(&original).unwrap()).unwrap();
+    let formatted = verusfmt::run(original, Default::default()).unwrap();
     if original != formatted {
         let diff = similar::udiff::unified_diff(
             similar::Algorithm::Patience,
