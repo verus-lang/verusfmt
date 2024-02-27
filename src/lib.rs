@@ -1,5 +1,10 @@
 #![allow(dead_code, unused_imports)] // TEMPORARY
 #![allow(unstable_name_collisions)] // Needed due to Itertools::intersperse
+
+mod rustfmt;
+
+pub use crate::rustfmt::rustfmt;
+
 use itertools::Itertools;
 use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
@@ -1433,35 +1438,6 @@ fn strip_whitespace(s: String) -> String {
 
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
 pub const VERUS_SUFFIX: &str = "\n} // verus!\n";
-
-/// Run rustfmt, only on code outside the `verus!` macro
-pub fn rustfmt(value: &str) -> Option<String> {
-    if let Ok(mut proc) = Command::new("rustfmt")
-        .arg("--emit=stdout")
-        .arg("--edition=2021")
-        .arg(r#"--config=skip_macro_invocations=["verus"]"#)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-    {
-        {
-            let stdin = proc.stdin.as_mut().unwrap();
-            stdin.write_all(value.as_bytes()).unwrap();
-        }
-        if let Ok(output) = proc.wait_with_output() {
-            if output.status.success() {
-                return Some(from_utf8(&output.stdout).unwrap().into());
-            } else {
-                eprintln!(
-                    "\nrustfmt failed! {}\n\tConsider running with --verus-only\n",
-                    from_utf8(&output.stderr).unwrap()
-                );
-            }
-        }
-    }
-    None
-}
 
 fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
     matches!(&pair.as_span().as_str()[..2], "/*")
