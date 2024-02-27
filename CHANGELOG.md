@@ -1,8 +1,12 @@
 # Unreleased
 
+# v0.2.5
+
 * Fix `FnSpec` parsing
   - Despite Verus having deprecated `FnSpec` with the introduction of `spec_fn`, verusfmt still supports it for projects on older Verus
 * Fix idempotency issue of macro-items inside `verus!` inside in-file `mod`ules
+* Fix multi-line inline comment treatment
+  - Only treat multi-line comments as inline if the entire comment is on a single line
 
 # v0.2.4
 
