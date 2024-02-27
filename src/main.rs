@@ -2,9 +2,8 @@ use std::path::PathBuf;
 
 use clap::Parser as ClapParser;
 use fs_err as fs;
-use miette::{miette, IntoDiagnostic, NamedSource};
+use miette::{miette, IntoDiagnostic};
 use tracing::{error, info}; // debug, trace
-use verusfmt::{parse_and_format, rustfmt};
 
 /// An opinionated formatter for Verus code
 ///
@@ -26,23 +25,18 @@ struct Args {
     debug_level: u8,
 }
 
-fn format_file(file: &PathBuf, check: bool, verus_only: bool) -> miette::Result<()> {
+fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
     let unparsed_file = fs::read_to_string(file).into_diagnostic()?;
 
-    let verus_fmted = parse_and_format(&unparsed_file).map_err(|e| {
-        e.with_source_code(NamedSource::new(
-            file.to_string_lossy(),
-            unparsed_file.clone(),
-        ))
-    })?;
+    let formatted_output = verusfmt::run(
+        &unparsed_file,
+        verusfmt::RunOptions {
+            file_name: Some(file.to_string_lossy().into()),
+            run_rustfmt: !args.verus_only,
+        },
+    )?;
 
-    let formatted_output = if verus_only {
-        verus_fmted
-    } else {
-        rustfmt(&verus_fmted).ok_or(miette!("rustfmt failed"))?
-    };
-
-    if check {
+    if args.check {
         if unparsed_file == formatted_output {
             info!("✨Perfectly formatted✨");
             return Ok(());
@@ -87,8 +81,8 @@ fn main() -> miette::Result<()> {
         .init();
 
     let mut errors = vec![];
-    for file in args.files {
-        match format_file(&file, args.check, args.verus_only) {
+    for file in &args.files {
+        match format_file(&file, &args) {
             Ok(()) => {}
             Err(e) => {
                 errors.push(e);
