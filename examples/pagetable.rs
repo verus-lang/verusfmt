@@ -428,7 +428,7 @@ pub proof fn lemma_finite_map_union<S, T>()
 }
 
 } // verus!
-    }
+}
 
     pub mod l1 {
         #![allow(unused_imports)]
@@ -2560,7 +2560,7 @@ pub open spec(checked) fn result_map<A, B>(res: Result<A, A>, f: FnSpec(A) -> B)
 }
 
 } // verus!
-    }
+}
 
     pub mod l2_impl {
         #![allow(unused_imports)]
@@ -6631,7 +6631,7 @@ pub proof fn lemma_set_union_empty_equals_set<T>(s: Set<T>)
 }
 
 } // verus!
-    }
+}
 
     pub mod l2_refinement {
         #![allow(unused_imports)]
@@ -7630,7 +7630,7 @@ impl impl_spec::InterfaceSpec for impl_spec::PageTableImpl {
 }
 
 } // verus!
-    }
+}
 
     pub mod spec_pt {
         #![allow(unused_imports)]
@@ -7787,7 +7787,7 @@ pub open spec fn next(s1: PageTableVariables, s2: PageTableVariables) -> bool {
 }
 
 } // verus!
-    }
+}
 
     pub mod indexing {
         #![allow(unused_imports)]
@@ -8066,7 +8066,7 @@ pub proof fn lemma_index_from_base_and_addr(base: nat, addr: nat, entry_size: na
 }
 
 } // verus!
-    }
+}
 
     pub mod os_refinement {
         #![allow(unused_imports)]
@@ -8922,7 +8922,7 @@ proof fn next_step_refines_hl_next_step(s1: OSVariables, s2: OSVariables, step: 
 }
 
 } // verus!
-    }
+}
 }
 
 pub mod definitions_t {
@@ -10027,7 +10027,7 @@ pub open spec fn next(c: AbstractConstants, s1: AbstractVariables, s2: AbstractV
 }
 
 } // verus!
-    }
+}
 
     pub mod hardware {
         #![allow(unused_imports)]
@@ -10726,7 +10726,7 @@ pub open spec fn next(s1: HWVariables, s2: HWVariables) -> bool {
 // }
 
 } // verus!
-    }
+}
 
     pub mod os {
         #![allow(unused_imports)]
@@ -10959,7 +10959,7 @@ pub open spec fn init(s: OSVariables) -> bool {
 }
 
 } // verus!
-    }
+}
 
     pub mod impl_spec {
         #![allow(unused_imports)]
@@ -11058,7 +11058,7 @@ pub proof fn theorem()
 }
 
 } // verus!
-    }
+}
 
     pub mod mem {
         #![allow(unused_imports)]
@@ -11316,7 +11316,7 @@ impl PageTableMemory {
 }
 
 } // verus!
-    }
+}
 }
 
 pub mod extra {
