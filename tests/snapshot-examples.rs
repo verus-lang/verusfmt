@@ -36,7 +36,6 @@ fn mimalloc_rs_unchanged() {
 }
 
 #[test]
-#[ignore] // Due to a version of https://github.com/verus-lang/verusfmt/issues/33 on the `state_machine` macro
 fn nr_rs_unchanged() {
     check_snapshot(include_str!("../examples/nr.rs"));
 }
@@ -49,4 +48,9 @@ fn owl_output_rs_unchanged() {
 #[test]
 fn pagetable_rs_unchanged() {
     check_snapshot(include_str!("../examples/pagetable.rs"));
+}
+
+#[test]
+fn vstd_rs_unchanged() {
+    check_snapshot(include_str!("../examples/vstd.rs"));
 }

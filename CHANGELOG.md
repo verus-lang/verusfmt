@@ -1,6 +1,7 @@
 # Unreleased
 
 * When running verusfmt on multiple files, continue attempting files even if one in the middle fails
+* Fix idempotency issue of `verus!` macro inside a `macro_rules!` definition
 
 # v0.2.5
 
