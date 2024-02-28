@@ -66,7 +66,7 @@ pub proof fn lemma_small_div()
 }
 
 } // verus!
-}
+        }
 
         pub mod general_internals {
             //! This file contains general internal functions used within the math
@@ -187,7 +187,7 @@ pub proof fn lemma_induction_helper(n: int, f: spec_fn(int) -> bool, x: int)
 }
 
 } // verus!
-}
+        }
 
         pub mod mod_internals_nonlinear {
             //! This file contains proofs related to modulo that require
@@ -270,7 +270,7 @@ pub proof fn lemma_mod_range(x: int, m: int)
 }
 
 } // verus!
-}
+        }
 
         pub mod mul_internals_nonlinear {
             //! This file contains proofs related to multiplication that require
@@ -361,7 +361,7 @@ pub proof fn lemma_mul_strict_inequality(x: int, y: int, z: int)
 }
 
 } // verus!
-}
+        }
 
         pub mod div_internals {
             //! This file contains proofs related to division. These are internal
@@ -712,7 +712,7 @@ pub proof fn lemma_div_induction_auto_forall(n: int, f: spec_fn(int) -> bool)
 }
 
 } // verus!
-}
+        }
 
         pub mod mod_internals {
             //! This file contains proofs related to modulo. These are internal
@@ -1237,7 +1237,7 @@ pub proof fn lemma_mod_induction_auto_forall(n: int, f: spec_fn(int) -> bool)
 }
 
 } // verus!
-}
+        }
 
         pub mod mul_internals {
             //! This file contains proofs related to multiplication. These are
@@ -1460,7 +1460,7 @@ pub proof fn lemma_mul_induction_auto_forall(f: spec_fn(int) -> bool)
 }
 
 } // verus!
-}
+        }
     }
 
     pub mod div_mod {
@@ -3712,7 +3712,7 @@ pub proof fn lemma_mod_breakdown_auto()
 }
 
 } // verus!
-}
+    }
 
     pub mod logarithm {
         //! This file contains proofs related to integer logarithms. These are
@@ -3896,7 +3896,7 @@ pub proof fn lemma_log_pow(base: int, n: nat)
 }
 
 } // verus!
-}
+    }
 
     pub mod mul {
         //! This file contains proofs related to integer multiplication (`*`).
@@ -4595,7 +4595,7 @@ pub proof fn lemma_mul_properties()
 }
 
 } // verus!
-}
+    }
 
     pub mod power {
         //! This file contains proofs related to exponentiation. These are
@@ -5357,7 +5357,7 @@ pub proof fn lemma_pow_mod_noop_auto()
 }
 
 } // verus!
-}
+    }
 
     pub mod power2 {
         //! This file contains proofs related to powers of 2. These are part
@@ -5553,7 +5553,7 @@ pub proof fn lemma2_to64()
 }
 
 } // verus!
-}
+    }
 }
 
 pub mod array {
@@ -5664,7 +5664,7 @@ pub mod atomic {
         }
 
         } // verus!
-atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
+            atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
             #[cfg_attr(verus_keep_ghost, verus::internal(verus_macro))]
             impl $at_ident {
                 atomic_common_methods!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
@@ -5700,7 +5700,7 @@ atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
         }
 
         } // verus!
-atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
+            atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
             #[cfg_attr(verus_keep_ghost, verus::internal(verus_macro))]
             impl $at_ident {
                 atomic_common_methods!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
@@ -5755,7 +5755,7 @@ atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
         }
 
         }
-};
+        };
     }
 
     macro_rules! atomic_common_methods {
@@ -5876,7 +5876,7 @@ atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
         }
 
         }
-};
+        };
     }
 
     macro_rules! atomic_integer_methods {
@@ -6034,7 +6034,7 @@ atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
         }
 
         }
-};
+        };
     }
 
     macro_rules! atomic_bool_methods {
@@ -6102,7 +6102,7 @@ atomic_types!($at_ident, $p_ident, $p_data_ident, $rust_ty, $value_ty);
         }
 
         }
-};
+        };
     }
 
     make_bool_atomic!(
@@ -6226,7 +6226,7 @@ pub trait AtomicInvariantPredicate<K, V, G> {
 }
 
 } // verus!
-macro_rules! declare_atomic_type {
+    macro_rules! declare_atomic_type {
         ($at_ident:ident, $patomic_ty:ident, $perm_ty:ty, $value_ty: ty, $atomic_pred_ty: ident) => {
             verus!{
 
@@ -6318,7 +6318,7 @@ macro_rules! declare_atomic_type {
         }
 
         }
-};
+        };
     }
 
     declare_atomic_type!(AtomicU64, PAtomicU64, PermissionU64, u64, AtomicPredU64);
@@ -7858,7 +7858,7 @@ pub proof fn fun_ext<A, B>(f1: spec_fn(A) -> B, f2: spec_fn(A) -> B)
 }
 
 } // verus!
-/// A macro to conveniently generate similar functional extensionality axioms for functions that
+    /// A macro to conveniently generate similar functional extensionality axioms for functions that
 /// take `n` arguments.
 #[doc(hidden)]
     macro_rules! gen_fun_ext_n {
@@ -7873,7 +7873,7 @@ pub proof fn fun_ext<A, B>(f1: spec_fn(A) -> B, f2: spec_fn(A) -> B)
         ensures f1 == f2
       {}
     }
-};
+        };
     }
 
     // Note: We start at 1 just for consistency; it is exactly equivalent to `fun_ext`
@@ -7944,7 +7944,7 @@ pub trait InvariantPredicate<K, V> {
 }
 
 } // verus!
-// LocalInvariant is NEVER `Sync`.
+    // LocalInvariant is NEVER `Sync`.
 //
 // Furthermore, for either type:
 //
@@ -8109,7 +8109,7 @@ pub trait InvariantPredicate<K, V> {
         }
 
         }
-};
+        };
     }
 
     declare_invariant_impl!(AtomicInvariant);
@@ -9412,7 +9412,7 @@ pub proof fn tracked_static_ref<V>(tracked v: V) -> (tracked res: &'static V)
 }
 
 } // verus!
-// verus
+    // verus
 }
 
 pub mod multiset {
@@ -10194,7 +10194,7 @@ impl<A> Option<A> {
 }
 
 } // verus!
-/// A poor-person's `?` operator, until Verus switches to the "real" Rust `Option`.
+    /// A poor-person's `?` operator, until Verus switches to the "real" Rust `Option`.
 #[macro_export]
     #[allow(unused_macros)]
     macro_rules! try_option {
@@ -10415,7 +10415,7 @@ pub fn runtime_assert(b: bool)
 }
 
 } // verus!
-#[inline(always)]
+    #[inline(always)]
     #[cfg_attr(verus_keep_ghost, verifier::external)]
     fn runtime_assert_internal(b: bool) {
         assert!(b);
@@ -17748,7 +17748,7 @@ pub proof fn axiom_u64_leading_ones(i: u64)
 }
 
 } // verus!
-}
+    }
 
     pub mod control_flow {
         use crate::prelude::*;
@@ -17830,7 +17830,7 @@ pub fn ex_result_from_residual<T, E, F: From<E>>(result: Result<Infallible, E>) 
 }
 
 } // verus!
-}
+    }
 
     pub mod core {
         use crate::prelude::*;
@@ -17904,7 +17904,7 @@ pub fn ex_intrinsics_unlikely(b: bool) -> (c: bool)
 pub struct ExManuallyDrop<V: ?Sized>(core::mem::ManuallyDrop<V>);
 
 } // verus!
-}
+    }
 
     pub mod num {
         #![allow(unused_imports)]
@@ -18053,7 +18053,7 @@ pub struct ExManuallyDrop<V: ?Sized>(core::mem::ManuallyDrop<V>);
         }
 
         }
-};
+            };
         }
 
         num_specs!(u8, i8, u8_specs, i8_specs, 0x100);
@@ -18273,7 +18273,7 @@ pub fn ex_i32_checked_rem_euclid(lhs: i32, rhs: i32) -> (result: Option<i32>)
 }
 
 } // verus!
-}
+    }
 
     pub mod option {
         #![allow(unused_imports)]
@@ -18447,7 +18447,7 @@ pub fn take<T>(option: &mut Option<T>) -> (t: Option<T>)
 }
 
 } // verus!
-}
+    }
 
     pub mod range {
         use crate::prelude::*;
@@ -18559,7 +18559,7 @@ impl<A: StepSpec + core::iter::Step> crate::view::View for RangeGhostIterator<A>
 }
 
 } // verus!
-macro_rules! step_specs {
+        macro_rules! step_specs {
             ($t: ty, $axiom: ident) => {
                 verus! {
         impl StepSpec for $t {
@@ -18616,7 +18616,7 @@ macro_rules! step_specs {
         {
         }
         } // verus!
-};
+            };
         }
 
         step_specs!(u8, axiom_spec_range_next_u8);
@@ -18819,7 +18819,7 @@ pub fn ex_result_err<T, E>(result: Result<T, E>) -> (opt: Option<E>)
 }
 
 } // verus!
-}
+    }
 
     #[cfg(feature = "alloc")]
     pub mod vec {
@@ -19042,7 +19042,7 @@ pub fn ex_vec_truncate<T, A: Allocator>(vec: &mut Vec<T, A>, len: usize)
 }
 
 } // verus!
-}
+    }
 }
 
 // Re-exports all vstd types, traits, and functions that are commonly used or replace

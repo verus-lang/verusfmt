@@ -91,7 +91,7 @@ pub enum AppReply {
 }
 
 } // verus!
-// verus
+    // verus
 }
 
 mod app_interface_t {
@@ -2682,7 +2682,7 @@ impl DelegationMap<CKey> {
 }
 
 } // verus!
-// end verus!
+    // end verus!
 }
 
 mod endpoint_hashmap_t {
@@ -2901,7 +2901,7 @@ pub open spec fn is_valid_lio_op<IdType, MessageType>(
 // LIoOpSeqCompatibleWithReduction
 
 } // verus!
-// verus
+    // verus
 }
 
 mod hashmap_t {
@@ -7113,7 +7113,7 @@ pub fn sht_main(netc: NetClient, args: Args) -> Result<(), IronError>
 }
 
 } // verus!
-// verus
+    // verus
 }
 
 mod marshal_ironsht_specific_v {
@@ -11651,7 +11651,7 @@ pub proof fn choose_smallest(low: int, high: int, p: FnSpec(int) -> bool) -> (re
 }
 
 } // verus!
-}
+    }
 
     pub mod clone_v {
         use vstd::prelude::*;
@@ -11667,7 +11667,7 @@ pub trait VerusClone: Sized {
 }
 
 } // verus!
-}
+    }
 
     pub mod seq_lib_v {
         use builtin::*;
@@ -12002,7 +12002,7 @@ pub proof fn some_differing_index_for_unequal_seqs<A>(s1: Seq<A>, s2: Seq<A>) ->
 }
 
 } // verus!
-}
+    }
 
     pub mod set_lib_ext_v {
         use builtin::*;
@@ -12343,7 +12343,7 @@ pub proof fn flatten_sets_singleton_auto<A>()
 // lemmas somewhere, but it's not easy to see from the profiler yet.
 
 } // verus!
-}
+    }
 }
 // TODO: maybe move into Verus?
 
