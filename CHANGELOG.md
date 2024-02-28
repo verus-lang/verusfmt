@@ -1,7 +1,11 @@
 # Unreleased
 
-* When running verusfmt on multiple files, continue attempting files even if one in the middle fails
-* Fix idempotency issue of `verus!` macro inside a `macro_rules!` definition
+# v0.2.6
+
+* When running verusfmt on multiple files, continue attempting files even if one in the middle fails (#37)
+* Fix collection of idempotency issues caused by rustfmt (#38)
+  - rustfmt would modify code inside of `verus! { ... }` after verusfmt has already formatted it in certain cases
+  - Verusfmt now prevents rustfmt from modifying code inside the Verus macro, through a collapse/expand operation
 
 # v0.2.5
 
