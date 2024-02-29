@@ -41,7 +41,7 @@ pub struct ConcreteLogEntry<DT: Dispatch> {
 }
 
 } // verus!
-}
+    }
 
     pub mod utils {
         #[allow(unused_imports)]
@@ -217,7 +217,7 @@ pub proof fn int_mod_less_than_same(i: int, len: int)
 }
 
 } // verus!
-}
+    }
 
     // the linearization proof
     pub mod linearization {
@@ -1196,7 +1196,7 @@ spec fn all_reads_for<DT: Dispatch>(
 }
 
 } // verus!
-// end verus!
+        // end verus!
 }
 
     // the simple log model
@@ -3801,7 +3801,7 @@ pub proof fn compute_nrstate_at_version_preserves<DT: Dispatch>(
 }
 
 } // verus!
-// end verus!
+        // end verus!
 }
 
     pub mod unbounded_log_refines_simplelog {
@@ -4321,7 +4321,7 @@ proof fn state_at_version_refines<DT: Dispatch>(
 }
 
 } // verus!
-// end verus!
+        // end verus!
 }
 
     // cyclic buffer
@@ -5214,7 +5214,7 @@ pub proof fn log_entry_alive_value_wrap_around(i: LogicalLogIdx, buffer_size: na
 }
 
 } // verus!
-}
+    }
 
     // the flag combiner
     pub mod flat_combiner {
@@ -5623,7 +5623,7 @@ tokenized_state_machine! {
 
 
 } // verus!
-}
+    }
 
     // the RW lock
     pub mod rwlock {
@@ -5930,7 +5930,7 @@ tokenized_state_machine!{
         }
 
 } // verus!
-}
+    }
 }
 
 mod exec {
@@ -6453,7 +6453,7 @@ impl<T> RwLock<T> {
 }
 
 } // verus!
-}
+    }
 
     pub mod log {
         #[allow(unused_imports)]
@@ -8423,7 +8423,7 @@ struct_with_invariants!{
 
 
 } // verus!
-}
+    }
 
     pub mod replica {
         #[allow(unused_imports)]
@@ -9865,7 +9865,7 @@ impl<DT: Dispatch> ThreadOpsData<DT> {
 }
 
 } // verus!
-}
+    }
 
     pub mod context {
         #[allow(unused_imports)]
@@ -10433,7 +10433,7 @@ impl<DT: Dispatch> FCClientRequestResponseGhost<DT> {
 }
 
 } // verus!
-}
+    }
 
     pub mod utils {
         #[allow(unused_imports)]
@@ -10632,7 +10632,7 @@ pub proof fn rids_match_pop(
 }
 
 } // verus!
-}
+    }
 
     verus! {
 
@@ -11224,7 +11224,7 @@ impl ReturnType {
 }
 
 } // verus!
-use std::sync::Arc;
+    use std::sync::Arc;
 
     struct NrCounter(
         Arc<NodeReplicated<DataStructureType>>,

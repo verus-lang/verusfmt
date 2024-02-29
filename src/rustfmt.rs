@@ -43,7 +43,7 @@ pub fn rustfmt(s: &str) -> Option<String> {
             }
             Rule::verus_macro_use => {
                 folded_verus_macro_invocations.push(pair.as_str().trim());
-                collapsed_input += "verus!{}";
+                collapsed_input += "verus!{}\n";
             }
             _ => {
                 unreachable!("Unexpected rule: {:?}", rule)
@@ -62,6 +62,7 @@ pub fn rustfmt(s: &str) -> Option<String> {
     let mut folded_verus_macro_invocations = folded_verus_macro_invocations.into_iter();
     let mut final_output = String::new();
 
+    let mut immediately_after_verus_macro = false;
     for pair in parsed_file {
         let rule = pair.as_rule();
         match rule {
@@ -72,14 +73,36 @@ pub fn rustfmt(s: &str) -> Option<String> {
                 unreachable!("All whitespace should be auto-eaten")
             }
             Rule::non_verus | Rule::COMMENT => {
+                if immediately_after_verus_macro {
+                    if pair.as_str().trim_start().starts_with('}') && final_output.ends_with("    ")
+                    {
+                        // dedent once
+                        for _ in 0..4 {
+                            final_output.pop();
+                        }
+                    }
+                    immediately_after_verus_macro = false;
+                }
                 final_output += pair.as_str();
                 if rule == Rule::COMMENT && is_multiline_comment(&pair) {
                     final_output += "\n";
                 }
             }
             Rule::verus_macro_use => {
+                let trailing_line = final_output
+                    .rfind('\n')
+                    .map(|i| &final_output[i + 1..])
+                    .unwrap_or("")
+                    .to_string();
+                let trailing_whitespace = if trailing_line.chars().all(char::is_whitespace) {
+                    trailing_line
+                } else {
+                    String::new()
+                };
                 final_output += folded_verus_macro_invocations.next().unwrap();
                 final_output += "\n";
+                final_output += &trailing_whitespace;
+                immediately_after_verus_macro = true;
             }
             _ => {
                 unreachable!("Unexpected rule: {:?}", rule)

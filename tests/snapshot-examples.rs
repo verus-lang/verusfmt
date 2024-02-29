@@ -25,6 +25,11 @@ fn syntax_rs_unchanged() {
 }
 
 #[test]
+fn atomic_rs_unchanged() {
+    check_snapshot(include_str!("../examples/atomic.rs"));
+}
+
+#[test]
 fn ironfleet_rs_unchanged() {
     check_snapshot(include_str!("../examples/ironfleet.rs"));
 }
