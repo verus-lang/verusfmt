@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.2.7
+
 * Improve `verus!{ ... }` macro collapsing inside indented contexts (#39)
 
 # v0.2.6
