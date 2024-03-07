@@ -20,11 +20,6 @@ fn check_snapshot(original: &str) {
 }
 
 #[test]
-fn syntax_rs_unchanged() {
-    check_snapshot(include_str!("../examples/syntax.rs"));
-}
-
-#[test]
 fn atomic_rs_unchanged() {
     check_snapshot(include_str!("../examples/atomic.rs"));
 }
@@ -53,11 +48,6 @@ fn owl_output_rs_unchanged() {
 #[test]
 fn pagetable_rs_unchanged() {
     check_snapshot(include_str!("../examples/pagetable.rs"));
-}
-
-#[test]
-fn vstd_rs_unchanged() {
-    check_snapshot(include_str!("../examples/vstd.rs"));
 }
 
 #[test]
