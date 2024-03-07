@@ -26,4 +26,4 @@ pub proof fn tracked_static_ref<V>(tracked v: V) -> (tracked res: &'static V)
 }
 
 } // verus!
-  // verus
+// verus

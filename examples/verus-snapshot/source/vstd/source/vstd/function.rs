@@ -29,9 +29,8 @@ pub proof fn fun_ext<A, B>(f1: spec_fn(A) -> B, f2: spec_fn(A) -> B)
 /// take `n` arguments.
 #[doc(hidden)]
 macro_rules! gen_fun_ext_n {
-  ($fun_ext:ident, $O:ident, $($x:ident : $I:ident),*) => {
-
-    verus! {
+    ($fun_ext:ident, $O:ident, $($x:ident : $I:ident),*) => {
+        verus! {
       /// DEPRECATED: use f1 =~= f2 or f1 =~~= f2 instead.
       /// See [`fun_ext`]
       #[verifier(external_body)]
@@ -41,8 +40,7 @@ macro_rules! gen_fun_ext_n {
         ensures f1 == f2
       {}
     }
-  }
-
+    };
 }
 
 // Note: We start at 1 just for consistency; it is exactly equivalent to `fun_ext`
