@@ -59,3 +59,12 @@ fn pagetable_rs_unchanged() {
 fn vstd_rs_unchanged() {
     check_snapshot(include_str!("../examples/vstd.rs"));
 }
+
+#[test]
+fn verus_snapshot_unchanged() {
+    for path in glob::glob("./examples/verus-snapshot/**/*.rs").unwrap() {
+        let path = path.unwrap();
+        println!("Checking snapshot for {:?}", path);
+        check_snapshot(&std::fs::read_to_string(path).unwrap());
+    }
+}
