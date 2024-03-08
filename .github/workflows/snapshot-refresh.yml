@@ -3,9 +3,9 @@ name: SnapshotRefresh
 on:
   # Run either manually upon being dispatched by user
   workflow_dispatch:
-  # Or on schedule, once every night
+  # Or on schedule
   schedule:
-    - cron: '0 0 * * *'  # Run every night at midnight UTC
+    - cron: '0 0 * * 1'  # Run every Monday night at midnight UTC
 
 jobs:
   check-and-refresh-snapshot:
