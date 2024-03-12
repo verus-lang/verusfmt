@@ -476,6 +476,11 @@ fn loop_to_doc<'a>(
     arena.concat(pair.into_inner().map(|p| {
         if p.as_rule() == Rule::condition {
             to_doc(ctx, p, arena).append(arena.space())
+        } else if p.as_rule() == Rule::in_str {
+            // Used for for-loops
+            arena.space().append(to_doc(ctx, p, arena))
+        } else if p.as_rule() == Rule::expr_no_struct {
+            to_doc(ctx, p, arena).append(arena.space())
         } else if let Some(c) = last_clause {
             if p.as_rule() == c {
                 to_doc(ctx, p, arena).append(arena.line())
@@ -1138,11 +1143,7 @@ fn to_doc<'a>(
         Rule::condition => map_to_doc(ctx, arena, pair),
         Rule::if_expr => if_expr_to_doc(ctx, arena, pair),
         Rule::loop_expr => loop_to_doc(ctx, arena, pair),
-        Rule::for_expr => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
-            Rule::in_str => arena.space().append(to_doc(ctx, p, arena)),
-            Rule::expr_no_struct => to_doc(ctx, p, arena).append(arena.space()),
-            _ => to_doc(ctx, p, arena),
-        })),
+        Rule::for_expr => loop_to_doc(ctx, arena, pair),
         Rule::while_expr => loop_to_doc(ctx, arena, pair),
         Rule::label => unsupported(pair),
         Rule::break_expr => map_to_doc(ctx, arena, pair),

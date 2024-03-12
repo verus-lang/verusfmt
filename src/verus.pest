@@ -1285,6 +1285,7 @@ loop_expr = {
 
 for_expr = {
     attr* ~ label? ~ for_str ~ pat ~ in_str ~ expr_no_struct ~
+    invariant_clause? ~ invariant_ensures_clause? ~ ensures_clause? ~ decreases_clause? ~
     fn_block_expr
 }
 
