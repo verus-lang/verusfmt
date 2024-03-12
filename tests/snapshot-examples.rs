@@ -20,11 +20,6 @@ fn check_snapshot(original: &str) {
 }
 
 #[test]
-fn syntax_rs_unchanged() {
-    check_snapshot(include_str!("../examples/syntax.rs"));
-}
-
-#[test]
 fn atomic_rs_unchanged() {
     check_snapshot(include_str!("../examples/atomic.rs"));
 }
@@ -56,6 +51,10 @@ fn pagetable_rs_unchanged() {
 }
 
 #[test]
-fn vstd_rs_unchanged() {
-    check_snapshot(include_str!("../examples/vstd.rs"));
+fn verus_snapshot_unchanged() {
+    for path in glob::glob("./examples/verus-snapshot/**/*.rs").unwrap() {
+        let path = path.unwrap();
+        println!("Checking snapshot for {:?}", path);
+        check_snapshot(&std::fs::read_to_string(path).unwrap());
+    }
 }

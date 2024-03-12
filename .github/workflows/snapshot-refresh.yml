@@ -1,0 +1,40 @@
+name: SnapshotRefresh
+
+on:
+  # Run either manually upon being dispatched by user
+  workflow_dispatch:
+  # Or on schedule
+  schedule:
+    - cron: '0 0 * * 1'  # Run every Monday night at midnight UTC
+
+jobs:
+  check-and-refresh-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run script and check for changes
+      id: nightly-check
+      run: |
+        cd examples/verus-snapshot
+        ./get_latest.sh
+        if git diff --exit-code; then
+          echo "No changes"
+          echo "changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes found"
+          echo "changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Pull Request
+      if: ${{ steps.nightly-check.outputs.changes == 'true' }}
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: "chore: update to latest Verus snapshot"
+        branch: verus-snapshot-update
+        delete-branch: true
+        title: "Verus snapshot update"
+        body: "Automated verus snapshot update by GitHub Actions."
+        base: main
