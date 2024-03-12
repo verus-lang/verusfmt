@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.2.8
+
 * Add support for `for` loops with invariants, recently added to Verus
 * Improve parsing of range expressions (e.g., `0..(1 + 2)`) that start "float-like"
 
