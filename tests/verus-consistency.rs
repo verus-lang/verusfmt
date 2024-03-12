@@ -1675,3 +1675,27 @@ proof fn uses_arrow_matches_1(t: ThisOrThat) { assert(t matches ThisOrThat::This
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_range_operator() {
+    let file = r#"
+verus! {
+
+fn foo() { for i in 0..(10 + 5) {
+
+} }
+
+}
+
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn foo() {
+        for i in 0..(10 + 5) {
+        }
+    }
+
+    } // verus!
+    "###);
+}

@@ -1,5 +1,7 @@
 # Unreleased
 
+* Improve parsing of range expressions (e.g., `0..(1 + 2)`) that start "float-like"
+
 # v0.2.7
 
 * Improve `verus!{ ... }` macro collapsing inside indented contexts (#39)

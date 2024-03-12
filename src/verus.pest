@@ -132,7 +132,7 @@ int_number = @{
 
 float_decimal = @{
     (ASCII_DIGIT | "_")+ ~
-    "." ~
+    !".." ~ "." ~
     (ASCII_DIGIT | "_")* ~
     ("f32" | "f64")?   
 }
