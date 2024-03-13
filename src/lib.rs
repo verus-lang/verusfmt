@@ -465,12 +465,9 @@ fn loop_to_doc<'a>(
 ) -> DocBuilder<'a, Arena<'a>> {
     // We need to add a newline after the very last clause,
     // so that the opening brace of the loop body is on a fresh line
-    let mut last_clause = None;
+    let mut last_clause_span = None;
     pair.clone().into_inner().for_each(|p| match p.as_rule() {
-        Rule::invariant_clause => last_clause = Some(Rule::invariant_clause),
-        Rule::invariant_ensures_clause => last_clause = Some(Rule::invariant_ensures_clause),
-        Rule::ensures_clause => last_clause = Some(Rule::ensures_clause),
-        Rule::decreases_clause => last_clause = Some(Rule::decreases_clause),
+        Rule::loop_clause => last_clause_span = Some(p.as_span()),
         _ => (),
     });
     arena.concat(pair.into_inner().map(|p| {
@@ -481,8 +478,8 @@ fn loop_to_doc<'a>(
             arena.space().append(to_doc(ctx, p, arena))
         } else if p.as_rule() == Rule::expr_no_struct {
             to_doc(ctx, p, arena).append(arena.space())
-        } else if let Some(c) = last_clause {
-            if p.as_rule() == c {
+        } else if let Some(c) = last_clause_span {
+            if p.as_span() == c {
                 to_doc(ctx, p, arena).append(arena.line())
             } else {
                 to_doc(ctx, p, arena)
@@ -762,6 +759,7 @@ fn to_doc<'a>(
 
         Rule::decreases_str
         | Rule::ensures_str
+        | Rule::invariant_except_break_str
         | Rule::invariant_str
         | Rule::invariant_ensures_str
         | Rule::opens_invariants_str
@@ -1142,6 +1140,7 @@ fn to_doc<'a>(
         }
         Rule::condition => map_to_doc(ctx, arena, pair),
         Rule::if_expr => if_expr_to_doc(ctx, arena, pair),
+        Rule::loop_clause => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => loop_to_doc(ctx, arena, pair),
         Rule::for_expr => loop_to_doc(ctx, arena, pair),
         Rule::while_expr => loop_to_doc(ctx, arena, pair),
@@ -1259,6 +1258,7 @@ fn to_doc<'a>(
         Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),
         Rule::requires_clause => map_to_doc(ctx, arena, pair),
         Rule::ensures_clause => map_to_doc(ctx, arena, pair),
+        Rule::invariant_except_break_clause => map_to_doc(ctx, arena, pair),
         Rule::invariant_clause => map_to_doc(ctx, arena, pair),
         Rule::invariant_ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
