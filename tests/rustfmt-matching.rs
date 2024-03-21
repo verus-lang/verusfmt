@@ -15,7 +15,7 @@ fn compare(file: &str) {
     let diff = similar::udiff::unified_diff(
         similar::Algorithm::Patience,
         &rust_fmt,
-        &verus_inner,
+        verus_inner,
         3,
         Some(("rust", "verus")),
     );

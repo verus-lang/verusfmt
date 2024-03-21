@@ -466,9 +466,10 @@ fn loop_to_doc<'a>(
     // We need to add a newline after the very last clause,
     // so that the opening brace of the loop body is on a fresh line
     let mut last_clause_span = None;
-    pair.clone().into_inner().for_each(|p| match p.as_rule() {
-        Rule::loop_clause => last_clause_span = Some(p.as_span()),
-        _ => (),
+    pair.clone().into_inner().for_each(|p| {
+        if p.as_rule() == Rule::loop_clause {
+            last_clause_span = Some(p.as_span())
+        }
     });
     arena.concat(pair.into_inner().map(|p| {
         if p.as_rule() == Rule::condition {
@@ -505,11 +506,7 @@ fn is_prefix_triple(pair: Pair<Rule>) -> bool {
             None => false,
             Some(pair) => pair
                 .into_inner()
-                .find(|p| {
-                    matches!(p.as_rule(), Rule::triple_and)
-                        || matches!(p.as_rule(), Rule::triple_or)
-                })
-                .is_some(),
+                .any(|p| matches!(p.as_rule(), Rule::triple_and | Rule::triple_or)),
         },
     }
 }
@@ -527,10 +524,9 @@ fn is_bare_trigger(pair: Pair<Rule>) -> bool {
             .find(|p| matches!(p.as_rule(), Rule::trigger_attribute))
         {
             None => false,
-            Some(trigger) => trigger
+            Some(trigger) => !trigger
                 .into_inner()
-                .find(|p| matches!(p.as_rule(), Rule::comma_delimited_exprs))
-                .is_none(),
+                .any(|p| matches!(p.as_rule(), Rule::comma_delimited_exprs)),
         },
     }
 }
@@ -557,20 +553,20 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
                 _ => 0,
             }
     });
-    return count == -1;
+    count == -1
 }
 
 /// Checks if a block terminates in an expression
 fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
     let e = pairs.clone().find(|p| matches!(p.as_rule(), Rule::expr));
-    !e.is_none()
+    e.is_some()
 }
 
 fn debug_print(pair: Pair<Rule>, indent: usize) {
     print!("{:indent$}{:?} {{", "", pair.as_rule(), indent = indent);
     let pairs = pair.into_inner();
     if pairs.peek().is_some() {
-        print!("\n");
+        println!();
         pairs.for_each(|p| debug_print(p, indent + 2));
         println!("{:indent$}}}", "", indent = indent);
     } else {
@@ -829,18 +825,12 @@ fn to_doc<'a>(
         Rule::fn_terminator => map_to_doc(ctx, arena, pair),
         Rule::r#fn => {
             let pairs = pair.into_inner();
-            let has_qualifier = pairs
-                .clone()
-                .find(|p| {
-                    matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0
-                })
-                .is_some();
-            let has_ret_type = pairs
-                .clone()
-                .find(|p| {
-                    matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0
-                })
-                .is_some();
+            let has_qualifier = pairs.clone().any(|p| {
+                matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0
+            });
+            let has_ret_type = pairs.clone().any(|p| {
+                matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0
+            });
             let mut saw_param_list = false;
             let mut saw_comment_after_param_list = false;
             let mut pre_ret_type = true;
@@ -1104,8 +1094,7 @@ fn to_doc<'a>(
             let has_ret = pair
                 .clone()
                 .into_inner()
-                .find(|p| matches!(p.as_rule(), Rule::ret_type))
-                .is_some();
+                .any(|p| matches!(p.as_rule(), Rule::ret_type));
             arena
                 .concat(pair.into_inner().map(|p| {
                     match p.as_rule() {
@@ -1328,7 +1317,7 @@ fn find_inline_comment_lines(s: &str) -> HashSet<usize> {
             comment_lines.insert(line_num + 1);
         }
     }
-    return comment_lines;
+    comment_lines
 }
 
 fn is_inline_comment(s: &str) -> bool {
@@ -1412,7 +1401,7 @@ fn fix_inline_comments(s: String) -> String {
                 Some(ref c) => {
                     // Replace our marker with the comment
                     fixed_str += "\n";
-                    prev_str = line.replace(NONINLINE_COMMENT_DST, &c);
+                    prev_str = line.replace(NONINLINE_COMMENT_DST, c);
                 }
             }
         } else {
@@ -1425,7 +1414,7 @@ fn fix_inline_comments(s: String) -> String {
     }
     fixed_str += &prev_str;
     fixed_str += "\n";
-    return fixed_str;
+    fixed_str
 }
 
 fn strip_whitespace(s: String) -> String {
@@ -1567,15 +1556,15 @@ pub fn parse_and_format(s: &str) -> miette::Result<String> {
                 let mut final_prefix_comment_is_multiline = false;
                 for comment in &prefix_comments {
                     formatted_output += comment.as_str();
-                    final_prefix_comment_is_multiline = is_multiline_comment(&comment);
+                    final_prefix_comment_is_multiline = is_multiline_comment(comment);
                 }
-                if prefix_comments.len() > 0 && final_prefix_comment_is_multiline {
+                if !prefix_comments.is_empty() && final_prefix_comment_is_multiline {
                     formatted_output += "\n";
                 }
 
                 formatted_output += &format_item(&ctx, body);
 
-                if suffix_comments.len() > 0 {
+                if !suffix_comments.is_empty() {
                     formatted_output += "\n";
                 }
                 for comment in suffix_comments {
@@ -1616,7 +1605,7 @@ pub fn run(s: &str, opts: RunOptions) -> miette::Result<String> {
 
     let file_name = opts.file_name.clone().unwrap_or("<input>".into());
 
-    let verus_fmted = parse_and_format(&unparsed_file).map_err(|e| {
+    let verus_fmted = parse_and_format(unparsed_file).map_err(|e| {
         e.with_source_code(miette::NamedSource::new(
             file_name,
             unparsed_file.to_owned(),

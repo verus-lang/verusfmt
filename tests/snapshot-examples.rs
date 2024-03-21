@@ -9,7 +9,7 @@ fn check_snapshot(original: &str) {
     if original != formatted {
         let diff = similar::udiff::unified_diff(
             similar::Algorithm::Patience,
-            &original,
+            original,
             &formatted,
             3,
             Some(("original", "formatted")),

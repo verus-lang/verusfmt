@@ -50,7 +50,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
     if args.check {
         if unparsed_file == formatted_output {
             info!("✨Perfectly formatted✨");
-            return Ok(());
+            Ok(())
         } else {
             info!("Found some differences in {}", file.display());
             error!("Input found not to be well formatted");
@@ -65,7 +65,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
                 )),
             );
             println!("{diff}");
-            return Err(miette!("invalid formatting"));
+            Err(miette!("invalid formatting"))
         }
     } else if matches!(
         args.unstable_command,
@@ -104,7 +104,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
 
 fn main() -> miette::Result<()> {
     let args = Args::parse();
-    if args.files.len() == 0 {
+    if args.files.is_empty() {
         return Err(miette!("No files specified"));
     }
 
@@ -122,7 +122,7 @@ fn main() -> miette::Result<()> {
 
     let mut errors = vec![];
     for file in &args.files {
-        match format_file(&file, &args) {
+        match format_file(file, &args) {
             Ok(()) => {}
             Err(e) => {
                 errors.push(e);
