@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use crate::set::*;
 
 verus! {
 
@@ -68,6 +69,16 @@ pub open spec fn frame_preserving_update<P: PCM>(a: P, b: P) -> bool {
     forall|c| #![trigger P::op(a, c), P::op(b, c)] P::op(a, c).valid() ==> P::op(b, c).valid()
 }
 
+pub open spec fn frame_preserving_update_nondeterministic<P: PCM>(a: P, bs: Set<P>) -> bool {
+    forall|c|
+        #![trigger P::op(a, c)]
+        P::op(a, c).valid() ==> exists|b| #[trigger] bs.contains(b) && P::op(b, c).valid()
+}
+
+pub open spec fn set_op<P: PCM>(s: Set<P>, t: P) -> Set<P> {
+    Set::new(|v| exists|q| s.contains(q) && v == P::op(q, t))
+}
+
 impl<P: PCM> Resource<P> {
     pub open spec fn value(self) -> P;
 
@@ -135,6 +146,17 @@ impl<P: PCM> Resource<P> {
         unimplemented!();
     }
 
+    #[verifier::external_body]
+    pub proof fn update_nondeterministic(tracked self, new_values: Set<P>) -> (tracked out: Self)
+        requires
+            frame_preserving_update_nondeterministic(self.value(), new_values),
+        ensures
+            out.loc() == self.loc(),
+            new_values.contains(out.value()),
+    {
+        unimplemented!();
+    }
+
     // Operations with shared references
     #[verifier::external_body]
     pub proof fn join_shared<'a>(
@@ -189,6 +211,25 @@ impl<P: PCM> Resource<P> {
         ensures
             out.loc() == self.loc(),
             out.value() == new_value,
+    {
+        unimplemented!();
+    }
+
+    #[verifier::external_body]
+    pub proof fn update_nondeterministic_with_shared(
+        tracked self,
+        tracked other: &Self,
+        new_values: Set<P>,
+    ) -> (tracked out: Self)
+        requires
+            self.loc() == other.loc(),
+            frame_preserving_update_nondeterministic(
+                P::op(self.value(), other.value()),
+                set_op(new_values, other.value()),
+            ),
+        ensures
+            out.loc() == self.loc(),
+            new_values.contains(out.value()),
     {
         unimplemented!();
     }

@@ -31,15 +31,15 @@ pub proof fn fun_ext<A, B>(f1: spec_fn(A) -> B, f2: spec_fn(A) -> B)
 macro_rules! gen_fun_ext_n {
     ($fun_ext:ident, $O:ident, $($x:ident : $I:ident),*) => {
         verus! {
-      /// DEPRECATED: use f1 =~= f2 or f1 =~~= f2 instead.
-      /// See [`fun_ext`]
-      #[verifier(external_body)]
-      #[deprecated = "use f1 =~= f2 or f1 =~~= f2 instead"]
-      pub proof fn $fun_ext<$($I),*, $O>(f1: spec_fn($($I),*,) -> $O, f2: spec_fn($($I),*,) -> $O)
-        requires forall |$($x: $I),*| #![trigger f1($($x),*)] f1($($x),*) == f2($($x),*)
-        ensures f1 == f2
-      {}
-    }
+          /// DEPRECATED: use f1 =~= f2 or f1 =~~= f2 instead.
+          /// See [`fun_ext`]
+          #[verifier(external_body)]
+          #[deprecated = "use f1 =~= f2 or f1 =~~= f2 instead"]
+          pub proof fn $fun_ext<$($I),*, $O>(f1: spec_fn($($I),*,) -> $O, f2: spec_fn($($I),*,) -> $O)
+            requires forall |$($x: $I),*| #![trigger f1($($x),*)] f1($($x),*) == f2($($x),*)
+            ensures f1 == f2
+          {}
+        }
     };
 }
 
