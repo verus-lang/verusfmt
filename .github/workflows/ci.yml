@@ -15,5 +15,6 @@ jobs:
         run: rustup toolchain install stable --profile minimal --no-self-update
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --check --verbose
+      - run: cargo clippy --verbose
       - run: cargo build --verbose
       - run: cargo test --verbose

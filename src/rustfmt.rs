@@ -134,7 +134,7 @@ fn run_rustfmt(s: &str) -> Option<String> {
 
     let output = proc.wait_with_output().ok()?;
     if output.status.success() {
-        Some(String::from_utf8(output.stdout).unwrap().into())
+        Some(String::from_utf8(output.stdout).unwrap())
     } else {
         eprintln!(
             "\nrustfmt failed! {}\n\tConsider running with --verus-only\n",
