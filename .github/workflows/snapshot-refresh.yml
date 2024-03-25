@@ -1,5 +1,9 @@
 name: SnapshotRefresh
 
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   # Run either manually upon being dispatched by user
   workflow_dispatch:
