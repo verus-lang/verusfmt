@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.2.9
+
 * Add support for `invariant_except_break` clauses, recently added to Verus
 * Support arbitrary permutation of clauses in loops, rather than a pre-specified order
 
