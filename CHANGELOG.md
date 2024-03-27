@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.2.10
+
 * Add support for `broadcast proof`, `broadcast group`, and `broadcast use` (see [verus#1022](https://github.com/verus-lang/verus/pull/1022))
 
 # v0.2.9
