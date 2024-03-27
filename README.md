@@ -214,7 +214,7 @@ test's correct answer is maintained via the [Insta testing framework](https://in
 
 Insta recommends installing the `cargo-insta` tool for an improved review experience:
 ```
-cargo install cargo-insta
+cargo install --locked cargo-insta
 ```
 
 You can run the tests normally with `cargo test`, but it's often more convenient
