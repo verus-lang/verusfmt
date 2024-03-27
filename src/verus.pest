@@ -334,6 +334,7 @@ where_str = ${ "where" ~ !("_" | ASCII_ALPHANUMERIC) }
 while_str = ${ "while" ~ !("_" | ASCII_ALPHANUMERIC) }
 yeet_str = ${ "yeet" ~ !("_" | ASCII_ALPHANUMERIC) }
 yield_str = ${ "yield" ~ !("_" | ASCII_ALPHANUMERIC) }
+broadcast_str = ${ "broadcast" ~ !("_" | ASCII_ALPHANUMERIC) }
 
 verusfmt_skip_attribute = {
     "#" ~ "[" ~ "verusfmt" ~ "::" ~ "skip"  ~ "]"
@@ -658,7 +659,7 @@ fn_terminator = {
 
 fn = {
     attr* ~ visibility? ~ publish? ~
-    default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_mode? ~
+    default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ broadcast_str? ~ fn_mode? ~
     fn_str ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
     prover? ~ where_clause? ~
     fn_qualifier ~

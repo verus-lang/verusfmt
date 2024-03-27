@@ -1807,3 +1807,24 @@ verus!{
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_broadcast_proof() {
+    let file = r#"
+verus!{
+    broadcast proof fn property() { }
+    pub broadcast proof fn property() { }
+} // verus!
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    broadcast proof fn property() {
+    }
+
+    pub broadcast proof fn property() {
+    }
+
+    } // verus!
+    "###);
+}

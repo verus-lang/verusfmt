@@ -738,7 +738,8 @@ fn to_doc<'a>(
         | Rule::where_str
         | Rule::while_str
         | Rule::yeet_str
-        | Rule::yield_str => s.append(arena.space()),
+        | Rule::yield_str
+        | Rule::broadcast_str => s.append(arena.space()),
 
         Rule::as_str
         | Rule::by_str_inline
