@@ -739,7 +739,9 @@ fn to_doc<'a>(
         | Rule::while_str
         | Rule::yeet_str
         | Rule::yield_str
-        | Rule::broadcast_str => s.append(arena.space()),
+        | Rule::broadcast_str
+        | Rule::group_str
+        | Rule::broadcast_group_identifier => s.append(arena.space()),
 
         Rule::as_str
         | Rule::by_str_inline
@@ -822,6 +824,8 @@ fn to_doc<'a>(
         Rule::r#use => map_to_doc(ctx, arena, pair),
         Rule::use_tree => map_to_doc(ctx, arena, pair),
         Rule::use_tree_list => comma_delimited(ctx, arena, pair, false).braces().group(),
+        Rule::broadcast_use_list => comma_delimited(ctx, arena, pair, false).group(),
+        Rule::broadcast_group_list => comma_delimited(ctx, arena, pair, false).braces(),
         Rule::fn_qualifier => map_to_doc(ctx, arena, pair),
         Rule::fn_terminator => map_to_doc(ctx, arena, pair),
         Rule::r#fn => {
@@ -986,6 +990,8 @@ fn to_doc<'a>(
         }
         Rule::attr_inner => map_to_doc(ctx, arena, pair),
         Rule::meta => unsupported(pair),
+        Rule::broadcast_use => map_to_doc(ctx, arena, pair),
+        Rule::broadcast_group => map_to_doc(ctx, arena, pair),
 
         //****************************//
         // Statements and Expressions //
