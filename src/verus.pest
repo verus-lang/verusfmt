@@ -334,6 +334,8 @@ where_str = ${ "where" ~ !("_" | ASCII_ALPHANUMERIC) }
 while_str = ${ "while" ~ !("_" | ASCII_ALPHANUMERIC) }
 yeet_str = ${ "yeet" ~ !("_" | ASCII_ALPHANUMERIC) }
 yield_str = ${ "yield" ~ !("_" | ASCII_ALPHANUMERIC) }
+broadcast_str = ${ "broadcast" ~ !("_" | ASCII_ALPHANUMERIC) }
+group_str = ${ "group" ~ !("_" | ASCII_ALPHANUMERIC) }
 
 verusfmt_skip_attribute = {
     "#" ~ "[" ~ "verusfmt" ~ "::" ~ "skip"  ~ "]"
@@ -587,6 +589,8 @@ item_no_macro_call = _{
   | type_alias
   | union
   | use
+  | broadcast_group
+  | broadcast_use
 }
 
 verusfmt_skipped_item = {
@@ -658,7 +662,7 @@ fn_terminator = {
 
 fn = {
     attr* ~ visibility? ~ publish? ~
-    default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ fn_mode? ~
+    default_str? ~ const_str? ~ async_str? ~ unsafe_str? ~ abi? ~ broadcast_str? ~ fn_mode? ~
     fn_str ~ name ~ generic_param_list? ~ param_list ~ ret_type? ~
     prover? ~ where_clause? ~
     fn_qualifier ~
@@ -808,6 +812,7 @@ assoc_item = {
   | fn
   | macro_call
   | type_alias
+  | broadcast_group
 }
 
 impl = {
@@ -892,6 +897,26 @@ attr_inner = {
 
 meta = {
     path ~ (eq_str ~ expr | token_tree)?
+}
+
+broadcast_use_list = {
+    (path ~ ("," ~ path)* ~ ","?)
+}
+
+broadcast_use = {
+    broadcast_str ~ use_str ~ broadcast_use_list ~ semi_str
+}
+
+broadcast_group_identifier = {
+    identifier
+}
+
+broadcast_group_list = {
+    "{" ~ (path ~ ("," ~ path)* ~ ","?)? ~ "}"
+}
+
+broadcast_group = {
+    visibility? ~ broadcast_str ~ group_str ~ broadcast_group_identifier ~ broadcast_group_list
 }
 
 //****************************//
