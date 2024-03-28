@@ -33,5 +33,20 @@ for path in $MOVE_PATHS; do
     fi
 done
 
+# Until these files are formatted on Verus `main`, we want to just manually
+# reformat it locally, to minimize the diff for the snapshots
+FORCE_REFORMAT_PATHS="source/rust_verify/example/syntax.rs"
+if [ "$FORCE_REFORMAT_PATHS" != "" ]; then
+    echo "[INFO] Reformatting paths not yet already formatted within Verus 'main'"
+    for path in $FORCE_REFORMAT_PATHS; do
+        echo "       ... $path"
+        if [ -d "$path" ]; then
+            find "$path" -name '*.rs' -exec verusfmt {} \;
+        else
+            verusfmt "$path"
+        fi
+    done
+fi
+
 echo "[INFO] Cleaning up"
 rm -rf verus-main verus.zip
