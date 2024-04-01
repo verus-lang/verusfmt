@@ -1,5 +1,8 @@
 # Unreleased
 
+* Improve handling of `rustfmt.toml` for non-`verus!` code
+  - Rather than picking up `rustfmt.toml` based on working directory, it is now picked up based on the file being formatted. This now matches the search that `rustfmt` itself does.
+
 # v0.2.10
 
 * Add support for `broadcast proof`, `broadcast group`, and `broadcast use` (see [verus#1022](https://github.com/verus-lang/verus/pull/1022))
