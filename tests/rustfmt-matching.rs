@@ -1,11 +1,18 @@
-use verusfmt::{parse_and_format, rustfmt, VERUS_PREFIX, VERUS_SUFFIX};
+use verusfmt::{rustfmt, VERUS_PREFIX, VERUS_SUFFIX};
 
 /// Tests to check that when formatting standard Rust syntax,
 /// we match rustfmt
 
 fn compare(file: &str) {
     let verus_file = format!("{}{}{}", VERUS_PREFIX, file, VERUS_SUFFIX);
-    let verus_fmt = parse_and_format(&verus_file).unwrap();
+    let verus_fmt = verusfmt::run(
+        &verus_file,
+        verusfmt::RunOptions {
+            file_name: None,
+            run_rustfmt: false,
+        },
+    )
+    .unwrap();
     let start = VERUS_PREFIX.len();
     let end = verus_fmt.len() - VERUS_SUFFIX.len();
     let verus_inner = &verus_fmt[start..end];

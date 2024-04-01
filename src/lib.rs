@@ -1514,7 +1514,7 @@ impl miette::Diagnostic for ParseAndFormatError {
     }
 }
 
-pub fn parse_and_format(s: &str) -> miette::Result<String> {
+fn parse_and_format(s: &str) -> miette::Result<String> {
     let ctx = Context {
         inline_comment_lines: find_inline_comment_lines(s),
     };
