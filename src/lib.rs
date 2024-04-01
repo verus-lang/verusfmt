@@ -3,7 +3,7 @@
 
 mod rustfmt;
 
-pub use crate::rustfmt::rustfmt;
+pub use crate::rustfmt::{rustfmt, RustFmtConfig};
 
 use itertools::Itertools;
 use pest::{iterators::Pair, iterators::Pairs, Parser};
@@ -1596,6 +1596,8 @@ pub struct RunOptions {
     pub file_name: Option<String>,
     /// Whether to run rustfmt on non-verus parts of code.
     pub run_rustfmt: bool,
+    /// Whether to perform extra configuration for the rustfmt run. Ignored if `run_rustfmt` is false.
+    pub rustfmt_config: RustFmtConfig,
 }
 
 impl Default for RunOptions {
@@ -1603,6 +1605,7 @@ impl Default for RunOptions {
         Self {
             file_name: None,
             run_rustfmt: true,
+            rustfmt_config: Default::default(),
         }
     }
 }
@@ -1622,7 +1625,9 @@ pub fn run(s: &str, opts: RunOptions) -> miette::Result<String> {
     let formatted_output = if !opts.run_rustfmt {
         verus_fmted
     } else {
-        rustfmt(&verus_fmted).ok_or(miette::miette!("rustfmt failed"))?
+        opts.rustfmt_config
+            .run(&verus_fmted)
+            .ok_or(miette::miette!("rustfmt failed"))?
     };
 
     Ok(formatted_output)

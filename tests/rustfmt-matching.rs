@@ -10,6 +10,7 @@ fn compare(file: &str) {
         verusfmt::RunOptions {
             file_name: None,
             run_rustfmt: false,
+            rustfmt_config: Default::default(),
         },
     )
     .unwrap();

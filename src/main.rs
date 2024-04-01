@@ -44,6 +44,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
         verusfmt::RunOptions {
             file_name: Some(file.to_string_lossy().into()),
             run_rustfmt: !args.verus_only,
+            rustfmt_config: Default::default(),
         },
     )?;
 
@@ -76,6 +77,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
             verusfmt::RunOptions {
                 file_name: Some(file.to_string_lossy().into()),
                 run_rustfmt: !args.verus_only,
+                rustfmt_config: Default::default(),
             },
         )?;
         if formatted_output == reformatted {

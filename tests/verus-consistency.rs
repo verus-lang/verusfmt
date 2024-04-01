@@ -11,6 +11,7 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
         verusfmt::RunOptions {
             file_name: None,
             run_rustfmt: true,
+            rustfmt_config: Default::default(),
         },
     )
 }
