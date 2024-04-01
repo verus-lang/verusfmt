@@ -4,6 +4,7 @@ use clap::{Parser as ClapParser, ValueEnum};
 use fs_err as fs;
 use miette::{miette, IntoDiagnostic};
 use tracing::{error, info}; // debug, trace
+use verusfmt::RustFmtConfig;
 
 /// A collection of options that should not be relied upon existing long-term, added primarily for
 /// verusfmt developers to use.
@@ -39,12 +40,32 @@ struct Args {
 fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
     let unparsed_file = fs::read_to_string(file).into_diagnostic()?;
 
+    let rustfmt_config = {
+        // Repeatedly check for ancestors of `file` until we find either `rustfmt.toml` or
+        // `.rustfmt.toml`; if we do, that becomes `rustfmt_toml`
+        let rustfmt_toml = file
+            .canonicalize()
+            .unwrap()
+            .ancestors()
+            .flat_map(|dir| {
+                // Why in this particular order? That's the order in which rustfmt checks:
+                // https://github.com/rust-lang/rustfmt/blob/202fa22cee5badff77129a7bea5c90228d354ac9/src/config/mod.rs#L368-L369
+                [".rustfmt.toml", "rustfmt.toml"]
+                    .into_iter()
+                    .map(|n| dir.join(n))
+            })
+            .filter_map(|p| p.exists().then(|| fs::read_to_string(p).unwrap()))
+            .next();
+
+        RustFmtConfig { rustfmt_toml }
+    };
+
     let formatted_output = verusfmt::run(
         &unparsed_file,
         verusfmt::RunOptions {
             file_name: Some(file.to_string_lossy().into()),
             run_rustfmt: !args.verus_only,
-            rustfmt_config: Default::default(),
+            rustfmt_config: rustfmt_config.clone(),
         },
     )?;
 
@@ -77,7 +98,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
             verusfmt::RunOptions {
                 file_name: Some(file.to_string_lossy().into()),
                 run_rustfmt: !args.verus_only,
-                rustfmt_config: Default::default(),
+                rustfmt_config,
             },
         )?;
         if formatted_output == reformatted {

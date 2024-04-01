@@ -23,10 +23,11 @@ pub fn rustfmt(s: &str) -> Option<String> {
 }
 
 /// Options to pass to [`rustfmt_with_config`]
+#[derive(Clone)]
 pub struct RustFmtConfig {
     /// If set, explicitly provides the specified `rustfmt.toml` configuration to rustfmt;
     /// otherwise, uses the default behavior (i.e., picking up `rustfmt.toml` if it exists from
-    /// working directory or ancestors)
+    /// the file's directory or ancestors)
     pub rustfmt_toml: Option<String>,
 }
 
