@@ -5,7 +5,11 @@
 //! modified by any change.
 
 fn check_snapshot(original: &str) {
-    let formatted = verusfmt::run(original, Default::default()).unwrap();
+    check_snapshot_with_config(original, Default::default())
+}
+
+fn check_snapshot_with_config(original: &str, config: verusfmt::RunOptions) {
+    let formatted = verusfmt::run(original, config).unwrap();
     if original != formatted {
         let diff = similar::udiff::unified_diff(
             similar::Algorithm::Patience,
@@ -52,9 +56,20 @@ fn pagetable_rs_unchanged() {
 
 #[test]
 fn verus_snapshot_unchanged() {
+    let rustfmt_toml =
+        std::fs::read_to_string("./examples/verus-snapshot/source/rustfmt.toml").unwrap();
     for path in glob::glob("./examples/verus-snapshot/**/*.rs").unwrap() {
         let path = path.unwrap();
         println!("Checking snapshot for {:?}", path);
-        check_snapshot(&std::fs::read_to_string(path).unwrap());
+        check_snapshot_with_config(
+            &std::fs::read_to_string(path).unwrap(),
+            verusfmt::RunOptions {
+                file_name: None,
+                run_rustfmt: true,
+                rustfmt_config: verusfmt::RustFmtConfig {
+                    rustfmt_toml: Some(rustfmt_toml.clone()),
+                },
+            },
+        );
     }
 }

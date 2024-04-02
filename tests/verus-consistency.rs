@@ -1,10 +1,20 @@
 use insta::assert_snapshot;
-use verusfmt::parse_and_format;
 
 /// Tests of Verus-specific formatting
 
 // We use insta tests (http://insta.rs) to manage the correct answers.
 // See README.md for details on how to run and update these tests.
+
+fn parse_and_format(s: &str) -> miette::Result<String> {
+    verusfmt::run(
+        s,
+        verusfmt::RunOptions {
+            file_name: None,
+            run_rustfmt: true,
+            rustfmt_config: Default::default(),
+        },
+    )
+}
 
 #[test]
 fn verus_functions() {

@@ -12,7 +12,7 @@ wget --quiet -O verus.zip https://github.com/verus-lang/verus/archive/refs/heads
 echo "[INFO] Unzipping Verus"
 unzip -q verus.zip
 
-MOVE_PATHS="source/rust_verify/example/syntax.rs source/vstd"
+MOVE_PATHS="source/rustfmt.toml source/rust_verify/example/syntax.rs source/vstd"
 
 echo "[INFO] Moving files"
 for path in $MOVE_PATHS; do

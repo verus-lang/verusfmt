@@ -15,8 +15,36 @@ fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
     matches!(&pair.as_span().as_str()[..2], "/*")
 }
 
-/// Run rustfmt, only on code outside the `verus!` macro
+/// Run rustfmt, only on code outside the `verus!` macro.
+///
+/// Convenience wrapper around [`RustFmtConfig`]. Equivalent to `RustFmtConfig::default().run(s)`.
 pub fn rustfmt(s: &str) -> Option<String> {
+    RustFmtConfig::default().run(s)
+}
+
+/// Options to pass to [`rustfmt_with_config`]
+#[derive(Clone)]
+pub struct RustFmtConfig {
+    /// If set, explicitly provides the specified `rustfmt.toml` configuration to rustfmt;
+    /// otherwise, uses the default behavior (i.e., picking up `rustfmt.toml` if it exists from
+    /// the file's directory or ancestors)
+    pub rustfmt_toml: Option<String>,
+}
+
+impl Default for RustFmtConfig {
+    fn default() -> Self {
+        Self { rustfmt_toml: None }
+    }
+}
+
+impl RustFmtConfig {
+    pub fn run(&self, s: &str) -> Option<String> {
+        rustfmt_with_config(s, self)
+    }
+}
+
+/// Run rustfmt, only on code outside the `verus!` macro.
+fn rustfmt_with_config(s: &str, config: &RustFmtConfig) -> Option<String> {
     let parsed_file = MinimalVerusParser::parse(Rule::file, s)
         .expect("Minimal parsing should never fail. If it did, please report this as an error.")
         .next()
@@ -51,7 +79,7 @@ pub fn rustfmt(s: &str) -> Option<String> {
         }
     }
 
-    let formatted = run_rustfmt(&collapsed_input)?;
+    let formatted = run_rustfmt(&collapsed_input, config)?;
 
     let parsed_file = MinimalVerusParser::parse(Rule::file, &formatted)
         .expect("Minimal parsing should never fail. If it did, please report this as an error.")
@@ -116,10 +144,27 @@ pub fn rustfmt(s: &str) -> Option<String> {
     Some(final_output)
 }
 
-fn run_rustfmt(s: &str) -> Option<String> {
-    let mut proc = Command::new("rustfmt")
-        .arg("--emit=stdout")
-        .arg("--edition=2021")
+fn run_rustfmt(s: &str, config: &RustFmtConfig) -> Option<String> {
+    let mut rustfmt = Command::new("rustfmt");
+
+    // Set up standard arguments we always pass
+    rustfmt.arg("--emit=stdout").arg("--edition=2021");
+
+    // If we need to, explicitly set up the rustfmt.toml file
+    let tempdir = config.rustfmt_toml.as_ref().map(|toml| {
+        let tempdir = tempfile::Builder::new()
+            .prefix("verusfmt")
+            .tempdir()
+            .unwrap();
+        std::fs::File::create_new(tempdir.path().join("rustfmt.toml"))
+            .unwrap()
+            .write_all(toml.as_bytes())
+            .unwrap();
+        rustfmt.arg("--config-path").arg(tempdir.path());
+        tempdir
+    });
+
+    let mut proc = rustfmt
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -133,6 +178,7 @@ fn run_rustfmt(s: &str) -> Option<String> {
         .unwrap();
 
     let output = proc.wait_with_output().ok()?;
+    drop(tempdir);
     if output.status.success() {
         Some(String::from_utf8(output.stdout).unwrap())
     } else {
