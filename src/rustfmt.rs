@@ -7,6 +7,8 @@ use std::process::{Command, Stdio};
 use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
 
+use fs_err as fs;
+
 #[derive(Parser)]
 #[grammar = "verus-minimal.pest"]
 pub struct MinimalVerusParser;
@@ -156,7 +158,10 @@ fn run_rustfmt(s: &str, config: &RustFmtConfig) -> Option<String> {
             .prefix("verusfmt")
             .tempdir()
             .unwrap();
-        std::fs::File::create_new(tempdir.path().join("rustfmt.toml"))
+        fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(tempdir.path().join("rustfmt.toml"))
             .unwrap()
             .write_all(toml.as_bytes())
             .unwrap();
