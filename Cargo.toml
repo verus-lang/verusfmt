@@ -1,6 +1,6 @@
 [package]
 name = "verusfmt"
-version = "0.2.10"
+version = "0.2.11"
 edition = "2021"
 autoexamples = false
 license = "MIT"

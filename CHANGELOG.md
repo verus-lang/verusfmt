@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.2.11
+
 * Improve handling of `rustfmt.toml` for non-`verus!` code
   - Rather than picking up `rustfmt.toml` based on working directory, it is now picked up based on the file being formatted. This now matches the search that `rustfmt` itself does.
 
