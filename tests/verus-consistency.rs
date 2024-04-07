@@ -1879,6 +1879,7 @@ mod ring {
         }
     }
 
+    #[verifier::prune_unless_this_module_is_used]
     pub    broadcast    group    properties {
     Ring::spec_succ_ensures,
             Ring::spec_prev_ensures,
@@ -1972,6 +1973,7 @@ mod m4 {
             }
         }
 
+        #[verifier::prune_unless_this_module_is_used]
         pub broadcast group properties {
             Ring::spec_succ_ensures,
             Ring::spec_prev_ensures,
