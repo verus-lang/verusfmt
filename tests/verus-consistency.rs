@@ -1840,7 +1840,7 @@ verus!{
 }
 
 #[test]
-fn verus_broadcast_use() {
+fn verus_broadcast_use_1() {
     let file = r#"
 verus! {
 mod ring {
@@ -2011,6 +2011,39 @@ mod m4 {
 
         broadcast use Ring::spec_succ_ensures, Ring::spec_prev_ensures;
 
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_broadcast_use_2() {
+    let file = r#"
+verus! {
+proof fn to_multiset_build<A>(s: Seq<A>, a: A)
+    ensures
+        s.push(a).to_multiset() =~= s.to_multiset().insert(a),
+    decreases s.len(),
+{
+    broadcast use crate::multiset::multiset_axioms;
+
+    if s.len() == 0 { }
+}
+} // verus!
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn to_multiset_build<A>(s: Seq<A>, a: A)
+        ensures
+            s.push(a).to_multiset() =~= s.to_multiset().insert(a),
+        decreases s.len(),
+    {
+        broadcast use crate::multiset::multiset_axioms;
+
+        if s.len() == 0 {
+        }
     }
 
     } // verus!
