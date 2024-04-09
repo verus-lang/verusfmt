@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support attributes on `broadcast group` items
+
 # v0.2.11
 
 * Improve handling of `rustfmt.toml` for non-`verus!` code
