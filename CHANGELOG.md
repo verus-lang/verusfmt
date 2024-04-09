@@ -1,6 +1,7 @@
 # Unreleased
 
 * Support attributes on `broadcast group` items
+* Improve styling of `broadcast use`s, ensuring trailing newline
 
 # v0.2.11
 

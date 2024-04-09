@@ -991,6 +991,14 @@ fn to_doc<'a>(
         Rule::attr_inner => map_to_doc(ctx, arena, pair),
         Rule::meta => unsupported(pair),
         Rule::broadcast_use => map_to_doc(ctx, arena, pair),
+        Rule::broadcast_uses => arena.concat(pair.into_inner().map(|p| {
+            if matches!(p.as_rule(), Rule::broadcast_use) {
+                to_doc(ctx, p, arena).append(arena.hardline())
+            } else {
+                // Handle the comments
+                to_doc(ctx, p, arena)
+            }
+        })),
         Rule::broadcast_group => map_to_doc(ctx, arena, pair),
 
         //****************************//

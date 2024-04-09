@@ -590,7 +590,7 @@ item_no_macro_call = _{
   | union
   | use
   | broadcast_group
-  | broadcast_use
+  | broadcast_uses
 }
 
 verusfmt_skipped_item = {
@@ -901,6 +901,10 @@ meta = {
 
 broadcast_use_list = {
     (path ~ ("," ~ path)* ~ ","?)
+}
+
+broadcast_uses = {
+    broadcast_use+
 }
 
 broadcast_use = {

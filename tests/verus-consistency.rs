@@ -2018,3 +2018,46 @@ mod m4 {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_broadcast_uses_trailing_newline() {
+    let file = r###"
+verus! {
+proof fn to_multiset_build<A>(s: Seq<A>, a: A)
+    ensures
+        s.push(a).to_multiset() =~= s.to_multiset().insert(a),
+    decreases s.len(),
+{
+    broadcast use crate::multiset::multiset_axioms;
+    /* xx */
+    broadcast use crate::multiset::multiset_stuffs;
+    // xx
+    broadcast use crate::useful;
+    broadcast use crate::moreuseful;
+    if s.len() == 0 {
+    }
+}
+} // verus!
+"###;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn to_multiset_build<A>(s: Seq<A>, a: A)
+        ensures
+            s.push(a).to_multiset() =~= s.to_multiset().insert(a),
+        decreases s.len(),
+    {
+        broadcast use crate::multiset::multiset_axioms;
+        /* xx */
+        broadcast use crate::multiset::multiset_stuffs;
+        // xx
+        broadcast use crate::useful;
+        broadcast use crate::moreuseful;
+
+        if s.len() == 0 {
+        }
+    }
+
+    } // verus!
+    "###);
+}
