@@ -1990,6 +1990,7 @@ mod m4 {
                 p.inv(),
         {
             broadcast use Ring::properties;
+
             assert(p.spec_succ().spec_prev() == p);
             assert(p.spec_prev().spec_succ() == p);
         }
