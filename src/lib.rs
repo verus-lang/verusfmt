@@ -394,8 +394,16 @@ fn items_to_doc<'a>(
             }
             prev_is_use = is_use;
 
+            let is_broadcast_uses = matches!(
+                item.clone().into_inner().next().unwrap().as_rule(),
+                Rule::broadcast_uses
+            );
             res = res.append(to_doc(ctx, item, arena));
-            res = res.append(arena.line());
+            if !is_broadcast_uses {
+                // Add the newline, but don't add extra newlines between `broadcast use`s since
+                // those already add newlines
+                res = res.append(arena.line());
+            }
             // Add extra space between items, except for use declarations
             if i < len - 1 && !is_use {
                 res = res.append(arena.line());
@@ -991,6 +999,14 @@ fn to_doc<'a>(
         Rule::attr_inner => map_to_doc(ctx, arena, pair),
         Rule::meta => unsupported(pair),
         Rule::broadcast_use => map_to_doc(ctx, arena, pair),
+        Rule::broadcast_uses => arena.concat(pair.into_inner().map(|p| {
+            if matches!(p.as_rule(), Rule::broadcast_use) {
+                to_doc(ctx, p, arena).append(arena.hardline())
+            } else {
+                // Handle the comments
+                to_doc(ctx, p, arena)
+            }
+        })),
         Rule::broadcast_group => map_to_doc(ctx, arena, pair),
 
         //****************************//
