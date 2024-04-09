@@ -296,6 +296,8 @@ move_str = ${ "move" ~ !("_" | ASCII_ALPHANUMERIC) }
 mut_str = ${ "mut" ~ !("_" | ASCII_ALPHANUMERIC) }
 nat_str = ${ "nat" ~ !("_" | ASCII_ALPHANUMERIC) }
 none_str = ${ "none" ~ !("_" | ASCII_ALPHANUMERIC) }
+no_unwind_str = ${ "no_unwind" ~ !("_" | ASCII_ALPHANUMERIC) }
+no_unwind_when_str = ${ "when" ~ !("_" | ASCII_ALPHANUMERIC) }
 opens_invariants_str = ${ "opens_invariants" ~ !("_" | ASCII_ALPHANUMERIC) }
 open_str = ${ "open" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_space_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -652,7 +654,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    (requires_clause | recommends_clause | ensures_clause | decreases_clause | opens_invariants_clause)*
+    (requires_clause | recommends_clause | ensures_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
 }
 
 fn_terminator = {
@@ -1689,6 +1691,10 @@ recommends_clause = {
 
 decreases_clause = {
     decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr_no_struct)? ~ (via_str ~ expr_no_struct)?
+}
+
+unwind_clause = {
+    no_unwind_str ~ (no_unwind_when_str ~ expr_no_struct)?
 }
 
 opens_invariants_mode = {

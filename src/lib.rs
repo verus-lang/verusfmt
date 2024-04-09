@@ -771,7 +771,10 @@ fn to_doc<'a>(
         | Rule::invariant_ensures_str
         | Rule::opens_invariants_str
         | Rule::recommends_str
+        | Rule::no_unwind_str
         | Rule::requires_str => arena.hardline().append(s).nest(INDENT_SPACES),
+
+        Rule::no_unwind_when_str => arena.space().append(s).append(arena.space()),
 
         Rule::any_str
         | Rule::assert_str
@@ -1275,6 +1278,7 @@ fn to_doc<'a>(
         Rule::invariant_ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
+        Rule::unwind_clause => map_to_doc(ctx, arena, pair),
         Rule::opens_invariants_mode => arena.space().append(map_to_doc(ctx, arena, pair)),
         Rule::opens_invariants_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),
