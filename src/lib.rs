@@ -394,8 +394,16 @@ fn items_to_doc<'a>(
             }
             prev_is_use = is_use;
 
+            let is_broadcast_uses = matches!(
+                item.clone().into_inner().next().unwrap().as_rule(),
+                Rule::broadcast_uses
+            );
             res = res.append(to_doc(ctx, item, arena));
-            res = res.append(arena.line());
+            if !is_broadcast_uses {
+                // Add the newline, but don't add extra newlines between `broadcast use`s since
+                // those already add newlines
+                res = res.append(arena.line());
+            }
             // Add extra space between items, except for use declarations
             if i < len - 1 && !is_use {
                 res = res.append(arena.line());
