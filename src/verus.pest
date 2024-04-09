@@ -916,7 +916,7 @@ broadcast_group_list = {
 }
 
 broadcast_group = {
-    visibility? ~ broadcast_str ~ group_str ~ broadcast_group_identifier ~ broadcast_group_list
+    attr* ~ visibility? ~ broadcast_str ~ group_str ~ broadcast_group_identifier ~ broadcast_group_list
 }
 
 //****************************//
