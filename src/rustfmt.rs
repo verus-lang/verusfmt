@@ -4,7 +4,7 @@
 use std::io::Write;
 use std::process::{Command, Stdio};
 
-use pest::{iterators::Pair, iterators::Pairs, Parser};
+use pest::{iterators::Pair, Parser};
 use pest_derive::Parser;
 
 use fs_err as fs;

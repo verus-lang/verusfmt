@@ -1,20 +1,13 @@
-#![allow(dead_code, unused_imports)] // TEMPORARY
-#![allow(unstable_name_collisions)] // Needed due to Itertools::intersperse
-
 mod rustfmt;
 
 pub use crate::rustfmt::{rustfmt, RustFmtConfig};
 
-use itertools::Itertools;
 use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
 use pretty::*;
 use regex::Regex;
 use std::collections::HashSet;
-use std::io::Write;
-use std::process::{Command, Stdio};
-use std::str::from_utf8;
-use tracing::{debug, enabled, error, info, trace, Level};
+use tracing::{debug, enabled, error, info, Level};
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
@@ -34,14 +27,6 @@ struct Context {
 
 // When in doubt, we should generally try to stick to Rust style guidelines:
 //   https://doc.rust-lang.org/beta/style-guide/items.html
-
-/// Adds a space that turns into a newline plus indentation when in multi-line mode
-fn soft_indent<'a>(
-    arena: &'a Arena<'a, ()>,
-    doc: DocBuilder<'a, Arena<'a>>,
-) -> DocBuilder<'a, Arena<'a>> {
-    arena.softline().append(doc).nest(INDENT_SPACES)
-}
 
 /// Adds a comma that vanishes in single-line mode
 fn conditional_comma<'a>(arena: &'a Arena<'a, ()>) -> DocBuilder<'a, Arena<'a>> {
