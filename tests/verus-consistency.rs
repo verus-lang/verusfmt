@@ -2062,3 +2062,35 @@ proof fn to_multiset_build<A>(s: Seq<A>, a: A)
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_unwind() {
+    let file = r###"
+verus! {
+proof fn a()
+    no_unwind
+{
+}
+
+proof fn b()
+    no_unwind when x >= 0
+{
+}
+} // verus!
+"###;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn a()
+        no_unwind
+    {
+    }
+
+    proof fn b()
+        no_unwind when x >= 0
+    {
+    }
+
+    } // verus!
+    "###);
+}

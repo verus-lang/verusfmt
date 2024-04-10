@@ -2,6 +2,7 @@
 
 * Support attributes on `broadcast group` items
 * Improve styling of `broadcast use`s, ensuring trailing newline
+* Add support for the `no_unwind` clause on functions
 
 # v0.2.11
 
