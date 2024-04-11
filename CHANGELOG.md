@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.3.0
+
 * Support attributes on `broadcast group` items
 * Improve styling of `broadcast use`s, ensuring trailing newline
 * Add support for the `no_unwind` clause on functions
