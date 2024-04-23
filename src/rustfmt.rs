@@ -24,7 +24,7 @@ pub fn rustfmt(s: &str) -> Option<String> {
     RustFmtConfig::default().run(s)
 }
 
-/// Options to pass to [`rustfmt_with_config`]
+/// Options to pass to `rustfmt`
 #[derive(Clone)]
 pub struct RustFmtConfig {
     /// If set, explicitly provides the specified `rustfmt.toml` configuration to rustfmt;

@@ -1439,7 +1439,9 @@ fn strip_whitespace(s: String) -> String {
     fixed_str
 }
 
+#[doc(hidden)]
 pub const VERUS_PREFIX: &str = "verus! {\n\n";
+#[doc(hidden)]
 pub const VERUS_SUFFIX: &str = "\n} // verus!\n";
 
 fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
@@ -1447,6 +1449,7 @@ fn is_multiline_comment(pair: &Pair<Rule>) -> bool {
 }
 
 #[derive(thiserror::Error, Debug)]
+/// A failure in running verusfmt
 pub enum ParseAndFormatError {
     #[error("Failed to parse")]
     ParseError { pest_err: pest::error::Error<Rule> },
@@ -1616,6 +1619,7 @@ impl Default for RunOptions {
     }
 }
 
+/// Run `verusfmt`
 pub fn run(s: &str, opts: RunOptions) -> miette::Result<String> {
     let unparsed_file = s;
 
