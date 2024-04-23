@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.3.1
+
 * Support generic argument binding
   - Useful for associated type constraints, such as `trait Foo<T>: Bar<V = Baz<T>>`
 
