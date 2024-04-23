@@ -11,7 +11,7 @@ use tracing::{debug, enabled, error, info, Level};
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
-pub struct VerusParser;
+struct VerusParser;
 
 // JB: Should we expose these to the user as configurable options where we pick a default?
 // I think even this should be opinionated, but might be useful to expose this as an unstable option or something.
