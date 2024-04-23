@@ -453,7 +453,8 @@ generic_arg_list_with_colons = {
 }
 
 generic_arg = {
-    type_arg
+    generic_args_binding
+  | type_arg
   | assoc_type_arg
   | lifetime_arg
   | const_arg
@@ -475,6 +476,10 @@ lifetime_arg = {
 
 const_arg = {
     expr
+}
+
+generic_args_binding = {
+    identifier ~ eq_str ~ type
 }
 
 // TODO: Special handling for the calc! and state_machine! macros?

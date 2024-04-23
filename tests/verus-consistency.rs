@@ -2094,3 +2094,22 @@ proof fn b()
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_generic_arg_binding() {
+    let file = r###"
+verus! {
+pub trait Foo<T>: View<V = Seq<T>> {
+}
+} // verus!
+"###;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub trait Foo<T>: View<V = Seq<T>> {
+
+    }
+
+    } // verus!
+    "###);
+}
