@@ -1,5 +1,8 @@
 # Unreleased
 
+* Support generic argument binding
+  - Useful for associated type constraints, such as `trait Foo<T>: Bar<V = Baz<T>>`
+
 # v0.3.0
 
 * Support attributes on `broadcast group` items

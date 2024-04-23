@@ -793,6 +793,7 @@ fn to_doc<'a>(
         Rule::assoc_type_arg => unsupported(pair),
         Rule::lifetime_arg => map_to_doc(ctx, arena, pair),
         Rule::const_arg => unsupported(pair),
+        Rule::generic_args_binding => map_to_doc(ctx, arena, pair),
         Rule::macro_call => s,
         Rule::macro_call_stmt => s,
         Rule::punctuation => map_to_doc(ctx, arena, pair),
