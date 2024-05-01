@@ -640,6 +640,7 @@ fn to_doc<'a>(
         | Rule::underscore_str
         | Rule::arrow_expr_str => s,
         Rule::fn_traits | Rule::impl_str => s,
+        Rule::calc_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         //        Rule::triple_and |
         //        Rule::triple_or =>
@@ -794,8 +795,54 @@ fn to_doc<'a>(
         Rule::lifetime_arg => map_to_doc(ctx, arena, pair),
         Rule::const_arg => unsupported(pair),
         Rule::generic_args_binding => map_to_doc(ctx, arena, pair),
-        Rule::macro_call => s,
-        Rule::macro_call_stmt => s,
+        Rule::calc_macro_reln => s,
+        Rule::calc_macro_body => {
+            let mut inner = arena.nil();
+            let pairs = pair.into_inner();
+            let mut first_reln_done = false;
+            for p in pairs.clone() {
+                let doc = to_doc(ctx, p.clone(), arena);
+                match p.as_rule() {
+                    Rule::calc_macro_reln if !first_reln_done => {
+                        inner = inner.append(doc).append(arena.hardline());
+                        first_reln_done = true;
+                    }
+                    Rule::calc_macro_reln => {
+                        inner = inner.append(doc).append(arena.space());
+                    }
+                    Rule::expr => {
+                        inner = inner.append(doc);
+                    }
+                    Rule::semi_str => {
+                        inner = inner.append(doc).append(arena.space());
+                    }
+                    Rule::block_expr => {
+                        inner = inner.append(doc).append(arena.hardline());
+                    }
+                    Rule::COMMENT => {
+                        inner = inner.append(doc);
+                    }
+                    rule @ _ => unreachable!("Unreachable rule {rule:?}"),
+                }
+            }
+            arena.space().append(block_braces(
+                arena,
+                inner,
+                pairs.rev().next().unwrap().as_rule() == Rule::semi_str,
+            ))
+        }
+        Rule::calc_macro_call => map_to_doc(ctx, arena, pair),
+        Rule::macro_call | Rule::macro_call_stmt => {
+            if pair
+                .clone()
+                .into_inner()
+                .any(|x| matches!(x.as_rule(), Rule::calc_macro_call))
+            {
+                map_to_doc(ctx, arena, pair)
+            } else {
+                s
+            }
+        }
         Rule::punctuation => map_to_doc(ctx, arena, pair),
         Rule::token => map_to_doc(ctx, arena, pair),
         Rule::delim_token_tree => map_to_doc(ctx, arena, pair),

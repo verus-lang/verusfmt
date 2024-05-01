@@ -239,6 +239,7 @@ break_str = ${ "break" ~ !("_" | ASCII_ALPHANUMERIC) }
 broadcast_str = ${ "broadcast" ~ !("_" | ASCII_ALPHANUMERIC) }
 by_str = ${ "by" ~ !("_" | ASCII_ALPHANUMERIC) }
 by_str_inline = ${ "by" ~ !("_" | ASCII_ALPHANUMERIC) }
+calc_str = ${ "calc" ~ !("_" | ASCII_ALPHANUMERIC) }
 checked_str = ${ "checked" ~ !("_" | ASCII_ALPHANUMERIC) }
 choose_str = ${ "choose" ~ !("_" | ASCII_ALPHANUMERIC) }
 closed_str = ${ "closed" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -482,9 +483,28 @@ generic_args_binding = {
     identifier ~ eq_str ~ type
 }
 
-// TODO: Special handling for the calc! and state_machine! macros?
+calc_macro_reln = {
+    // We _could_ be more precise here but might as well just allow more things
+    "(" ~ calc_macro_reln ~ ")"
+  | bin_expr_ops_normal
+}
+
+calc_macro_body = {
+    "{" ~
+    calc_macro_reln ~
+    (expr ~ semi_str ~ calc_macro_reln? ~ block_expr?)* ~
+    "}"
+}
+
+calc_macro_call = {
+    attr* ~ calc_str ~ bang_str ~ !"=" ~
+    calc_macro_body
+}
+
+// TODO: Special handling for the state_machine! macros?
 macro_call = {
-    attr* ~ path ~ bang_str ~ !"=" ~ token_tree
+    calc_macro_call
+  | attr* ~ path ~ bang_str ~ !"=" ~ token_tree
 }
 
 // NOTE: By convention, stmt-like or item-like macros (e.g., calc!{}) tend to
@@ -498,7 +518,8 @@ macro_call = {
 // can switch to the alternative if we find situations where it might be better
 // suited.
 macro_call_stmt = {
-    attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
+    calc_macro_call
+  | attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
 }
 
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation

@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support automatic formatting of the `calc!` macro
+
 # v0.3.1
 
 * Support generic argument binding

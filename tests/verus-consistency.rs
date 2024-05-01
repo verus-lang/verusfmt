@@ -519,17 +519,17 @@ proof fn foo() {
     calc! {
         (==)
         1int; {}
-        (0int + 1int); {}
+        (0int + 1int);
     };
     calc! {
         (==)
         1int; {}
-        (0int + 1int); {}
+        (0int + 1int);
     }
     calc! {
         (==)
         1int; {}
-        (0int + 1int); {}
+        (0int + 1int);
     }
 }
 
@@ -544,17 +544,17 @@ proof fn foo() {
         calc! {
             (==)
             1int; {}
-            (0int + 1int); {}
+            (0int + 1int);
         };
         calc! {
             (==)
             1int; {}
-            (0int + 1int); {}
+            (0int + 1int);
         }
         calc! {
             (==)
             1int; {}
-            (0int + 1int); {}
+            (0int + 1int);
         }
     }
 
@@ -2108,6 +2108,73 @@ pub trait Foo<T>: View<V = Seq<T>> {
 
     pub trait Foo<T>: View<V = Seq<T>> {
 
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_calc_formatting() {
+    let file = r###"
+verus! {
+fn foo() {
+    calc! {
+        (==)
+        x; {}
+        y; {}
+        a; (==) {
+            assert(foo == bar);
+        }
+        b;
+    }
+}
+fn bar() {
+    calc! {
+        (<=)
+        x; /* x*/ {}
+        y; { /*y*/ }
+// t
+        a; (==) {
+// u
+            assert(foo == bar);
+        }
+        b;
+// v
+    }
+}
+}
+"###;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn foo() {
+        calc! {
+            (==)
+            x; {}
+            y; {}
+            a; (==) {
+                assert(foo == bar);
+            }
+            b;
+        }
+    }
+
+    fn bar() {
+        calc! {
+            (<=)
+            x;   /* x*/
+            {}
+            y; {  /*y*/
+            }
+            // t
+            a; (==) {
+                // u
+                assert(foo == bar);
+            }
+            b;
+            // v
+        }
     }
 
     } // verus!
