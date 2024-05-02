@@ -7,6 +7,13 @@ An opinionated formatter for [Verus] code.
 `verusfmt` is highly experimental code. Make backups of your files before trying
 `verusfmt` on them.
 
+## Updating verusfmt
+
+If you've installed a pre-built binary, you can update to the latest release using
+```sh
+verusfmt --update
+```
+
 ## Installing and Using Verusfmt
 
 We support multiple install methods:

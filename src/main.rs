@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{Parser as ClapParser, ValueEnum};
 use fs_err as fs;
 use miette::{miette, IntoDiagnostic};
-use tracing::{error, info}; // debug, trace
+use tracing::{error, info}; // debug, trace, warn
 use verusfmt::RustFmtConfig;
 
 /// A collection of options that should not be relied upon existing long-term, added primarily for
@@ -35,6 +35,9 @@ struct Args {
     /// Use unstable CLI features
     #[arg(short = 'Z', long = "unstable")]
     unstable_command: Option<UnstableCommand>,
+    /// Update verusfmt if an update is available
+    #[arg(long = "update")]
+    update: bool,
 }
 
 fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
@@ -127,21 +130,45 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
 
 fn main() -> miette::Result<()> {
     let args = Args::parse();
-    if args.files.is_empty() {
-        return Err(miette!("No files specified"));
-    }
 
     tracing_subscriber::fmt()
         .with_timer(tracing_subscriber::fmt::time::uptime())
         .with_level(true)
         .with_target(false)
-        .with_max_level(match args.debug_level {
+        .with_max_level(match args.debug_level + (args.update as u8) {
             0 => tracing::Level::WARN,
             1 => tracing::Level::INFO,
             2 => tracing::Level::DEBUG,
             _ => tracing::Level::TRACE,
         })
         .init();
+
+    if args.update {
+        info!("Attempting update");
+        let mut updater = axoupdater::AxoUpdater::new_for("verusfmt");
+        if let Err(e) = updater.load_receipt() {
+            error!("Failed to load receipt.");
+            return Err(e).into_diagnostic();
+        }
+        if !updater
+            .check_receipt_is_for_this_executable()
+            .into_diagnostic()?
+        {
+            error!("This verusfmt installation does not support updating.");
+            info!("Consider updating using the approach you initially installed it with.");
+            return Err(miette!("Incorrect receipt for executable"));
+        }
+        if updater.run_sync().into_diagnostic()?.is_some() {
+            info!("Update installed!");
+        } else {
+            info!("Already up to date");
+        }
+        return Ok(());
+    }
+
+    if args.files.is_empty() {
+        return Err(miette!("No files specified"));
+    }
 
     let mut errors = vec![];
     for file in &args.files {

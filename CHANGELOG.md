@@ -1,5 +1,7 @@
 # Unreleased
 
+* Introduce `--update` to update to latest Verusfmt easily
+
 # v0.3.2
 
 * Support automatic formatting of the `calc!` macro
