@@ -95,7 +95,7 @@ See `verusfmt --help` for more options and details.
     format some code seems heavyweight.
 
 ## Future Work
-- Special handling for commonly used macros, like `println!`, `state_machine!`, `calc!`
+- Special handling for commonly used macros, like `println!`, `state_machine!`
 - Enforce the [Rust naming policy](https://doc.rust-lang.org/beta/style-guide/advice.html#names)? 
 
 ## Non-Future Work
