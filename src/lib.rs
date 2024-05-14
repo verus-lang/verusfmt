@@ -459,9 +459,15 @@ fn loop_to_doc<'a>(
     // We need to add a newline after the very last clause,
     // so that the opening brace of the loop body is on a fresh line
     let mut last_clause_span = None;
+    // We also need to supress the space after the `for x in y`
+    // if we see a colon indicating `for x in y: e`
+    let mut colon_expr = false;
     pair.clone().into_inner().for_each(|p| {
         if p.as_rule() == Rule::loop_clause {
             last_clause_span = Some(p.as_span())
+        }
+        if p.as_rule() == Rule::colon_str {
+            colon_expr = true;
         }
     });
     arena.concat(pair.into_inner().map(|p| {
@@ -470,7 +476,7 @@ fn loop_to_doc<'a>(
         } else if p.as_rule() == Rule::in_str {
             // Used for for-loops
             arena.space().append(to_doc(ctx, p, arena))
-        } else if p.as_rule() == Rule::expr_no_struct {
+        } else if p.as_rule() == Rule::expr_no_struct && !colon_expr {
             to_doc(ctx, p, arena).append(arena.space())
         } else if let Some(c) = last_clause_span {
             if p.as_span() == c {
