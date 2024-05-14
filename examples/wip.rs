@@ -1,49 +1,32 @@
 verus! {
 
 fn test() {
-    let mut i: i8 = 0;
-    loop
+    for x in iter: 0..end
         invariant
-            i <= 9,
-        invariant_except_break
-            i <= 9,
-        invariant
-            0 <= i <= 10,
-        invariant_ensures
-            0 <= i <= 10,
-        ensures
-            1 <= i,
+            end == 10,
     {
-        assert(i <= 9);
-        i = i + 1;
-        if i == 10 {
-            break ;
-        }
+        n += 3;
     }
-    assert(1 <= i <= 10);
-}
-
-fn test() {
-    let mut i: i8 = 0;
-    while true
+    let x = 2;
+    for x in iter: vec_iter_copy(v)
         invariant
-            i <= 9,
-        invariant_except_break
-            i <= 9,
-        invariant
-            0 <= i <= 10,
-        invariant_ensures
-            0 <= i <= 10,
-        ensures
-            1 <= i,
+            b <==> (forall|i: int| 0 <= i < iter.cur ==> v[i] > 0),
     {
-        assert(i <= 9);
-        i = i + 1;
-        if i == 10 {
-            break ;
-        }
+        b = b && x > 0;
     }
-    assert(1 <= i <= 10);
+    let y = 3;
+    for x in iter: 0..({
+        let z = end;
+        non_spec();
+        z
+    })
+        invariant
+            n == iter.cur * 3,
+            end == 10,
+    {
+        n += 3;
+        end = end + 0;  // causes end to be non-constant
+    }
 }
 
 } // verus!
