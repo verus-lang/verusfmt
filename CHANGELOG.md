@@ -1,7 +1,9 @@
 # Unreleased
 
+# v0.3.2
+
 * Support automatic formatting of the `calc!` macro
-* Support for named iterators in for loops
+* Support for named iterators in `for` loops
 
 # v0.3.1
 
