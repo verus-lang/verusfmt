@@ -1,14 +1,28 @@
 #![allow(unused_imports)]
 use crate::seq::*;
 use crate::slice::SliceAdditionalSpecFns;
+use crate::view::*;
 use builtin::*;
 use builtin_macros::*;
 
 verus! {
 
-pub trait ArrayAdditionalSpecFns<T> {
-    spec fn view(&self) -> Seq<T>;
+impl<T, const N: usize> View for [T; N] {
+    type V = Seq<T>;
 
+    spec fn view(&self) -> Seq<T>;
+}
+
+impl<T: DeepView, const N: usize> DeepView for [T; N] {
+    type V = Seq<T::V>;
+
+    open spec fn deep_view(&self) -> Seq<T::V> {
+        let v = self.view();
+        Seq::new(v.len(), |i: int| v[i].deep_view())
+    }
+}
+
+pub trait ArrayAdditionalSpecFns<T>: View<V = Seq<T>> {
     spec fn spec_index(&self, i: int) -> T
         recommends
             0 <= i < self.view().len(),
@@ -21,9 +35,7 @@ pub trait ArrayAdditionalExecFns<T> {
 }
 
 impl<T, const N: usize> ArrayAdditionalSpecFns<T> for [T; N] {
-    spec fn view(&self) -> Seq<T>;
-
-    #[verifier(inline)]
+    #[verifier::inline]
     open spec fn spec_index(&self, i: int) -> T {
         self.view().index(i)
     }
@@ -41,7 +53,7 @@ impl<T, const N: usize> ArrayAdditionalExecFns<T> for [T; N] {
     }
 }
 
-#[verifier(external_body)]
+#[verifier::external_body]
 #[cfg_attr(verus_keep_ghost, rustc_diagnostic_item = "verus::vstd::array::array_index_get")]
 pub exec fn array_index_get<T, const N: usize>(ar: &[T; N], i: usize) -> (out: &T)
     requires
@@ -77,7 +89,7 @@ pub broadcast proof fn axiom_spec_array_as_slice<T, const N: usize>(ar: &[T; N])
 
 // Referenced by Verus' internal encoding for array -> slice coercion
 #[doc(hidden)]
-#[verifier(external_body)]
+#[verifier::external_body]
 #[verifier::when_used_as_spec(spec_array_as_slice)]
 #[cfg_attr(verus_keep_ghost, rustc_diagnostic_item = "verus::vstd::array::array_as_slice")]
 pub fn array_as_slice<T, const N: usize>(ar: &[T; N]) -> (out: &[T])
@@ -87,7 +99,7 @@ pub fn array_as_slice<T, const N: usize>(ar: &[T; N]) -> (out: &[T])
     ar
 }
 
-#[verifier(external_fn_specification)]
+#[verifier::external_fn_specification]
 pub fn ex_array_as_slice<T, const N: usize>(ar: &[T; N]) -> (out: &[T])
     ensures
         ar@ == out@,
