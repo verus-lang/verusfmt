@@ -4,12 +4,19 @@
 //! quick indicator for whether files in `../examples/` (such as `../examples/syntax.rs`) have been
 //! modified by any change.
 
+fn verusfmt_run_with_extra_stack(s: &str, opts: verusfmt::RunOptions) -> miette::Result<String> {
+    #[allow(non_upper_case_globals)]
+    const MiB: usize = 1024 * 1024;
+    const STACK_SIZE: usize = 8 * MiB;
+    stacker::grow(STACK_SIZE, || verusfmt::run(s, opts))
+}
+
 fn check_snapshot(original: &str) {
     check_snapshot_with_config(original, Default::default())
 }
 
 fn check_snapshot_with_config(original: &str, config: verusfmt::RunOptions) {
-    let formatted = verusfmt::run(original, config).unwrap();
+    let formatted = verusfmt_run_with_extra_stack(original, config).unwrap();
     if original != formatted {
         let diff = similar::udiff::unified_diff(
             similar::Algorithm::Patience,
