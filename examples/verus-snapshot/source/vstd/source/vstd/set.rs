@@ -1,13 +1,11 @@
 use core::marker;
 
 #[allow(unused_imports)]
-use crate::map::*;
+use super::map::*;
 #[allow(unused_imports)]
-use crate::pervasive::*;
+use super::pervasive::*;
 #[allow(unused_imports)]
-use builtin::*;
-#[allow(unused_imports)]
-use builtin_macros::*;
+use super::prelude::*;
 
 verus! {
 
@@ -61,7 +59,7 @@ impl<A> Set<A> {
     /// to use the general-purpose `=~=` or `=~~=` or
     /// to use the [`assert_sets_equal!`](crate::set_lib::assert_sets_equal) macro,
     /// rather than using `.ext_equal` directly.
-    #[deprecated = "use =~= or =~~= instead"]
+    #[cfg_attr(not(verus_verify_core), deprecated = "use =~= or =~~= instead")]
     pub open spec fn ext_equal(self, s2: Set<A>) -> bool {
         self =~= s2
     }
@@ -447,7 +445,7 @@ pub broadcast group group_set_axioms {
 #[macro_export]
 macro_rules! set_internal {
     [$($elem:expr),* $(,)?] => {
-        $crate::set::Set::empty()
+        $crate::vstd::set::Set::empty()
             $(.insert($elem))*
     };
 }
@@ -455,7 +453,7 @@ macro_rules! set_internal {
 #[macro_export]
 macro_rules! set {
     [$($tail:tt)*] => {
-        ::builtin_macros::verus_proof_macro_exprs!($crate::set::set_internal!($($tail)*))
+        ::builtin_macros::verus_proof_macro_exprs!($crate::vstd::set::set_internal!($($tail)*))
     };
 }
 
