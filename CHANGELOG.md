@@ -1,6 +1,9 @@
 # Unreleased
 
+# v0.3.3
+
 * Introduce `--update` to update to latest Verusfmt easily
+  - Only works on [pre-built binaries](https://github.com/verus-lang/verusfmt?tab=readme-ov-file#installing-and-using-verusfmt), the recommended way to install verusfmt.
 
 # v0.3.2
 
