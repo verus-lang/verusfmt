@@ -3,16 +3,16 @@
 use alloc::alloc::Layout;
 use core::{marker, mem, mem::MaybeUninit};
 
-use crate::layout::*;
-use crate::modes::*;
-use crate::pervasive::*;
-use crate::prelude::*;
-use crate::*;
+use super::layout::*;
+use super::modes::*;
+use super::pervasive::*;
+use super::prelude::*;
+use super::*;
 use builtin::*;
 use builtin_macros::*;
 
 #[cfg(verus_keep_ghost)]
-use crate::set_lib::set_int_range;
+use super::set_lib::set_int_range;
 
 verus! {
 
@@ -338,6 +338,17 @@ impl PointsToRaw {
         unimplemented!();
     }
 
+    pub proof fn insert(tracked &mut self, tracked other: Self)
+        ensures
+            old(self)@.dom().disjoint(other@.dom()),
+            self@ == old(self)@.union_prefer_right(other@),
+    {
+        let tracked mut tmp = Self::empty();
+        tracked_swap(&mut tmp, self);
+        tmp = tmp.join(other);
+        tracked_swap(&mut tmp, self);
+    }
+
     #[verifier::external_body]
     pub proof fn borrow_join<'a>(tracked &'a self, tracked other: &'a Self) -> (tracked joined:
         &'a Self)
@@ -359,6 +370,20 @@ impl PointsToRaw {
             res.1@ == self@.remove_keys(range),
     {
         unimplemented!();
+    }
+
+    pub proof fn take(tracked &mut self, range: Set<int>) -> (tracked res: Self)
+        requires
+            range.subset_of(old(self)@.dom()),
+        ensures
+            res@ == old(self)@.restrict(range),
+            self@ == old(self)@.remove_keys(range),
+    {
+        let tracked mut tmp = Self::empty();
+        tracked_swap(&mut tmp, self);
+        let tracked (l, mut r) = tmp.split(range);
+        tracked_swap(&mut r, self);
+        l
     }
 
     #[verifier::external_body]

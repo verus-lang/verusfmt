@@ -1,11 +1,9 @@
 use core::marker;
 
 #[allow(unused_imports)]
-use crate::pervasive::*;
+use super::pervasive::*;
 #[allow(unused_imports)]
-use builtin::*;
-#[allow(unused_imports)]
-use builtin_macros::*;
+use super::prelude::*;
 
 verus! {
 
@@ -107,7 +105,7 @@ impl<A> Seq<A> {
     /// to use the general-purpose `=~=` or `=~~=` or
     /// to use the [`assert_seqs_equal!`](crate::seq_lib::assert_seqs_equal) macro,
     /// rather than using `.ext_equal` directly.
-    #[deprecated = "use =~= or =~~= instead"]
+    #[cfg_attr(not(verus_verify_core), deprecated = "use =~= or =~~= instead")]
     #[rustc_diagnostic_item = "verus::vstd::seq::Seq::ext_equal"]
     pub open spec fn ext_equal(self, s2: Seq<A>) -> bool {
         self =~= s2
@@ -359,7 +357,7 @@ pub broadcast group group_seq_axioms {
 #[macro_export]
 macro_rules! seq_internal {
     [$($elem:expr),* $(,)?] => {
-        $crate::seq::Seq::empty()
+        $crate::vstd::seq::Seq::empty()
             $(.push($elem))*
     }
 }
@@ -379,7 +377,7 @@ macro_rules! seq_internal {
 #[macro_export]
 macro_rules! seq {
     [$($tail:tt)*] => {
-        ::builtin_macros::verus_proof_macro_exprs!($crate::seq::seq_internal!($($tail)*))
+        ::builtin_macros::verus_proof_macro_exprs!($crate::vstd::seq::seq_internal!($($tail)*))
     };
 }
 

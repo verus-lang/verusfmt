@@ -1,10 +1,8 @@
-#[allow(unused_imports)]
-use crate::pervasive::*;
-use crate::set::*;
-#[allow(unused_imports)]
-use builtin::*;
-#[allow(unused_imports)]
-use builtin_macros::*;
+#![allow(unused_imports)]
+
+use super::pervasive::*;
+use super::prelude::*;
+use super::set::*;
 use core::marker;
 
 verus! {
@@ -97,7 +95,7 @@ impl<K, V> Map<K, V> {
     /// To prove that two maps are equal via extensionality, it may be easier
     /// to use the general-purpose `=~=` or `=~~=` or
     /// to use the [`assert_maps_equal!`] macro, rather than using `.ext_equal` directly.
-    #[deprecated = "use =~= or =~~= instead"]
+    #[cfg_attr(not(verus_verify_core), deprecated = "use =~= or =~~= instead")]
     pub open spec fn ext_equal(self, m2: Map<K, V>) -> bool {
         self =~= m2
     }
@@ -454,10 +452,10 @@ impl<K, V> Map<K, V> {
     {
         #[verifier::proof]
         let mut tmp = Self::tracked_empty();
-        crate::modes::tracked_swap(&mut tmp, self);
+        super::modes::tracked_swap(&mut tmp, self);
         #[verifier::proof]
         let mut tmp = Self::tracked_map_keys(tmp, key_map);
-        crate::modes::tracked_swap(&mut tmp, self);
+        super::modes::tracked_swap(&mut tmp, self);
     }
 }
 
