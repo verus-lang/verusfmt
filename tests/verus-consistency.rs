@@ -2239,7 +2239,6 @@ fn bar() {
     "###);
 }
 
-
 #[test]
 fn verus_const_arg() {
     let file = r#"
