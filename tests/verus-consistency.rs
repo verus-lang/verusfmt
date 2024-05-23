@@ -2238,3 +2238,28 @@ fn bar() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_const_arg() {
+    let file = r#"
+verus! {
+
+fn foo(arg: ConstBytes<2>) -> (res: ConstBytes<4>) {
+    let x: ConstBytes<3> = bar();
+    baz();
+}
+    
+}
+
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn foo(arg: ConstBytes<2>) -> (res: ConstBytes<4>) {
+        let x: ConstBytes<3> = bar();
+        baz();
+    }
+
+    } // verus!
+    "###);
+}

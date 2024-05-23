@@ -799,7 +799,7 @@ fn to_doc<'a>(
         Rule::type_arg => map_to_doc(ctx, arena, pair),
         Rule::assoc_type_arg => unsupported(pair),
         Rule::lifetime_arg => map_to_doc(ctx, arena, pair),
-        Rule::const_arg => unsupported(pair),
+        Rule::const_arg => map_to_doc(ctx, arena, pair),
         Rule::generic_args_binding => map_to_doc(ctx, arena, pair),
         Rule::calc_macro_reln => s,
         Rule::calc_macro_body => {
