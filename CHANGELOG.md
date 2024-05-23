@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support const generic arguments
+
 # v0.3.3
 
 * Introduce `--update` to update to latest Verusfmt easily
