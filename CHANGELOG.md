@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.3.4
+
 * Support const generic arguments
 
 # v0.3.3
