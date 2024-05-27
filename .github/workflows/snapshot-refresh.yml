@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   # Or on schedule
   schedule:
-    - cron: '0 0 * * 1'  # Run every Monday night at midnight UTC
+    - cron: '0 0 1 * *'  # Runs at 00:00, on day 1 of each month
 
 jobs:
   check-and-refresh-snapshot:
