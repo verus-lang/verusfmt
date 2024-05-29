@@ -646,7 +646,7 @@ fn to_doc<'a>(
         | Rule::underscore_str
         | Rule::arrow_expr_str => s,
         Rule::fn_traits | Rule::impl_str => s,
-        Rule::calc_str => s,
+        Rule::calc_str | Rule::seq_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         //        Rule::triple_and |
         //        Rule::triple_or =>
@@ -838,11 +838,12 @@ fn to_doc<'a>(
             ))
         }
         Rule::calc_macro_call => map_to_doc(ctx, arena, pair),
+        Rule::seq_macro_call => map_to_doc(ctx, arena, pair),
         Rule::macro_call | Rule::macro_call_stmt => {
             if pair
                 .clone()
                 .into_inner()
-                .any(|x| matches!(x.as_rule(), Rule::calc_macro_call))
+                .any(|x| matches!(x.as_rule(), Rule::calc_macro_call | Rule::seq_macro_call))
             {
                 map_to_doc(ctx, arena, pair)
             } else {
