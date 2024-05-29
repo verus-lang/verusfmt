@@ -498,12 +498,12 @@ calc_macro_body = {
 }
 
 calc_macro_call = {
-    attr* ~ calc_str ~ bang_str ~ !"=" ~
+    attr* ~ calc_str ~ bang_str ~
     calc_macro_body
 }
 
 seq_macro_call = {
-    attr* ~ seq_str ~ bang_str ~ !"=" ~
+    attr* ~ seq_str ~ bang_str ~
     lbracket_str ~ comma_delimited_exprs? ~ rbracket_str
 }
 
