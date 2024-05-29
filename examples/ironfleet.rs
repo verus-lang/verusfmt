@@ -3939,9 +3939,9 @@ impl HostState {
                 let iop: NetEvent = LIoOp::TimeoutReceive {  };
                 let ghost res = EventResults {
                     recvs: seq![],
-                    clocks: seq![ iop ],
+                    clocks: seq![iop],
                     sends: seq![],
-                    ios: seq![ iop ],
+                    ios: seq![iop],
                 };
                 proof {
                     old_self.delegation_map.valid_implies_complete();
@@ -3958,10 +3958,10 @@ impl HostState {
                 match cpacket.msg {
                     CSingleMessage::InvalidMessage {  } => {
                         let ghost res = EventResults {
-                            recvs: seq![ net_event@ ],
+                            recvs: seq![net_event@],
                             clocks: seq![],
                             sends: seq![],
-                            ios: seq![ net_event@ ],
+                            ios: seq![net_event@],
                         };
                         proof {
                             old_self.delegation_map.valid_implies_complete();
@@ -4835,9 +4835,11 @@ impl HostState {
                                         ) == extract_packets_from_lsht_packets(
                                             seq![abstractify_cpacket_to_lsht_packet(p)],
                                         ));
-                                        assert(seq![abstractify_cpacket_to_lsht_packet(p)].map_values(
-                                        |lp: LSHTPacket| extract_packet_from_lsht_packet(lp))[0]
-                                            == Packet {
+                                        assert(seq![
+                                            abstractify_cpacket_to_lsht_packet(p),
+                                        ].map_values(
+                                            |lp: LSHTPacket| extract_packet_from_lsht_packet(lp),
+                                        )[0] == Packet {
                                             dst: pkt.src,
                                             src: self.constants.me@,
                                             msg: sm@,
@@ -5162,8 +5164,11 @@ impl HostState {
                                             sent_packets@,
                                         ).map_values(
                                             |lp: LSHTPacket| extract_packet_from_lsht_packet(lp),
-                                        )
-                                            =~= seq![extract_packet_from_lsht_packet(abstractify_cpacket_to_lsht_packet(p))]);  // twiddle
+                                        ) =~= seq![
+                                            extract_packet_from_lsht_packet(
+                                                abstractify_cpacket_to_lsht_packet(p),
+                                            ),
+                                        ]);  // twiddle
                                         assert(next_shard(
                                             old(self)@,
                                             self@,
@@ -6599,13 +6604,15 @@ impl NetClient {
         ensures
             ({
                 &&& self.state().is_Sending()
-                &&& self.history() == old(self).history() + seq![LIoOp::ReadClock{t: time as int}]
+                &&& self.history() == old(self).history() + seq![
+                    LIoOp::ReadClock { t: time as int },
+                ]
             }),
     {
         let time: u64 = self.get_time_internal();
         self.state = Ghost(State::Sending);
         self.history = Ghost(
-            self.history@ + seq![LIoOp::<AbstractEndPoint, Seq<u8>>::ReadClock{t: time as int}],
+            self.history@ + seq![LIoOp::<AbstractEndPoint, Seq<u8>>::ReadClock { t: time as int }],
         );
         time
     }
@@ -6668,19 +6675,18 @@ impl NetClient {
                 NetcReceiveResult::Received { sender, message } => {
                     &&& self.state().is_Receiving()
                     &&& sender.abstractable()
-                    &&& self.history() == old(self).history()
-                        + seq![
-                        LIoOp::Receive{
-                            r: LPacket{
-                                dst: self.my_end_point(),
-                                src: sender@,
-                                msg: message@}
-                        }]
+                    &&& self.history() == old(self).history() + seq![
+                        LIoOp::Receive {
+                            r: LPacket { dst: self.my_end_point(), src: sender@, msg: message@ },
+                        },
+                    ]
                 },
                 NetcReceiveResult::TimedOut {  } => {
                     &&& self.state().is_Sending()
-                    &&& self.history() == old(self).history()
-                        + seq![LIoOp/*TODO(verus) fix name when qpath fix*/::TimeoutReceive{}]
+                    &&& self.history() == old(self).history() + seq![
+                        LIoOp  /*TODO(verus) fix name when qpath fix*/
+                        ::TimeoutReceive {  },
+                    ]
                 },
                 NetcReceiveResult::Error {  } => { self.state().is_Error() },
             },
@@ -6689,12 +6695,19 @@ impl NetClient {
         match result {
             NetcReceiveResult::Received { ref sender, ref message } => {
                 self.history = Ghost(
-                    self.history@
-                        + seq![LIoOp::Receive { r: LPacket::<AbstractEndPoint, Seq<u8>> { dst: self.my_end_point(), src: sender@, msg: message@ } } ],
+                    self.history@ + seq![
+                        LIoOp::Receive {
+                            r: LPacket::<AbstractEndPoint, Seq<u8>> {
+                                dst: self.my_end_point(),
+                                src: sender@,
+                                msg: message@,
+                            },
+                        },
+                    ],
                 );
             },
             NetcReceiveResult::TimedOut {  } => {
-                self.history = Ghost(self.history@ + seq![LIoOp::TimeoutReceive{}]);
+                self.history = Ghost(self.history@ + seq![LIoOp::TimeoutReceive {  }]);
             },
             NetcReceiveResult::Error {  } => {
                 self.state = Ghost(State::Error {  });
@@ -6746,16 +6759,22 @@ impl NetClient {
             self.my_end_point() == old(self).my_end_point(),
             self.state().is_Error() <==> result.is_Err(),
             result.is_Ok() ==> self.state().is_Sending(),
-            result.is_Ok() ==> self.history() == old(self).history()
-                + seq![LIoOp::Send{s: LPacket{dst: recipient@, src: self.my_end_point(), msg: message@}}],
+            result.is_Ok() ==> self.history() == old(self).history() + seq![
+                LIoOp::Send {
+                    s: LPacket { dst: recipient@, src: self.my_end_point(), msg: message@ },
+                },
+            ],
     {
         let result: Result<(), IronfleetIOError> = self.send_internal_wrapper(recipient, message);
         match result {
             Ok(_) => {
                 self.state = Ghost(State::Sending {  });
                 self.history = Ghost(
-                    self.history@
-                        + seq![LIoOp::Send{s: LPacket{dst: recipient@, src: self.my_end_point(), msg: message@}}],
+                    self.history@ + seq![
+                        LIoOp::Send {
+                            s: LPacket { dst: recipient@, src: self.my_end_point(), msg: message@ },
+                        },
+                    ],
                 );
             },
             Err(_) => {
