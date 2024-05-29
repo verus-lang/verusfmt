@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix incorrect parsing of string literals containing "verus!{"
+
 # v0.3.4
 
 * Support const generic arguments
