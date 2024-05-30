@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support automatic formatting of the `seq!` macro
+
 # v0.3.4
 
 * Support const generic arguments
