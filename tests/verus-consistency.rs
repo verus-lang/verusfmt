@@ -2263,3 +2263,50 @@ fn foo(arg: ConstBytes<2>) -> (res: ConstBytes<4>) {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_seq_macro() {
+    let file = r#"
+verus! {
+proof fn f() {
+    let s = seq![
+        0x00,        0x00,        0x00,        0x00,        0x00,        0x00,
+        0x00,        0x00,        0x00,        0x00,
+        0x00,        0x00,        0x00,
+        0x00,        0x00,        0x00,
+    ];
+    let s = seq![
+        0x00,       0x00,
+        0x00, 0x00,
+    ];
+}
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn f() {
+        let s = seq![
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+        ];
+        let s = seq![0x00, 0x00, 0x00, 0x00];
+    }
+
+    } // verus!
+    "###);
+}

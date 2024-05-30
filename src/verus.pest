@@ -312,6 +312,7 @@ return_str = ${ "return" ~ !("_" | ASCII_ALPHANUMERIC) }
 r_str = ${ "r" ~ !("_" | ASCII_ALPHANUMERIC) }
 Self_str = ${ "Self" ~ !("_" | ASCII_ALPHANUMERIC) }
 self_str = ${ "self" ~ !("_" | ASCII_ALPHANUMERIC) }
+seq_str = ${ "seq" ~ !("_" | ASCII_ALPHANUMERIC) }
 sizeof_str = ${ "size_of" ~ !("_" | ASCII_ALPHANUMERIC) }
 spec_fn_str = ${ "spec_fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 spec_str = ${ "spec" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -497,13 +498,19 @@ calc_macro_body = {
 }
 
 calc_macro_call = {
-    attr* ~ calc_str ~ bang_str ~ !"=" ~
+    attr* ~ calc_str ~ bang_str ~
     calc_macro_body
+}
+
+seq_macro_call = {
+    attr* ~ seq_str ~ bang_str ~
+    lbracket_str ~ comma_delimited_exprs? ~ rbracket_str
 }
 
 // TODO: Special handling for the state_machine! macros?
 macro_call = {
     calc_macro_call
+  | seq_macro_call
   | attr* ~ path ~ bang_str ~ !"=" ~ token_tree
 }
 
