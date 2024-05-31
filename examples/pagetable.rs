@@ -9348,13 +9348,12 @@ pub proof fn axiom_x86_arch_exec_spec()
 
 pub exec fn x86_arch_exec() -> (res: ArchExec)
     ensures
-        res.layers@
-            == seq![
-                ArchLayerExec { entry_size: L0_ENTRY_SIZE, num_entries: 512 },
-                ArchLayerExec { entry_size: L1_ENTRY_SIZE, num_entries: 512 },
-                ArchLayerExec { entry_size: L2_ENTRY_SIZE, num_entries: 512 },
-                ArchLayerExec { entry_size: L3_ENTRY_SIZE, num_entries: 512 },
-            ],
+        res.layers@ == seq![
+            ArchLayerExec { entry_size: L0_ENTRY_SIZE, num_entries: 512 },
+            ArchLayerExec { entry_size: L1_ENTRY_SIZE, num_entries: 512 },
+            ArchLayerExec { entry_size: L2_ENTRY_SIZE, num_entries: 512 },
+            ArchLayerExec { entry_size: L3_ENTRY_SIZE, num_entries: 512 },
+        ],
         res@ === x86_arch_spec,
         res === x86_arch_exec_spec(),
 {
@@ -9376,13 +9375,12 @@ pub exec fn x86_arch_exec() -> (res: ArchExec)
 }
 
 pub spec const x86_arch_spec: Arch = Arch {
-    layers:
-        seq![
-            ArchLayer { entry_size: L0_ENTRY_SIZE as nat, num_entries: 512 },
-            ArchLayer { entry_size: L1_ENTRY_SIZE as nat, num_entries: 512 },
-            ArchLayer { entry_size: L2_ENTRY_SIZE as nat, num_entries: 512 },
-            ArchLayer { entry_size: L3_ENTRY_SIZE as nat, num_entries: 512 },
-        ],
+    layers: seq![
+        ArchLayer { entry_size: L0_ENTRY_SIZE as nat, num_entries: 512 },
+        ArchLayer { entry_size: L1_ENTRY_SIZE as nat, num_entries: 512 },
+        ArchLayer { entry_size: L2_ENTRY_SIZE as nat, num_entries: 512 },
+        ArchLayer { entry_size: L3_ENTRY_SIZE as nat, num_entries: 512 },
+    ],
 };
 
 } // verus!
