@@ -430,3 +430,13 @@ fn test() {
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_verus_bang_in_string() {
+    let file = r#"
+fn test() {
+    println!("verus!{{{}}}", "Hello");
+}
+"#;
+    compare(file);
+}
