@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.3.5
+
 * Fix incorrect parsing of string literals containing "verus!{"
 * Support automatic formatting of the `seq!` macro
 
