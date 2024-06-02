@@ -2310,3 +2310,55 @@ proof fn f() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_empty_fn_quanlifier_expr() {
+    let file = r#"
+verus! {
+    fn test0()
+        requires
+            i = 0
+        ensures
+    {}
+    fn test1()
+        requires
+            i = 0
+        ensures
+        recommends
+    {}
+    fn test2()
+        requires
+        ensures
+            i = 0
+    {}
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test0()
+        requires
+            i = 0,
+        ensures
+    {
+    }
+
+    fn test1()
+        requires
+            i = 0,
+        ensures
+        recommends
+    {
+    }
+
+    fn test2()
+        requires
+        ensures
+            i = 0,
+    {
+    }
+
+    } // verus!
+    "###);
+}
