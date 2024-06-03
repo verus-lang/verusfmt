@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support parsing blank function qualifiers(ensures, acquires, decreases, etc.).
+
 # v0.3.5
 
 * Fix incorrect parsing of string literals containing "verus!{"
