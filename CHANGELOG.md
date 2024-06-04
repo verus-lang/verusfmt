@@ -1,6 +1,6 @@
 # Unreleased
 
-* Support parsing blank function qualifiers(ensures, acquires, decreases, etc.).
+* Support parsing empty requires/ensures/... clauses
 
 # v0.3.5
 
