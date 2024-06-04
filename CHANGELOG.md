@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support parsing empty requires/ensures/... clauses
+
 # v0.3.5
 
 * Fix incorrect parsing of string literals containing "verus!{"

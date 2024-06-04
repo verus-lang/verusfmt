@@ -1678,7 +1678,7 @@ comma_delimited_exprs = {
 //    }
 // where we could interpret the ensures expression as `a == b { a }`
 comma_delimited_exprs_for_verus_clauses = {
-    expr_no_struct ~ ("," ~ !verus_clause_non_expr ~ expr_no_struct)* ~ ","?
+    !verus_clause_non_expr ~ expr_no_struct ~ ("," ~ !verus_clause_non_expr ~ expr_no_struct)* ~ ","?
 }
 
 groupable_comma_delimited_exprs_for_verus_clauses = {
@@ -1700,31 +1700,31 @@ verus_clause_non_expr = _{
 }
 
 requires_clause = {
-    requires_str ~ comma_delimited_exprs_for_verus_clauses
+    requires_str ~ comma_delimited_exprs_for_verus_clauses?
 }
 
 ensures_clause = {
-    ensures_str ~ comma_delimited_exprs_for_verus_clauses
+    ensures_str ~ comma_delimited_exprs_for_verus_clauses?
 }
 
 invariant_except_break_clause = {
-    invariant_except_break_str ~ comma_delimited_exprs_for_verus_clauses
+    invariant_except_break_str ~ comma_delimited_exprs_for_verus_clauses?
 }
 
 invariant_clause = {
-    invariant_str ~ comma_delimited_exprs_for_verus_clauses
+    invariant_str ~ comma_delimited_exprs_for_verus_clauses?
 }
 
 invariant_ensures_clause = {
-    invariant_ensures_str ~ comma_delimited_exprs_for_verus_clauses
+    invariant_ensures_str ~ comma_delimited_exprs_for_verus_clauses?
 }
 
 recommends_clause = {
-    recommends_str ~ comma_delimited_exprs_for_verus_clauses ~ (via_str ~ expr_no_struct)?
+    recommends_str ~ (comma_delimited_exprs_for_verus_clauses ~ (via_str ~ expr_no_struct)?)?
 }
 
 decreases_clause = {
-    decreases_str ~ groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr_no_struct)? ~ (via_str ~ expr_no_struct)?
+    decreases_str ~ (groupable_comma_delimited_exprs_for_verus_clauses ~ (when_str ~ expr_no_struct)? ~ (via_str ~ expr_no_struct)?)?
 }
 
 unwind_clause = {
