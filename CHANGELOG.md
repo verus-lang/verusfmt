@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.3.6
+
 * Support parsing empty requires/ensures/... clauses
 
 # v0.3.5
