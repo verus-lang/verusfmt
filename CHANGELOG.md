@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support attributes in `broadcast group`s
+
 # v0.3.6
 
 * Support parsing empty requires/ensures/... clauses
