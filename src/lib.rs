@@ -876,6 +876,7 @@ fn to_doc<'a>(
         Rule::use_tree => map_to_doc(ctx, arena, pair),
         Rule::use_tree_list => comma_delimited(ctx, arena, pair, false).braces().group(),
         Rule::broadcast_use_list => comma_delimited(ctx, arena, pair, false).group(),
+        Rule::broadcast_group_member => map_to_doc(ctx, arena, pair),
         Rule::broadcast_group_list => comma_delimited(ctx, arena, pair, false).braces(),
         Rule::fn_qualifier => map_to_doc(ctx, arena, pair),
         Rule::fn_terminator => map_to_doc(ctx, arena, pair),

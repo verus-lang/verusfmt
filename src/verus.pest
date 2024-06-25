@@ -950,8 +950,12 @@ broadcast_group_identifier = {
     identifier
 }
 
+broadcast_group_member = {
+    attr* ~ path
+}
+
 broadcast_group_list = {
-    "{" ~ (path ~ ("," ~ path)* ~ ","?)? ~ "}"
+    "{" ~ (broadcast_group_member ~ ("," ~ broadcast_group_member)* ~ ","?)? ~ "}"
 }
 
 broadcast_group = {

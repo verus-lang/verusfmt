@@ -2362,3 +2362,43 @@ verus! {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_broadcast_group_with_attributes() {
+    let file = r#"
+verus! {
+#[cfg_attr(verus_keep_ghost, verifier::prune_unless_this_module_is_used)]
+pub broadcast group group_hash_axioms { axiom_hash_map_contains_deref_key,
+  #[cfg(feature = "alloc")]
+    axiom_hash_map_contains_box,
+    axiom_hash_map_maps_deref_key_to_value,
+  #[cfg(feature = "alloc")]
+    #[some_other_attribute]
+    axiom_hash_map_maps_box_key_to_value,
+   axiom_primitive_types_have_deterministic_hash,
+       axiom_random_state_conforms_to_build_hasher_model,
+     axiom_spec_hash_map_len,
+}
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    #[cfg_attr(verus_keep_ghost, verifier::prune_unless_this_module_is_used)]
+    pub broadcast group group_hash_axioms {
+        axiom_hash_map_contains_deref_key,
+        #[cfg(feature = "alloc")]
+        axiom_hash_map_contains_box,
+        axiom_hash_map_maps_deref_key_to_value,
+        #[cfg(feature = "alloc")]
+        #[some_other_attribute]
+        axiom_hash_map_maps_box_key_to_value,
+        axiom_primitive_types_have_deterministic_hash,
+        axiom_random_state_conforms_to_build_hasher_model,
+        axiom_spec_hash_map_len,
+    }
+
+    } // verus!
+    "###);
+}
