@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.3.7
+
 * Support attributes in `broadcast group`s
 
 # v0.3.6
