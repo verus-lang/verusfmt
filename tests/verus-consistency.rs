@@ -2402,3 +2402,27 @@ pub broadcast group group_hash_axioms { axiom_hash_map_contains_deref_key,
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_support_separating_logical_blocks() {
+    let file = r#"
+verus! {
+
+fn fff() {
+    reveal(f1);  // reveal f1's definition just inside this block
+
+
+    reveal(f1);  // reveal f1's definition just inside this block
+
+    foo;
+
+    bar;
+    baz;
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    "###);
+}

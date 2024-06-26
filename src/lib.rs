@@ -539,7 +539,7 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
     let count = pairs.clone().fold(0, |count, p| {
         count
             + match p.as_rule() {
-                Rule::attr | Rule::stmt | Rule::COMMENT => 1,
+                Rule::attr | Rule::stmt | Rule::COMMENT | Rule::MULTI_NEWLINE => 1,
                 Rule::expr => {
                     // We don't want to treat a triple expr as an expr only block,
                     // since that would result in it being grouped with its surrounding braces
@@ -1334,6 +1334,7 @@ fn to_doc<'a>(
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
+        Rule::MULTI_NEWLINE => arena.hardline(),
         Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
