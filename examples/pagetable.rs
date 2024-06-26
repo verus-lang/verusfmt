@@ -10722,7 +10722,6 @@ pub open spec fn next(s1: HWVariables, s2: HWVariables) -> bool {
 //         HWStep::TLBEvict { vaddr }                  => (),
 //     }
 // }
-
 } // verus!
     }
 

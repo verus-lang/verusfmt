@@ -40,17 +40,25 @@ WHITESPACE = _{
   " " | "\t" | NEWLINE
 }
 
+/// Multiple-newlines that can be collapsed into a single double-newline
+///
+/// Only supported on a subset of syntactic locations; anywhere else,
+/// double-newlines are collapsed as it they were just normal whitespace.
+MULTI_NEWLINE = @{
+    (" " | "\t")* ~ NEWLINE ~ ((" " | "\t")* ~ NEWLINE)+ ~ (" " | "\t")*
+}
+
 /// Comment syntax; NOT ignored in the syntax tree that is parsed. Allowed to
 /// exist between any tokens (except atomic tokens, of course).
 COMMENT = @{
     // Outer docstring
-    ("//!" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+    ("//!" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
     // Inner docstring
-  | ("///" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+  | ("///" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
     // Multiline comment
   | multiline_comment
     // Singleline comment
-  | ("//" ~ (!NEWLINE ~ ANY)* ~ NEWLINE)
+  | ("//" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
 }
 
 multiline_comment = @{
@@ -922,7 +930,7 @@ attr_core = {
     | "#" ~ bang_str? ~ "[" ~ !"verusfmt" ~ meta ~ "]"
 }
 // Two aliases for attr_core, so that we can print them differently
-attr = {
+attr = !{
    attr_core
 }
 
@@ -939,7 +947,11 @@ broadcast_use_list = {
 }
 
 broadcast_uses = {
-    broadcast_use+
+    // We explicitly eat up the extra WHITESPACEs here
+    // to prevent it from messing with the MULTI_NEWLINE
+    // handling, which would otherwise cause extra newlines
+    // to show up.
+    broadcast_use+ ~ WHITESPACE*
 }
 
 broadcast_use = {
@@ -970,7 +982,7 @@ verusfmt_skipped_stmt = {
     stmt
 }
 
-stmt = {
+stmt = !{
     (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_stmt)
   | semi_str
   | proof_block
@@ -1007,7 +1019,7 @@ verusfmt_skipped_expr_no_struct = {
 
 // This split of `expr` and `expr_inner` is to simply break the left-recursion
 // that would happen otherwise.
-expr = {
+expr = !{
     (attr* ~ verusfmt_skip_attribute ~ attr* ~ verusfmt_skipped_expr)
   | expr_inner ~
     expr_outer*
@@ -1200,11 +1212,11 @@ path_expr_no_generics = {
     attr* ~ path_no_generics
 }
 
-stmt_list = {
-    "{" ~
-    attr* ~
-    stmt* ~
-    expr? ~
+stmt_list = ${
+    "{" ~ (WHITESPACE | COMMENT)* ~
+    (attr ~ (WHITESPACE | COMMENT)*)* ~
+    (stmt ~ (MULTI_NEWLINE | WHITESPACE | COMMENT)*)* ~
+    expr? ~ (WHITESPACE | COMMENT)* ~
     "}"
 }
 
@@ -1221,13 +1233,13 @@ block_expr = {
     | attr* ~ label? ~ (try_str | unsafe_str | async_str | const_str)? ~ stmt_list
 }
 
-fn_block_expr = {
-    "{" ~
-    attr* ~
-    stmt* ~
-    expr? ~
+fn_block_expr = ${
+    "{" ~ (WHITESPACE | COMMENT)* ~
+    (attr ~ (WHITESPACE | COMMENT)*)* ~
+    (stmt ~ (MULTI_NEWLINE | WHITESPACE | COMMENT)*)* ~
+    expr? ~ (WHITESPACE | COMMENT)* ~
     "}"
-  | "{" ~ bulleted_expr_inner ~ "}"
+  | "{" ~ (WHITESPACE | COMMENT)* ~ bulleted_expr_inner ~ (WHITESPACE | COMMENT)* ~ "}"
 }
 
 prefix_expr = {
