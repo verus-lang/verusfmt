@@ -25,18 +25,12 @@ pub fn rustfmt(s: &str) -> Option<String> {
 }
 
 /// Options to pass to `rustfmt`
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct RustFmtConfig {
     /// If set, explicitly provides the specified `rustfmt.toml` configuration to rustfmt;
     /// otherwise, uses the default behavior (i.e., picking up `rustfmt.toml` if it exists from
     /// the file's directory or ancestors)
     pub rustfmt_toml: Option<String>,
-}
-
-impl Default for RustFmtConfig {
-    fn default() -> Self {
-        Self { rustfmt_toml: None }
-    }
 }
 
 impl RustFmtConfig {

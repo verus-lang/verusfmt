@@ -828,13 +828,13 @@ fn to_doc<'a>(
                     Rule::COMMENT => {
                         inner = inner.append(doc);
                     }
-                    rule @ _ => unreachable!("Unreachable rule {rule:?}"),
+                    rule => unreachable!("Unreachable rule {rule:?}"),
                 }
             }
             arena.space().append(block_braces(
                 arena,
                 inner,
-                pairs.rev().next().unwrap().as_rule() == Rule::semi_str,
+                pairs.last().unwrap().as_rule() == Rule::semi_str,
             ))
         }
         Rule::calc_macro_call => map_to_doc(ctx, arena, pair),
