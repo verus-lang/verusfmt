@@ -23,8 +23,8 @@ for path in $MOVE_PATHS; do
         find "verus-main/$path" -name '*.rs' -print0 | while IFS= read -r -d '' file; do
             relative_path=$(realpath --relative-to="verus-main" "$file")
             dirname=$(dirname "$relative_path")
-            mkdir -p "$path/$dirname"
-            mv "$file" "$path/$relative_path"
+            mkdir -p "$dirname"
+            mv "$file" "$relative_path"
         done
     else
         # File
