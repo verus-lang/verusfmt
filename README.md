@@ -2,11 +2,6 @@
 
 An opinionated formatter for [Verus] code.
 
-## WARNING
-
-`verusfmt` is highly experimental code. Make backups of your files before trying
-`verusfmt` on them.
-
 ## Updating verusfmt
 
 If you've installed a pre-built binary, you can update to the latest release using
@@ -16,39 +11,30 @@ verusfmt --update
 
 ## Installing and Using Verusfmt
 
-We support multiple install methods:
+We support multiple install methods. Get the [latest release](https://github.com/verus-lang/verusfmt/releases/latest) using:
 
-* [Latest release](https://github.com/verus-lang/verusfmt/releases/latest) using:
+- Pre-built binaries (recommended)
 
-  - <details><summary>Pre-built binary on Linux/MacOS (click to expand)</summary>
+  + <details><summary>Linux/MacOS (click to expand)</summary>
 
     ```sh
     curl --proto '=https' --tlsv1.2 -LsSf https://github.com/verus-lang/verusfmt/releases/latest/download/verusfmt-installer.sh | sh
     ```
     </details>
 
-  - <details><summary>Pre-built binary on Windows (click to expand)</summary>
+  + <details><summary>Windows (click to expand)</summary>
 
     ```sh
     irm https://github.com/verus-lang/verusfmt/releases/latest/download/verusfmt-installer.ps1 | iex
     ```
     </details>
 
-  - <details><summary>cargo install (click to expand)</summary>
+- <details><summary>cargo install (click to expand)</summary>
 
-    ``` sh
-    cargo install verusfmt --locked
-    ```
-    </details>
-
-* Bleeding-edge latest git commit
-
-  - <details><summary>cargo install (click to expand)</summary>
-
-    ```sh
-    cargo install --git https://github.com/verus-lang/verusfmt --locked
-    ```
-
+  ``` sh
+  cargo install verusfmt --locked
+  ```
+  </details>
 
 These will install the `verusfmt` binary. You can then run it on a file using:
 
