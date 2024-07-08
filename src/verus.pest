@@ -43,7 +43,7 @@ WHITESPACE = _{
 /// Multiple-newlines that can be collapsed into a single double-newline
 ///
 /// Only supported on a subset of syntactic locations; anywhere else,
-/// double-newlines are collapsed as it they were just normal whitespace.
+/// double-newlines are collapsed as if they were just normal whitespace.
 MULTI_NEWLINE = @{
     (" " | "\t")* ~ NEWLINE ~ ((" " | "\t")* ~ NEWLINE)+ ~ (" " | "\t")*
 }
