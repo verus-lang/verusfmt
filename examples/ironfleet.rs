@@ -2899,7 +2899,6 @@ pub open spec fn is_valid_lio_op<IdType, MessageType>(
 // send interaces.
 // LIoOpOrderingOKForAction
 // LIoOpSeqCompatibleWithReduction
-
 } // verus!
     // verus
 }
@@ -12360,7 +12359,6 @@ pub proof fn flatten_sets_singleton_auto<A>()
 
 // TODO(Tej): We strongly suspect there is a trigger loop in these auto
 // lemmas somewhere, but it's not easy to see from the profiler yet.
-
 } // verus!
     }
 }

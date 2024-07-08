@@ -539,7 +539,7 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
     let count = pairs.clone().fold(0, |count, p| {
         count
             + match p.as_rule() {
-                Rule::attr | Rule::stmt | Rule::COMMENT => 1,
+                Rule::attr | Rule::stmt | Rule::COMMENT | Rule::MULTI_NEWLINE => 1,
                 Rule::expr => {
                     // We don't want to treat a triple expr as an expr only block,
                     // since that would result in it being grouped with its surrounding braces
@@ -1334,6 +1334,7 @@ fn to_doc<'a>(
         Rule::trigger_attribute => unsupported(pair),
 
         Rule::WHITESPACE => arena.nil(),
+        Rule::MULTI_NEWLINE => arena.hardline(),
         Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
@@ -1602,7 +1603,7 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
         match rule {
             Rule::non_verus | Rule::COMMENT => {
                 formatted_output += pair.as_str();
-                if matches!(pair.as_rule(), Rule::COMMENT) && is_multiline_comment(&pair) {
+                if matches!(pair.as_rule(), Rule::COMMENT) {
                     formatted_output += "\n";
                 }
             }
@@ -1624,12 +1625,8 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
                     (prefix_comments, body, suffix_comments)
                 };
                 formatted_output += VERUS_PREFIX;
-                let mut final_prefix_comment_is_multiline = false;
                 for comment in &prefix_comments {
                     formatted_output += comment.as_str();
-                    final_prefix_comment_is_multiline = is_multiline_comment(comment);
-                }
-                if !prefix_comments.is_empty() && final_prefix_comment_is_multiline {
                     formatted_output += "\n";
                 }
 
@@ -1638,7 +1635,13 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
                 if !suffix_comments.is_empty() {
                     formatted_output += "\n";
                 }
+                let mut first = true;
                 for comment in suffix_comments {
+                    if !first {
+                        formatted_output += "\n";
+                    } else {
+                        first = false;
+                    }
                     formatted_output += comment.as_str();
                 }
                 formatted_output += VERUS_SUFFIX;

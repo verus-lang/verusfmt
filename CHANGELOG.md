@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support dividing statement lists into clauses/stanzas
+
 # v0.3.7
 
 * Support attributes in `broadcast group`s

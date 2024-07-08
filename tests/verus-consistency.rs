@@ -383,6 +383,7 @@ pub fn test() {
 
     pub fn test() {
         let Some((key, val)) = cur else { panic!()  /* covered by while condition */  };
+
         let Some((key, val)) = cur else { panic!() };
     }
 
@@ -782,7 +783,6 @@ fn len<T>(l: List<T>) -> nat {
             _ => false,
         }
     }
-
 }
 
 }
@@ -2397,6 +2397,44 @@ pub broadcast group group_hash_axioms { axiom_hash_map_contains_deref_key,
         axiom_primitive_types_have_deterministic_hash,
         axiom_random_state_conforms_to_build_hasher_model,
         axiom_spec_hash_map_len,
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_support_separating_logical_blocks() {
+    let file = r#"
+verus! {
+
+fn fff() {
+    reveal(f1);  // reveal f1's definition just inside this block
+
+
+    reveal(f1);  // reveal f1's definition just inside this block
+
+    foo;
+
+    bar;
+    baz;
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn fff() {
+        reveal(f1);  // reveal f1's definition just inside this block
+
+        reveal(f1);  // reveal f1's definition just inside this block
+
+        foo;
+
+        bar;
+        baz;
     }
 
     } // verus!
