@@ -25,7 +25,7 @@ We support multiple install methods. Get the [latest release](https://github.com
   + <details><summary>Windows (click to expand)</summary>
 
     ```sh
-    irm https://github.com/verus-lang/verusfmt/releases/latest/download/verusfmt-installer.ps1 | iex
+    powershell.exe -ExecutionPolicy RemoteSigned -c "irm https://github.com/verus-lang/verusfmt/releases/latest/download/verusfmt-installer.ps1 | iex"
     ```
     </details>
 
