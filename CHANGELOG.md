@@ -1,5 +1,7 @@
 # Unreleased
 
+* Handle comments inside `&&&`/`|||`-bulleted blocks better
+
 # v0.3.8
 
 * Support dividing statement lists into clauses/stanzas
