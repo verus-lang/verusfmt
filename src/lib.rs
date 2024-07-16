@@ -1076,19 +1076,30 @@ fn to_doc<'a>(
         Rule::bulleted_expr => block_braces(arena, map_to_doc(ctx, arena, pair), true),
         Rule::bulleted_expr_inner => {
             let pairs = pair.into_inner();
-            let mut first = true;
+            let mut prefix_hardline = false;
             arena.concat(pairs.map(|p| {
                 let d = to_doc(ctx, p.clone(), arena);
                 match p.as_rule() {
+                    Rule::COMMENT => {
+                        // Prevent an unnecessary additional newline after comments
+                        prefix_hardline = false;
+                        d
+                    }
                     Rule::triple_and | Rule::triple_or => {
-                        if first {
-                            first = false;
+                        if !prefix_hardline {
+                            prefix_hardline = true;
                             d
                         } else {
                             arena.hardline().append(d)
                         }
                     }
-                    _ => d,
+                    _ => {
+                        if p.into_inner().flatten().last().unwrap().as_rule() == Rule::COMMENT {
+                            // Prevent an unnecessary additional newline after comments
+                            prefix_hardline = false;
+                        }
+                        d
+                    }
                 }
             }))
         }

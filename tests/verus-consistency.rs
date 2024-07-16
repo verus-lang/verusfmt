@@ -1586,6 +1586,39 @@ fn verus_quantifier_and_bulleted_expr_precedence() {
 }
 
 #[test]
+fn verus_bulleted_expr_comment_handling() {
+    let file = r#"
+verus! {
+fn foo() {
+    // these should stay together
+    &&& x
+    &&& y
+    // xy
+    &&& xy
+    // zzz
+    &&& z
+}
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn foo() {
+        // these should stay together
+        &&& x
+        &&& y
+        // xy
+        &&& xy
+        // zzz
+        &&& z
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_skip_leaves_code_unchanged() {
     let file = r#"  verus! { spec fn foo() { 1 + 2 } #[verusfmt::skip]  spec fn bar() { 1 + 2 }
 
