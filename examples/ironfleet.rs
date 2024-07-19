@@ -3253,7 +3253,6 @@ impl HostState {
             None => true,
             Some(host_state) => {
                 &&& netc.ok()  // port of env.ok.ok()
-
                 &&& host_state.invariants(&netc.my_end_point())
                 &&& crate::host_protocol_t::init(
                     host_state@,
@@ -3584,7 +3583,6 @@ impl HostState {
         &&& self.abstractable()
         &&& self.delegation_map.valid()
         // TODO why no valid_key?
-
         &&& (forall|k| self.h@.dom().contains(k) ==> #[trigger] valid_value(self.h@[k]))
         &&& self.sd.valid()
         &&& match &self.received_packet {
@@ -3609,7 +3607,6 @@ impl HostState {
         &&& self@.constants.me.abstractable()
         &&& self.num_delegations
             < self.constants.params.max_delegations  // why did we move this here?
-
         &&& self.constants.params@ == AbstractParameters::static_params()
         &&& self.resend_count < 100000000
     }
@@ -4088,13 +4085,11 @@ impl HostState {
                     == netc.ok()
                 // Because all `net_events` are sends, the condition "even if ok is false, if we sent at least one
                 // packet..." is implied by "even if ok is false, if `net_events` has length > 0...".
-
                 &&& (ok || event_results.sends.len() > 0) ==> netc.history() == old_netc_history
                     + event_results.ios
                 // There's supposed to be a distinction between the ios that we intended to do and the
                 // event_seq that we actually did. (See EventResult definition.) But in the interest of
                 // mimicking Dafny Ironfleet, we make no such distinction.
-
                 &&& event_results.ios == event_results.event_seq()
                 &&& event_results.well_typed_events()
                 &&& ok ==> {
@@ -4196,7 +4191,6 @@ impl HostState {
                 )
                 // The Dafny Ironfleet "common preconditions" take an explicit cpacket, but we need to talk
                 // about
-
                 &&& self.host_state_common_postconditions(*old(self), cpacket, sent_packets@)
             }),
     {
@@ -5681,7 +5675,6 @@ pub open spec(checked) fn receive_packet(
     ||| {
         &&& pre.received_packet is None  // No packet currently waiting to be processed (buffered in my state)
         // Record incoming packet in my state and possibly ack it
-
         &&& SingleDelivery::receive(pre.sd, post.sd, pkt, ack, out)
         &&& if SingleDelivery::new_single_message(pre.sd, pkt) {
             post.received_packet == Some(pkt)  // Enqueue this packet for processing
@@ -5695,8 +5688,7 @@ pub open spec(checked) fn receive_packet(
             ..post
         }  // Nothing else changes
 
-    }
-    ||| {
+    }||| {
         // internal buffer full or okay to ignore packets; drop this message and wait for it to be retransmitted.
         &&& pre.received_packet is Some || okay_to_ignore_packets()
         &&& post == pre
@@ -9754,11 +9746,8 @@ pub fn receive_with_demarshal(netc: &mut NetClient, local_addr: &EndPoint) -> (r
             &&& (rr.is_Packet() ==> {
                 &&& net_event@.is_Receive()
                 &&& true  // NetPacketIsAbstractable is true
-
                 &&& rr.get_Packet_cpacket().abstractable()  // can parse u8s up to NetEvent.
-
                 &&& true  // EndPointIsValidPublicKey
-
                 &&& !(rr.get_Packet_cpacket()@.msg is InvalidMessage) ==> {
                     &&& rr.get_Packet_cpacket()@ == abstractify_net_packet_to_sht_packet(
                         net_event@.get_Receive_r(),
@@ -9834,9 +9823,7 @@ fn take_buf(buf: &mut Vec<u8>) {
 /// valid()
 pub open spec fn outbound_packet_is_valid(cpacket: &CPacket) -> bool {
     &&& cpacket.abstractable()  // CPacketIsAbstractable
-
     &&& cpacket.msg.is_marshalable()  // CSingleMessageMarshallable
-
     &&& (
     !cpacket.msg.is_InvalidMessage())  // (out.msg.CSingleMessage? || out.msg.CAck?)
 
@@ -9845,7 +9832,6 @@ pub open spec fn outbound_packet_is_valid(cpacket: &CPacket) -> bool {
 pub open spec fn send_log_entry_reflects_packet(event: NetEvent, cpacket: &CPacket) -> bool {
     &&& event.is_Send()
     &&& true  // NetPacketIsAbstractable == EndPointIsAbstractable == true
-
     &&& cpacket.abstractable()
     &&& cpacket@ == abstractify_net_packet_to_sht_packet(event.get_Send_s())
 }
@@ -10296,7 +10282,6 @@ pub enum ReceiveImplResult {
 pub open spec fn valid_ack(ack: CPacket, original: CPacket) -> bool {
     &&& ack.abstractable()
     &&& outbound_packet_is_valid(&ack)  // how does this relate to abstractable?
-
     &&& ack.src@ == original.dst@
     &&& ack.dst@ == original.src@
 }
@@ -11455,7 +11440,6 @@ impl<MT> SingleDelivery<MT> {
     /// Protocol/SHT/SingleDelivery.i.dfy ShouldAckSingleMessage
     pub open spec(checked) fn should_ack_single_message(self, pkt: Packet) -> bool {
         &&& pkt.msg is Message  // Don't want to ack acks
-
         &&& {
             let last_seqno = tombstone_table_lookup(pkt.src, self.receive_state);
             pkt.msg.get_Message_seqno() <= last_seqno

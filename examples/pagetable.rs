@@ -3573,7 +3573,6 @@ pub mod PT {
         // reflexive
         &&& pt.used_regions.contains(pt.region)
         // transitive
-
         &&& forall|i: nat, r: MemRegion|
             #![trigger pt.entries[i as int].get_Some_0().used_regions.contains(r), pt.used_regions.contains(r)]
             i < pt.entries.len() && pt.entries[i as int].is_Some()
@@ -4139,14 +4138,12 @@ pub mod PT {
                         new_regions,
                     )
                     // and only those we added
-
                     &&& new_regions.disjoint(old(mem).regions())
                     &&& (forall|r: MemRegion|
                         new_regions.contains(r) ==> !(#[trigger] pt.used_regions.contains(
                             r,
                         )))
                     // Invariant preserved
-
                     &&& inv_at(
                         mem,
                         pt_res,
@@ -4154,7 +4151,6 @@ pub mod PT {
                         ptr,
                     )
                     // We only touch already allocated regions if they're in pt.used_regions
-
                     &&& (forall|r: MemRegion|
                         !(#[trigger] pt.used_regions.contains(r)) && !(new_regions.contains(r))
                             ==> mem.region_view(r) === old(mem).region_view(r))
@@ -5873,7 +5869,6 @@ pub mod PT {
                         removed_regions,
                     )
                     // and only those we removed
-
                     &&& (forall|r: MemRegion|
                         removed_regions.contains(r) ==> !(#[trigger] mem.regions().contains(r)))
                     &&& (forall|r: MemRegion|
@@ -5881,7 +5876,6 @@ pub mod PT {
                             r,
                         )))
                     // Invariant preserved
-
                     &&& inv_at(
                         mem,
                         pt_res,
@@ -5889,7 +5883,6 @@ pub mod PT {
                         ptr,
                     )
                     // We only touch regions in pt.used_regions
-
                     &&& (forall|r: MemRegion|
                         !(#[trigger] pt_res.used_regions.contains(r)) && !(
                         #[trigger] removed_regions.contains(r)) ==> mem.region_view(r) === old(
@@ -9864,7 +9857,6 @@ pub open spec fn step_ReadWrite(
                 base + pte.frame.size,
             )
             // .. and the result depends on the flags.
-
             &&& match op {
                 RWOp::Store { new_value, result } => {
                     if pmem_idx < c.phys_mem_size && !pte.flags.is_supervisor
@@ -9894,7 +9886,6 @@ pub open spec fn step_ReadWrite(
                 vmem_idx,
             )
             // .. and the result is always a pagefault and an unchanged memory.
-
             &&& s2.mem === s1.mem
             &&& match op {
                 RWOp::Store { new_value, result } => result.is_Pagefault(),
@@ -10602,7 +10593,6 @@ pub open spec fn step_ReadWrite(
             &&& paddr === (pte.frame.base + (vaddr
                 - base)) as nat
             // .. and the result depends on the flags.
-
             &&& match op {
                 RWOp::Store { new_value, result } => {
                     if pmem_idx < s1.mem.len() && !pte.flags.is_supervisor
@@ -10634,7 +10624,6 @@ pub open spec fn step_ReadWrite(
                     &&& between(vaddr, base, base + pte.frame.size)
                 })
             // .. and the result is always a pagefault and an unchanged memory.
-
             &&& s2.mem === s1.mem
             &&& match op {
                 RWOp::Store { new_value, result } => result.is_Pagefault(),
@@ -10647,7 +10636,6 @@ pub open spec fn step_ReadWrite(
 pub open spec fn step_PTMemOp(s1: HWVariables, s2: HWVariables) -> bool {
     &&& s2.mem === s1.mem
     // s2.tlb is a submap of s1.tlb
-
     &&& forall|base: nat, pte: PageTableEntry|
         s2.tlb.contains_pair(base, pte) ==> s1.tlb.contains_pair(
             base,

@@ -512,12 +512,10 @@ spec fn state_refinement_relation_basic<DT: Dispatch>(
     &&& (0 <= s.version && s.version
         <= s.log.len())
     // the state corresponds to the state computed at the given version
-
     &&& t.state == s.nrstate_at_version(
         s.version,
     )
     // the request ids of the readonly/update requests and responses must be unique
-
     &&& s.readonly_reqs.dom().disjoint(s.update_reqs.dom())
     &&& s.readonly_reqs.dom().disjoint(s.update_resps.dom())
     &&& s.update_reqs.dom().disjoint(s.update_resps.dom())
@@ -525,7 +523,6 @@ spec fn state_refinement_relation_basic<DT: Dispatch>(
         t.resps.dom(),
     )
     // requests are complete: if a request in present in the AState then it must be present in the SState
-
     &&& (forall|rid|
         (#[trigger] s.readonly_reqs.contains_key(rid) || #[trigger] s.update_reqs.contains_key(rid)
             || #[trigger] s.update_resps.contains_key(rid)) <==> (#[trigger] t.reqs.contains_key(
@@ -534,7 +531,6 @@ spec fn state_refinement_relation_basic<DT: Dispatch>(
             rid,
         )))
     // requests/responses in the rightmaps
-
     &&& (forall|rid| #[trigger]
         t.reqs.contains_key(rid) && #[trigger] t.reqs[rid].is_Read()
             ==> s.readonly_reqs.contains_key(rid))
@@ -547,25 +543,21 @@ spec fn state_refinement_relation_basic<DT: Dispatch>(
             rid,
         ))
     // for all log entries > version, there must be a response with the given version
-
     &&& (forall|v: LogIdx|
         s.version <= v && v < s.log.len() ==> update_response_with_version(
             s.update_resps,
             v,
         ))
     // for any two update responses, if the request id differs, the version in the log must also differ
-
     &&& (forall|rid1, rid2| #[trigger]
         s.update_resps.contains_key(rid1) && #[trigger] s.update_resps.contains_key(rid2) && rid1
             != rid2 ==> s.update_resps[rid1]
             != s.update_resps[rid2])
     // for all update responses, the version must be within the log
-
     &&& (forall|rid| #[trigger]
         s.update_resps.contains_key(rid) ==> s.update_resps[rid].0
             < s.log.len())
     // for all update requests, they must be part of the requests and the operation must match
-
     &&& (forall|rid| #[trigger]
         s.update_reqs.contains_key(rid) ==> t.reqs.contains_key(rid) && t.reqs[rid]
             == InputOperation::<DT>::Write(
@@ -573,14 +565,12 @@ spec fn state_refinement_relation_basic<DT: Dispatch>(
         ))
     // forall update responses larger than the current version, they must be in the requests,
     // the update operation must match
-
     &&& (forall|rid| #[trigger]
         s.update_resps.contains_key(rid) && s.update_resps[rid].0 >= s.version ==> {
             &&& t.reqs.contains_key(rid)
             &&& t.reqs[rid] == InputOperation::<DT>::Write(s.log[s.update_resps[rid].0 as int])
         })
     // for all update responses smaller than th eversion, they must be valid
-
     &&& (forall|rid| #[trigger]
         s.update_resps.contains_key(rid) && s.update_resps[rid].0 < s.version
             ==> update_response_is_valid(s, t, r_points, rid))
@@ -3116,13 +3106,11 @@ pub open spec fn LogRangeMatchesQueue<DT: Dispatch>(
     &&& (logIndexLower == logIndexUpper ==> queueIndex
         == queue.len())
     // otherwise, we check the log
-
     &&& (logIndexLower < logIndexUpper ==> {
         &&& log.contains_key(
             logIndexLower,
         )
         // local case: the entry has been written by the local node
-
         &&& (log.index(logIndexLower).node_id == nodeId ==> {
             // there must be an entry in the queue that matches the log entry
             &&& queueIndex < queue.len()
@@ -3140,7 +3128,6 @@ pub open spec fn LogRangeMatchesQueue<DT: Dispatch>(
             )
         })
         // remote case: the entry has been written by the local node, there is nothing to match, recourse
-
         &&& (log.index(logIndexLower).node_id != nodeId ==> LogRangeMatchesQueue(
             queue,
             log,
@@ -3169,13 +3156,11 @@ pub open spec fn LogRangeMatchesQueue2<DT: Dispatch>(
     &&& (logIndexLower == logIndexUpper ==> queueIndex
         == queue.len())
     // otherwise, we check the log
-
     &&& (logIndexLower < logIndexUpper ==> {
         &&& log.contains_key(
             logIndexLower,
         )
         // local case: the entry has been written by the local node
-
         &&& (log.index(logIndexLower).node_id == nodeId ==> {
             // there must be an entry in the queue that matches the log entry
             &&& queueIndex
@@ -3183,7 +3168,6 @@ pub open spec fn LogRangeMatchesQueue2<DT: Dispatch>(
             // &&& updates.contains_key(queue.index(queueIndex as int))
             // &&& updates.index(queue.index(queueIndex as int)).is_Placed()
             // &&& updates.index(queue.index(queueIndex as int)).get_Placed_idx() == logIndexLower
-
             &&& LogRangeMatchesQueue2(
                 queue,
                 log,
@@ -3195,7 +3179,6 @@ pub open spec fn LogRangeMatchesQueue2<DT: Dispatch>(
             )
         })
         // remote case: the entry has been written by the local node, there is nothing to match, recourse
-
         &&& (log.index(logIndexLower).node_id != nodeId ==> LogRangeMatchesQueue2(
             queue,
             log,
@@ -7410,7 +7393,6 @@ impl<DT: Dispatch> NrLog<DT> {
                             //
                             // The following will result in a resource limit exceeded
                             //
-
                             &&& log_entries[i]@.value.op
                                 == operations[i as int]
                             //
@@ -8205,7 +8187,6 @@ impl<DT: Dispatch> NrLogAppendExecDataGhost<DT> {
         &&& self.combiner@@.value.is_Placed() ==> self.pre_exec(responses)
         &&& self.cb_combiner@@.value
             == pre.cb_combiner@@.value  // other fields in common_pred
-
         &&& self.request_ids == pre.request_ids
     }
 
@@ -9925,14 +9906,12 @@ impl<DT: Dispatch> ThreadToken<DT> {
         &&& (self.tid as nat)
             < MAX_THREADS_PER_REPLICA
         // &&& self.fc_client@@.instance == fc_inst
-
         &&& self.batch_perm@@.value.is_None()
         &&& self.fc_client@@.key == self.tid as nat
     }
 
     pub open spec fn wf(&self, replica: &Replica<DT>) -> bool {
         &&& self.wf2(replica.spec_id() + 1)  // +1 here because ids got < replicas
-
         &&& self.rid@ == replica.spec_id()
         &&& self.fc_client@@.instance == replica.flat_combiner_instance
         &&& self.batch_perm@@.pcell == replica.contexts[self.thread_id_spec() as int].batch.0.id()
@@ -10695,11 +10674,9 @@ impl<DT: Dispatch + Sync> crate::NR<DT> for NodeReplicated<DT> {
         &&& self.cyclic_buffer_instance@
             == self.log.cyclic_buffer_instance@
         // the number of replicas should be the as configured
-
         &&& self.replicas.len()
             <= MAX_REPLICAS
         // the replicas should be well-formed and the instances match
-
         &&& (forall|i|
             0 <= i < self.replicas.len() ==> {
                 &&& (#[trigger] self.replicas[i]).wf()
@@ -11465,7 +11442,6 @@ pub open spec fn is_readonly_ticket<DT: Dispatch>(
     &&& ticket@.value.is_Init() && ticket@.value.get_Init_op()
         == op
     // requires ticket.loc == TicketStubSingletonLoc.loc()
-
     &&& ticket@.instance == log
 }
 
@@ -11480,7 +11456,6 @@ pub open spec fn is_readonly_stub<DT: Dispatch>(
     &&& stub@.instance
         == log
     // ensures ssm.IsStub(rid, output, stub.val)  -> (exists ctail, op, nodeid :: stub == ReadOp(rid, ReadonlyDone(op, output, nodeid, ctail)))
-
     &&& stub@.key == rid
     &&& stub@.value.is_Done()
     &&& stub@.value.get_Done_ret() == result
@@ -11496,7 +11471,6 @@ pub open spec fn is_update_ticket<DT: Dispatch>(
     &&& ticket@.value.is_Init() && ticket@.value.get_Init_op()
         == op
     // requires ticket.loc == TicketStubSingletonLoc.loc()
-
     &&& ticket@.instance == log
 }
 
@@ -11511,7 +11485,6 @@ pub open spec fn is_update_stub<DT: Dispatch>(
     &&& stub@.instance
         == log
     // ensures ssm.IsStub(rid, output, stub.val)  -> (exists log_idx :: stub == UpdateOp(rid, UpdateDone(output, log_idx)))
-
     &&& stub@.key == rid
     &&& stub@.value.is_Done()
     &&& stub@.value.get_Done_ret() == result
@@ -11937,19 +11910,16 @@ pub open spec fn behavior_equiv<DT: Dispatch>(
     ||| (a.is_Inited()
         && b.is_Inited())
     // || (a.Stepped? && a.op.InternalOp? && equiv(a.tail, b))
-
     ||| (a.is_Stepped() && a.get_Stepped_1().is_Internal() && behavior_equiv(
         *a.get_Stepped_2(),
         b,
     ))
     // || (b.Stepped? && b.op.InternalOp? && equiv(a, b.tail))
-
     ||| (b.is_Stepped() && b.get_Stepped_1().is_Internal() && behavior_equiv(
         a,
         *b.get_Stepped_2(),
     ))
     // || (a.Stepped? && b.Stepped? && a.op == b.op && equiv(a.tail, b.tail))
-
     ||| (a.is_Stepped() && b.is_Stepped() && a.get_Stepped_1() == b.get_Stepped_1()
         && behavior_equiv(*a.get_Stepped_2(), *b.get_Stepped_2()))
 }
