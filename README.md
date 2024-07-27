@@ -151,10 +151,10 @@ the scope for errors.
 We welcome contributions! Please read on for details.
 
 We consider it a bug in `verusfmt` if you provide `verusfmt` with code
-that [Verus] accepts and `verusfmt` produces code that Verus does not accept
-or code that has different semantics from the original.  When this happens,
-please open a GitHub issue with a minimal example of the offending code
-before and after formatting.
+that [Verus] accepts, and `verusfmt` either does not accept/parse it, or
+produces code that Verus does not accept (or has different semantics from the original).
+When this happens, please open a GitHub issue with a minimal example of the offending code
+before (and after) formatting.
 
 If `verusfmt` produces valid code but you dislike the formatting, please open
 a GitHub pull request with your proposed changes and rationale for those changes.
