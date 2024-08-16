@@ -414,7 +414,7 @@ pub proof fn lemma_update_same<V>(m: Multiset<V>, v: V, mult: nat)
     ensures
         m.update(v, mult).count(v) == mult,
 {
-    broadcast use group_set_axioms, group_map_axioms, group_multiset_axioms;
+    broadcast use {group_set_axioms, group_map_axioms, group_multiset_axioms};
 
     let map = Map::new(
         |key: V| (m.contains(key) || key == v),
@@ -436,7 +436,7 @@ pub proof fn lemma_update_different<V>(m: Multiset<V>, v1: V, mult: nat, v2: V)
     ensures
         m.update(v1, mult).count(v2) == m.count(v2),
 {
-    broadcast use group_set_axioms, group_map_axioms, group_multiset_axioms;
+    broadcast use {group_set_axioms, group_map_axioms, group_multiset_axioms};
 
     let map = Map::new(
         |key: V| (m.contains(key) || key == v1),
@@ -513,7 +513,7 @@ pub proof fn lemma_intersection_count<V>(a: Multiset<V>, b: Multiset<V>, x: V)
     ensures
         a.intersection_with(b).count(x) == min(a.count(x) as int, b.count(x) as int),
 {
-    broadcast use group_set_axioms, group_map_axioms, group_multiset_axioms;
+    broadcast use {group_set_axioms, group_map_axioms, group_multiset_axioms};
 
     let m = Map::<V, nat>::new(
         |v: V| a.contains(v),
@@ -582,7 +582,7 @@ pub proof fn lemma_difference_count<V>(a: Multiset<V>, b: Multiset<V>, x: V)
     ensures
         a.difference_with(b).count(x) == clip(a.count(x) - b.count(x)),
 {
-    broadcast use group_set_axioms, group_map_axioms, group_multiset_axioms;
+    broadcast use {group_set_axioms, group_map_axioms, group_multiset_axioms};
 
     let m = Map::<V, nat>::new(|v: V| a.contains(v), |v: V| clip(a.count(v) - b.count(v)));
     assert(m.dom() =~= a.dom());

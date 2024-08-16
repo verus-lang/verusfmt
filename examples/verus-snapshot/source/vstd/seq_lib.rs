@@ -816,7 +816,7 @@ impl<A> Seq<A> {
             self.to_set().len() <= self.len(),
         decreases self.len(),
     {
-        broadcast use super::set::group_set_axioms, seq_to_set_is_finite;
+        broadcast use {super::set::group_set_axioms, seq_to_set_is_finite};
 
         lemma_seq_properties::<A>();
         lemma_set_properties::<A>();
@@ -833,7 +833,7 @@ impl<A> Seq<A> {
         ensures
             self.to_set().len() == 0 <==> self.len() == 0,
     {
-        broadcast use super::set::group_set_axioms, seq_to_set_is_finite;
+        broadcast use {super::set::group_set_axioms, seq_to_set_is_finite};
 
         assert(self.len() == 0 ==> self.to_set().len() == 0) by { self.lemma_cardinality_of_set() }
         assert(!(self.len() == 0) ==> !(self.to_set().len() == 0)) by {
@@ -853,7 +853,7 @@ impl<A> Seq<A> {
             self.no_duplicates(),
         decreases self.len(),
     {
-        broadcast use super::set::group_set_axioms, seq_to_set_is_finite;
+        broadcast use {super::set::group_set_axioms, seq_to_set_is_finite};
 
         lemma_seq_properties::<A>();
         if self.len() == 0 {
@@ -1002,7 +1002,7 @@ impl<A> Seq<Seq<A>> {
             self.flatten() =~= self.flatten_alt(),
         decreases self.len(),
     {
-        broadcast use Seq::add_empty_right, Seq::push_distributes_over_add;
+        broadcast use {Seq::add_empty_right, Seq::push_distributes_over_add};
 
         if self.len() != 0 {
             self.drop_last().lemma_flatten_and_flatten_alt_are_equivalent();
