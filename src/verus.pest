@@ -943,7 +943,8 @@ meta = {
 }
 
 broadcast_use_list = {
-    (path ~ ("," ~ path)* ~ ","?)
+    ("{" ~ path ~ ("," ~ path)* ~ ","? ~ "}")
+  | (path ~ ("," ~ path)* ~ ","?)
 }
 
 broadcast_uses = {
