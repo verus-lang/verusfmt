@@ -45,6 +45,10 @@ raw_byte_string = @{
   "b" ~ raw_string
 }
 
+char = @{
+    "'" ~ ("\\'" | !"'" ~ ANY) ~ "'"
+}
+
 multiline_comment = @{
     "/*" ~ (multiline_comment | (!"*/" ~ ANY))* ~ "*/"
 }
@@ -59,7 +63,7 @@ file = {
 
 /// Region of code that doesn't contain any Verus macro use whatsoever
 non_verus = @{
-  (!("verus" ~ WHITESPACE* ~ "!" ~ WHITESPACE* ~ "{") ~ (string | raw_string | byte_string | raw_byte_string | ANY))*
+  (!("verus" ~ WHITESPACE* ~ "!" ~ WHITESPACE* ~ "{") ~ (string | raw_string | byte_string | raw_byte_string | char | ANY))*
 }
 
 /// An actual use of the `verus! { ... }` macro
@@ -90,5 +94,5 @@ paren_tree = {
 
 /// _Technically_ not a Rust token, but we're trying to do a minimal parser _anyways_
 token = {
-    !("{" | "}" | "[" | "]" | "(" | ")") ~ ANY
+    !("{" | "}" | "[" | "]" | "(" | ")") ~ (string | raw_string | byte_string | raw_byte_string | char | ANY)
 }
