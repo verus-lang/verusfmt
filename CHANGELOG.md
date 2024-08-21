@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.4.1
+
+* Minor fix to prevent panic on formatting files containing unbalanced parentheses in strings/chars/...
+
 # v0.4.0
 
 * Handle comments inside `&&&`/`|||`-bulleted blocks better
