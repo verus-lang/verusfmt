@@ -988,7 +988,11 @@ stmt = !{
   | proof_block
   | let_stmt
   | assignment_stmt
-  | expr_with_block ~ semi_str?
+  // We can't use `expr_with_block ~ semi_str?` here, and instead need to do it
+  // as the two separate ordered alternatives (`ewb ~ semi_str | ewb`) to
+  // prevent munching of multi-newlines that happens otherwise
+  | expr_with_block ~ semi_str
+  | expr_with_block
   | expr ~ semi_str
   | item_no_macro_call
   | macro_call_stmt
