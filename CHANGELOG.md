@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support parsing for const generic literals
+
 # v0.4.1
 
 * Minor fix to prevent panic on formatting files containing unbalanced parentheses in strings/chars/...
