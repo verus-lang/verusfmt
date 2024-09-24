@@ -39,6 +39,7 @@ insta = { version = "1.30.0" }
 similar = { version = "2.2.1" }
 glob = "0.3.1"
 stacker = "0.1.15"
+glob-macro = { path = "glob-macro" }
 
 # Spend more time on initial compilation in exchange for faster runs
 [profile.dev.package.insta]
@@ -52,6 +53,9 @@ opt-level = 3
 [profile.dist]
 inherits = "release"
 lto = "thin"
+
+[workspace]
+members = ["glob-macro"]
 
 # Config for 'cargo dist'
 [workspace.metadata.dist]

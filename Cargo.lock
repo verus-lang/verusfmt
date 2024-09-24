@@ -450,6 +450,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
+name = "glob-macro"
+version = "0.1.0"
+dependencies = [
+ "glob",
+ "proc-macro2",
+ "quote",
+ "syn",
+ "syn-mid",
+]
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1407,6 +1418,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "syn-mid"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5dc35bb08dd1ca3dfb09dce91fd2d13294d6711c88897d9a9d60acf39bce049"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "sync_wrapper"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1718,6 +1740,7 @@ dependencies = [
  "clap",
  "fs-err",
  "glob",
+ "glob-macro",
  "insta",
  "miette",
  "pest",
