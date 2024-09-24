@@ -485,7 +485,13 @@ lifetime_arg = {
 }
 
 const_arg = {
-    expr
+    // Currently stable Rust only support literals as const args inside generic
+    // args. In general, it could be arbitrary expressions, but that causes
+    // headaches for parsing (in particular, we need to parse an `expr` that
+    // does _not_ have a `>` sign in it, but our `expr` parsing greedily eats
+    // any `>` that exists within it. Thus, for now, we simply restrict to
+    // literals.
+    literal
 }
 
 generic_args_binding = {

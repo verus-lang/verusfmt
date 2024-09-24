@@ -2,6 +2,7 @@
 
 * Improved handling of comments around clauses/stanzas
   - Each comment now maintains loyalty to the clause the user picked it to stay with, rather than automatically migrating to the previous clause in the presence of `assert ... by { ... }`-style constructs
+* Support parsing for const generic literals
 
 # v0.4.1
 
