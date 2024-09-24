@@ -2563,3 +2563,41 @@ verus! {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_support_opens_invariants() {
+    // Regression test for https://github.com/verus-lang/verusfmt/issues/91
+    let file = r#"
+verus! {
+    proof fn a() opens_invariants none {}
+    proof fn f() opens_invariants [ 123u8 ] {}
+    proof fn g() opens_invariants [ 123u8, 456u8 ] {}
+    proof fn z() opens_invariants any {}
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn a()
+        opens_invariants none
+    {
+    }
+
+    proof fn f()
+        opens_invariants [123u8]
+    {
+    }
+
+    proof fn g()
+        opens_invariants [123u8, 456u8]
+    {
+    }
+
+    proof fn z()
+        opens_invariants any
+    {
+    }
+
+    } // verus!
+    "###)
+}
