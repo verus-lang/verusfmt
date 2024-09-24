@@ -58,9 +58,10 @@ fn owl_output_rs_unchanged() {
     check_snapshot(include_str!("../examples/owl-output.rs"));
 }
 
+#[glob_macro::glob("./examples/pagetable-snapshot/**/*.rs")]
 #[test]
-fn pagetable_rs_unchanged() {
-    check_snapshot(include_str!("../examples/pagetable.rs"));
+fn pagetable_unchanged(path: &std::path::Path) {
+    check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
 #[glob_macro::glob("./examples/verus-snapshot/**/*.rs")]
