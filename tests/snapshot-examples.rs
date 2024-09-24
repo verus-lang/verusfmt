@@ -47,9 +47,10 @@ fn mimalloc_rs_unchanged() {
     check_snapshot(include_str!("../examples/mimalloc.rs"));
 }
 
+#[glob_macro::glob("./examples/nr-snapshot/**/*.rs")]
 #[test]
-fn nr_rs_unchanged() {
-    check_snapshot(include_str!("../examples/nr.rs"));
+fn nr_unchanged(path: &std::path::Path) {
+    check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
 #[test]
