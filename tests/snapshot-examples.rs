@@ -35,9 +35,10 @@ fn atomic_rs_unchanged() {
     check_snapshot(include_str!("../examples/atomic.rs"));
 }
 
+#[glob_macro::glob("./examples/ironfleet-snapshot/**/*.rs")]
 #[test]
-fn ironfleet_rs_unchanged() {
-    check_snapshot(include_str!("../examples/ironfleet.rs"));
+fn ironfleet_snapshot_unchanged(path: &std::path::Path) {
+    check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
 #[test]
