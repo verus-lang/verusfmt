@@ -562,8 +562,18 @@ fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
 }
 
 fn debug_print(pair: Pair<Rule>, indent: usize) {
-    print!("{:indent$}{:?} {{", "", pair.as_rule(), indent = indent);
-    let pairs = pair.into_inner();
+    if pair.as_rule() == Rule::COMMENT {
+        print!(
+            "{:indent$}{:?} {{ {comment:?} ",
+            "",
+            pair.as_rule(),
+            indent = indent,
+            comment = pair.as_str()
+        );
+    } else {
+        print!("{:indent$}{:?} {{", "", pair.as_rule(), indent = indent);
+    }
+    let pairs = pair.clone().into_inner();
     if pairs.peek().is_some() {
         println!();
         pairs.for_each(|p| debug_print(p, indent + 2));

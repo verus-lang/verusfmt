@@ -2453,6 +2453,36 @@ fn fff() {
     baz;
 }
 
+pub fn foo() {
+    // this should stay stuck to the `a`
+    assert(a) by {
+        // whatever
+    }
+    // this should also stay stuck to the `a`
+    // and so should this line
+
+    // but this line
+    // and this line should stick to the `b`
+    b;
+    // and this comment should also stick to the `b`
+
+    // similarly `c`
+    c;
+    // `c` again
+
+    // and an empty comment stands alone
+
+    // similarly `d`
+    d;
+    // `d` again
+
+    // and finally, `d`
+    assert(d) by {
+        // whatever
+    }
+    // well, now done with `d`
+}
+
 } // verus!
 "#;
 
@@ -2468,6 +2498,36 @@ fn fff() {
 
         bar;
         baz;
+    }
+
+    pub fn foo() {
+        // this should stay stuck to the `a`
+        assert(a) by {
+            // whatever
+        }
+        // this should also stay stuck to the `a`
+        // and so should this line
+
+        // but this line
+        // and this line should stick to the `b`
+        b;
+        // and this comment should also stick to the `b`
+
+        // similarly `c`
+        c;
+        // `c` again
+
+        // and an empty comment stands alone
+
+        // similarly `d`
+        d;
+        // `d` again
+
+        // and finally, `d`
+        assert(d) by {
+            // whatever
+        }
+        // well, now done with `d`
     }
 
     } // verus!
