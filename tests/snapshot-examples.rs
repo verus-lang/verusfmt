@@ -61,22 +61,20 @@ fn pagetable_rs_unchanged() {
     check_snapshot(include_str!("../examples/pagetable.rs"));
 }
 
+#[glob_macro::glob("./examples/verus-snapshot/**/*.rs")]
 #[test]
-fn verus_snapshot_unchanged() {
-    let rustfmt_toml =
-        std::fs::read_to_string("./examples/verus-snapshot/source/rustfmt.toml").unwrap();
-    for path in glob::glob("./examples/verus-snapshot/**/*.rs").unwrap() {
-        let path = path.unwrap();
-        println!("Checking snapshot for {:?}", path);
-        check_snapshot_with_config(
-            &std::fs::read_to_string(path).unwrap(),
-            verusfmt::RunOptions {
-                file_name: None,
-                run_rustfmt: true,
-                rustfmt_config: verusfmt::RustFmtConfig {
-                    rustfmt_toml: Some(rustfmt_toml.clone()),
-                },
+fn verus_snapshot_unchanged(path: &std::path::Path) {
+    check_snapshot_with_config(
+        &std::fs::read_to_string(path).unwrap(),
+        verusfmt::RunOptions {
+            file_name: None,
+            run_rustfmt: true,
+            rustfmt_config: verusfmt::RustFmtConfig {
+                rustfmt_toml: Some(
+                    std::fs::read_to_string("./examples/verus-snapshot/source/rustfmt.toml")
+                        .unwrap(),
+                ),
             },
-        );
-    }
+        },
+    );
 }
