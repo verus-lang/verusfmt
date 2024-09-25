@@ -8,9 +8,9 @@ cd "$SCRIPT_DIR"
 source ../_get_latest.sh
 
 GITHUB_ORG=verus-lang
-GITHUB_REPO=verus
+GITHUB_REPO=verified-node-replication
 GITHUB_BRANCH=main
-MOVE_PATHS="source/rustfmt.toml source/rust_verify/example/syntax.rs source/vstd"
-FORCE_REFORMAT_PATHS="source/rust_verify/example/syntax.rs"
+MOVE_PATHS="verified-node-replication/src"
+FORCE_REFORMAT_PATHS=""
 
 get_latest

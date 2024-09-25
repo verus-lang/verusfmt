@@ -35,9 +35,10 @@ fn atomic_rs_unchanged() {
     check_snapshot(include_str!("../examples/atomic.rs"));
 }
 
+#[glob_macro::glob("./examples/ironfleet-snapshot/**/*.rs")]
 #[test]
-fn ironfleet_rs_unchanged() {
-    check_snapshot(include_str!("../examples/ironfleet.rs"));
+fn ironfleet_snapshot_unchanged(path: &std::path::Path) {
+    check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
 #[test]
@@ -46,9 +47,10 @@ fn mimalloc_rs_unchanged() {
     check_snapshot(include_str!("../examples/mimalloc.rs"));
 }
 
+#[glob_macro::glob("./examples/nr-snapshot/**/*.rs")]
 #[test]
-fn nr_rs_unchanged() {
-    check_snapshot(include_str!("../examples/nr.rs"));
+fn nr_unchanged(path: &std::path::Path) {
+    check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
 #[test]
@@ -56,9 +58,10 @@ fn owl_output_rs_unchanged() {
     check_snapshot(include_str!("../examples/owl-output.rs"));
 }
 
+#[glob_macro::glob("./examples/pagetable-snapshot/**/*.rs")]
 #[test]
-fn pagetable_rs_unchanged() {
-    check_snapshot(include_str!("../examples/pagetable.rs"));
+fn pagetable_unchanged(path: &std::path::Path) {
+    check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
 #[glob_macro::glob("./examples/verus-snapshot/**/*.rs")]
