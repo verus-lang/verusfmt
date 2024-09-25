@@ -485,7 +485,13 @@ lifetime_arg = {
 }
 
 const_arg = {
-    expr
+    // Currently stable Rust only support literals as const args inside generic
+    // args. In general, it could be arbitrary expressions, but that causes
+    // headaches for parsing (in particular, we need to parse an `expr` that
+    // does _not_ have a `>` sign in it, but our `expr` parsing greedily eats
+    // any `>` that exists within it. Thus, for now, we simply restrict to
+    // literals.
+    literal
 }
 
 generic_args_binding = {
@@ -988,7 +994,11 @@ stmt = !{
   | proof_block
   | let_stmt
   | assignment_stmt
-  | expr_with_block ~ semi_str?
+  // We can't use `expr_with_block ~ semi_str?` here, and instead need to do it
+  // as the two separate ordered alternatives (`ewb ~ semi_str | ewb`) to
+  // prevent munching of multi-newlines that happens otherwise
+  | expr_with_block ~ semi_str
+  | expr_with_block
   | expr ~ semi_str
   | item_no_macro_call
   | macro_call_stmt
@@ -1750,6 +1760,7 @@ unwind_clause = {
 opens_invariants_mode = {
     any_str
   | none_str
+  | lbracket_str ~ comma_delimited_exprs? ~ rbracket_str
 }
 
 opens_invariants_clause = {
