@@ -484,7 +484,13 @@ verus!{
         cong;
         done;
     ");
-
+    fn foo(x: usize) {
+        match x {
+            inj_ord_choice_pat!((_,x), *, *) => (),
+            inj_ord_choice_pat!(*, (_,x), *) => (),
+            inj_ord_choice_pat!(*, *, _) => (),
+        };
+    }
 }
 "#;
 
@@ -505,6 +511,14 @@ verus!{
             cong;
             done;
         ");
+    
+    fn foo(x: usize) {
+        match x {
+            inj_ord_choice_pat!((_,x), *, *) => (),
+            inj_ord_choice_pat!(*, (_,x), *) => (),
+            inj_ord_choice_pat!(*, *, _) => (),
+        };
+    }
 
     } // verus!
     "###);

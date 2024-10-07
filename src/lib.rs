@@ -1315,7 +1315,7 @@ fn to_doc<'a>(
         Rule::path_pat => map_to_doc(ctx, arena, pair),
         Rule::box_pat => map_to_doc(ctx, arena, pair),
         Rule::rest_pat => map_to_doc(ctx, arena, pair),
-        Rule::macro_pat => unsupported(pair),
+        Rule::macro_pat => map_to_doc(ctx, arena, pair), // unsupported(pair),
         Rule::const_block_pat => unsupported(pair),
 
         //************************//
