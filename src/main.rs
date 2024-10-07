@@ -123,7 +123,13 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
             return Ok(());
         }
     } else {
-        fs::write(file, formatted_output).into_diagnostic()?;
+        let formatted_file_name = format!(
+            "{}_formatted.rs",
+            file.file_stem().unwrap().to_string_lossy()
+        );
+        let formatted_file_path = file.with_file_name(formatted_file_name);
+        fs::write(formatted_file_path, formatted_output).into_diagnostic()?;
+
         Ok(())
     }
 }

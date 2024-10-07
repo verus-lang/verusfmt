@@ -1,5 +1,5 @@
 mod rustfmt;
-
+mod visitor;
 pub use crate::rustfmt::{rustfmt, RustFmtConfig};
 
 use pest::{iterators::Pair, iterators::Pairs, Parser};
@@ -1609,13 +1609,21 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
         .next()
         .expect("There will be exactly one `file` rule matched in a valid parsed file")
         .into_inner();
+    let mut visitor = visitor::VerusVisitor::new();
+    visitor.visit_all(parsed_file.clone());
+    let reconstructed: &str = visitor.after();
 
-    //    info!(file = %args.file.display(), "Parsed");
-    //    trace!(parsed = %parsed_file, "Parsed file");
+
+    let reparsed_file = VerusParser::parse(Rule::file, reconstructed)
+        .map_err(ParseAndFormatError::from)?
+        .next()
+        .expect("There will be exactly one `file` rule matched in a valid parsed file")
+        .into_inner();
+
 
     let mut formatted_output = String::new();
 
-    for pair in parsed_file {
+    for pair in reparsed_file {
         if enabled!(Level::DEBUG) {
             debug_print(pair.clone(), 0);
         }
