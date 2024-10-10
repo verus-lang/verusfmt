@@ -1,5 +1,7 @@
 # Unreleased
 
+* Improve handling of inner-docstring comments (i.e., `///`-prefixed comments)
+
 # v0.4.3
 
 * Support handling of capturing macros (`macro_pat`) during pattern matches
