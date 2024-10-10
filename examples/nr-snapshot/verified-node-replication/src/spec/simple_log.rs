@@ -313,13 +313,13 @@ state_machine! {
     fn no_op_inductive(pre: Self, post: Self, label: Label<DT>) { }
 
 }}  // state_machine! SimpleLog
+
+
 /// constructs the state of the data structure at a specific version given the log
 ///
 /// This function recursively applies the update operations to the initial state of the
 /// data structure and returns the state of the data structure at the given version. The
 /// version must be within the log's range.
-
-
 pub open spec fn compute_nrstate_at_version<DT: Dispatch>(
     log: Seq<DT::WriteOperation>,
     version: LogIdx,
