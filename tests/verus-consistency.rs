@@ -2615,3 +2615,32 @@ verus! {
     } // verus!
     "###)
 }
+
+#[test]
+fn verus_handling_of_docstrings() {
+    // Regression test for https://github.com/verus-lang/verusfmt/issues/102
+    let file = r#"
+verus! {
+
+some_macro!{
+}
+
+/// abc
+fn foo() {
+}
+
+} // verus!
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    some_macro!{
+    }
+
+    /// abc
+    fn foo() {
+    }
+
+    } // verus!
+    "###)
+}

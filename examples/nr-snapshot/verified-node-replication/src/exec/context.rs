@@ -478,9 +478,9 @@ pub open spec fn inv(&self, v: u64, tid: nat, cell: PCell<PendingOperation<DT>>,
     }
 }
 }  // struct_with_invariants! ContextGhost
+
+
 /// Request Enqueue/Dequeue ghost state
-
-
 pub tracked struct FCClientRequestResponseGhost<DT: Dispatch> {
     pub tracked batch_perms: Option<PointsTo<PendingOperation<DT>>>,
     pub tracked cell_id: Ghost<CellId>,
