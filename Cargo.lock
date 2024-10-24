@@ -1739,7 +1739,6 @@ dependencies = [
  "axoupdater",
  "clap",
  "fs-err",
- "glob",
  "glob-macro",
  "insta",
  "miette",
