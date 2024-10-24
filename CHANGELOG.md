@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.5.0
+
 * Improve handling of inner-docstring comments (i.e., `///`-prefixed comments)
 
 # v0.4.3
