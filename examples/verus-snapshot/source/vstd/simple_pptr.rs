@@ -255,19 +255,16 @@ impl<V> PointsTo<V> {
         self.mem_contents()
     }
 
-    #[doc(verus_show_body)]
     #[verifier::inline]
     pub open spec fn is_init(&self) -> bool {
         self.mem_contents().is_init()
     }
 
-    #[doc(verus_show_body)]
     #[verifier::inline]
     pub open spec fn is_uninit(&self) -> bool {
         self.mem_contents().is_uninit()
     }
 
-    #[doc(verus_show_body)]
     #[verifier::inline]
     pub open spec fn value(&self) -> V
         recommends
@@ -337,6 +334,7 @@ impl<V> Copy for PPtr<V> {
 
 impl<V> PPtr<V> {
     /// Allocates heap memory for type `V`, leaving it uninitialized.
+    #[cfg(feature = "std")]
     pub fn empty() -> (pt: (PPtr<V>, Tracked<PointsTo<V>>))
         ensures
             pt.1@.pptr() == pt.0,
@@ -375,6 +373,7 @@ impl<V> PPtr<V> {
 
     /// Allocates heap memory for type `V`, leaving it initialized
     /// with the given value `v`.
+    #[cfg(feature = "std")]
     pub fn new(v: V) -> (pt: (PPtr<V>, Tracked<PointsTo<V>>))
         ensures
             pt.1@.pptr() == pt.0,
