@@ -171,19 +171,16 @@ impl<T> PointsTo<T> {
     }
 
     #[verifier::inline]
-    #[doc(verus_show_body)]
     pub open spec fn is_init(&self) -> bool {
         self.opt_value().is_init()
     }
 
     #[verifier::inline]
-    #[doc(verus_show_body)]
     pub open spec fn is_uninit(&self) -> bool {
         self.opt_value().is_uninit()
     }
 
     #[verifier::inline]
-    #[doc(verus_show_body)]
     pub open spec fn value(&self) -> T {
         self.opt_value().value()
     }
@@ -701,7 +698,7 @@ impl Dealloc {
 
 /// Allocate with the global allocator.
 /// Precondition should be consistent with the [documented safety conditions on `alloc`](https://doc.rust-lang.org/alloc/alloc/trait.GlobalAlloc.html#tymethod.alloc).
-#[cfg(feature = "alloc")]
+#[cfg(feature = "std")]
 #[verifier::external_body]
 pub fn allocate(size: usize, align: usize) -> (pt: (
     *mut u8,
@@ -728,6 +725,9 @@ pub fn allocate(size: usize, align: usize) -> (pt: (
     let layout = unsafe { alloc::alloc::Layout::from_size_align_unchecked(size, align) };
     // SAFETY: size != 0
     let p = unsafe { ::alloc::alloc::alloc(layout) };
+    if p == core::ptr::null_mut() {
+        std::process::abort();
+    }
     (p, Tracked::assume_new(), Tracked::assume_new())
 }
 
