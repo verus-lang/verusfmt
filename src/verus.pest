@@ -244,6 +244,7 @@ any_str = ${ "any" ~ !("_" | ASCII_ALPHANUMERIC) }
 assert_space_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
 assert_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
 assume_str = ${ "assume" ~ !("_" | ASCII_ALPHANUMERIC) }
+assume_specification_str = ${ "assume_specification" ~ !("_" | ASCII_ALPHANUMERIC) }
 async_str = ${ "async" ~ !("_" | ASCII_ALPHANUMERIC) }
 as_str = ${ "as" ~ !("_" | ASCII_ALPHANUMERIC) }
 auto_str = ${ "auto" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -446,14 +447,18 @@ path_segment = {
     colons_str? ~ name_ref ~ generic_arg_list?
   | colons_str? ~ name_ref ~ param_list ~ ret_type?
   | colons_str? ~ name_ref
-  | langle_str ~ path_type ~ (as_str ~ path_type)? ~ rangle_str
+  | langle_str ~ path_segment_type ~ (as_str ~ path_segment_type)? ~ rangle_str
 }
 
 path_segment_no_generics = {
     colons_str? ~ name_ref ~ generic_arg_list_with_colons?
   | colons_str? ~ name_ref ~ param_list ~ ret_type?
   | colons_str? ~ name_ref
-  | langle_str ~ path_type ~ (as_str ~ path_type)? ~ rangle_str
+  | langle_str ~ path_segment_type ~ (as_str ~ path_segment_type)? ~ rangle_str
+}
+
+path_segment_type = {
+    type
 }
 
 generic_args = {
@@ -631,6 +636,7 @@ item_no_macro_call = _{
   | enum
   | extern_block
   | extern_crate
+  | assume_specification
   | fn
   | global
   | impl
@@ -722,6 +728,23 @@ fn = {
     prover? ~ where_clause? ~
     fn_qualifier ~
     fn_terminator
+}
+
+assume_specification = {
+    attr* ~
+    visibility? ~
+    assume_specification_str ~
+    generic_param_list? ~
+    lbracket_str ~ assume_specification_for ~ rbracket_str ~
+    param_list ~
+    where_clause? ~
+    ret_type? ~
+    fn_qualifier ~
+    semi_str
+}
+
+assume_specification_for = {
+    path
 }
 
 abi = {
