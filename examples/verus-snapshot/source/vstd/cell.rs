@@ -19,6 +19,7 @@ verus! {
 
 broadcast use super::map::group_map_axioms, super::set::group_set_axioms;
 // TODO implement: borrow_mut; figure out Drop, see if we can avoid leaking?
+
 /// `PCell<V>` (which stands for "permissioned call") is the primitive Verus `Cell` type.
 ///
 /// Technically, it is a wrapper around
@@ -55,7 +56,6 @@ broadcast use super::map::group_map_axioms, super::set::group_set_axioms;
 /// to extract data from the cell.
 ///
 /// ### Example (TODO)
-
 #[verifier::external_body]
 #[verifier::accept_recursive_types(V)]
 pub struct PCell<V> {
@@ -309,7 +309,8 @@ pub struct InvCell<T> {
 }
 
 impl<T> InvCell<T> {
-    pub closed spec fn wf(&self) -> bool {
+    #[verifier::type_invariant]
+    closed spec fn wf(&self) -> bool {
         &&& self.perm_inv@.constant() === (self.possible_values@, self.pcell)
     }
 
@@ -321,7 +322,7 @@ impl<T> InvCell<T> {
         requires
             f(val),
         ensures
-            cell.wf() && forall|v| f(v) <==> cell.inv(v),
+            forall|v| f(v) <==> cell.inv(v),
     {
         let (pcell, Tracked(perm)) = PCell::new(val);
         let ghost possible_values = Set::new(f);
@@ -333,10 +334,13 @@ impl<T> InvCell<T> {
 impl<T> InvCell<T> {
     pub fn replace(&self, val: T) -> (old_val: T)
         requires
-            self.wf() && self.inv(val),
+            self.inv(val),
         ensures
             self.inv(old_val),
     {
+        proof {
+            use_type_invariant(self);
+        }
         let r;
         open_local_invariant!(self.perm_inv.borrow() => perm => {
             r = self.pcell.replace(Tracked(&mut perm), val);
@@ -347,11 +351,12 @@ impl<T> InvCell<T> {
 
 impl<T: Copy> InvCell<T> {
     pub fn get(&self) -> (val: T)
-        requires
-            self.wf(),
         ensures
             self.inv(val),
     {
+        proof {
+            use_type_invariant(self);
+        }
         let r;
         open_local_invariant!(self.perm_inv.borrow() => perm => {
             r = *self.pcell.borrow(Tracked(&perm));

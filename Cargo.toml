@@ -1,6 +1,6 @@
 [package]
 name = "verusfmt"
-version = "0.4.2"
+version = "0.5.0"
 edition = "2021"
 autoexamples = false
 license = "MIT"
@@ -19,10 +19,9 @@ exclude = [
 ]
 
 [dependencies]
-axoupdater = { version = "0.7.2", features = ["blocking", "github_releases"], default-features = false }
+axoupdater = { version = "0.7.2", features = ["blocking", "github_releases"], default-features = false, optional = true }
 clap = { version = "4.3.11", features = ["derive"] }
-fs-err = "2.9.0"
-insta = "1.30.0"
+fs-err = "3.0.0"
 miette = { version = "7.2.0", features = ["fancy"] }
 pest = "2.0"
 pest_derive = "2.0"
@@ -37,9 +36,15 @@ tracing-subscriber = { version = "0.3.17" }
 [dev-dependencies]
 insta = { version = "1.30.0" }
 similar = { version = "2.2.1" }
-glob = "0.3.1"
 stacker = "0.1.15"
 glob-macro = { path = "glob-macro" }
+
+[features]
+# We enable the "optional" dependencies, that are only necessary for the binary,
+# as default-enabled features. If verusfmt is being used as a library, then that
+# program can turn default features off in order to obtain a more stripped-down
+# version of the library.
+default = ["axoupdater"]
 
 # Spend more time on initial compilation in exchange for faster runs
 [profile.dev.package.insta]

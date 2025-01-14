@@ -1316,7 +1316,7 @@ fn to_doc<'a>(
         Rule::path_pat => map_to_doc(ctx, arena, pair),
         Rule::box_pat => map_to_doc(ctx, arena, pair),
         Rule::rest_pat => map_to_doc(ctx, arena, pair),
-        Rule::macro_pat => unsupported(pair),
+        Rule::macro_pat => map_to_doc(ctx, arena, pair),
         Rule::const_block_pat => unsupported(pair),
 
         //************************//
@@ -1360,6 +1360,7 @@ fn to_doc<'a>(
         Rule::MULTI_NEWLINE => arena.hardline(),
         Rule::COMMENT => comment_to_doc(ctx, arena, pair, true),
         Rule::multiline_comment => s.append(arena.line()),
+        Rule::inner_docstring_comment => s,
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
         Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::EOI => unreachable!(),
     }

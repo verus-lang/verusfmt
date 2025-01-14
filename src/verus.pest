@@ -53,12 +53,18 @@ MULTI_NEWLINE = @{
 COMMENT = @{
     // Outer docstring
     ("//!" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
-    // Inner docstring
-  | ("///" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
     // Multiline comment
   | multiline_comment
     // Singleline comment
-  | ("//" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
+    //
+    // NOTE: Inner docstrings `/// ...` are _explicitly_ disallowed from being
+    // called a comment, and are handled separately via
+    // `inner_docstring_comment`
+  | (!"///" ~ "//" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
+}
+
+inner_docstring_comment = @{
+    ("///" ~ (!NEWLINE ~ ANY)* ~ &NEWLINE)
 }
 
 multiline_comment = @{
@@ -938,7 +944,11 @@ attr_core = {
 }
 // Two aliases for attr_core, so that we can print them differently
 attr = !{
-   attr_core
+    attr_core
+    // Inner docstrings are essentially syntax sugar for `#[doc(...)]` and thus
+    // are usable wherever attributes are usable. This way, docstring comments
+    // can be used anywhere attributes can.
+  | inner_docstring_comment
 }
 
 attr_inner = {

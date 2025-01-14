@@ -484,7 +484,13 @@ verus!{
         cong;
         done;
     ");
-
+    fn foo(x: usize) {
+        match x {
+            inj_ord_choice_pat!((_,x), *, *) => (),
+            inj_ord_choice_pat!(*, (_,x), *) => (),
+            inj_ord_choice_pat!(*, *, _) => (),
+        };
+    }
 }
 "#;
 
@@ -505,6 +511,14 @@ verus!{
             cong;
             done;
         ");
+
+    fn foo(x: usize) {
+        match x {
+            inj_ord_choice_pat!((_,x), *, *) => (),
+            inj_ord_choice_pat!(*, (_,x), *) => (),
+            inj_ord_choice_pat!(*, *, _) => (),
+        };
+    }
 
     } // verus!
     "###);
@@ -2603,6 +2617,35 @@ verus! {
 }
 
 #[test]
+fn verus_handling_of_docstrings() {
+    // Regression test for https://github.com/verus-lang/verusfmt/issues/102
+    let file = r#"
+verus! {
+
+some_macro!{
+}
+
+/// abc
+fn foo() {
+}
+
+} // verus!
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    some_macro!{
+    }
+
+    /// abc
+    fn foo() {
+    }
+
+    } // verus!
+    "###)
+}
+
+#[test]
 fn verus_support_returns_clause() {
     let file = r#"
 verus!{
@@ -2637,7 +2680,7 @@ verus!{
     }
 }
 "#;
-    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
     verus! {
 
     fn test(b: bool) -> (c: bool)
@@ -2683,5 +2726,5 @@ verus!{
     }
 
     } // verus!
-    "###)
+    ")
 }
