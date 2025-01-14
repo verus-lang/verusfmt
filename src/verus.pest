@@ -1722,6 +1722,10 @@ groupable_comma_delimited_exprs_for_verus_clauses = {
     comma_delimited_exprs_for_verus_clauses
 }
 
+single_expr_for_verus_clause = {
+    !verus_clause_non_expr ~ expr_no_struct ~ ","?
+}
+
 verus_clause_non_expr = _{
     "{"             // TODO: Why is this permitted here?
   | requires_str
@@ -1746,7 +1750,7 @@ ensures_clause = {
 }
 
 returns_clause = {
-    returns_str ~ comma_delimited_exprs_for_verus_clauses?
+    returns_str ~ single_expr_for_verus_clause
 }
 
 invariant_except_break_clause = {

@@ -1333,6 +1333,9 @@ fn to_doc<'a>(
         Rule::groupable_comma_delimited_exprs_for_verus_clauses => {
             map_to_doc(ctx, arena, pair).nest(INDENT_SPACES).group()
         }
+        Rule::single_expr_for_verus_clause => {
+            comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES)
+        }
         Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),
         Rule::requires_clause => map_to_doc(ctx, arena, pair),
         Rule::ensures_clause => map_to_doc(ctx, arena, pair),
