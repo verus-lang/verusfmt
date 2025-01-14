@@ -782,6 +782,7 @@ fn to_doc<'a>(
         Rule::any_str
         | Rule::assert_str
         | Rule::assume_str
+        | Rule::assume_specification_str
         | Rule::checked_str
         | Rule::choose_str
         | Rule::exec_str
@@ -803,6 +804,7 @@ fn to_doc<'a>(
         Rule::path_no_generics => map_to_doc(ctx, arena, pair),
         Rule::path_segment => map_to_doc(ctx, arena, pair),
         Rule::path_segment_no_generics => map_to_doc(ctx, arena, pair),
+        Rule::path_segment_type => map_to_doc(ctx, arena, pair),
         Rule::generic_arg_list => map_to_doc(ctx, arena, pair),
         Rule::generic_arg_list_with_colons => map_to_doc(ctx, arena, pair),
         Rule::generic_args => comma_delimited(ctx, arena, pair, false).group(),
@@ -948,6 +950,17 @@ fn to_doc<'a>(
                     _ => d,
                 }
             }))
+        }
+        Rule::assume_specification => arena.concat(pair.into_inner().map(|p| {
+            let rule = p.as_rule();
+            let d = to_doc(ctx, p, arena);
+            match rule {
+                Rule::semi_str => arena.hardline().append(d),
+                _ => d,
+            }
+        })),
+        Rule::assume_specification_for => {
+            map_to_doc(ctx, arena, pair).enclose(arena.space(), arena.space())
         }
         Rule::abi => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::param_list => comma_delimited(ctx, arena, pair, false).parens().group(),

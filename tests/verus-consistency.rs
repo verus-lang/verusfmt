@@ -2646,6 +2646,29 @@ fn foo() {
 }
 
 #[test]
+fn verus_assume_specification() {
+    let file = r#"
+verus! {
+
+pub assume_specification<T, const N: usize> [ <[T; N]>::as_slice ](ar: &[T; N]) -> (out: &[T])
+    ensures
+        ar@ == out@;
+
+} // verus!
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    pub assume_specification<T, const N: usize>[ <[T; N]>::as_slice ](ar: &[T; N]) -> (out: &[T])
+        ensures
+            ar@ == out@,
+    ;
+
+    } // verus!
+    ")
+}
+
+#[test]
 fn verus_support_returns_clause() {
     let file = r#"
 verus!{
