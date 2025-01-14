@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for `returns` clauses (see [verus#1368](https://github.com/verus-lang/verus/pull/1368))
+
 # v0.5.0
 
 * Improve handling of inner-docstring comments (i.e., `///`-prefixed comments)
