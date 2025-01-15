@@ -738,8 +738,8 @@ assume_specification = {
     generic_param_list? ~
     lbracket_str ~ assume_specification_for ~ rbracket_str ~
     param_list ~
-    where_clause? ~
     ret_type? ~
+    where_clause? ~
     fn_qualifier ~
     semi_str
 }
