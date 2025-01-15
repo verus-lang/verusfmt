@@ -511,7 +511,7 @@ verus!{
             cong;
             done;
         ");
-    
+
     fn foo(x: usize) {
         match x {
             inj_ord_choice_pat!((_,x), *, *) => (),
@@ -2663,6 +2663,90 @@ pub assume_specification<T, const N: usize> [ <[T; N]>::as_slice ](ar: &[T; N]) 
         ensures
             ar@ == out@,
     ;
+
+    } // verus!
+    ")
+}
+
+#[test]
+fn verus_support_returns_clause() {
+    let file = r#"
+verus!{
+    fn test(b: bool) -> (c: bool)
+        requires x,
+        ensures c == !b,
+        returns !b,
+    {
+    }
+
+    fn test2(b: bool) -> (c: bool)
+        requires x,
+        ensures c == !b,
+        returns !b
+    {
+    }
+
+    fn test3(b: bool) -> (c: bool)
+        requires x,
+        ensures c == !b,
+        returns !b
+        opens_invariants any
+    {
+    }
+
+    fn test4(b: bool) -> (c: bool)
+        requires x,
+        ensures c == !b,
+        returns !b,
+        opens_invariants any
+    {
+    }
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    fn test(b: bool) -> (c: bool)
+        requires
+            x,
+        ensures
+            c == !b,
+        returns
+            !b,
+    {
+    }
+
+    fn test2(b: bool) -> (c: bool)
+        requires
+            x,
+        ensures
+            c == !b,
+        returns
+            !b,
+    {
+    }
+
+    fn test3(b: bool) -> (c: bool)
+        requires
+            x,
+        ensures
+            c == !b,
+        returns
+            !b,
+        opens_invariants any
+    {
+    }
+
+    fn test4(b: bool) -> (c: bool)
+        requires
+            x,
+        ensures
+            c == !b,
+        returns
+            !b,
+        opens_invariants any
+    {
+    }
 
     } // verus!
     ")

@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for `returns` clauses (see [verus#1283](https://github.com/verus-lang/verus/pull/1283))
+
 * Add support for `assume_specification` (see [verus#1368](https://github.com/verus-lang/verus/pull/1368))
 
 # v0.5.0

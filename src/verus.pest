@@ -267,6 +267,7 @@ do_str = ${ "do" ~ !("_" | ASCII_ALPHANUMERIC) }
 dyn_str = ${ "dyn" ~ !("_" | ASCII_ALPHANUMERIC) }
 else_str = ${ "else" ~ !("_" | ASCII_ALPHANUMERIC) }
 ensures_str = ${ "ensures" ~ !("_" | ASCII_ALPHANUMERIC) }
+returns_str = ${ "returns" ~ !("_" | ASCII_ALPHANUMERIC) }
 enum_str = ${ "enum" ~ !("_" | ASCII_ALPHANUMERIC) }
 exec_str = ${ "exec" ~ !("_" | ASCII_ALPHANUMERIC) }
 exists_str = ${ "exists" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -713,7 +714,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    (requires_clause | recommends_clause | ensures_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
+    (requires_clause | recommends_clause | ensures_clause | returns_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
 }
 
 fn_terminator = {
@@ -1744,10 +1745,15 @@ groupable_comma_delimited_exprs_for_verus_clauses = {
     comma_delimited_exprs_for_verus_clauses
 }
 
+single_expr_for_verus_clause = {
+    !verus_clause_non_expr ~ expr_no_struct ~ ","?
+}
+
 verus_clause_non_expr = _{
     "{"             // TODO: Why is this permitted here?
   | requires_str
   | ensures_str
+  | returns_str
   | invariant_except_break_str
   | invariant_str
   | invariant_ensures_str
@@ -1764,6 +1770,10 @@ requires_clause = {
 
 ensures_clause = {
     ensures_str ~ comma_delimited_exprs_for_verus_clauses?
+}
+
+returns_clause = {
+    returns_str ~ single_expr_for_verus_clause
 }
 
 invariant_except_break_clause = {
