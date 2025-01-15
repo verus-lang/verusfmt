@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix parser for `assume_specification` to improve support
+
 # v0.5.1
 
 * Add support for `returns` clauses (see [verus#1283](https://github.com/verus-lang/verus/pull/1283))

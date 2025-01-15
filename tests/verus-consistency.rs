@@ -2654,6 +2654,20 @@ pub assume_specification<T, const N: usize> [ <[T; N]>::as_slice ](ar: &[T; N]) 
     ensures
         ar@ == out@;
 
+pub assume_specification<Key, Value, S>[HashMap::<Key, Value, S>::insert](
+    m: &mut HashMap<Key, Value, S>,
+    k: Key,
+    v: Value,
+) -> (result: Option<Value>) where Key: Eq + Hash, S: BuildHasher
+    ensures
+        obeys_key_model::<Key>() && builds_valid_hashers::<S>() ==> {
+            &&& m@ == old(m)@.insert(k, v)
+            &&& match result {
+                Some(v) => old(m)@.contains_key(k) && v == old(m)[k],
+                None => !old(m)@.contains_key(k),
+            }
+        };
+
 } // verus!
 "#;
     assert_snapshot!(parse_and_format(file).unwrap(), @r"
@@ -2662,6 +2676,21 @@ pub assume_specification<T, const N: usize> [ <[T; N]>::as_slice ](ar: &[T; N]) 
     pub assume_specification<T, const N: usize>[ <[T; N]>::as_slice ](ar: &[T; N]) -> (out: &[T])
         ensures
             ar@ == out@,
+    ;
+
+    pub assume_specification<Key, Value, S>[ HashMap::<Key, Value, S>::insert ](
+        m: &mut HashMap<Key, Value, S>,
+        k: Key,
+        v: Value,
+    ) -> (result: Option<Value>) where Key: Eq + Hash, S: BuildHasher
+        ensures
+            obeys_key_model::<Key>() && builds_valid_hashers::<S>() ==> {
+                &&& m@ == old(m)@.insert(k, v)
+                &&& match result {
+                    Some(v) => old(m)@.contains_key(k) && v == old(m)[k],
+                    None => !old(m)@.contains_key(k),
+                }
+            },
     ;
 
     } // verus!
