@@ -19,24 +19,24 @@ exclude = [
 ]
 
 [dependencies]
-axoupdater = { version = "0.7.2", features = ["blocking", "github_releases"], default-features = false, optional = true }
-clap = { version = "4.3.11", features = ["derive"] }
+axoupdater = { version = "0.9.0", features = ["blocking", "github_releases"], default-features = false, optional = true }
+clap = { version = "4.5.26", features = ["derive"] }
 fs-err = "3.0.0"
-miette = { version = "7.2.0", features = ["fancy"] }
-pest = "2.0"
-pest_derive = "2.0"
-pretty = "0.12.1"
-regex = "1.9.6"
-similar = "2.2.1"
-tempfile = "3.10.1"
-thiserror = "1.0.52"
-tracing = "0.1.37"
-tracing-subscriber = { version = "0.3.17" }
+miette = { version = "7.4.0", features = ["fancy"] }
+pest = "2.7"
+pest_derive = "2.7"
+pretty = "0.12.3"
+regex = "1.11.1"
+similar = "2.6.0"
+tempfile = "3.15.0"
+thiserror = "2.0.11"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19" }
 
 [dev-dependencies]
-insta = { version = "1.30.0" }
-similar = { version = "2.2.1" }
-stacker = "0.1.15"
+insta = { version = "1.42.0" }
+similar = { version = "2.6.0" }
+stacker = "0.1.17"
 glob-macro = { path = "glob-macro" }
 
 [features]
@@ -62,10 +62,10 @@ lto = "thin"
 [workspace]
 members = ["glob-macro"]
 
-# Config for 'cargo dist'
+# Config for 'dist'
 [workspace.metadata.dist]
-# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
-cargo-dist-version = "0.22.1"
+# The preferred dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.28.0"
 # CI backends to support
 ci = "github"
 # The installers to generate for each app
