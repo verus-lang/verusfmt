@@ -1,6 +1,9 @@
 # Unreleased
 
+# v0.5.2
+
 * Fix parser for `assume_specification` to improve support
+* Upgrade dependencies
 
 # v0.5.1
 
