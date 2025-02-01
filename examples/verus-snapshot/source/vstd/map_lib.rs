@@ -74,13 +74,6 @@ impl<K, V> Map<K, V> {
         self.submap_of(m2)
     }
 
-    /// Deprecated synonym for `submap_of`
-    #[verifier::inline]
-    #[cfg_attr(not(verus_verify_core), deprecated = "use m1.submap_of(m2) or m1 <= m2 instead")]
-    pub open spec fn le(self, m2: Self) -> bool {
-        self.submap_of(m2)
-    }
-
     /// Gives the union of two maps, defined as:
     ///  * The domain is the union of the two input maps.
     ///  * For a given key in _both_ input maps, it maps to the same value that it maps to in the _right_ map (`m2`).
@@ -267,6 +260,20 @@ pub proof fn lemma_disjoint_union_size<K, V>(m1: Map<K, V>, m2: Map<K, V>)
     assert(u.remove_keys(m1.dom()).dom() =~= m2.dom());
     assert(u.remove_keys(m1.dom()).dom().len() == u.dom().len() - m1.dom().len()) by {
         u.lemma_remove_keys_len(m1.dom());
+    }
+}
+
+/// submap_of (<=) is transitive.
+pub broadcast proof fn lemma_submap_of_trans<K, V>(m1: Map<K, V>, m2: Map<K, V>, m3: Map<K, V>)
+    requires
+        #[trigger] m1.submap_of(m2),
+        #[trigger] m2.submap_of(m3),
+    ensures
+        m1.submap_of(m3),
+{
+    assert forall|k| m1.dom().contains(k) implies #[trigger] m3.dom().contains(k) && m1[k]
+        == m3[k] by {
+        assert(m2.dom().contains(k));
     }
 }
 
