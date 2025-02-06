@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for `!is`/`!has` syntax (see [verus#1435](https://github.com/verus-lang/verus/pull/1435))
+
 # v0.5.2
 
 * Fix parser for `assume_specification` to improve support

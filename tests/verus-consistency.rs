@@ -2780,3 +2780,42 @@ verus!{
     } // verus!
     ")
 }
+
+#[test]
+fn verus_support_is_has_notis_nothas() {
+    let file = r#"
+verus!{
+proof fn uses_spec_has(s: Set<int>)
+    requires
+        s has 3,
+        s !has 4,
+{
+}
+proof fn uses_spec_is(t: ThisOrThat)
+    requires
+        t is This,
+        t !is That
+{
+}
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    proof fn uses_spec_has(s: Set<int>)
+        requires
+            s has 3,
+            s !has 4,
+    {
+    }
+
+    proof fn uses_spec_is(t: ThisOrThat)
+        requires
+            t is This,
+            t !is That,
+    {
+    }
+
+    } // verus!
+    ")
+}

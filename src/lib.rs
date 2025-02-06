@@ -657,6 +657,7 @@ fn to_doc<'a>(
         | Rule::arrow_expr_str => s,
         Rule::fn_traits | Rule::impl_str => s,
         Rule::calc_str | Rule::seq_str => s,
+        Rule::has_str | Rule::is_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
         //        Rule::triple_and |
         //        Rule::triple_or =>
@@ -755,9 +756,8 @@ fn to_doc<'a>(
 
         Rule::as_str
         | Rule::by_str_inline
-        | Rule::has_str
         | Rule::implies_str
-        | Rule::is_str
+        | Rule::spaced_is_str
         | Rule::matches_str => arena.space().append(s).append(arena.space()),
 
         Rule::by_str | Rule::via_str | Rule::when_str => arena
@@ -1091,6 +1091,10 @@ fn to_doc<'a>(
         Rule::expr_inner_no_struct => map_to_doc(ctx, arena, pair),
         Rule::expr_with_block => map_to_doc(ctx, arena, pair),
         Rule::expr_as => map_to_doc(ctx, arena, pair),
+        Rule::is_or_notis | Rule::has_or_nothas => arena
+            .space()
+            .append(map_to_doc(ctx, arena, pair))
+            .append(arena.space()),
         Rule::expr_has => map_to_doc(ctx, arena, pair),
         Rule::expr_is => map_to_doc(ctx, arena, pair),
         Rule::expr_matches => map_to_doc(ctx, arena, pair),

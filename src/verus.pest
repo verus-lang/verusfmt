@@ -537,7 +537,7 @@ seq_macro_call = {
 macro_call = {
     calc_macro_call
   | seq_macro_call
-  | attr* ~ path ~ bang_str ~ !"=" ~ token_tree
+  | attr* ~ path ~ bang_str ~ !("=" | is_str | has_str) ~ token_tree
 }
 
 // NOTE: By convention, stmt-like or item-like macros (e.g., calc!{}) tend to
@@ -613,8 +613,10 @@ global_sizeof = {
     sizeof_str ~ type ~ eq_eq_str ~ expr
 }
 
+spaced_is_str = { is_str }
+
 global_layout = {
-    layout_str ~ type ~ is_str ~ identifier ~ eq_eq_str ~ literal
+    layout_str ~ type ~ spaced_is_str ~ identifier ~ eq_eq_str ~ literal
     ~ (spaced_comma_str ~ identifier ~ eq_eq_str ~ literal)?
 }
 
@@ -1116,12 +1118,20 @@ expr_as = {
     as_str ~ type
 }
 
+has_or_nothas = {
+    bang_str? ~ has_str
+}
+
 expr_has = {
-    has_str ~ expr
+    has_or_nothas ~ expr
+}
+
+is_or_notis = {
+    bang_str? ~ is_str
 }
 
 expr_is = {
-    is_str ~ type
+    is_or_notis ~ type
 }
 
 expr_matches = {
