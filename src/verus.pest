@@ -537,7 +537,7 @@ seq_macro_call = {
 macro_call = {
     calc_macro_call
   | seq_macro_call
-  | attr* ~ path ~ bang_str ~ !("=" | is_str | has_str) ~ token_tree
+  | attr* ~ path ~ bang_str ~ delim_token_tree
 }
 
 // NOTE: By convention, stmt-like or item-like macros (e.g., calc!{}) tend to
