@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.5.3
+
 * Add support for `!is`/`!has` syntax (see [verus#1435](https://github.com/verus-lang/verus/pull/1435))
 
 # v0.5.2
