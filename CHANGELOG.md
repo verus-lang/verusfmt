@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for backslashed character literals (e.g., `\t`, `\\`, `\u{00e9}`, etc.)
+
 # v0.5.3
 
 * Add support for `!is`/`!has` syntax (see [verus#1435](https://github.com/verus-lang/verus/pull/1435))

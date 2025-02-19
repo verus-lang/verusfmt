@@ -196,7 +196,12 @@ raw_byte_string = @{
 }
 
 char = @{
-    "'" ~ ("\\'" | !"'" ~ ANY) ~ "'"
+    "'" ~ (
+        ("\\u{" ~ ASCII_HEX_DIGIT+ ~ "}")
+      | ("\\" ~ ANY)
+      | (!"'" ~ ANY)
+    ) ~
+    "'"
 }
 
 byte = @{
