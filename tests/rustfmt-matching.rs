@@ -40,6 +40,10 @@ fn test() {
     let a = 12E+99_f64;
     let x: f64 = 2.;
     let x = (1,);
+    let t = 'x';
+    let t = '\\';
+    let t = '\t';
+    let t = '\u{00e9}';
 }
 "#;
     compare(file);
