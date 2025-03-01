@@ -57,7 +57,7 @@ pub fn vec_index<T, A: Allocator>(vec: &Vec<T, A>, i: usize) -> (element: &T)
 }
 
 ////// Len (with autospec)
-pub open spec fn spec_vec_len<T, A: Allocator>(v: &Vec<T, A>) -> usize;
+pub spec fn spec_vec_len<T, A: Allocator>(v: &Vec<T, A>) -> usize;
 
 // This axiom is slightly better than defining spec_vec_len to just be `v@.len() as usize`
 // (the axiom also shows that v@.len() is in-bounds for usize)
@@ -114,6 +114,21 @@ pub assume_specification<T, A: Allocator>[ Vec::<T, A>::append ](
     ensures
         vec@ == old(vec)@ + old(other)@,
         other@ == Seq::<T>::empty(),
+;
+
+pub assume_specification<T: core::clone::Clone, A: Allocator>[ Vec::<T, A>::extend_from_slice ](
+    vec: &mut Vec<T, A>,
+    other: &[T],
+)
+    ensures
+        vec@.len() == old(vec)@.len() + other@.len(),
+        forall|i: int|
+            #![trigger vec@[i]]
+            0 <= i < vec@.len() ==> if i < old(vec)@.len() {
+                vec@[i] == old(vec)@[i]
+            } else {
+                cloned::<T>(other@[i - old(vec)@.len()], vec@[i])
+            },
 ;
 
 /*
@@ -180,9 +195,7 @@ pub assume_specification<T: Clone, A: Allocator + Clone>[ <Vec<T, A> as Clone>::
 ) -> (res: Vec<T, A>)
     ensures
         res.len() == vec.len(),
-        forall|i|
-            #![all_triggers]
-            0 <= i < vec.len() ==> call_ensures(T::clone, (&vec[i],), res[i]),
+        forall|i| #![all_triggers] 0 <= i < vec.len() ==> cloned::<T>(vec[i], res[i]),
         vec_clone_trigger(*vec, res),
         vec@ =~= res@ ==> vec@ == res@,
 ;
@@ -215,10 +228,7 @@ pub assume_specification<T: Clone, A: Allocator>[ Vec::<T, A>::resize ](
         len > old(vec).len() ==> {
             &&& vec@.len() == len
             &&& vec@.subrange(0, old(vec).len() as int) == old(vec)@
-            &&& forall|i|
-                #![all_triggers]
-                old(vec).len() <= i < len ==> call_ensures(T::clone, (&value,), vec@[i]) || value
-                    == vec@[i]
+            &&& forall|i| #![all_triggers] old(vec).len() <= i < len ==> cloned::<T>(value, vec@[i])
         },
 ;
 
