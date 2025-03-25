@@ -38,6 +38,16 @@ fn atomic_rs_unchanged() {
 #[glob_macro::glob("./examples/ironfleet-snapshot/**/*.rs")]
 #[test]
 fn ironfleet_snapshot_unchanged(path: &std::path::Path) {
+    if std::env::var("RUN_SLOW_TESTS").is_err()
+        && matches!(
+            path.file_name().unwrap().to_str().unwrap(),
+            "delegation_map_v.rs" | "host_impl_v.rs"
+        )
+    {
+        // Skip slow tests. The CI enables the flag however, so it _will_ run on CI. See
+        // https://matklad.github.io/2021/05/31/how-to-test.html#Make-Tests-Fast for this idea.
+        return;
+    }
     check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
@@ -61,6 +71,16 @@ fn owl_output_rs_unchanged() {
 #[glob_macro::glob("./examples/pagetable-snapshot/**/*.rs")]
 #[test]
 fn pagetable_unchanged(path: &std::path::Path) {
+    if std::env::var("RUN_SLOW_TESTS").is_err()
+        && matches!(
+            path.file_name().unwrap().to_str().unwrap(),
+            "l2_impl.rs" | "l2_refinement.rs" | "os_refinement.rs" | "l1.rs"
+        )
+    {
+        // Skip slow tests. The CI enables the flag however, so it _will_ run on CI. See
+        // https://matklad.github.io/2021/05/31/how-to-test.html#Make-Tests-Fast for this idea.
+        return;
+    }
     check_snapshot(&std::fs::read_to_string(path).unwrap());
 }
 
