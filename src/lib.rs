@@ -1,13 +1,13 @@
 mod rustfmt;
 
-pub use crate::rustfmt::{rustfmt, RustFmtConfig};
+pub use crate::rustfmt::{RustFmtConfig, rustfmt};
 
-use pest::{iterators::Pair, iterators::Pairs, Parser};
+use pest::{Parser, iterators::Pair, iterators::Pairs};
 use pest_derive::Parser;
 use pretty::*;
 use regex::Regex;
 use std::collections::HashSet;
-use tracing::{debug, enabled, error, info, Level};
+use tracing::{Level, debug, enabled, error, info};
 
 #[derive(Parser)]
 #[grammar = "verus.pest"]
@@ -543,11 +543,7 @@ fn expr_only_block(r: Rule, pairs: &Pairs<Rule>) -> bool {
                 Rule::expr => {
                     // We don't want to treat a triple expr as an expr only block,
                     // since that would result in it being grouped with its surrounding braces
-                    if is_prefix_triple(p.clone()) {
-                        1
-                    } else {
-                        -1
-                    }
+                    if is_prefix_triple(p.clone()) { 1 } else { -1 }
                 }
                 _ => 0,
             }
