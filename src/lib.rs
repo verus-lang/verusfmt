@@ -784,6 +784,7 @@ fn to_doc<'a>(
         | Rule::assert_str
         | Rule::assume_str
         | Rule::assume_specification_str
+        | Rule::axiom_str
         | Rule::checked_str
         | Rule::choose_str
         | Rule::exec_str

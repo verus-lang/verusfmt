@@ -2833,3 +2833,20 @@ verus! { pub uninterp   spec fn bar() -> bool   ; }
     } // verus!
     ")
 }
+
+#[test]
+fn verus_axiom_functions() {
+    let file = r#"
+verus! { pub axiom fn foo(x: u8) requires x == 5; }
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    pub axiom fn foo(x: u8)
+        requires
+            x == 5,
+    ;
+
+    } // verus!
+    ")
+}
