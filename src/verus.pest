@@ -323,6 +323,7 @@ no_unwind_str = ${ "no_unwind" ~ !("_" | ASCII_ALPHANUMERIC) }
 no_unwind_when_str = ${ "when" ~ !("_" | ASCII_ALPHANUMERIC) }
 opens_invariants_str = ${ "opens_invariants" ~ !("_" | ASCII_ALPHANUMERIC) }
 open_str = ${ "open" ~ !("_" | ASCII_ALPHANUMERIC) }
+proof_fn_str = ${ "proof_fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_space_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
 pub_str = ${ "pub" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -1387,9 +1388,20 @@ arg_list = {
     "(" ~ comma_delimited_exprs? ~ ")"
 }
 
+proof_fn_characteristics = {
+    "[" ~
+    path_segment ~ ("," ~ path_segment)* ~ ","? ~
+    "]"
+}
+
+proof_fn_with_characteristics_spaced = {
+    proof_fn_str ~ proof_fn_characteristics?
+}
+
 closure_expr = {
     attr* ~ (!forall_str ~ for_str ~ generic_param_list)? ~
     const_str? ~ static_str? ~ async_str? ~ move_str? ~
+    proof_fn_with_characteristics_spaced? ~
     closure_param_list ~ ret_type? ~ requires_clause? ~ ensures_clause? ~
     attr_inner* ~
     expr
@@ -1513,6 +1525,7 @@ type = {
     array_type
   | dyn_trait_type
   | fn_ptr_type
+  | proof_fn_type
   | fn_trait_type
   | for_type
   | impl_trait_type
@@ -1581,6 +1594,10 @@ fn_traits = {
 
 fn_trait_type = {
     fn_traits ~ generic_param_list? ~ param_list? ~ ret_type?
+}
+
+proof_fn_type = {
+    proof_fn_str ~ proof_fn_characteristics? ~ generic_param_list? ~ param_list? ~ ret_type?
 }
 
 for_type = {
