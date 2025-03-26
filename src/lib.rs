@@ -742,6 +742,7 @@ fn to_doc<'a>(
         | Rule::u32_str
         | Rule::u64_str
         | Rule::u8_str
+        | Rule::uninterp_str
         | Rule::union_str
         | Rule::unsafe_str
         | Rule::use_str

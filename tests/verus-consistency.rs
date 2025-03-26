@@ -2819,3 +2819,17 @@ proof fn uses_spec_is(t: ThisOrThat)
     } // verus!
     ")
 }
+
+#[test]
+fn verus_uninterp_spec_functions() {
+    let file = r#"
+verus! { pub uninterp   spec fn bar() -> bool   ; }
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    pub uninterp spec fn bar() -> bool;
+
+    } // verus!
+    ")
+}
