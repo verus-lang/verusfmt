@@ -351,6 +351,7 @@ u16_str = ${ "u16" ~ !("_" | ASCII_ALPHANUMERIC) }
 u32_str = ${ "u32" ~ !("_" | ASCII_ALPHANUMERIC) }
 u64_str = ${ "u64" ~ !("_" | ASCII_ALPHANUMERIC) }
 u8_str = ${ "u8" ~ !("_" | ASCII_ALPHANUMERIC) }
+uninterp_str = ${ "uninterp" ~ !("_" | ASCII_ALPHANUMERIC) }
 union_str = ${ "union" ~ !("_" | ASCII_ALPHANUMERIC) }
 unsafe_str = ${ "unsafe" ~ !("_" | ASCII_ALPHANUMERIC) }
 use_str = ${ "use" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -1723,6 +1724,7 @@ const_block_pat = {
 publish = {
     closed_str
   | open_str
+  | uninterp_str
 }
 
 fn_mode = {
