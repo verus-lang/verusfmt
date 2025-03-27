@@ -1,4 +1,4 @@
-use verusfmt::{VERUS_PREFIX, VERUS_SUFFIX, rustfmt};
+use verusfmt::{rustfmt, VERUS_PREFIX, VERUS_SUFFIX};
 
 /// Tests to check that when formatting standard Rust syntax,
 /// we match rustfmt
