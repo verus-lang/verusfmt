@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.5.4
+
 * Add support for backslashed character literals (e.g., `\t`, `\\`, `\u{00e9}`, etc.)
 * Add support for `uninterp`reted spec functions (see [verus#1473](https://github.com/verus-lang/verus/pull/1473))
 
