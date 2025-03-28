@@ -254,6 +254,7 @@ async_str = ${ "async" ~ !("_" | ASCII_ALPHANUMERIC) }
 as_str = ${ "as" ~ !("_" | ASCII_ALPHANUMERIC) }
 auto_str = ${ "auto" ~ !("_" | ASCII_ALPHANUMERIC) }
 await_str = ${ "await" ~ !("_" | ASCII_ALPHANUMERIC) }
+axiom_str = ${ "axiom" ~ !("_" | ASCII_ALPHANUMERIC) }
 box_str = ${ "box" ~ !("_" | ASCII_ALPHANUMERIC) }
 break_str = ${ "break" ~ !("_" | ASCII_ALPHANUMERIC) }
 broadcast_str = ${ "broadcast" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -1732,6 +1733,7 @@ fn_mode = {
   | spec_str
   | proof_str
   | exec_str
+  | axiom_str
 }
 
 mode_spec_checked = {
