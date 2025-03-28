@@ -1,6 +1,7 @@
 # Unreleased
 
 * Add support for the `axiom` syntax (see [verus#1518](https://github.com/verus-lang/verus/pull/1518))
+* Add support for visibility qualifiers on `open` (see [verus#1533](https://github.com/verus-lang/verus/pull/1533))
 
 # v0.5.4
 
