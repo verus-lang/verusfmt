@@ -1724,7 +1724,7 @@ const_block_pat = {
 
 publish = {
     closed_str
-  | open_str
+  | open_str ~ (lparen_str ~ (in_str)? ~ path ~ rparen_str)?
   | uninterp_str
 }
 
