@@ -1,6 +1,7 @@
 # Unreleased
 
 * Add support for the `axiom` syntax (see [verus#1518](https://github.com/verus-lang/verus/pull/1518))
+* Add support for proof closures (see [verus#1524](https://github.com/verus-lang/verus/pull/1524))
 
 # v0.5.4
 
