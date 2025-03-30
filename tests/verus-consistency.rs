@@ -2850,3 +2850,24 @@ verus! { pub axiom fn foo(x: u8) requires x == 5; }
     } // verus!
     ")
 }
+
+#[test]
+fn verus_visibility_qualifiers_for_open() {
+    let file = r#"
+verus! {
+pub open  (crate) spec fn test() {}
+pub open  (   in   foo  ) spec fn test2() {}
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    pub open(crate) spec fn test() {
+    }
+
+    pub open(in foo) spec fn test2() {
+    }
+
+    } // verus!
+    ")
+}

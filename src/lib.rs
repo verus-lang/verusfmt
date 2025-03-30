@@ -655,6 +655,7 @@ fn to_doc<'a>(
         | Rule::tilde_str
         | Rule::underscore_str
         | Rule::arrow_expr_str => s,
+        Rule::open_str | Rule::closed_str | Rule::uninterp_str => s,
         Rule::fn_traits | Rule::impl_str => s,
         Rule::calc_str | Rule::seq_str => s,
         Rule::has_str | Rule::is_str => s,
@@ -679,7 +680,6 @@ fn to_doc<'a>(
         | Rule::await_str
         | Rule::box_str
         | Rule::break_str
-        | Rule::closed_str
         | Rule::const_str
         | Rule::continue_str
         | Rule::crate_str
@@ -717,7 +717,6 @@ fn to_doc<'a>(
         | Rule::move_str
         | Rule::mut_str
         | Rule::nat_str
-        | Rule::open_str
         | Rule::proof_space_str
         | Rule::r_str
         | Rule::raw_str
@@ -742,7 +741,6 @@ fn to_doc<'a>(
         | Rule::u32_str
         | Rule::u64_str
         | Rule::u8_str
-        | Rule::uninterp_str
         | Rule::union_str
         | Rule::unsafe_str
         | Rule::use_str
@@ -1341,7 +1339,7 @@ fn to_doc<'a>(
         //************************//
         //        Verus           //
         //************************//
-        Rule::publish => map_to_doc(ctx, arena, pair),
+        Rule::publish => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::fn_mode => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::mode_spec_checked => map_to_doc(ctx, arena, pair),
         Rule::data_mode => map_to_doc(ctx, arena, pair),
