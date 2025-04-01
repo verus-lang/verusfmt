@@ -45,11 +45,7 @@ pub mod pcm_lib;
 pub mod pervasive;
 pub mod proph;
 pub mod raw_ptr;
-
-// TODO this should be permitted even in not(verus_keep_ghost)
-#[cfg(verus_keep_ghost)]
 pub mod rwlock;
-
 pub mod seq;
 pub mod seq_lib;
 pub mod set;
@@ -72,7 +68,6 @@ pub mod std_specs;
 // Re-exports all vstd types, traits, and functions that are commonly used or replace
 // regular `core` or `std` definitions.
 pub mod prelude;
-#[cfg(verus_keep_ghost)]
 pub mod tokens;
 
 use prelude::*;
@@ -86,7 +81,7 @@ pub broadcast group group_vstd_default {
     seq_lib::group_seq_lib_default,
     map::group_map_axioms,
     set::group_set_axioms,
-    set_lib::group_set_lib_axioms,
+    set_lib::group_set_lib_default,
     std_specs::bits::group_bits_axioms,
     std_specs::control_flow::group_control_flow_axioms,
     std_specs::vec::group_vec_axioms,
@@ -107,7 +102,7 @@ pub broadcast group group_vstd_default {
     seq_lib::group_seq_lib_default,
     map::group_map_axioms,
     set::group_set_axioms,
-    set_lib::group_set_lib_axioms,
+    set_lib::group_set_lib_default,
     std_specs::bits::group_bits_axioms,
     std_specs::control_flow::group_control_flow_axioms,
     slice::group_slice_axioms,

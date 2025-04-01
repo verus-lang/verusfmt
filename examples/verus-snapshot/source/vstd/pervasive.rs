@@ -161,7 +161,7 @@ pub closed spec fn spec_affirm(b: bool) -> bool
 /// In spec, all types are inhabited
 #[verifier::external_body]  /* vattr */
 #[allow(dead_code)]
-pub spec fn arbitrary<A>() -> A;
+pub uninterp spec fn arbitrary<A>() -> A;
 
 #[verifier::external_body]  /* vattr */
 #[allow(dead_code)]
@@ -412,3 +412,50 @@ pub open spec fn cloned<T: Clone>(a: T, b: T) -> bool {
 }
 
 } // verus!
+
+verus! {
+/// The default behavior of the vstd library enforces writing panic-free code.
+/// While developers may still use panic, verification should ensure that any
+/// panic is provably unreachable.
+/// cfg!(feature = "allow_panic") explicily allows code to panic.
+pub open spec fn allow_panic() -> bool {
+    cfg!(feature = "allow_panic")
+}
+
+#[doc(hidden)]
+#[verifier(external_body)]
+pub fn __call_panic(out: &[&str]) -> !
+requires
+    allow_panic()
+{
+    core::panic!("__call_panic {:?}", out);
+}
+
+// rt::Argument is a private type and we cannot add specification directly
+#[cfg(feature = "alloc")]
+#[doc(hidden)]
+#[verifier(external_body)]
+pub fn __new_argument<T: core::fmt::Debug>(v: &T) -> alloc::string::String {
+    alloc::format!("{:?}", v)
+}
+
+} // verus!
+
+/// Replace panic macro with vpanic when needed.
+/// panic!{} may call panic_fmt with private rt::Argument, which could not
+/// be supported in verus.
+#[macro_export]
+macro_rules! vpanic {
+    // Case: Format string with arguments
+    ($fmt:expr $(,$val:expr)*) => {
+        vstd::pervasive::__call_panic(
+            &[vstd::pervasive::__new_argument(&$fmt).as_str(),
+            $(
+                vstd::pervasive::__new_argument(&$val).as_str(),
+            )*]
+        );
+    };
+    () => {
+        vstd::pervasive::__call_panic(&[]);
+    };
+}
