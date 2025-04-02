@@ -1823,6 +1823,7 @@ opens_invariants_mode = {
     any_str
   | none_str
   | lbracket_str ~ comma_delimited_exprs? ~ rbracket_str
+  | expr
 }
 
 opens_invariants_clause = {
