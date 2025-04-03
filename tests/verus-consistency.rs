@@ -2871,3 +2871,54 @@ pub open  (   in   foo  ) spec fn test2() {}
     } // verus!
     ")
 }
+
+#[test]
+fn verus_opens_invariants_set() {
+    let file = r#"
+verus! {
+    proof fn foo1() opens_invariants bar();
+    proof fn foo2() opens_invariants baz;
+    proof fn foo3() opens_invariants bar() {}
+    proof fn foo4() opens_invariants baz {}
+    proof fn foo5() opens_invariants Set::<int>::empty() {}
+    proof fn foo6() opens_invariants { let a = Set::<int>::empty(); let b = a.insert(c); b } {}
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    proof fn foo1()
+        opens_invariants bar()
+    ;
+
+    proof fn foo2()
+        opens_invariants baz
+    ;
+
+    proof fn foo3()
+        opens_invariants bar()
+    {
+    }
+
+    proof fn foo4()
+        opens_invariants baz
+    {
+    }
+
+    proof fn foo5()
+        opens_invariants Set::<int>::empty()
+    {
+    }
+
+    proof fn foo6()
+        opens_invariants {
+            let a = Set::<int>::empty();
+            let b = a.insert(c);
+            b
+        }
+    {
+    }
+
+    } // verus!
+    ")
+}
