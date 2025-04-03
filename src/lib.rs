@@ -1363,7 +1363,10 @@ fn to_doc<'a>(
         Rule::recommends_clause => map_to_doc(ctx, arena, pair),
         Rule::decreases_clause => map_to_doc(ctx, arena, pair),
         Rule::unwind_clause => map_to_doc(ctx, arena, pair),
-        Rule::opens_invariants_mode => arena.space().append(map_to_doc(ctx, arena, pair)).nest(INDENT_SPACES),
+        Rule::opens_invariants_mode => arena
+            .space()
+            .append(map_to_doc(ctx, arena, pair))
+            .nest(INDENT_SPACES),
         Rule::opens_invariants_clause => map_to_doc(ctx, arena, pair),
         Rule::assert_requires => map_to_doc(ctx, arena, pair).append(arena.line()),
         Rule::assert_expr_prefix
