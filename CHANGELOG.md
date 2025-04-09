@@ -2,6 +2,7 @@
 
 * Add support for the `axiom` syntax (see [verus#1518](https://github.com/verus-lang/verus/pull/1518))
 * Add support for visibility qualifiers on `open` (see [verus#1533](https://github.com/verus-lang/verus/pull/1533))
+* Add support for `opens_invariants` set expr notation (see [verus#1502](https://github.com/verus-lang/verus/pull/1502))
 
 # v0.5.4
 
