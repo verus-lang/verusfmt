@@ -656,6 +656,7 @@ fn to_doc<'a>(
         | Rule::underscore_str
         | Rule::arrow_expr_str => s,
         Rule::open_str | Rule::closed_str | Rule::uninterp_str => s,
+        Rule::proof_fn_str => s,
         Rule::fn_traits | Rule::impl_str => s,
         Rule::calc_str | Rule::seq_str => s,
         Rule::has_str | Rule::is_str => s,
@@ -1194,6 +1195,12 @@ fn to_doc<'a>(
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
+        Rule::proof_fn_characteristics => {
+            comma_delimited(ctx, arena, pair, false).group().brackets()
+        }
+        Rule::proof_fn_with_characteristics_spaced => {
+            map_to_doc(ctx, arena, pair).append(arena.space())
+        }
         Rule::closure_expr | Rule::quantifier_expr | Rule::quantifier_expr_no_struct =>
         // Put the body of the closure on an indented newline if it doesn't fit the line
         {
@@ -1294,6 +1301,7 @@ fn to_doc<'a>(
         Rule::infer_type => map_to_doc(ctx, arena, pair),
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
         Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
+        Rule::proof_fn_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),
         Rule::impl_trait_type => {
             // We need to inject a space after the "impl"
