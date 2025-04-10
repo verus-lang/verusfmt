@@ -2019,9 +2019,35 @@ mod m4 {
                     Ring::spec_succ_ensures,
             Ring::spec_prev_ensures;
 }
+
+mod m5 {
+broadcast use
+    super::raw_ptr::group_raw_ptr_axioms,
+    super::set_lib::group_set_lib_axioms,
+    super::set::group_set_axioms,
+;
+broadcast use
+    super::raw_ptr::group_raw_ptr_axioms,
+    super::set_lib::group_set_lib_axioms,
+    super::set::group_set_axioms;
+broadcast use super::raw_ptr::group_raw_ptr_axioms;
+broadcast use super::set_lib::group_set_lib_axioms;
+broadcast use super::set::group_set_axioms;
+broadcast use {
+    super::raw_ptr::group_raw_ptr_axioms,
+    super::set_lib::group_set_lib_axioms,
+    super::set::group_set_axioms};
+broadcast use {
+    super::raw_ptr::group_raw_ptr_axioms,
+    super::set_lib::group_set_lib_axioms,
+    super::set::group_set_axioms,};
+broadcast use {super::set::group_set_axioms};
+broadcast use {super::set::group_set_axioms,};
+}
+
 } // verus!
 "#;
-    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
     verus! {
 
     mod ring {
@@ -2121,8 +2147,37 @@ mod m4 {
 
     }
 
+    mod m5 {
+        broadcast use
+            super::raw_ptr::group_raw_ptr_axioms,
+            super::set_lib::group_set_lib_axioms,
+            super::set::group_set_axioms,
+        ;
+        broadcast use
+            super::raw_ptr::group_raw_ptr_axioms,
+            super::set_lib::group_set_lib_axioms,
+            super::set::group_set_axioms,
+        ;
+        broadcast use super::raw_ptr::group_raw_ptr_axioms;
+        broadcast use super::set_lib::group_set_lib_axioms;
+        broadcast use super::set::group_set_axioms;
+        broadcast use {
+            super::raw_ptr::group_raw_ptr_axioms,
+            super::set_lib::group_set_lib_axioms,
+            super::set::group_set_axioms,
+        };
+        broadcast use {
+            super::raw_ptr::group_raw_ptr_axioms,
+            super::set_lib::group_set_lib_axioms,
+            super::set::group_set_axioms,
+        };
+        broadcast use super::set::group_set_axioms;
+        broadcast use super::set::group_set_axioms;
+
+    }
+
     } // verus!
-    "###);
+    ");
 }
 
 #[test]
