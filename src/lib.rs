@@ -891,7 +891,16 @@ fn to_doc<'a>(
         Rule::use_tree_list => comma_delimited(ctx, arena, pair, false).braces().group(),
         Rule::broadcast_use_list => {
             if pair.clone().into_inner().count() > 1 {
-                comma_delimited(ctx, arena, pair, false).braces().group()
+                // NOTE: Temporarily (see
+                // https://github.com/verus-lang/verus/pull/1571#issuecomment-2783727909) we are
+                // maintaining the deprecated non-braced syntax, if it is being used. At some point of
+                // time, we should update this which will migrate all code over.
+                let starts_with_curly = pair.as_str().trim_start().starts_with('{');
+                if starts_with_curly {
+                    comma_delimited(ctx, arena, pair, false).braces().group()
+                } else {
+                    comma_delimited(ctx, arena, pair, false).group()
+                }
             } else {
                 map_to_doc(ctx, arena, pair)
             }
