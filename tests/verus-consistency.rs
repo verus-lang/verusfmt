@@ -3059,3 +3059,42 @@ verus!{ fn foo(e: E) -> u64 { match e { v@E::C1{x}=>x } } }
     } // verus!
     ")
 }
+
+#[test]
+fn verus_default_ensures() {
+    let file = r#"verus!{
+fn foo(i: u32) -> (r: u32) requires 0 <= i < 10 ensures i <= r default_ensures i == r { }
+fn bar(i: u32) -> (r: u32) default_ensures i == r requires 0 <= i < 10 ensures i <= r;
+fn baz(i: bool) default_ensures i {}
+}"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    fn foo(i: u32) -> (r: u32)
+        requires
+            0 <= i < 10,
+        ensures
+            i <= r,
+        default_ensures
+            i == r,
+    {
+    }
+
+    fn bar(i: u32) -> (r: u32)
+        default_ensures
+            i == r,
+        requires
+            0 <= i < 10,
+        ensures
+            i <= r,
+    ;
+
+    fn baz(i: bool)
+        default_ensures
+            i,
+    {
+    }
+
+    } // verus!
+    ")
+}

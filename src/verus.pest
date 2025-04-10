@@ -268,6 +268,7 @@ const_str = ${ "const" ~ !("_" | ASCII_ALPHANUMERIC) }
 continue_str = ${ "continue" ~ !("_" | ASCII_ALPHANUMERIC) }
 crate_str = ${ "crate" ~ !("_" | ASCII_ALPHANUMERIC) }
 decreases_str = ${ "decreases" ~ !("_" | ASCII_ALPHANUMERIC) }
+default_ensures_str = ${ "default_ensures" ~ !("_" | ASCII_ALPHANUMERIC) }
 default_str = ${ "default" ~ !("_" | ASCII_ALPHANUMERIC) }
 do_str = ${ "do" ~ !("_" | ASCII_ALPHANUMERIC) }
 dyn_str = ${ "dyn" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -724,7 +725,7 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    (requires_clause | recommends_clause | ensures_clause | returns_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
+    (requires_clause | recommends_clause | ensures_clause | default_ensures_clause | returns_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
 }
 
 fn_terminator = {
@@ -1790,6 +1791,7 @@ verus_clause_non_expr = _{
     "{"             // TODO: Why is this permitted here?
   | requires_str
   | ensures_str
+  | default_ensures_str
   | returns_str
   | invariant_except_break_str
   | invariant_str
@@ -1807,6 +1809,10 @@ requires_clause = {
 
 ensures_clause = {
     ensures_str ~ comma_delimited_exprs_for_verus_clauses?
+}
+
+default_ensures_clause = {
+    default_ensures_str ~ comma_delimited_exprs_for_verus_clauses?
 }
 
 returns_clause = {
