@@ -1716,7 +1716,7 @@ slice_pat = {
 }
 
 path_pat = {
-    path
+    !(name ~ at_str) ~ path
 }
 
 box_pat = {
