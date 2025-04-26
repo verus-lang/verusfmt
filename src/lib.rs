@@ -1321,7 +1321,10 @@ fn to_doc<'a>(
         Rule::pat_no_top_alt => map_to_doc(ctx, arena, pair),
         Rule::pat_inner => map_to_doc(ctx, arena, pair),
         Rule::literal_pat => map_to_doc(ctx, arena, pair),
-        Rule::ident_pat => map_to_doc(ctx, arena, pair),
+        Rule::ident_pat => arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+            Rule::at_str => arena.text(" @ "),
+            _ => to_doc(ctx, p, arena),
+        })),
         //Rule::wildcard_pat => arena.text("_"),
         Rule::end_only_range_pat => map_to_doc(ctx, arena, pair),
         Rule::ref_pat => arena.text("&").append(map_to_doc(ctx, arena, pair)),

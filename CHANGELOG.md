@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix parser for patterns with `@` identifier binding
+
 # v0.5.5
 
 * Add support for the `axiom` syntax (see [verus#1518](https://github.com/verus-lang/verus/pull/1518))
