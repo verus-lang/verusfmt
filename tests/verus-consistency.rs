@@ -3040,3 +3040,22 @@ proof fn foo(x: proof_fn(a: u32) -> u64, y: proof_fn[Send](a: u32) -> u64) {}
     } // verus!
     ")
 }
+
+#[test]
+fn at_patterns() {
+    // Regression test for https://github.com/verus-lang/verusfmt/issues/137
+    let file = r#"
+verus!{ fn foo(e: E) -> u64 { match e { v@E::C1{x}=>x } } }
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    fn foo(e: E) -> u64 {
+        match e {
+            v @ E::C1 { x } => x,
+        }
+    }
+
+    } // verus!
+    ")
+}
