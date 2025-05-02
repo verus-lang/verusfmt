@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.5.6
+
 * Fix parser for patterns with `@` identifier binding
 * Add support for braced syntax for `broadcast use` (see [verus#1571](https://github.com/verus-lang/verus/pull/1571))
 
