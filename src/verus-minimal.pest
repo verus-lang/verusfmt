@@ -56,14 +56,20 @@ multiline_comment = @{
 /// The entirety of a Verus source file
 file = {
     SOI ~
-    (non_verus ~ verus_macro_use)* ~
+    (non_verus ~ (verus_macro_use | verus_attr_use))* ~
     non_verus? ~
     EOI
 }
 
 /// Region of code that doesn't contain any Verus macro use whatsoever
 non_verus = @{
-  (!("verus" ~ WHITESPACE* ~ "!" ~ WHITESPACE* ~ "{") ~ (string | raw_string | byte_string | raw_byte_string | char | ANY))*
+    (
+        !(
+            ("verus" ~ WHITESPACE* ~ "!" ~ WHITESPACE* ~ "{")
+          | ("#" ~ WHITESPACE* ~ "[" ~ WHITESPACE* ~ "verus_spec")
+        ) ~
+        (string | raw_string | byte_string | raw_byte_string | char | ANY)
+    )*
 }
 
 /// An actual use of the `verus! { ... }` macro
@@ -73,6 +79,22 @@ verus_macro_use = ${
 
 /// Anything inside the `verus! { ... }` macro
 verus_macro_body = !{
+    tt*
+}
+
+/// An actual use of the `verus_spec` attribute
+verus_attr_use = ${
+    "#" ~ WHITESPACE* ~
+    "[" ~ WHITESPACE* ~
+    "verus_spec" ~ WHITESPACE* ~
+    "(" ~ (WHITESPACE | COMMENT)* ~
+    verus_attr_body ~ (WHITESPACE | COMMENT)* ~
+    ")" ~ WHITESPACE* ~
+    "]" ~ WHITESPACE*
+}
+
+/// Anything inside the `verus_spec` attribute
+verus_attr_body = !{
     tt*
 }
 

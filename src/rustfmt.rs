@@ -54,6 +54,7 @@ fn rustfmt_with_config(s: &str, config: &RustFmtConfig) -> Option<String> {
         .into_inner();
 
     let mut folded_verus_macro_invocations = vec![];
+    let mut folded_verus_attr_invocations = vec![];
     let mut collapsed_input = String::new();
 
     for pair in parsed_file {
@@ -75,6 +76,10 @@ fn rustfmt_with_config(s: &str, config: &RustFmtConfig) -> Option<String> {
                 folded_verus_macro_invocations.push(pair.as_str().trim());
                 collapsed_input += "verus!{}\n";
             }
+            Rule::verus_attr_use => {
+                folded_verus_attr_invocations.push(pair.as_str().trim());
+                collapsed_input += "#[verus_spec()]\n";
+            }
             _ => {
                 unreachable!("Unexpected rule: {:?}", rule)
             }
@@ -90,6 +95,7 @@ fn rustfmt_with_config(s: &str, config: &RustFmtConfig) -> Option<String> {
         .into_inner();
 
     let mut folded_verus_macro_invocations = folded_verus_macro_invocations.into_iter();
+    let mut folded_verus_attr_invocations = folded_verus_attr_invocations.into_iter();
     let mut final_output = String::new();
 
     let mut immediately_after_verus_macro = false;
@@ -133,6 +139,21 @@ fn rustfmt_with_config(s: &str, config: &RustFmtConfig) -> Option<String> {
                 final_output += "\n";
                 final_output += &trailing_whitespace;
                 immediately_after_verus_macro = true;
+            }
+            Rule::verus_attr_use => {
+                let trailing_line = final_output
+                    .rfind('\n')
+                    .map(|i| &final_output[i + 1..])
+                    .unwrap_or("")
+                    .to_string();
+                let trailing_whitespace = if trailing_line.chars().all(char::is_whitespace) {
+                    trailing_line
+                } else {
+                    String::new()
+                };
+                final_output += folded_verus_attr_invocations.next().unwrap();
+                final_output += "\n";
+                final_output += &trailing_whitespace;
             }
             _ => {
                 unreachable!("Unexpected rule: {:?}", rule)
