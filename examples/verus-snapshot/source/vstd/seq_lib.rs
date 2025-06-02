@@ -69,7 +69,7 @@ impl<A> Seq<A> {
     /// ## Example
     ///
     /// ```rust
-    /// {{#include ../../../rust_verify/example/multiset.rs:sorted_by_leq}}
+    /// {{#include ../../../../examples/multiset.rs:sorted_by_leq}}
     /// ```
     pub closed spec fn sort_by(self, leq: spec_fn(A, A) -> bool) -> Seq<A>
         recommends
@@ -602,6 +602,37 @@ impl<A> Seq<A> {
         }
     }
 
+    /// A lemma that proves how [`Self::fold_left`] distributes over splitting a sequence.
+    pub broadcast proof fn lemma_fold_left_split<B>(self, b: B, f: spec_fn(B, A) -> B, k: int)
+        requires
+            0 <= k <= self.len(),
+        ensures
+            self.subrange(k, self.len() as int).fold_left(
+                (#[trigger] self.subrange(0, k).fold_left(b, f)),
+                f,
+            ) == self.fold_left(b, f),
+        decreases self.len(),
+    {
+        reveal_with_fuel(Seq::fold_left, 2);
+        if k == self.len() {
+            assert(self.subrange(0, self.len() as int) == self);
+        } else {
+            self.drop_last().lemma_fold_left_split(b, f, k);
+            assert_seqs_equal!(
+                self.drop_last().subrange(k, self.drop_last().len() as int) ==
+                self.subrange(k, self.len()-1)
+            );
+            assert_seqs_equal!(
+                self.drop_last().subrange(0, k) ==
+                self.subrange(0, k)
+            );
+            assert_seqs_equal!(
+                self.subrange(k, self.len() as int).drop_last() ==
+                self.subrange(k, self.len() - 1)
+            );
+        }
+    }
+
     /// An auxiliary lemma for proving [`Self::lemma_fold_left_alt`].
     proof fn aux_lemma_fold_left_alt<B>(self, b: B, f: spec_fn(B, A) -> B, k: int)
         requires
@@ -684,12 +715,14 @@ impl<A> Seq<A> {
     }
 
     /// A lemma that proves how [`Self::fold_right`] distributes over splitting a sequence.
-    pub proof fn lemma_fold_right_split<B>(self, f: spec_fn(A, B) -> B, b: B, k: int)
+    pub broadcast proof fn lemma_fold_right_split<B>(self, f: spec_fn(A, B) -> B, b: B, k: int)
         requires
             0 <= k <= self.len(),
         ensures
-            self.subrange(0, k).fold_right(f, self.subrange(k, self.len() as int).fold_right(f, b))
-                == self.fold_right(f, b),
+            self.subrange(0, k).fold_right(
+                f,
+                (#[trigger] self.subrange(k, self.len() as int).fold_right(f, b)),
+            ) == self.fold_right(f, b),
         decreases self.len(),
     {
         reveal_with_fuel(Seq::fold_right, 2);
@@ -905,7 +938,7 @@ impl<A> Seq<A> {
             self.to_set().len() <= self.len(),
         decreases self.len(),
     {
-        broadcast use super::set::group_set_axioms, seq_to_set_is_finite;
+        broadcast use {super::set::group_set_axioms, seq_to_set_is_finite};
         broadcast use group_seq_properties;
         broadcast use super::set_lib::group_set_properties;
 
@@ -922,7 +955,7 @@ impl<A> Seq<A> {
         ensures
             self.to_set().len() == 0 <==> self.len() == 0,
     {
-        broadcast use super::set::group_set_axioms, seq_to_set_is_finite;
+        broadcast use {super::set::group_set_axioms, seq_to_set_is_finite};
 
         assert(self.len() == 0 ==> self.to_set().len() == 0) by { self.lemma_cardinality_of_set() }
         assert(!(self.len() == 0) ==> !(self.to_set().len() == 0)) by {
@@ -942,7 +975,7 @@ impl<A> Seq<A> {
             self.no_duplicates(),
         decreases self.len(),
     {
-        broadcast use super::set::group_set_axioms, seq_to_set_is_finite;
+        broadcast use {super::set::group_set_axioms, seq_to_set_is_finite};
 
         if self.len() == 0 {
         } else {
@@ -1090,7 +1123,7 @@ impl<A> Seq<Seq<A>> {
             self.flatten() =~= self.flatten_alt(),
         decreases self.len(),
     {
-        broadcast use Seq::add_empty_right, Seq::push_distributes_over_add;
+        broadcast use {Seq::add_empty_right, Seq::push_distributes_over_add};
 
         if self.len() != 0 {
             self.drop_last().lemma_flatten_and_flatten_alt_are_equivalent();
@@ -2072,7 +2105,7 @@ pub proof fn lemma_seq_properties<A>()
             s.contains(a) <==> #[trigger] s.to_multiset().count(a)
                 > 0,  //from to_multiset_ensures
 {
-    broadcast use group_seq_properties, lemma_seq_skip_of_skip;
+    broadcast use {group_seq_properties, lemma_seq_skip_of_skip};
     // TODO: for some reason this still needs to be explicitly stated
 
     assert forall|s: Seq<A>, v: A, x: A| v == x || s.contains(x) implies #[trigger] s.push(
@@ -2185,6 +2218,8 @@ pub broadcast group group_seq_lib_default {
     Seq::push_distributes_over_add,
     Seq::filter_distributes_over_add,
     seq_to_set_is_finite,
+    Seq::lemma_fold_right_split,
+    Seq::lemma_fold_left_split,
 }
 
 pub broadcast group group_to_multiset_ensures {
