@@ -10,7 +10,7 @@ source ../_get_latest.sh
 GITHUB_ORG=verus-lang
 GITHUB_REPO=verus
 GITHUB_BRANCH=main
-MOVE_PATHS="source/rustfmt.toml source/rust_verify/example/syntax.rs source/vstd"
-FORCE_REFORMAT_PATHS="source/rust_verify/example/syntax.rs"
+MOVE_PATHS="source/rustfmt.toml examples/syntax.rs source/vstd"
+FORCE_REFORMAT_PATHS="examples/syntax.rs"
 
 get_latest
