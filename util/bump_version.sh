@@ -16,7 +16,17 @@ else
   exit 1
 fi
 
-cd "$(git rev-parse --show-toplevel)" || exit 1
+if git rev-parse --show-toplevel 2>/dev/null >/dev/null; then
+  ROOT_DIR=$(git rev-parse --show-toplevel)
+  VCS_TYPE=git
+elif jj workspace root 2>/dev/null >/dev/null; then
+  ROOT_DIR=$(jj workspace root)
+  VCS_TYPE=jj
+else
+  echo "FATAL: Could not find jj or git root dir"
+fi
+
+cd "$ROOT_DIR" || exit 1
 
 existing_versions=$(grep -oP '# v\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md || echo "")
 latest_version=$(echo "$existing_versions" | sort -V | tail -n 1)
@@ -55,10 +65,25 @@ echo "Done"
 
 if [ "$version_type" == "manual" ]; then
   echo "Not committing and tagging a manually defined version"
-else
+elif [ "$VCS_TYPE" == "git" ]; then
   echo "Making a commit, and tagging it"
   git add CHANGELOG.md Cargo.toml Cargo.lock
   git commit -m "$commit_msg"
   git tag "v${proposed_version}"
   echo "Done... Now you need to push with 'git push --tags'"
+elif [ "$VCS_TYPE" == "jj" ]; then
+  echo "Making a commit, and tagging it"
+  jj commit -m "$commit_msg" CHANGELOG.md Cargo.toml Cargo.lock
+  # From
+  # <https://jj-vcs.github.io/jj/v0.25.0/git-compatibility/#supported-features>:
+  # Tags: Partial. You can check out tagged commits by name (pointed to be
+  # either annotated or lightweight tags), but you cannot create new tags.
+  #
+  # Related: <https://github.com/jj-vcs/jj/issues/5426>
+  echo "jj currently doesn't support creating tags."
+  echo "We would have created the tag 'v${proposed_version}' if possible."
+  echo "For now, you'll have to do it manually on GitHub."
+else
+  echo "FATAL: Unknown VCS TYPE. Updates were done, but cannot tag."
+  exit 1
 fi
