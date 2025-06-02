@@ -767,6 +767,7 @@ fn to_doc<'a>(
             .nest(INDENT_SPACES),
 
         Rule::decreases_str
+        | Rule::default_ensures_str
         | Rule::ensures_str
         | Rule::returns_str
         | Rule::invariant_except_break_str
@@ -1382,6 +1383,7 @@ fn to_doc<'a>(
         Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),
         Rule::requires_clause => map_to_doc(ctx, arena, pair),
         Rule::ensures_clause => map_to_doc(ctx, arena, pair),
+        Rule::default_ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::returns_clause => map_to_doc(ctx, arena, pair),
         Rule::invariant_except_break_clause => map_to_doc(ctx, arena, pair),
         Rule::invariant_clause => map_to_doc(ctx, arena, pair),
