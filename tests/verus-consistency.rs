@@ -3098,3 +3098,19 @@ fn baz(i: bool) default_ensures i {}
     } // verus!
     ")
 }
+
+#[test]
+fn verus_macro_inside_comment() {
+    // Regression test for https://github.com/verus-lang/verusfmt/issues/146
+    let file = r#"
+fn main() {}
+
+// verus!{
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    fn main() {}
+
+    // verus!{
+    ");
+}

@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix accidental attempted `verus!` parse inside comments (fixes #146).
+
 # v0.5.7
 
 * Add support for the `default_ensures` syntax (see [verus#1551](https://github.com/verus-lang/verus/pull/1551))
