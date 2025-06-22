@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for the rarer extensional equality operators (`!~=` and `!~~=`, which are the ~~evil~~ negation twins of `=~=` and `=~~=` respectively; see [verus#23ac0b0](https://github.com/verus-lang/verus/commit/23ac0b0d2e76b63da4d33054a16092effdde062c))
+
 # v0.5.7
 
 * Add support for the `default_ensures` syntax (see [verus#1551](https://github.com/verus-lang/verus/pull/1551))
