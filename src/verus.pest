@@ -88,7 +88,7 @@ file = {
 /// happens, then we need to make sure that we aren't accidentally starting
 /// parsing in the middle of the macro_rules macro body itself. Similarly, strings.
 non_verus = @{
-  (!("verus" ~ WHITESPACE* ~ "!" ~ WHITESPACE* ~ "{") ~ (macro_rules | string | raw_string | byte_string | raw_byte_string | ANY))*
+  (!("verus" ~ WHITESPACE* ~ "!" ~ WHITESPACE* ~ "{") ~ (macro_rules | string | raw_string | byte_string | raw_byte_string | COMMENT | ANY))*
 }
 
 /// An actual use of the `verus! { ... }` macro
