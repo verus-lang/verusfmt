@@ -1801,6 +1801,7 @@ verus_clause_non_expr = _{
   | decreases_str
   | when_str
   | opens_invariants_str
+  | no_unwind_str
 }
 
 requires_clause = {

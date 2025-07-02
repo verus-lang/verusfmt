@@ -2236,6 +2236,11 @@ proof fn b()
     no_unwind when x >= 0
 {
 }
+
+proof fn c()
+    ensures true, no_unwind when true
+{
+}
 } // verus!
 "###;
     assert_snapshot!(parse_and_format(file).unwrap(), @r###"
@@ -2248,6 +2253,13 @@ proof fn b()
 
     proof fn b()
         no_unwind when x >= 0
+    {
+    }
+
+    proof fn c()
+        ensures
+            true,
+        no_unwind when true
     {
     }
 
