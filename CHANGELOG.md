@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix accidental attempted `verus!` parse inside comments (fixes #146).
+* Add support for `assume_specification` for constants (see [verus#1825](https://github.com/verus-lang/verus/pull/1825))
 
 # v0.5.7
 
