@@ -2735,9 +2735,18 @@ pub assume_specification<Key, Value, S>[HashMap::<Key, Value, S>::insert](
             }
         };
 
+assume_specification[char::REPLACEMENT_CHARACTER] -> (c: char)
+    ensures
+        c != '7',
+;
+
+assume_specification[C] -> u8
+    returns
+        7u8,
+;
 } // verus!
 "#;
-    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
     verus! {
 
     pub assume_specification<T, const N: usize>[ <[T; N]>::as_slice ](ar: &[T; N]) -> (out: &[T])
@@ -2760,8 +2769,18 @@ pub assume_specification<Key, Value, S>[HashMap::<Key, Value, S>::insert](
             },
     ;
 
+    assume_specification[ char::REPLACEMENT_CHARACTER ] -> (c: char)
+        ensures
+            c != '7',
+    ;
+
+    assume_specification[ C ] -> u8
+        returns
+            7u8,
+    ;
+
     } // verus!
-    ")
+    "###)
 }
 
 #[test]
