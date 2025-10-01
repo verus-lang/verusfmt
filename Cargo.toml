@@ -31,7 +31,7 @@ similar = "2.6.0"
 tempfile = "3.15.0"
 thiserror = "2.0.11"
 tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.19" }
+tracing-subscriber = { version = "0.3.20" }
 
 [dev-dependencies]
 insta = { version = "1.42.0" }
