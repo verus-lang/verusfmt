@@ -1,6 +1,9 @@
 # Unreleased
 
-* Fix accidental attempted `verus!` parse inside comments (fixes #146).
+# v0.6.0
+
+* Fix accidental attempted `verus!` parse inside comments (fixes [#146](https://github.com/verus-lang/verusfmt/issues/146))
+* Fix `no_unwind` parsing when `ensures` ends with a comma (fixes [#150](https://github.com/verus-lang/verusfmt/issues/150))
 * Add support for `assume_specification` for constants (see [verus#1825](https://github.com/verus-lang/verus/pull/1825))
 
 # v0.5.7
