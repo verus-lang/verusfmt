@@ -240,9 +240,9 @@ macro_rules! assert_by_contradiction {
 #[macro_export]
 macro_rules! assert_by_contradiction_internal {
     ($predicate:expr, $bblock:block) => {
-        ::builtin::assert_by($predicate, {
+        ::verus_builtin::assert_by($predicate, {
             if !$predicate {
-                $bblock::builtin::assert_(false);
+                $bblock::verus_builtin::assert_(false);
             }
         });
     };
@@ -342,7 +342,7 @@ macro_rules! assert_by_contradiction_internal {
 /// Finally, when the field is a _container_ type, e.g., `vec: Vec<AtomicU64<_, G, _>>` or
 /// `opt: Option<AtomicU64<_, G, _>>`, there are some additional complexities.
 /// We might need the invariant to be conditional (e.g., for an optional, the invariant would only
-/// exist if `opt.is_Some()`).
+/// exist if `opt is Some`).
 /// We might need to quantify over a variable (e.g., in a vector, we want to specify an invariant
 /// for each element, element `i` where `0 <= i < vec.len()`).
 /// Finally, we need to indicate the value actually getting the invariant (e.g., `self.vec[i]`).
@@ -368,7 +368,7 @@ macro_rules! assert_by_contradiction_internal {
 /// # Example using a container type (TODO)
 ///
 /// # Macro Expansion (TODO)
-pub use builtin_macros::struct_with_invariants;
+pub use verus_builtin_macros::struct_with_invariants;
 
 verus! {
 
