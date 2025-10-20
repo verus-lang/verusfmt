@@ -3221,3 +3221,32 @@ fn test() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_numeric_literals_with_underscores() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let a = 1_usize;
+    let b = 100_000u64;
+    let c = 1_000_000_u32;
+    let d = 42_;
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let a = 1_usize;
+        let b = 100_000u64;
+        let c = 1_000_000_u32;
+        let d = 42_;
+    }
+
+    } // verus!
+    "###);
+}
