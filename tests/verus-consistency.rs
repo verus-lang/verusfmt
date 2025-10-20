@@ -3250,3 +3250,32 @@ fn test() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_underscore_digit_identifiers_with_dot_access() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let _1 = MyStruct{};
+    let _10 = _1.method();
+    let _123 = _10.field;
+    let x = _123.another_method();
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let _1 = MyStruct {  };
+        let _10 = _1.method();
+        let _123 = _10.field;
+        let x = _123.another_method();
+    }
+
+    } // verus!
+    "###);
+}

@@ -148,7 +148,8 @@ float_decimal = @{
     (ASCII_DIGIT | "_")+ ~
     !".." ~ "." ~
     (ASCII_DIGIT | "_")* ~
-    ("f32" | "f64")?   
+    ("f32" | "f64")? ~
+    !(ASCII_ALPHA | "_")
 }
 
 float_exp = @{
