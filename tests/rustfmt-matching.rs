@@ -43,6 +43,10 @@ fn test() {
     let t = 'x';
     let t = '\\';
     let t = '\t';
+    let t = '\x0C';
+    let t = '\x41';
+    let t = '\x00';
+    let t = '\x7f';
     let t = '\u{00e9}';
 }
 "#;
