@@ -3145,3 +3145,137 @@ fn main() {}
     // verus!{
     ");
 }
+
+#[test]
+fn verus_compound_assignment_operators() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let mut x = 0;
+    x |= 5;
+    x &= 3;
+    x ^= 7;
+}
+
+fn test_array() {
+    let mut words = [0u64; 4];
+    words[0] |= 5;
+    words[1] &= 3;
+    words[2] ^= 7;
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let mut x = 0;
+        x |= 5;
+        x &= 3;
+        x ^= 7;
+    }
+
+    fn test_array() {
+        let mut words = [0u64;4];
+        words[0] |= 5;
+        words[1] &= 3;
+        words[2] ^= 7;
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_binary_and_octal_literals() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let a = 0x7F;
+    let b = 0o177;
+    let c = 127;
+    let d = 0b0111_1111;
+    let mut s = [0u8; 32];
+    s[31] &= 0b0111_1111;
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let a = 0x7F;
+        let b = 0o177;
+        let c = 127;
+        let d = 0b0111_1111;
+        let mut s = [0u8;32];
+        s[31] &= 0b0111_1111;
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_numeric_literals_with_underscores() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let a = 1_usize;
+    let b = 100_000u64;
+    let c = 1_000_000_u32;
+    let d = 42_;
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let a = 1_usize;
+        let b = 100_000u64;
+        let c = 1_000_000_u32;
+        let d = 42_;
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_underscore_digit_identifiers_with_dot_access() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let _1 = MyStruct{};
+    let _10 = _1.method();
+    let _123 = _10.field;
+    let x = _123.another_method();
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let _1 = MyStruct {  };
+        let _10 = _1.method();
+        let _123 = _10.field;
+        let x = _123.another_method();
+    }
+
+    } // verus!
+    "###);
+}
