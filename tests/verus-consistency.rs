@@ -3188,3 +3188,36 @@ fn test_array() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_binary_and_octal_literals() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let a = 0x7F;
+    let b = 0o177;
+    let c = 127;
+    let d = 0b0111_1111;
+    let mut s = [0u8; 32];
+    s[31] &= 0b0111_1111;
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let a = 0x7F;
+        let b = 0o177;
+        let c = 127;
+        let d = 0b0111_1111;
+        let mut s = [0u8;32];
+        s[31] &= 0b0111_1111;
+    }
+
+    } // verus!
+    "###);
+}

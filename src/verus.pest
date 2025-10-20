@@ -132,9 +132,9 @@ binary_number = @{
 int_number = @{
     (
         hex_number
-      | decimal_number
       | octal_number
       | binary_number
+      | decimal_number
     ) ~
     (
         "usize" | "u8" | "u16" | "u32" | "u64" | "u128"
