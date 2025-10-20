@@ -3145,3 +3145,46 @@ fn main() {}
     // verus!{
     ");
 }
+
+#[test]
+fn verus_compound_assignment_operators() {
+    let file = r#"
+verus! {
+
+fn test() {
+    let mut x = 0;
+    x |= 5;
+    x &= 3;
+    x ^= 7;
+}
+
+fn test_array() {
+    let mut words = [0u64; 4];
+    words[0] |= 5;
+    words[1] &= 3;
+    words[2] ^= 7;
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn test() {
+        let mut x = 0;
+        x |= 5;
+        x &= 3;
+        x ^= 7;
+    }
+
+    fn test_array() {
+        let mut words = [0u64;4];
+        words[0] |= 5;
+        words[1] &= 3;
+        words[2] ^= 7;
+    }
+
+    } // verus!
+    "###);
+}
