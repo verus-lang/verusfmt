@@ -118,7 +118,7 @@ hex_number = @{
 }
 
 decimal_number = @{
-    ASCII_DIGIT ~ ("_"? ~ ASCII_DIGIT)* ~ "_"?
+    ASCII_DIGIT ~ ("_" | ASCII_DIGIT)*
 }
 
 octal_number = @{
@@ -145,11 +145,10 @@ int_number = @{
 }
 
 float_decimal = @{
-    (ASCII_DIGIT | "_")+ ~
+    ASCII_DIGIT+ ~
     !".." ~ "." ~
     (ASCII_DIGIT | "_")* ~
-    ("f32" | "f64")? ~
-    !(ASCII_ALPHA | "_")
+    ("f32" | "f64")?
 }
 
 float_exp = @{
@@ -1330,7 +1329,7 @@ bin_expr_ops_normal = {
     | "<<" | ">>"  // Need to precede "<" and ">"
     | "==" | "!=" | "<=" | ">=" | "<" | ">"
     | assignment_ops
-    | "+" | "*" | "-" | "/" | "%" | ("^" ~ !"=")
+    | "+" | "*" | "-" | "/" | "%" | (!"^=" ~ "^")
 }
 
 bin_expr_ops = {
