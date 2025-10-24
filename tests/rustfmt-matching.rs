@@ -34,6 +34,17 @@ fn compare(file: &str) {
 fn rust_literals() {
     let file = r#"
 fn test() {
+    let a = 0x7f;
+    let a = 0x7F;
+    let a = 0o177;
+    let a = 127;
+    let a = 0b0111_111;
+    let a = 0b0111111;
+    let a = 0b0111_111_u8;
+    let a = 127u8;
+    let a = 127_u8;
+    let a = 127_;
+    let a = 127__;
     let a = 123.0f64;
     let a = 0.1f64;
     let a = 0.1f32;
@@ -444,6 +455,19 @@ fn rust_verus_bang_in_string() {
     let file = r#"
 fn test() {
     println!("verus!{{{}}}", "Hello");
+}
+"#;
+    compare(file);
+}
+
+#[test]
+fn rust_compound_assignment() {
+    let file = r#"
+fn test() {
+    let mut x = 0;
+    x |= 5;
+    x &= 3;
+    x ^= 7;
 }
 "#;
     compare(file);
