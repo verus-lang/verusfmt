@@ -87,6 +87,10 @@ See `verusfmt --help` for more options and details.
     the comments in the reformatted code. Plus, firing up all of `rustc` just to
     format some code seems heavyweight.
 
+1. How to tell `verusfmt` to ignore something?
+
+    `#[verusfmt::skip]` 
+
 ## Future Work
 - Special handling for commonly used macros, like `println!`, `state_machine!`
 - Enforce the [Rust naming policy](https://doc.rust-lang.org/beta/style-guide/advice.html#names)? 
