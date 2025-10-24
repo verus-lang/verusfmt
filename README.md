@@ -44,6 +44,10 @@ verusfmt foo.rs
 
 See `verusfmt --help` for more options and details.
 
+**Overriding verusfmt**
+
+To prevent `verusfmt` from processing a particular item or expression, add the `#[verusfmt::skip]` attribute.
+
 ## Goals
 
 1. Make it easier to read and contribute to [Verus] code by automatically
