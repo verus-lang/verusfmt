@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.6.1
+
 * Support parsing compound assignments like `x &= y`
 * Improve parsing for underscored literals like `123_456_u64`
 * Support parsing escape characters like `\x0C`
