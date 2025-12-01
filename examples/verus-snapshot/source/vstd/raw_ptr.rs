@@ -1,23 +1,19 @@
+//! Tools and reasoning principles for [raw pointers](https://doc.rust-lang.org/std/primitive.pointer.html).
+//! The tools here are meant to address "real Rust pointers, including all their subtleties on the Rust Abstract Machine,
+//! to the largest extent that is reasonable."
+//!
+//! For a gentler introduction to some of the concepts here, see [`PPtr`](crate::simple_pptr), which uses a much-simplified pointer model.
+//!
+//! ### Pointer model
+//!
+//! A pointer consists of an address (`ptr.addr()` or `ptr as usize`), a provenance `ptr@.provenance`,
+//! and metadata `ptr@.metadata` (which is trivial except for pointers to non-sized types).
+//! Note that in spec code, pointer equality requires *all 3* to be equal, whereas runtime equality (eq)
+//! only compares addresses and metadata.
+//!
+//! `*mut T` vs. `*const T` do not have any semantic difference and Verus treats them as the same;
+//! they can be seamlessly cast to and fro.
 #![allow(unused_imports)]
-
-/*!
-Tools and reasoning principles for [raw pointers](https://doc.rust-lang.org/std/primitive.pointer.html).
-The tools here are meant to address "real Rust pointers, including all their subtleties on the Rust Abstract Machine,
-to the largest extent that is reasonable."
-
-For a gentler introduction to some of the concepts here, see [`PPtr`](crate::simple_pptr), which uses a much-simplified pointer model.
-
-### Pointer model
-
-A pointer consists of an address (`ptr.addr()` or `ptr as usize`), a provenance `ptr@.provenance`,
-and metadata `ptr@.metadata` (which is trivial except for pointers to non-sized types).
-Note that in spec code, pointer equality requires *all 3* to be equal, whereas runtime equality (eq)
-only compares addresses and metadata.
-
-`*mut T` vs. `*const T` do not have any semantic difference and Verus treats them as the same;
-they can be seamlessly cast to and fro.
-*/
-
 use super::layout::*;
 use super::prelude::*;
 
@@ -91,7 +87,8 @@ pub type Metadata<T> = FakeMetadata<T>;
 
 /// Model of a pointer `*mut T` or `*const T` in Rust's abstract machine.
 /// In addition to the address, each pointer has its corresponding provenance and metadata.
-pub ghost struct PtrData<T: ?Sized> {
+#[cfg(verus_keep_ghost)]
+pub ghost struct PtrData<T: core::marker::PointeeSized> {
     pub addr: usize,
     pub provenance: Provenance,
     pub metadata: Metadata<T>,
@@ -149,7 +146,8 @@ pub ghost struct PointsToData<T> {
     pub opt_value: MemContents<T>,
 }
 
-impl<T: ?Sized> View for *mut T {
+#[cfg(verus_keep_ghost)]
+impl<T: core::marker::PointeeSized> View for *mut T {
     type V = PtrData<T>;
 
     uninterp spec fn view(&self) -> Self::V;
@@ -157,9 +155,10 @@ impl<T: ?Sized> View for *mut T {
 
 /// Compares the address and metadata of two pointers.
 ///
-/// Note that this DOES not compare provenance, which does not exist in the runtime
+/// Note that this does NOT compare provenance, which does not exist in the runtime
 /// pointer representation (i.e., it only exists in the Rust abstract machine).
-pub assume_specification<T: ?Sized>[ <*mut T as PartialEq<*mut T>>::eq ](
+#[cfg(verus_keep_ghost)]
+pub assume_specification<T: core::marker::PointeeSized>[ <*mut T as PartialEq<*mut T>>::eq ](
     x: &*mut T,
     y: &*mut T,
 ) -> (res: bool)
@@ -167,7 +166,8 @@ pub assume_specification<T: ?Sized>[ <*mut T as PartialEq<*mut T>>::eq ](
         res <==> (x@.addr == y@.addr) && (x@.metadata == y@.metadata),
 ;
 
-impl<T: ?Sized> View for *const T {
+#[cfg(verus_keep_ghost)]
+impl<T: core::marker::PointeeSized> View for *const T {
     type V = PtrData<T>;
 
     #[verifier::inline]
@@ -180,7 +180,8 @@ impl<T: ?Sized> View for *const T {
 ///
 /// Note that this does NOT compare provenance, which does not exist in the runtime
 /// pointer representation (i.e., it only exists in the Rust abstract machine).
-pub assume_specification<T: ?Sized>[ <*const T as PartialEq<*const T>>::eq ](
+#[cfg(verus_keep_ghost)]
+pub assume_specification<T: core::marker::PointeeSized>[ <*const T as PartialEq<*const T>>::eq ](
     x: &*const T,
     y: &*const T,
 ) -> (res: bool)
@@ -301,13 +302,13 @@ impl<T> MemContents<T> {
 // Inverse functions:
 // Pointers are equivalent to their model
 /// Constructs a pointer from its underlying model.
-pub uninterp spec fn ptr_mut_from_data<T: ?Sized>(data: PtrData<T>) -> *mut T;
+pub uninterp spec fn ptr_mut_from_data<T: core::marker::PointeeSized>(data: PtrData<T>) -> *mut T;
 
 /// Constructs a pointer from its underlying model.
 /// Since `*mut T` and `*const T` are [semantically the same](https://verus-lang.github.io/verus/verusdoc/vstd/raw_ptr/index.html#pointer-model),
 /// we can define this operation in terms of the operation on `*mut T`.
 #[verifier::inline]
-pub open spec fn ptr_from_data<T: ?Sized>(data: PtrData<T>) -> *const T {
+pub open spec fn ptr_from_data<T: core::marker::PointeeSized>(data: PtrData<T>) -> *const T {
     ptr_mut_from_data(data) as *const T
 }
 
@@ -350,14 +351,16 @@ pub broadcast proof fn ptrs_mut_eq_sized<T>(a: *mut T)
 /// NOTE: Trait aliases are not yet supported,
 /// so we use `Pointee<Metadata = ()>` instead of `core::ptr::Thin` here
 #[verifier::inline]
-pub open spec fn ptr_null<T: ?Sized + core::ptr::Pointee<Metadata = ()>>() -> *const T {
+pub open spec fn ptr_null<
+    T: ::core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>,
+>() -> *const T {
     ptr_from_data(PtrData::<T> { addr: 0, provenance: Provenance::null(), metadata: () })
 }
 
 #[cfg(verus_keep_ghost)]
 #[verifier::when_used_as_spec(ptr_null)]
 pub assume_specification<
-    T: ?Sized + core::ptr::Pointee<Metadata = ()>,
+    T: core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>,
 >[ core::ptr::null ]() -> (res: *const T)
     ensures
         res == ptr_null::<T>(),
@@ -369,14 +372,16 @@ pub assume_specification<
 /// NOTE: Trait aliases are not yet supported,
 /// so we use `Pointee<Metadata = ()>` instead of `core::ptr::Thin` here
 #[verifier::inline]
-pub open spec fn ptr_null_mut<T: ?Sized + core::ptr::Pointee<Metadata = ()>>() -> *mut T {
+pub open spec fn ptr_null_mut<
+    T: core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>,
+>() -> *mut T {
     ptr_mut_from_data(PtrData::<T> { addr: 0, provenance: Provenance::null(), metadata: () })
 }
 
 #[cfg(verus_keep_ghost)]
 #[verifier::when_used_as_spec(ptr_null_mut)]
 pub assume_specification<
-    T: ?Sized + core::ptr::Pointee<Metadata = ()>,
+    T: core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>,
 >[ core::ptr::null_mut ]() -> (res: *mut T)
     ensures
         res == ptr_null_mut::<T>(),
@@ -541,20 +546,22 @@ macro_rules! pointer_specs {
             verus!{
 
             #[verifier::inline]
-            pub open spec fn spec_addr<T: ?Sized>(p: *$mu T) -> usize { p@.addr }
+            pub open spec fn spec_addr<T: ::core::marker::PointeeSized>(p: *$mu T) -> usize { p@.addr }
 
             #[verifier::when_used_as_spec(spec_addr)]
-            pub assume_specification<T: ?Sized>[<*$mu T>::addr](p: *$mu T) -> (addr: usize)
+            #[cfg(verus_keep_ghost)]
+            pub assume_specification<T: ::core::marker::PointeeSized>[<*$mu T>::addr](p: *$mu T) -> (addr: usize)
                 ensures addr == spec_addr(p)
                 opens_invariants none
                 no_unwind;
 
-            pub open spec fn spec_with_addr<T: ?Sized>(p: *$mu T, addr: usize) -> *$mu T {
+            pub open spec fn spec_with_addr<T: ::core::marker::PointeeSized>(p: *$mu T, addr: usize) -> *$mu T {
                 $ptr_from_data(PtrData::<T> { addr: addr, .. p@ })
             }
 
             #[verifier::when_used_as_spec(spec_with_addr)]
-            pub assume_specification<T: ?Sized>[<*$mu T>::with_addr](p: *$mu T, addr: usize) -> (q: *$mu T)
+            #[cfg(verus_keep_ghost)]
+            pub assume_specification<T: ::core::marker::PointeeSized>[<*$mu T>::with_addr](p: *$mu T, addr: usize) -> (q: *$mu T)
                 ensures q == spec_with_addr(p, addr)
                 opens_invariants none
                 no_unwind;
