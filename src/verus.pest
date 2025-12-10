@@ -159,7 +159,7 @@ float_exp = @{
     "_"* ~
     ASCII_DIGIT ~   // Must have at least one digit
     (ASCII_DIGIT | "_")* ~
-    ("f32" | "f64")?    
+    ("f32" | "f64" | "real")?    
 }
 
 float_number = @{

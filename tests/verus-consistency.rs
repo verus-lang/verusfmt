@@ -3304,6 +3304,10 @@ verus! {
     let g: real = 123.456real;
     let h: real = 0.0real;
     
+    // Exponential-style real literals (integer base)
+    let i: real = 1e2real;
+    let j: real = 2E-3real;
+    
     // Use in expressions
     assert(0real <= a && a < 1real);
     assert(0.5real < 1.0real);
@@ -3335,6 +3339,10 @@ fn main() {}
         let f: real = 0.5real;
         let g: real = 123.456real;
         let h: real = 0.0real;
+
+        // Exponential-style real literals (integer base)
+        let i: real = 1e2real;
+        let j: real = 2E-3real;
 
         // Use in expressions
         assert(0real <= a && a < 1real);
