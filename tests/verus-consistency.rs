@@ -3279,3 +3279,77 @@ fn test() {
     } // verus!
     "###);
 }
+
+#[test]
+fn real_literals() {
+    let file = r#"
+use vstd::prelude::*;
+
+verus! {
+  proof fn hi(){
+    let car: real = 0.5;
+    assert(0real <= car && car < 1real);
+  }
+  
+  proof fn test_real_literals(){
+    // Integer-style real literals
+    let a: real = 0real;
+    let b: real = 123real;
+    let c: real = 0xFFreal;
+    let d: real = 0o77real;
+    let e: real = 0b1010real;
+    
+    // Decimal-style real literals
+    let f: real = 0.5real;
+    let g: real = 123.456real;
+    let h: real = 0.0real;
+    
+    // Exponential-style real literals (integer base)
+    let i: real = 1e2real;
+    let j: real = 2E-3real;
+    
+    // Use in expressions
+    assert(0real <= a && a < 1real);
+    assert(0.5real < 1.0real);
+  }
+}
+
+fn main() {}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    use vstd::prelude::*;
+
+    verus! {
+
+    proof fn hi() {
+        let car: real = 0.5;
+        assert(0real <= car && car < 1real);
+    }
+
+    proof fn test_real_literals() {
+        // Integer-style real literals
+        let a: real = 0real;
+        let b: real = 123real;
+        let c: real = 0xFFreal;
+        let d: real = 0o77real;
+        let e: real = 0b1010real;
+
+        // Decimal-style real literals
+        let f: real = 0.5real;
+        let g: real = 123.456real;
+        let h: real = 0.0real;
+
+        // Exponential-style real literals (integer base)
+        let i: real = 1e2real;
+        let j: real = 2E-3real;
+
+        // Use in expressions
+        assert(0real <= a && a < 1real);
+        assert(0.5real < 1.0real);
+    }
+
+    } // verus!
+    fn main() {}
+    "###);
+}
