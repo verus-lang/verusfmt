@@ -561,67 +561,132 @@ fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
     e.is_some()
 }
 
+/// Splits a vector into three parts based on a predicate.
+///
+/// The returned tuple contains all elements:
+/// 1. before the first element for which `pred` returns `true`
+/// 2. from the first to the last element for which `pred` returns `true` (both inclusive)
+/// 3. after the last element for which `pred` returns `true`
+///
+/// NOTE: Not every instance of the middle Vec will have `pred` return `true`; it just guarantees
+/// that none of the left or right ones will have `pred` as true, and that the leftmost/rightmost
+/// elements of the middle have `pred` as true.
+fn vec_split_by_predicate<T, F>(mut v: Vec<T>, pred: F) -> Option<(Vec<T>, Vec<T>, Vec<T>)>
+where
+    F: Fn(&T) -> bool,
+{
+    let first = v.iter().position(|x| pred(x))?;
+    let last = v.iter().rposition(|x| pred(x))?;
+    let after = v.split_off(last + 1);
+    let middle = v.split_off(first);
+    let before = v;
+    Some((before, middle, after))
+}
+
 fn fn_to_doc<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
 ) -> DocBuilder<'a, Arena<'a>> {
-    let pairs = pair.into_inner();
+    let pairs: Vec<_> = pair.into_inner().collect();
     let has_qualifier = pairs
-        .clone()
+        .iter()
         .any(|p| matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0);
     let has_ret_type = pairs
-        .clone()
+        .iter()
         .any(|p| matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0);
-    let mut saw_param_list = false;
-    let mut saw_comment_after_param_list = false;
-    let mut pre_ret_type = true;
-    arena.concat(pairs.map(|p| {
-        let d = to_doc(ctx, p.clone(), arena);
-        match p.as_rule() {
-            Rule::fn_terminator => {
-                if has_qualifier {
-                    // The terminator (fn_block_expr or semicolon) goes on a new line
-                    arena.hardline().append(d)
-                } else {
-                    // If the function has a body, and there isn't a comment up against
-                    // the parameter list, then we need a space before the opening brace
-                    if matches!(
-                        p.into_inner().next().unwrap().as_rule(),
-                        Rule::fn_block_expr
-                    ) && !saw_comment_after_param_list
-                    {
-                        arena.space().append(d)
+
+    // Special case where we don't want an extra newline after the possibly inline comment
+    fn c2d<'a>(
+        ctx: &Context,
+        pair: Pair<'a, Rule>,
+        arena: &'a Arena<'a, ()>,
+        has_qualifier: bool,
+        has_ret_type: bool,
+        pre_ret_type: bool,
+    ) -> DocBuilder<'a, Arena<'a>> {
+        comment_to_doc(
+            ctx,
+            arena,
+            pair,
+            !has_qualifier || (has_ret_type && pre_ret_type),
+        )
+    }
+
+    // We need to split the output into bits before/at/after the `param_list ~ ret_type?`. We call
+    // this the "signature".
+    let (pre_signature, signature, post_signature) = vec_split_by_predicate(pairs, |p| {
+        matches!(p.as_rule(), Rule::param_list | Rule::ret_type)
+    })
+    .unwrap();
+
+    // We'll simply be concatenating things into the `result` as we go along.
+    let mut result: Vec<DocBuilder<'_, Arena<'_>>> = Vec::new();
+
+    // First up, everything before the param_list can just directly go in.
+    result.extend(pre_signature.into_iter().map(|p| to_doc(ctx, p, arena)));
+
+    // We'll also need to handle a particular comment case specially if we see comments before the
+    // post-signature.
+    let mut saw_comment_after_param_list: bool;
+
+    // Next, the signature section needs some special handling.
+    {
+        let (param_list, rest) = signature.split_first().unwrap();
+        let (ret_type, comments) = rest
+            .split_last()
+            .map(|(x, xs)| (Some(x), xs))
+            .unwrap_or((None, rest));
+        let param_doc = comma_delimited(ctx, arena, param_list.clone(), false).parens(); // ungrouped
+        assert_eq!(param_list.as_rule(), Rule::param_list);
+        assert!(ret_type.is_none_or(|p| p.as_rule() == Rule::ret_type));
+        assert!(comments.iter().all(|p| p.as_rule() == Rule::COMMENT));
+        saw_comment_after_param_list = !comments.is_empty();
+        result.push(
+            param_doc
+                .append(ret_type.map_or(arena.nil(), |p| to_doc(ctx, p.clone(), arena)))
+                .group(),
+        );
+        result.extend(
+            comments
+                .into_iter()
+                .map(|p| c2d(ctx, p.clone(), arena, has_qualifier, has_ret_type, true)),
+        );
+    }
+
+    // Finally, the post-signature section wants to handle new lines specially too.
+    {
+        result.extend(post_signature.into_iter().map(|p| {
+            let d = to_doc(ctx, p.clone(), arena);
+            match p.as_rule() {
+                Rule::fn_terminator => {
+                    if has_qualifier {
+                        // The terminator (fn_block_expr or semicolon) goes on a new line
+                        arena.hardline().append(d)
                     } else {
-                        d
+                        // If the function has a body, and there isn't a comment up against
+                        // the parameter list, then we need a space before the opening brace
+                        if matches!(
+                            p.into_inner().next().unwrap().as_rule(),
+                            Rule::fn_block_expr
+                        ) && !saw_comment_after_param_list
+                        {
+                            arena.space().append(d)
+                        } else {
+                            d
+                        }
                     }
                 }
-            }
-            Rule::ret_type => {
-                pre_ret_type = false;
-                d
-            }
-            Rule::COMMENT => {
-                if saw_param_list {
+                Rule::COMMENT => {
                     saw_comment_after_param_list = true;
-                };
-                // Special case where we don't want an extra newline after the possibly inline comment
-                comment_to_doc(
-                    ctx,
-                    arena,
-                    p,
-                    !has_qualifier
-                        || !saw_comment_after_param_list
-                        || (has_ret_type && pre_ret_type),
-                )
+                    c2d(ctx, p, arena, has_qualifier, has_ret_type, false)
+                }
+                _ => d,
             }
-            Rule::param_list => {
-                saw_param_list = true;
-                d
-            }
-            _ => d,
-        }
-    }))
+        }));
+    }
+
+    arena.concat(result)
 }
 
 fn debug_print(pair: Pair<Rule>, indent: usize) {
