@@ -561,6 +561,69 @@ fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
     e.is_some()
 }
 
+fn fn_to_doc<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    let pairs = pair.into_inner();
+    let has_qualifier = pairs
+        .clone()
+        .any(|p| matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0);
+    let has_ret_type = pairs
+        .clone()
+        .any(|p| matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0);
+    let mut saw_param_list = false;
+    let mut saw_comment_after_param_list = false;
+    let mut pre_ret_type = true;
+    arena.concat(pairs.map(|p| {
+        let d = to_doc(ctx, p.clone(), arena);
+        match p.as_rule() {
+            Rule::fn_terminator => {
+                if has_qualifier {
+                    // The terminator (fn_block_expr or semicolon) goes on a new line
+                    arena.hardline().append(d)
+                } else {
+                    // If the function has a body, and there isn't a comment up against
+                    // the parameter list, then we need a space before the opening brace
+                    if matches!(
+                        p.into_inner().next().unwrap().as_rule(),
+                        Rule::fn_block_expr
+                    ) && !saw_comment_after_param_list
+                    {
+                        arena.space().append(d)
+                    } else {
+                        d
+                    }
+                }
+            }
+            Rule::ret_type => {
+                pre_ret_type = false;
+                d
+            }
+            Rule::COMMENT => {
+                if saw_param_list {
+                    saw_comment_after_param_list = true;
+                };
+                // Special case where we don't want an extra newline after the possibly inline comment
+                comment_to_doc(
+                    ctx,
+                    arena,
+                    p,
+                    !has_qualifier
+                        || !saw_comment_after_param_list
+                        || (has_ret_type && pre_ret_type),
+                )
+            }
+            Rule::param_list => {
+                saw_param_list = true;
+                d
+            }
+            _ => d,
+        }
+    }))
+}
+
 fn debug_print(pair: Pair<Rule>, indent: usize) {
     if pair.as_rule() == Rule::COMMENT {
         print!(
@@ -910,64 +973,7 @@ fn to_doc<'a>(
         Rule::broadcast_group_list => comma_delimited(ctx, arena, pair, false).braces(),
         Rule::fn_qualifier => map_to_doc(ctx, arena, pair),
         Rule::fn_terminator => map_to_doc(ctx, arena, pair),
-        Rule::r#fn => {
-            let pairs = pair.into_inner();
-            let has_qualifier = pairs.clone().any(|p| {
-                matches!(p.as_rule(), Rule::fn_qualifier) && p.clone().into_inner().count() > 0
-            });
-            let has_ret_type = pairs.clone().any(|p| {
-                matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0
-            });
-            let mut saw_param_list = false;
-            let mut saw_comment_after_param_list = false;
-            let mut pre_ret_type = true;
-            arena.concat(pairs.map(|p| {
-                let d = to_doc(ctx, p.clone(), arena);
-                match p.as_rule() {
-                    Rule::fn_terminator => {
-                        if has_qualifier {
-                            // The terminator (fn_block_expr or semicolon) goes on a new line
-                            arena.hardline().append(d)
-                        } else {
-                            // If the function has a body, and there isn't a comment up against
-                            // the parameter list, then we need a space before the opening brace
-                            if matches!(
-                                p.into_inner().next().unwrap().as_rule(),
-                                Rule::fn_block_expr
-                            ) && !saw_comment_after_param_list
-                            {
-                                arena.space().append(d)
-                            } else {
-                                d
-                            }
-                        }
-                    }
-                    Rule::ret_type => {
-                        pre_ret_type = false;
-                        d
-                    }
-                    Rule::COMMENT => {
-                        if saw_param_list {
-                            saw_comment_after_param_list = true;
-                        };
-                        // Special case where we don't want an extra newline after the possibly inline comment
-                        comment_to_doc(
-                            ctx,
-                            arena,
-                            p,
-                            !has_qualifier
-                                || !saw_comment_after_param_list
-                                || (has_ret_type && pre_ret_type),
-                        )
-                    }
-                    Rule::param_list => {
-                        saw_param_list = true;
-                        d
-                    }
-                    _ => d,
-                }
-            }))
-        }
+        Rule::r#fn => fn_to_doc(ctx, arena, pair),
         Rule::assume_specification => arena.concat(pair.into_inner().map(|p| {
             let rule = p.as_rule();
             let d = to_doc(ctx, p, arena);
