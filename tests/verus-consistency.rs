@@ -3352,3 +3352,84 @@ fn main() {}
     fn main() {}
     "###);
 }
+
+#[test]
+fn fn_param_break_before_ret_type_does() {
+    let file = r#"
+verus! {
+
+pub fn a_function_with_long_name( a: AVeryLongTypeNameForVerusFmtCheck, ) -> Result<AVeryLongTypeNameForVerusFmtCheck, AnotherVeryLongTypeNameForVerusFmtCheck> { OK(a) }
+
+exec fn serialized_size(&self) -> (res: usize) // comment here
+{}
+
+pub fn get(&self, src: &EndPoint) -> (value: Option<&CAckState>) ensures value == match
+        HashMap::get_spec(self.epmap@, src@) { Some(v) => Some(&v), None => None, }, value is Some
+        ==> self@.contains_key(src@), // helpfully trigger valid
+{
+    self.epmap.get(src)
+}
+
+pub fn clone_arg(arg: &Arg) -> (out: Arg) ensures out@ == arg@
+{
+    clone_vec_u8(arg)
+}
+
+open spec fn ghost_serialize(&self) -> Seq<u8> // req, ens from trait
+{
+    self.to_vec().ghost_serialize()
+}
+
+open spec fn ghost_serialize2(&self) -> Seq<u8>
+    // req, ens from trait
+{
+    self.to_vec().ghost_serialize()
+}
+
+}
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    pub fn a_function_with_long_name(
+        a: AVeryLongTypeNameForVerusFmtCheck,
+    ) -> Result<AVeryLongTypeNameForVerusFmtCheck, AnotherVeryLongTypeNameForVerusFmtCheck> {
+        OK(a)
+    }
+
+    exec fn serialized_size(&self) -> (res: usize)  // comment here
+    {
+    }
+
+    pub fn get(&self, src: &EndPoint) -> (value: Option<&CAckState>)
+        ensures
+            value == match HashMap::get_spec(self.epmap@, src@) {
+                Some(v) => Some(&v),
+                None => None,
+            },
+            value is Some ==> self@.contains_key(src@),  // helpfully trigger valid
+    {
+        self.epmap.get(src)
+    }
+
+    pub fn clone_arg(arg: &Arg) -> (out: Arg)
+        ensures
+            out@ == arg@,
+    {
+        clone_vec_u8(arg)
+    }
+
+    open spec fn ghost_serialize(&self) -> Seq<u8>  // req, ens from trait
+    {
+        self.to_vec().ghost_serialize()
+    }
+
+    open spec fn ghost_serialize2(&self) -> Seq<u8>
+    // req, ens from trait
+    {
+        self.to_vec().ghost_serialize()
+    }
+
+    } // verus!
+    ");
+}
