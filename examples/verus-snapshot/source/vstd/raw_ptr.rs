@@ -789,11 +789,10 @@ impl Dealloc {
 /// Returns a pointer with a corresponding [`PointsToRaw`] and [`Dealloc`] permissions.
 #[cfg(feature = "std")]
 #[verifier::external_body]
-pub fn allocate(size: usize, align: usize) -> (pt: (
-    *mut u8,
-    Tracked<PointsToRaw>,
-    Tracked<Dealloc>,
-))
+pub fn allocate(
+    size: usize,
+    align: usize,
+) -> (pt: (*mut u8, Tracked<PointsToRaw>, Tracked<Dealloc>))
     requires
         valid_layout(size, align),
         size != 0,
@@ -919,10 +918,10 @@ impl<'a, T> SharedReference<'a, T> {
 /// gets a new tag.
 #[inline(always)]
 #[verifier::external_body]
-pub fn ptr_ref2<'a, T>(ptr: *const T, Tracked(perm): Tracked<&PointsTo<T>>) -> (v: SharedReference<
-    'a,
-    T,
->)
+pub fn ptr_ref2<'a, T>(
+    ptr: *const T,
+    Tracked(perm): Tracked<&PointsTo<T>>,
+) -> (v: SharedReference<'a, T>)
     requires
         perm.ptr() == ptr,
         perm.is_init(),

@@ -173,8 +173,10 @@ impl<P: PCM> Resource<P> {
     // Operations with shared references
     /// This is useful when you have two (or more) shared resources and want to learn
     /// that they agree, as you can combine this validate, e.g., `x.join_shared(y).validate()`.
-    pub axiom fn join_shared<'a>(tracked &'a self, tracked other: &'a Self) -> (tracked out:
-        &'a Self)
+    pub axiom fn join_shared<'a>(
+        tracked &'a self,
+        tracked other: &'a Self,
+    ) -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
         ensures

@@ -213,9 +213,10 @@ impl Marshalable for u64 {
         }
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(
+        data: &Vec<u8>,
+        start: usize,
+    ) -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         proof {
@@ -305,9 +306,10 @@ impl Marshalable for usize {
         (*self as u64).serialize(data)
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(
+        data: &Vec<u8>,
+        start: usize,
+    ) -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         proof {
@@ -452,9 +454,10 @@ impl Marshalable for Vec<u8> {
         }
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(
+        data: &Vec<u8>,
+        start: usize,
+    ) -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         let (len, mid) = match usize::deserialize(data, start) {
@@ -600,7 +603,7 @@ impl<T: Marshalable> Marshalable for Option<T> {
 
     open spec fn ghost_serialize(&self) -> Seq<u8>
     // req, ens from trait
-     {
+    {
         match self {
             None => seq![0],
             Some(x) => seq![1] + x.ghost_serialize(),
@@ -646,9 +649,10 @@ impl<T: Marshalable> Marshalable for Option<T> {
         }
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(
+        data: &Vec<u8>,
+        start: usize,
+    ) -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         if data.len() == 0 || start > data.len() - 1 {
@@ -1020,9 +1024,10 @@ impl<T: Marshalable> Marshalable for Vec<T> {
         }
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(
+        data: &Vec<u8>,
+        start: usize,
+    ) -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         let (len, mid) = match usize::deserialize(data, start) {
@@ -1343,7 +1348,7 @@ impl<T: Marshalable, U: Marshalable> Marshalable for (T, U) {
 
     exec fn _is_marshalable(&self) -> bool
     // req, ens from trait
-     {
+    {
         self.0._is_marshalable() && self.1._is_marshalable() && self.0.serialized_size()
             <= usize::MAX - self.1.serialized_size()
     }
@@ -1385,9 +1390,10 @@ impl<T: Marshalable, U: Marshalable> Marshalable for (T, U) {
         }
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(
+        data: &Vec<u8>,
+        start: usize,
+    ) -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         let (t, mid) = match T::deserialize(data, start) {

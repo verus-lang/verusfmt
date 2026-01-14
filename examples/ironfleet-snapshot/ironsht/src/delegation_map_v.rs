@@ -501,7 +501,7 @@ impl<K: KeyTrait + VerusClone> StrictlyOrderedMap<K> {
         self,
     ) -> bool  // recommends self.keys@.len() == self.vals.len()
     // error: public function requires cannot refer to private items
-     {
+    {
         &&& self.m@.dom().finite()
         &&& self.m@.dom() == self.keys@.to_set()
         &&& forall|i|
@@ -548,9 +548,11 @@ impl<K: KeyTrait + VerusClone> StrictlyOrderedMap<K> {
         self.mind_the_gap();
     }
 
-    proof fn choose_gap_violator(self, lo: KeyIterator<K>, hi: KeyIterator<K>) -> (r: KeyIterator<
-        K,
-    >)
+    proof fn choose_gap_violator(
+        self,
+        lo: KeyIterator<K>,
+        hi: KeyIterator<K>,
+    ) -> (r: KeyIterator<K>)
         requires
             !self.gap(lo, hi),
         ensures
@@ -1571,8 +1573,12 @@ impl<K: KeyTrait + VerusClone> DelegationMap<K> {
         }
     }
 
-    pub fn range_consistent_impl(&self, lo: &KeyIterator<K>, hi: &KeyIterator<K>, dst: &ID) -> (b:
-        bool)
+    pub fn range_consistent_impl(
+        &self,
+        lo: &KeyIterator<K>,
+        hi: &KeyIterator<K>,
+        dst: &ID,
+    ) -> (b: bool)
         requires
             self.valid(),
         ensures

@@ -1014,10 +1014,11 @@ impl impl_spec::InterfaceSpec for impl_spec::PageTableImpl {
         PT::unmap(mem, &mut pt, vaddr)
     }
 
-    fn ispec_resolve(&self, mem: &mem::PageTableMemory, vaddr: usize) -> (res: Result<
-        (usize, PageTableEntryExec),
-        (),
-    >) {
+    fn ispec_resolve(
+        &self,
+        mem: &mem::PageTableMemory,
+        vaddr: usize,
+    ) -> (res: Result<(usize, PageTableEntryExec), ()>) {
         let pt: Ghost<PTDir> = Ghost(
             choose|pt: PTDir| #[trigger] PT::inv(mem, pt) && PT::interp(mem, pt).inv(),
         );

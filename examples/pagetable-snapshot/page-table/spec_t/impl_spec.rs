@@ -48,10 +48,11 @@ pub trait InterfaceSpec {
             spec_pt::step_Unmap(pt_vars(*old(mem)), pt_vars(*mem), vaddr as nat, res),
     ;
 
-    fn ispec_resolve(&self, mem: &mem::PageTableMemory, vaddr: usize) -> (res: Result<
-        (usize, PageTableEntryExec),
-        (),
-    >)
+    fn ispec_resolve(
+        &self,
+        mem: &mem::PageTableMemory,
+        vaddr: usize,
+    ) -> (res: Result<(usize, PageTableEntryExec), ()>)
         requires
             spec_pt::step_Resolve_enabled(vaddr as nat),
             self.ispec_inv(mem),

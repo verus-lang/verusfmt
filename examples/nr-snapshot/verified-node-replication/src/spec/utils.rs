@@ -14,7 +14,7 @@ pub open spec fn seq_unique<A>(
     seq: Seq<A>,
 ) -> bool
 // where A: PartialEq + Structural
- {
+{
     forall|i: int, j: int|
         (0 <= i < seq.len() && 0 <= j < seq.len() && i != j) ==> seq.index(i as int) !== seq.index(
             j as int,
@@ -151,7 +151,7 @@ pub open spec fn map_contains_value<K, V>(
     val: V,
 ) -> bool
 // where K: PartialEq + Structural
- {
+{
     exists|i: K| #[trigger] map.contains_key(i) && map.index(i) == val
 }
 

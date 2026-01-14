@@ -122,8 +122,10 @@ impl<Args: core::marker::Tuple, Output, F: FnOnce<Args, Output = Output>> FnWith
 #[doc(hidden)]
 #[verifier::external_body]
 #[rustc_diagnostic_item = "verus::vstd::vstd::exec_nonstatic_call"]
-fn exec_nonstatic_call<Args: core::marker::Tuple, Output, F>(f: F, args: Args) -> (output:
-    Output) where F: FnOnce<Args, Output = Output>
+fn exec_nonstatic_call<Args: core::marker::Tuple, Output, F>(
+    f: F,
+    args: Args,
+) -> (output: Output) where F: FnOnce<Args, Output = Output>
     requires
         call_requires(f, args),
     ensures

@@ -49,8 +49,10 @@ pub proof fn lemma_pcm_properties<P: PCM>()
 /// reference to a resource `r` whose value has a duplicable part
 /// `new_value`. More precisely, produces a resource with value
 /// `new_value` given that `r.value() == P::op(r.value(), new_value)`.
-pub proof fn copy_duplicable_part<P: PCM>(tracked r: &Resource<P>, new_value: P) -> (tracked out:
-    Resource<P>)
+pub proof fn copy_duplicable_part<P: PCM>(
+    tracked r: &Resource<P>,
+    new_value: P,
+) -> (tracked out: Resource<P>)
     requires
         r.value() == P::op(r.value(), new_value),
     ensures
@@ -92,8 +94,11 @@ pub proof fn incorporate<P: PCM>(tracked r1: &mut Resource<P>, tracked r2: Resou
 /// Splits the value of `r` into `left` and `right`. At the end, `r`
 /// ends up with `left` as its value and the function returns a new
 /// resource with value `right`.
-pub proof fn split_mut<P: PCM>(tracked r: &mut Resource<P>, left: P, right: P) -> (tracked other:
-    Resource<P>)
+pub proof fn split_mut<P: PCM>(
+    tracked r: &mut Resource<P>,
+    left: P,
+    right: P,
+) -> (tracked other: Resource<P>)
     requires
         old(r).value() == P::op(left, right),
     ensures

@@ -154,10 +154,10 @@ impl<K, V> Map<K, V> {
                 ) == old_map.index(key_map.index(j)),
     ;
 
-    pub axiom fn tracked_remove_keys(tracked &mut self, keys: Set<K>) -> (tracked out_map: Map<
-        K,
-        V,
-    >)
+    pub axiom fn tracked_remove_keys(
+        tracked &mut self,
+        keys: Set<K>,
+    ) -> (tracked out_map: Map<K, V>)
         requires
             keys.subset_of(old(self).dom()),
         ensures

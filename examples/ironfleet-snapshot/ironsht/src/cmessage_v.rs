@@ -204,9 +204,9 @@ impl CMessage {
     }
 }
 
-pub open spec fn abstractify_cmessage_seq(messages: Seq<CSingleMessage>) -> Seq<
-    SingleMessage<Message>,
-> {
+pub open spec fn abstractify_cmessage_seq(
+    messages: Seq<CSingleMessage>,
+) -> Seq<SingleMessage<Message>> {
     messages.map_values(|msg: CSingleMessage| msg@)
 }
 
@@ -361,9 +361,9 @@ pub open spec fn cpacket_seq_is_abstractable(packets: Seq<CPacket>) -> bool {
 }
 
 // Translates Impl/SHT/PacketParsing.i.dfy :: AbstractifyOutboundPacketsToSeqOfLSHTPackets
-pub open spec fn abstractify_outbound_packets_to_seq_of_lsht_packets(packets: Seq<CPacket>) -> Seq<
-    LSHTPacket,
->
+pub open spec fn abstractify_outbound_packets_to_seq_of_lsht_packets(
+    packets: Seq<CPacket>,
+) -> Seq<LSHTPacket>
     recommends
         cpacket_seq_is_abstractable(packets),
 {

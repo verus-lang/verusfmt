@@ -169,16 +169,16 @@ impl<DT: Dispatch> crate::UnboundedLogRefinesSimpleLog<DT> for RefinementProof<D
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Interpretation Function
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-spec fn interp_log<DT: Dispatch>(global_tail: nat, log: Map<nat, LogEntry<DT>>) -> Seq<
-    DT::WriteOperation,
-> {
+spec fn interp_log<DT: Dispatch>(
+    global_tail: nat,
+    log: Map<nat, LogEntry<DT>>,
+) -> Seq<DT::WriteOperation> {
     Seq::new(global_tail, |i| log.index(i as nat).op)
 }
 
-spec fn interp_readonly_reqs<DT: Dispatch>(local_reads: Map<nat, ReadonlyState<DT>>) -> Map<
-    ReqId,
-    SReadReq<DT::ReadOperation>,
-> {
+spec fn interp_readonly_reqs<DT: Dispatch>(
+    local_reads: Map<nat, ReadonlyState<DT>>,
+) -> Map<ReqId, SReadReq<DT::ReadOperation>> {
     Map::new(
         |rid| local_reads.contains_key(rid),
         |rid|
@@ -200,10 +200,9 @@ spec fn interp_readonly_reqs<DT: Dispatch>(local_reads: Map<nat, ReadonlyState<D
     )
 }
 
-spec fn interp_update_reqs<DT: Dispatch>(local_updates: Map<LogIdx, UpdateState<DT>>) -> Map<
-    LogIdx,
-    DT::WriteOperation,
-> {
+spec fn interp_update_reqs<DT: Dispatch>(
+    local_updates: Map<LogIdx, UpdateState<DT>>,
+) -> Map<LogIdx, DT::WriteOperation> {
     Map::new(
         |rid| local_updates.contains_key(rid) && local_updates.index(rid).is_Init(),
         |rid|
@@ -214,10 +213,9 @@ spec fn interp_update_reqs<DT: Dispatch>(local_updates: Map<LogIdx, UpdateState<
     )
 }
 
-spec fn interp_update_resps<DT: Dispatch>(local_updates: Map<nat, UpdateState<DT>>) -> Map<
-    ReqId,
-    SUpdateResp,
-> {
+spec fn interp_update_resps<DT: Dispatch>(
+    local_updates: Map<nat, UpdateState<DT>>,
+) -> Map<ReqId, SUpdateResp> {
     Map::new(
         |rid| local_updates.contains_key(rid) && !local_updates.index(rid).is_Init(),
         |rid|

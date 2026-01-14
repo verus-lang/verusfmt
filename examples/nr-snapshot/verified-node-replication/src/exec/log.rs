@@ -210,11 +210,10 @@ pub open spec fn wf(&self) -> bool {
 
 impl<DT: Dispatch> NrLog<DT> {
     /// initializes the NrLOg
-    pub fn new(num_replicas: usize, log_size: usize) -> (res: (
-        Self,
-        Vec<ReplicaToken>,
-        Tracked<NrLogTokens<DT>>,
-    ))
+    pub fn new(
+        num_replicas: usize,
+        log_size: usize,
+    ) -> (res: (Self, Vec<ReplicaToken>, Tracked<NrLogTokens<DT>>))
         requires
             log_size == LOG_SIZE,
             0 < num_replicas && num_replicas <= MAX_REPLICAS,

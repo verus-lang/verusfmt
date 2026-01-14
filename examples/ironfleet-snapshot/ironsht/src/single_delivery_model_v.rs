@@ -70,7 +70,7 @@ impl ReceiveImplResult {
     // we don't care so we can pass it to SingleDelivery::receive. Meh.
     //     recommends
     //         self.ok(),
-     {
+    {
         match self {
             Self::FreshPacket { ack } => ack,
             Self::DuplicatePacket { ack } => ack,
@@ -425,9 +425,11 @@ impl CSingleDelivery {
 
     /// Translates Impl/SHT/SingleDeliveryModel.i.dfy :: SendSingleCMessage
     #[verifier::rlimit(15)]
-    pub fn send_single_cmessage(&mut self, m: &CMessage, dst: &EndPoint) -> (sm: Option<
-        CSingleMessage,
-    >)
+    pub fn send_single_cmessage(
+        &mut self,
+        m: &CMessage,
+        dst: &EndPoint,
+    ) -> (sm: Option<CSingleMessage>)
         requires
             old(self).valid(),
             old(self).abstractable(),

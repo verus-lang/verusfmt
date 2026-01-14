@@ -122,9 +122,10 @@ pub open spec fn updates<K, V, P: Protocol<K, V>>(p1: P, p2: P) -> bool {
         P::rel(P::op(p1, q), t1) ==> P::rel(P::op(p2, q), t1)
 }
 
-pub open spec fn set_op<K, V, P: Protocol<K, V>>(s: Set<(P, Map<K, V>)>, t: P) -> Set<
-    (P, Map<K, V>),
-> {
+pub open spec fn set_op<K, V, P: Protocol<K, V>>(
+    s: Set<(P, Map<K, V>)>,
+    t: P,
+) -> Set<(P, Map<K, V>)> {
     Set::new(|v: (P, Map<K, V>)| exists|q| s.contains((q, v.1)) && v.0 == #[trigger] P::op(q, t))
 }
 
@@ -200,10 +201,11 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
         Self::exchange(self, base, new_value, Map::empty()).0
     }
 
-    pub proof fn withdraw(tracked self, new_value: P, new_base: Map<K, V>) -> (tracked out: (
-        Self,
-        Map<K, V>,
-    ))
+    pub proof fn withdraw(
+        tracked self,
+        new_value: P,
+        new_base: Map<K, V>,
+    ) -> (tracked out: (Self, Map<K, V>))
         requires
             withdraws(self.value(), new_value, new_base),
         ensures
@@ -263,8 +265,10 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
     ;
 
     // Operations with shared references
-    pub axiom fn join_shared<'a>(tracked &'a self, tracked other: &'a Self) -> (tracked out:
-        &'a Self)
+    pub axiom fn join_shared<'a>(
+        tracked &'a self,
+        tracked other: &'a Self,
+    ) -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
         ensures
@@ -281,10 +285,10 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
             out.value() == target,
     ;
 
-    pub axiom fn validate_with_shared(tracked self: &mut Self, tracked x: &Self) -> (res: (
-        P,
-        Map<K, V>,
-    ))
+    pub axiom fn validate_with_shared(
+        tracked self: &mut Self,
+        tracked x: &Self,
+    ) -> (res: (P, Map<K, V>))
         requires
             old(self).loc() == x.loc(),
         ensures

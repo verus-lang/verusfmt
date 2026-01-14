@@ -187,10 +187,10 @@ pub trait Dispatch: Sized {
     spec fn dispatch_spec(ds: Self::View, op: Self::ReadOperation) -> Self::Response;
 
     /// specification of the [`Dispatch::dispatch_mut`] function.
-    spec fn dispatch_mut_spec(ds: Self::View, op: Self::WriteOperation) -> (
-        Self::View,
-        Self::Response,
-    );
+    spec fn dispatch_mut_spec(
+        ds: Self::View,
+        op: Self::WriteOperation,
+    ) -> (Self::View, Self::Response);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -697,9 +697,9 @@ pub open spec fn behavior_equiv<DT: Dispatch>(
 
 #[verus::trusted]
 trait SimpleLogRefinesAsynchronousSingleton<DT: Dispatch> {
-    proof fn exists_equiv_behavior(a: SimpleLogBehavior<DT>) -> (b: AsynchronousSingletonBehavior<
-        DT,
-    >)
+    proof fn exists_equiv_behavior(
+        a: SimpleLogBehavior<DT>,
+    ) -> (b: AsynchronousSingletonBehavior<DT>)
         requires
             a.wf(),
         ensures

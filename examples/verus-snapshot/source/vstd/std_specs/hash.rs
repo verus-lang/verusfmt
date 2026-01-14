@@ -358,11 +358,10 @@ impl<'a, Key: 'a, Value: 'a> super::super::pervasive::ForLoopGhostIterator for K
         }
     }
 
-    open spec fn ghost_advance(&self, _exec_iter: &Keys<'a, Key, Value>) -> KeysGhostIterator<
-        'a,
-        Key,
-        Value,
-    > {
+    open spec fn ghost_advance(
+        &self,
+        _exec_iter: &Keys<'a, Key, Value>,
+    ) -> KeysGhostIterator<'a, Key, Value> {
         Self { pos: self.pos + 1, ..*self }
     }
 }
@@ -467,11 +466,10 @@ impl<'a, Key: 'a, Value: 'a> super::super::pervasive::ForLoopGhostIterator for V
         }
     }
 
-    open spec fn ghost_advance(&self, _exec_iter: &Values<'a, Key, Value>) -> ValuesGhostIterator<
-        'a,
-        Key,
-        Value,
-    > {
+    open spec fn ghost_advance(
+        &self,
+        _exec_iter: &Values<'a, Key, Value>,
+    ) -> ValuesGhostIterator<'a, Key, Value> {
         Self { pos: self.pos + 1, ..*self }
     }
 }
@@ -609,8 +607,9 @@ impl<'a, Key, Value> View for MapIterGhostIterator<'a, Key, Value> {
 // the iterator in spec mode. To do that, we add
 // `#[verifier::when_used_as_spec(spec_iter)` to the specification for
 // the executable `iter` method and define that spec function here.
-pub uninterp spec fn spec_hash_map_iter<'a, Key, Value, S>(m: &'a HashMap<Key, Value, S>) -> (r:
-    hash_map::Iter<'a, Key, Value>);
+pub uninterp spec fn spec_hash_map_iter<'a, Key, Value, S>(
+    m: &'a HashMap<Key, Value, S>,
+) -> (r: hash_map::Iter<'a, Key, Value>);
 
 pub broadcast proof fn axiom_spec_hash_map_iter<'a, Key, Value, S>(m: &'a HashMap<Key, Value, S>)
     ensures
@@ -1155,10 +1154,10 @@ impl<'a, Key: 'a> super::super::pervasive::ForLoopGhostIterator for SetIterGhost
         }
     }
 
-    open spec fn ghost_advance(&self, _exec_iter: &hash_set::Iter<'a, Key>) -> SetIterGhostIterator<
-        'a,
-        Key,
-    > {
+    open spec fn ghost_advance(
+        &self,
+        _exec_iter: &hash_set::Iter<'a, Key>,
+    ) -> SetIterGhostIterator<'a, Key> {
         Self { pos: self.pos + 1, ..*self }
     }
 }

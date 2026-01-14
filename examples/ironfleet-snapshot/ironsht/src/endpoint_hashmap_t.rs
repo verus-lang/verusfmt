@@ -48,8 +48,10 @@ impl<V> HashMap<V> {
         self@[key@]
     }
 
-    pub open spec fn get_spec(map_v: Map<AbstractEndPoint, V>, key: AbstractEndPoint) -> (value:
-        Option<V>) {
+    pub open spec fn get_spec(
+        map_v: Map<AbstractEndPoint, V>,
+        key: AbstractEndPoint,
+    ) -> (value: Option<V>) {
         if map_v.dom().contains(key) {
             Some(map_v[key])
         } else {

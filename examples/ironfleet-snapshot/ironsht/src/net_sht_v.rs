@@ -178,10 +178,10 @@ pub fn sht_demarshall_data_method(buffer: &Vec<u8>) -> (out: CSingleMessage)
 }
 
 // ported from Impl/LiveSHT/NetSHT Receive
-pub fn receive_with_demarshal(netc: &mut NetClient, local_addr: &EndPoint) -> (rc: (
-    ReceiveResult,
-    Ghost<NetEvent>,
-))
+pub fn receive_with_demarshal(
+    netc: &mut NetClient,
+    local_addr: &EndPoint,
+) -> (rc: (ReceiveResult, Ghost<NetEvent>))
     requires
         old(netc).ok(),
         old(netc).my_end_point() == local_addr@,
@@ -392,10 +392,10 @@ pub open spec fn send_log_entries_reflect_packets(
 }
 
 #[verifier(spinoff_prover)]  // suddenly this is taking a long time due to an unrelated change elsewhere
-pub fn send_packet_seq(cpackets: &Vec<CPacket>, netc: &mut NetClient) -> (rc: (
-    bool,
-    Ghost<Seq<NetEvent>>,
-))
+pub fn send_packet_seq(
+    cpackets: &Vec<CPacket>,
+    netc: &mut NetClient,
+) -> (rc: (bool, Ghost<Seq<NetEvent>>))
     requires
         old(netc).ok(),
         outbound_packet_seq_is_valid(cpackets@),

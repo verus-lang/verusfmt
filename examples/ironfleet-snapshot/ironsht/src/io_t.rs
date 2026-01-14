@@ -415,10 +415,11 @@ impl NetClient {
     }
 
     #[verifier(external)]
-    pub unsafe fn send_internal(&mut self, remote: &EndPoint, message: &Vec<u8>) -> (result: Result<
-        (),
-        IronfleetIOError,
-    >) {
+    pub unsafe fn send_internal(
+        &mut self,
+        remote: &EndPoint,
+        message: &Vec<u8>,
+    ) -> (result: Result<(), IronfleetIOError>) {
         let remote_raw: *const u8 = remote.id.as_ptr();
         let message_raw: *const u8 = message.as_ptr();
         let b: bool = (self.c_pointers.send_func)(
@@ -435,18 +436,22 @@ impl NetClient {
     }
 
     #[verifier(external_body)]
-    pub fn send_internal_wrapper(&mut self, remote: &EndPoint, message: &Vec<u8>) -> (result:
-        Result<(), IronfleetIOError>)
+    pub fn send_internal_wrapper(
+        &mut self,
+        remote: &EndPoint,
+        message: &Vec<u8>,
+    ) -> (result: Result<(), IronfleetIOError>)
         ensures
             *self == *old(self),
     {
         unsafe { self.send_internal(remote, message) }
     }
 
-    pub fn send(&mut self, recipient: &EndPoint, message: &Vec<u8>) -> (result: Result<
-        (),
-        IronfleetIOError,
-    >)
+    pub fn send(
+        &mut self,
+        recipient: &EndPoint,
+        message: &Vec<u8>,
+    ) -> (result: Result<(), IronfleetIOError>)
         requires
             !(old(self).state() is Error),
         ensures

@@ -461,11 +461,11 @@ impl HostState {
     }
 
     // Translates Impl/LiveSHT/SchedulerImpl.i.dfy :: DeliverPacketSeq
-    pub fn deliver_packet_seq(&self, netc: &mut NetClient, packets: &Vec<CPacket>) -> (rc: (
-        bool,
-        Ghost<Seq<NetEvent>>,
-        Ghost<Seq<LSHTIo>>,
-    ))
+    pub fn deliver_packet_seq(
+        &self,
+        netc: &mut NetClient,
+        packets: &Vec<CPacket>,
+    ) -> (rc: (bool, Ghost<Seq<NetEvent>>, Ghost<Seq<LSHTIo>>))
         requires
             old(netc).ok(),
             outbound_packet_seq_is_valid(packets@),
@@ -561,11 +561,11 @@ impl HostState {
     }
 
     // Translates Impl/LiveSHT/SchedulerImpl.i.dfy :: DeliverOutboundPackets
-    pub fn deliver_outbound_packets(&self, netc: &mut NetClient, packets: &Vec<CPacket>) -> (rc: (
-        bool,
-        Ghost<Seq<NetEvent>>,
-        Ghost<Seq<LSHTIo>>,
-    ))
+    pub fn deliver_outbound_packets(
+        &self,
+        netc: &mut NetClient,
+        packets: &Vec<CPacket>,
+    ) -> (rc: (bool, Ghost<Seq<NetEvent>>, Ghost<Seq<LSHTIo>>))
         requires
             old(netc).ok(),
             outbound_packet_seq_is_valid(packets@),
@@ -862,10 +862,10 @@ impl HostState {
     /// obligations. That is confusing (surprising) to read, but changing it to an Option would
     /// entail making the corresponding change in the host_protocol so that abstraction stays
     /// parallel. That's too big of a change; we're going to stay true to the original lyrics.
-    fn host_model_receive_packet(&mut self, cpacket: CPacket) -> (rc: (
-        Vec<CPacket>,
-        Ghost<CPacket>,
-    ))
+    fn host_model_receive_packet(
+        &mut self,
+        cpacket: CPacket,
+    ) -> (rc: (Vec<CPacket>, Ghost<CPacket>))
         requires
             old(self).valid(),
             old(self).host_state_packet_preconditions(cpacket),
@@ -1985,10 +1985,10 @@ impl HostState {
     }
 
     // Impl/LiveSHT/SchedulerImpl.i.dfy Host_ProcessReceivedPacket_Next
-    fn process_received_packet_next_impl(&mut self, netc: &mut NetClient) -> (rc: (
-        bool,
-        Ghost<EventResults>,
-    ))
+    fn process_received_packet_next_impl(
+        &mut self,
+        netc: &mut NetClient,
+    ) -> (rc: (bool, Ghost<EventResults>))
         requires
             Self::next_requires(*old(self), *old(netc)),
         ensures
@@ -2105,10 +2105,10 @@ impl HostState {
 
     // Distributed/Impl/LiveSHT/SchedulerImpl.i.dfy Host_NoReceive_NoClock_Next?
     #[verifier(spinoff_prover)]
-    pub fn host_noreceive_noclock_next(&mut self, netc: &mut NetClient) -> (rc: (
-        bool,
-        Ghost<EventResults>,
-    ))
+    pub fn host_noreceive_noclock_next(
+        &mut self,
+        netc: &mut NetClient,
+    ) -> (rc: (bool, Ghost<EventResults>))
         requires
             Self::next_requires(*old(self), *old(netc)),
         ensures

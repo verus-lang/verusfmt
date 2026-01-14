@@ -112,8 +112,10 @@ impl<DT: Dispatch + Sync> crate::NodeReplicatedT<DT> for NodeReplicated<DT> {
     ///
     ///  - Dafny: n/a ?
     ///  - Rust:  pub fn new(num_replicas: NonZeroUsize) -> Result<Self, NodeReplicatedError>
-    fn new(num_replicas: usize, chg_mem_affinity: AffinityFn) -> (res:
-        Self)
+    fn new(
+        num_replicas: usize,
+        chg_mem_affinity: AffinityFn,
+    ) -> (res: Self)
     // requires
     //     num_replicas <= MAX_REPLICAS
     // ensures res.wf()
@@ -216,9 +218,10 @@ impl<DT: Dispatch + Sync> crate::NodeReplicatedT<DT> for NodeReplicated<DT> {
     ///
     ///  - Dafny: N/A (in c++ code?)
     ///  - Rust:  pub fn register(&self, replica_id: ReplicaId) -> Option<ThreadToken>
-    fn register(&mut self, replica_id: ReplicaId) -> (result: Option<
-        ThreadToken<DT>,
-    >)
+    fn register(
+        &mut self,
+        replica_id: ReplicaId,
+    ) -> (result: Option<ThreadToken<DT>>)
     // requires old(self).wf()
     // ensures
     //     self.wf(),

@@ -1508,8 +1508,11 @@ pub mod PT {
         }
     }
 
-    pub fn resolve(mem: &mem::PageTableMemory, Ghost(pt): Ghost<PTDir>, vaddr: usize) -> (res:
-        Result<(usize, PageTableEntryExec), ()>)
+    pub fn resolve(
+        mem: &mem::PageTableMemory,
+        Ghost(pt): Ghost<PTDir>,
+        vaddr: usize,
+    ) -> (res: Result<(usize, PageTableEntryExec), ()>)
         requires
             inv(mem, pt),
             interp(mem, pt).inv(),
@@ -4121,8 +4124,11 @@ pub mod PT {
         }
     }
 
-    pub fn unmap(mem: &mut mem::PageTableMemory, pt: &mut Ghost<PTDir>, vaddr: usize) -> (res:
-        Result<(), ()>)
+    pub fn unmap(
+        mem: &mut mem::PageTableMemory,
+        pt: &mut Ghost<PTDir>,
+        vaddr: usize,
+    ) -> (res: Result<(), ()>)
         requires
             inv(&*old(mem), old(pt)@),
             interp(&*old(mem), old(pt)@).inv(),

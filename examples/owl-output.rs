@@ -223,10 +223,10 @@ pub closed spec fn endpoint_of_addr(addr: Seq<char>) -> Endpoint {
 
 }
 
-pub open spec fn alice_main_spec(cfg: cfg_alice, mut_state: state_alice) -> (res: ITree<
-    (Seq<u8>, state_alice),
-    Endpoint,
->) {
+pub open spec fn alice_main_spec(
+    cfg: cfg_alice,
+    mut_state: state_alice,
+) -> (res: ITree<(Seq<u8>, state_alice), Endpoint>) {
     owl_spec!(mut_state,state_alice,
 let c = ((sample( NONCE_SIZE()
 , enc((*cfg.owl_shared_key).view(), (*cfg.owl_k_data).view()) ))) in
@@ -241,10 +241,10 @@ None => {(ret (NoResult()))},})) in
 )
 }
 
-pub open spec fn bob_main_spec(cfg: cfg_bob, mut_state: state_bob) -> (res: ITree<
-    ((), state_bob),
-    Endpoint,
->) {
+pub open spec fn bob_main_spec(
+    cfg: cfg_bob,
+    mut_state: state_bob,
+) -> (res: ITree<((), state_bob), Endpoint>) {
     owl_spec!(mut_state,state_bob,
 (input (i, ev)) in
 let caseval = ((ret(dec((*cfg.owl_shared_key).view(), i)))) in

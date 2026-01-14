@@ -36,9 +36,9 @@ pub tracked struct RefinementProof;
 
 #[cfg(verus_keep_ghost)]
 impl<DT: Dispatch> SimpleLogRefinesAsynchronousSingleton<DT> for RefinementProof {
-    proof fn exists_equiv_behavior(a: SimpleLogBehavior<DT>) -> (b: AsynchronousSingletonBehavior<
-        DT,
-    >)
+    proof fn exists_equiv_behavior(
+        a: SimpleLogBehavior<DT>,
+    ) -> (b: AsynchronousSingletonBehavior<DT>)
     // requires a.wf(),
     // ensures b.wf() && behavior_equiv(a, b)
     {

@@ -30,9 +30,10 @@ pub open spec fn tombstone_table_lookup(src: AbstractEndPoint, t: TombstoneTable
 
 pub type AckList<MT> = Seq<SingleMessage<MT>>;
 
-pub open spec(checked) fn truncate_un_ack_list<MT>(un_acked: AckList<MT>, seqno_acked: nat) -> Seq<
-    SingleMessage<MT>,
->
+pub open spec(checked) fn truncate_un_ack_list<MT>(
+    un_acked: AckList<MT>,
+    seqno_acked: nat,
+) -> Seq<SingleMessage<MT>>
     decreases un_acked.len(),
 {
     if un_acked.len() > 0 && un_acked[0] is Message && un_acked[0].arrow_Message_seqno()
