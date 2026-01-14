@@ -1092,7 +1092,7 @@ fn test() {
 } // verus!
 "#;
 
-    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    assert_snapshot!(parse_and_format(file).unwrap(), @r#"
     // External comment 1
     /// External comment 2
     verus! {
@@ -1159,8 +1159,7 @@ fn test() {
     {
     }
 
-    fn heap_malloc()  // $line_count$Trusted$ 1
-     -> (t: nat)  // $line_count$Trusted$ 2
+    fn heap_malloc() -> (t: nat)  // $line_count$Trusted$ 1  // $line_count$Trusted$ 2
         requires
             true,
     {
@@ -1251,7 +1250,7 @@ fn test() {
     }
 
     } // verus!
-    "###);
+    "#);
 }
 
 #[test]
