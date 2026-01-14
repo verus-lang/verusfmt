@@ -583,6 +583,13 @@ where
     Some((before, middle, after))
 }
 
+/// Check if a pair has a comment exactly at the end of it recursively.
+fn recursive_trailing_comment(pair: Pair<Rule>) -> bool {
+    pair.into_inner()
+        .last()
+        .is_some_and(|p| p.as_rule() == Rule::COMMENT || recursive_trailing_comment(p))
+}
+
 fn fn_to_doc<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
@@ -638,15 +645,33 @@ fn fn_to_doc<'a>(
             .map(|(x, xs)| (Some(x), xs))
             .unwrap_or((None, rest));
         let param_doc = comma_delimited(ctx, arena, param_list.clone(), false).parens(); // ungrouped
+        let ret_doc = ret_type.map_or(arena.nil(), |p| to_doc(ctx, p.clone(), arena));
         assert_eq!(param_list.as_rule(), Rule::param_list);
         assert!(ret_type.is_none_or(|p| p.as_rule() == Rule::ret_type));
         assert!(comments.iter().all(|p| p.as_rule() == Rule::COMMENT));
         saw_comment_after_param_list = !comments.is_empty();
-        result.push(
-            param_doc
-                .append(ret_type.map_or(arena.nil(), |p| to_doc(ctx, p.clone(), arena)))
-                .group(),
-        );
+        let ret_type_has_comment_at_end =
+            ret_type.is_some_and(|p| recursive_trailing_comment(p.clone()));
+        saw_comment_after_param_list |= ret_type_has_comment_at_end;
+        if ret_type_has_comment_at_end {
+            // This is a weird edge case to handle a situation where someone has done something
+            // like:
+            // ```
+            // fn foo(a: A) -> B
+            // // whatever
+            // {
+            //   bar
+            // }
+            // ```
+            //
+            // This is a rare/weird edge case, but shows up some times, and if we don't attempt the
+            // forced grouping of the param list, then it simply forces a break of the param list
+            // simply because there is a _guaranteed_ break in the return type (due to the comment).
+            result.push(param_doc.group());
+            result.push(ret_doc);
+        } else {
+            result.push(param_doc.append(ret_doc).group());
+        }
         result.extend(
             comments
                 .into_iter()
