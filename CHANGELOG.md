@@ -1,5 +1,10 @@
 # Unreleased
 
+* **BREAKING STYLE CHANGE:** Function signatures (parameters + return type) that
+  were longer-than-a-line previously used to prefer breaking at the return type.
+  Now, they prefer breaking at the argument/parameter list, which is closer in
+  line with `rustfmt`.
+
 # v0.6.1
 
 * Support parsing compound assignments like `x &= y`
