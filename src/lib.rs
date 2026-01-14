@@ -680,36 +680,34 @@ fn fn_to_doc<'a>(
     }
 
     // Finally, the post-signature section wants to handle new lines specially too.
-    {
-        result.extend(post_signature.into_iter().map(|p| {
-            let d = to_doc(ctx, p.clone(), arena);
-            match p.as_rule() {
-                Rule::fn_terminator => {
-                    if has_qualifier {
-                        // The terminator (fn_block_expr or semicolon) goes on a new line
-                        arena.hardline().append(d)
+    result.extend(post_signature.into_iter().map(|p| {
+        let d = to_doc(ctx, p.clone(), arena);
+        match p.as_rule() {
+            Rule::fn_terminator => {
+                if has_qualifier {
+                    // The terminator (fn_block_expr or semicolon) goes on a new line
+                    arena.hardline().append(d)
+                } else {
+                    // If the function has a body, and there isn't a comment up against
+                    // the parameter list, then we need a space before the opening brace
+                    if matches!(
+                        p.into_inner().next().unwrap().as_rule(),
+                        Rule::fn_block_expr
+                    ) && !saw_comment_after_param_list
+                    {
+                        arena.space().append(d)
                     } else {
-                        // If the function has a body, and there isn't a comment up against
-                        // the parameter list, then we need a space before the opening brace
-                        if matches!(
-                            p.into_inner().next().unwrap().as_rule(),
-                            Rule::fn_block_expr
-                        ) && !saw_comment_after_param_list
-                        {
-                            arena.space().append(d)
-                        } else {
-                            d
-                        }
+                        d
                     }
                 }
-                Rule::COMMENT => {
-                    saw_comment_after_param_list = true;
-                    c2d(ctx, p, arena, has_qualifier, has_ret_type, false)
-                }
-                _ => d,
             }
-        }));
-    }
+            Rule::COMMENT => {
+                saw_comment_after_param_list = true;
+                c2d(ctx, p, arena, has_qualifier, has_ret_type, false)
+            }
+            _ => d,
+        }
+    }));
 
     arena.concat(result)
 }
