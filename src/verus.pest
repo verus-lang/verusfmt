@@ -111,7 +111,7 @@ identifier_string = @{
 
 identifier = @{
     "r#" ~ identifier_string
-    | !(keyword ~ !(ASCII_ALPHA | "_" | ASCII_ALPHANUMERIC)) ~ identifier_string
+  | !(keyword ~ !(ASCII_ALPHA | "_" | ASCII_ALPHANUMERIC)) ~ identifier_string
 }
 
 hex_number = @{
