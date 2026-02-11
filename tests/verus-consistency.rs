@@ -3353,3 +3353,49 @@ fn main() {}
     fn main() {}
     "###);
 }
+
+#[test]
+fn raw_identifiers() {
+    let file = r#"
+verus! {
+
+pub struct FooImpl {
+    pub r#type: u64,
+}
+
+pub assume_specification[FooImpl::r#type](x: &FooImpl) -> (res: u64)
+    ensures res@ == x.r#type
+;
+
+pub fn test_raw_identifiers() {
+    let r#type = 42;
+    let r#match = true;
+    let foo = FooImpl { r#type: 10 };
+    assert(foo.r#type == 10);
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub struct FooImpl {
+        pub r#type: u64,
+    }
+
+    pub assume_specification[ FooImpl::r#type ](x: &FooImpl) -> (res: u64)
+        ensures
+            res@ == x.r#type,
+    ;
+
+    pub fn test_raw_identifiers() {
+        let r#type = 42;
+        let r#match = true;
+        let foo = FooImpl { r#type: 10 };
+        assert(foo.r#type == 10);
+    }
+
+    } // verus!
+    "###);
+}
