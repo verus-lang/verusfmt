@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.6.2
+
 * Support parsing raw identifiers (e.g., `r#type`)
 * Add support for real literals like `0.1real` (see [verus#2025](https://github.com/verus-lang/verus/pull/2025))
 
