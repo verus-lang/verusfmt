@@ -1,5 +1,8 @@
 # Unreleased
 
+* Support parsing raw identifiers (e.g., `r#type`)
+* Add support for real literals like `0.1real` (see [verus#2025](https://github.com/verus-lang/verus/pull/2025))
+
 # v0.6.1
 
 * Support parsing compound assignments like `x &= y`
