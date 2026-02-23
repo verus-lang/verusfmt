@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for `final` expressions (see [verus#2193](https://github.com/verus-lang/verus/pull/2193))
+
 # v0.6.2
 
 * Support parsing raw identifiers (e.g., `r#type`)
