@@ -289,6 +289,7 @@ FnMut_str = ${ "FnMut" ~ !("_" | ASCII_ALPHANUMERIC) }
 FnOnce_str = ${ "FnOnce" ~ !("_" | ASCII_ALPHANUMERIC) }
 FnSpec_str = ${ "FnSpec" ~ !("_" | ASCII_ALPHANUMERIC) }
 Fn_str = ${ "Fn" ~ !("_" | ASCII_ALPHANUMERIC) }
+final_str = ${ "final" ~ !("_" | ASCII_ALPHANUMERIC) }
 fn_str = ${ "fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 forall_str = ${ "forall" ~ !("_" | ASCII_ALPHANUMERIC) }
 for_str = ${ "for" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -420,7 +421,7 @@ keyword = {
     | "become"
     | box_str
     | do_str
-    | "final"
+    | final_str
     | macro_str
     | "override"
     | "priv"
@@ -1099,6 +1100,7 @@ expr_inner_no_struct = _{
     array_expr
   | assert_expr
   | assume_expr
+  | final_expr
   | assert_forall_expr
   | bulleted_expr
   | bulleted_expr_inner
@@ -1882,6 +1884,10 @@ assert_expr = {
 
 assume_expr = {
     attr* ~ assume_str ~ lparen_str ~ expr ~ rparen_str
+}
+
+final_expr = {
+    final_str ~ lparen_str ~ expr ~ rparen_str
 }
 
 assert_forall_expr = {

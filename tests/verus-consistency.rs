@@ -3399,3 +3399,33 @@ pub fn test_raw_identifiers() {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_final_expr() {
+    let file = r#"
+verus! {
+
+pub fn vec_index_mut<T, A: Allocator>(vec: &mut Vec<T, A>, i: usize) -> (element: &mut T)
+    requires i < vec.view().len(),
+    ensures *element == old(vec)@.index(i as int), final(vec)@ == old(vec)@.update(i as int, *final(element)), *final(element) == final(vec).view().index(i as int),
+    no_unwind;
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub fn vec_index_mut<T, A: Allocator>(vec: &mut Vec<T, A>, i: usize) -> (element: &mut T)
+        requires
+            i < vec.view().len(),
+        ensures
+            *element == old(vec)@.index(i as int),
+            final(vec)@ == old(vec)@.update(i as int, *final(element)),
+            *final(element) == final(vec).view().index(i as int),
+        no_unwind
+    ;
+
+    } // verus!
+    "###);
+}
