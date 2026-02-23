@@ -790,6 +790,7 @@ fn to_doc<'a>(
         | Rule::exec_str
         | Rule::exists_str
         | Rule::false_str
+        | Rule::final_str
         | Rule::forall_str
         | Rule::none_str
         | Rule::proof_str
@@ -1402,6 +1403,7 @@ fn to_doc<'a>(
         | Rule::assert_by_prover_expr
         | Rule::assert_expr => map_to_doc(ctx, arena, pair).group(),
         Rule::assume_expr => map_to_doc(ctx, arena, pair),
+        Rule::final_expr => map_to_doc(ctx, arena, pair),
         Rule::assert_forall_expr => map_to_doc(ctx, arena, pair),
         Rule::prover => map_to_doc(ctx, arena, pair),
         Rule::inline_prover => map_to_doc(ctx, arena, pair).group(),
