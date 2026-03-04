@@ -942,12 +942,7 @@ pub broadcast proof fn lemma_mod_is_mod_recursive(x: int, m: int)
         m > 0,
     ensures
         mod_recursive(x, m) == #[trigger] (x % m),
-    decreases
-            (if x < 0 {
-                -x + m
-            } else {
-                x
-            }),
+    decreases (if x < 0 { -x + m } else { x }),
 {
     reveal(mod_recursive);
     if x < 0 {
@@ -1106,12 +1101,7 @@ pub broadcast proof fn lemma_mod_multiples_vanish(a: int, b: int, m: int)
         0 < m,
     ensures
         #[trigger] ((m * a + b) % m) == b % m,
-    decreases
-            (if a > 0 {
-                a
-            } else {
-                -a
-            }),
+    decreases (if a > 0 { a } else { -a }),
 {
     lemma_mod_auto(m);
     broadcast use group_mul_properties_internal;
@@ -1236,12 +1226,7 @@ proof fn lemma_fundamental_div_mod_converse_helper_1(u: int, d: int, r: int)
         0 <= r < d,
     ensures
         u == (u * d + r) / d,
-    decreases
-            if u >= 0 {
-                u
-            } else {
-                -u
-            },
+    decreases if u >= 0 { u } else { -u },
 {
     if u < 0 {
         lemma_fundamental_div_mod_converse_helper_1(u + 1, d, r);
@@ -1269,12 +1254,7 @@ proof fn lemma_fundamental_div_mod_converse_helper_2(u: int, d: int, r: int)
         0 <= r < d,
     ensures
         r == (u * d + r) % d,
-    decreases
-            if u >= 0 {
-                u
-            } else {
-                -u
-            },
+    decreases if u >= 0 { u } else { -u },
 {
     if u < 0 {
         lemma_fundamental_div_mod_converse_helper_2(u + 1, d, r);

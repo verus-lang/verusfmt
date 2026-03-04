@@ -38,12 +38,7 @@ use super::super::super::math::{add as add1, sub as sub1};
 pub open spec fn mod_recursive(x: int, d: int) -> int
     recommends
         d > 0,
-    decreases
-            (if x < 0 {
-                (d - x)
-            } else {
-                x
-            }),
+    decreases (if x < 0 { (d - x) } else { x }),
     when d > 0
 {
     if x < 0 {
@@ -313,12 +308,7 @@ pub proof fn lemma_quotient_and_remainder(x: int, q: int, r: int, n: int)
     ensures
         q == x / n,
         r == x % n,
-    decreases
-            (if q > 0 {
-                q
-            } else {
-                -q
-            }),
+    decreases (if q > 0 { q } else { -q }),
 {
     lemma_mod_basics(n);
     if q > 0 {

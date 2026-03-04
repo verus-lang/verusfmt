@@ -1481,6 +1481,93 @@ fn test() {
 }
 
 #[test]
+fn verus_loops_decreases_with_if_exprs() {
+    let file = r#"
+verus! {
+
+fn loop_with_elaborate_decreases() {
+    let mut done: bool = true;
+    let mut wrapped: bool = true;
+
+    while !done
+        invariant
+            done,
+        decreases
+            if done { 1int } else { 0int },
+            if wrapped { 1int } else { 0int },
+    {
+        done = true;
+    }
+}
+
+fn single_decreases_with_if() {
+    while !done
+        decreases
+            if done { 1int } else { 0int },
+    {
+        done = true;
+    }
+}
+
+spec fn test_rec(x: int) -> int
+    decreases
+        if x < 0 { -x } else { x },
+{
+    if x > 0 {
+        1 + test_rec(x - 1)
+    } else if x < 0 {
+        1 + test_rec(x + 1)
+    } else {
+        0
+    }
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn loop_with_elaborate_decreases() {
+        let mut done: bool = true;
+        let mut wrapped: bool = true;
+
+        while !done
+            invariant
+                done,
+            decreases
+                if done { 1int } else { 0int },
+                if wrapped { 1int } else { 0int },
+        {
+            done = true;
+        }
+    }
+
+    fn single_decreases_with_if() {
+        while !done
+            decreases if done { 1int } else { 0int },
+        {
+            done = true;
+        }
+    }
+
+    spec fn test_rec(x: int) -> int
+        decreases if x < 0 { -x } else { x },
+    {
+        if x > 0 {
+            1 + test_rec(x - 1)
+        } else if x < 0 {
+            1 + test_rec(x + 1)
+        } else {
+            0
+        }
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_lifetimes() {
     let file = r#"
 verus! {

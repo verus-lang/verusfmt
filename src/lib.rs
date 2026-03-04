@@ -6,6 +6,7 @@ use pest::{iterators::Pair, iterators::Pairs, Parser};
 use pest_derive::Parser;
 use pretty::*;
 use regex::Regex;
+use std::cell::Cell;
 use std::collections::HashSet;
 use tracing::{debug, enabled, error, info, Level};
 
@@ -23,6 +24,9 @@ const INLINE_COMMENT_SPACE: usize = 2;
 
 struct Context {
     inline_comment_lines: HashSet<usize>,
+    /// When true, if-expressions use soft line breaks in their blocks,
+    /// allowing them to be flattened onto one line within an enclosing group
+    groupable_if_exprs: Cell<bool>,
 }
 
 // When in doubt, we should generally try to stick to Rust style guidelines:
@@ -242,6 +246,22 @@ fn block_braces<'a>(
     doc.braces()
 }
 
+/// Like block_braces, but uses soft line breaks that can be flattened to spaces
+/// within a group, allowing compact formatting like `{ expr }`
+fn soft_block_braces<'a>(
+    arena: &'a Arena<'a, ()>,
+    doc: DocBuilder<'a, Arena<'a>>,
+    terminal_expr: bool,
+) -> DocBuilder<'a, Arena<'a>> {
+    let doc = arena.line().append(doc).nest(INDENT_SPACES);
+    let doc = if terminal_expr {
+        doc.append(arena.line())
+    } else {
+        doc
+    };
+    doc.braces()
+}
+
 /// Produce a document that simply combines the result of calling `to_doc` on each child
 fn map_to_doc<'a>(
     ctx: &Context,
@@ -442,6 +462,9 @@ fn if_expr_to_doc<'a>(
     arena: &'a Arena<'a, ()>,
     pair: Pair<'a, Rule>,
 ) -> DocBuilder<'a, Arena<'a>> {
+    if ctx.groupable_if_exprs.get() {
+        return soft_if_expr_to_doc(ctx, arena, pair);
+    }
     arena.concat(pair.into_inner().map(|p| {
         if p.as_rule() == Rule::condition {
             to_doc(ctx, p, arena).append(arena.space())
@@ -449,6 +472,34 @@ fn if_expr_to_doc<'a>(
             to_doc(ctx, p, arena)
         }
     }))
+}
+
+/// Like if_expr_to_doc, but uses soft line breaks in block braces so the
+/// entire if expression can be flattened onto one line within a group
+fn soft_if_expr_to_doc<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    arena
+        .concat(pair.into_inner().map(|p| match p.as_rule() {
+            Rule::condition => to_doc(ctx, p, arena).append(arena.space()),
+            Rule::fn_block_expr => {
+                let pairs = p.into_inner();
+                let mapped = map_pairs_to_doc(ctx, arena, &pairs);
+                soft_block_braces(
+                    arena,
+                    mapped,
+                    terminal_expr(&pairs)
+                        || pairs
+                            .clone()
+                            .any(|x| x.as_rule() == Rule::bulleted_expr_inner),
+                )
+            }
+            Rule::if_expr => soft_if_expr_to_doc(ctx, arena, p),
+            _ => to_doc(ctx, p, arena),
+        }))
+        .group()
 }
 
 fn loop_to_doc<'a>(
@@ -1376,7 +1427,27 @@ fn to_doc<'a>(
             comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES)
         }
         Rule::groupable_comma_delimited_exprs_for_verus_clauses => {
-            map_to_doc(ctx, arena, pair).nest(INDENT_SPACES).group()
+            let inner_pair = pair.clone().into_inner().next();
+            let num_exprs = inner_pair
+                .as_ref()
+                .map(|p| {
+                    p.clone()
+                        .into_inner()
+                        .filter(|c| !matches!(c.as_rule(), Rule::COMMENT))
+                        .count()
+                })
+                .unwrap_or(0);
+            let has_braces = pair.as_str().contains('{') || pair.as_str().contains('}');
+            let old = ctx.groupable_if_exprs.replace(true);
+            let doc = map_to_doc(ctx, arena, pair);
+            ctx.groupable_if_exprs.set(old);
+            if has_braces && num_exprs > 1 {
+                // Multiple complex expressions: keep on separate lines,
+                // but let each individual expression flatten internally
+                doc
+            } else {
+                doc.group()
+            }
         }
         Rule::single_expr_for_verus_clause => {
             comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES)
@@ -1659,6 +1730,7 @@ impl miette::Diagnostic for ParseAndFormatError {
 fn parse_and_format(s: &str) -> miette::Result<String> {
     let ctx = Context {
         inline_comment_lines: find_inline_comment_lines(s),
+        groupable_if_exprs: Cell::new(false),
     };
     let parsed_file = VerusParser::parse(Rule::file, s)
         .map_err(ParseAndFormatError::from)?

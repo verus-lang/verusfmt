@@ -39,12 +39,7 @@ use super::super::super::math::{add as add1, sub as sub1};
 pub open spec fn div_pos(x: int, d: int) -> int
     recommends
         d > 0,
-    decreases
-            (if x < 0 {
-                d - x
-            } else {
-                x
-            }),
+    decreases (if x < 0 { d - x } else { x }),
     when d > 0
 {
     if x < 0 {
