@@ -1913,7 +1913,7 @@ verus!{
             assert(i <= 9);
             i = i + 1;
             if i == 10 {
-                break ;
+                break;
             }
         }
         assert(1 <= i <= 10);

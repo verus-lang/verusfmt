@@ -832,7 +832,7 @@ impl<DT: Dispatch> NrLog<DT> {
                 }
                 // upstream has an advance_head here, but dafny doesn't
                 // let ghost_data0 = self.advance_head(replica_token, responses, actual_replica, ghost_data0);
-                continue ;
+                continue;
             }
             let new_tail = tail + (nops as u64);
             // capture the warning here
@@ -919,7 +919,7 @@ impl<DT: Dispatch> NrLog<DT> {
                         request_ids,  // Ghost<Seq<ReqId>>,
                     };
                 }
-                continue ;
+                continue;
             }
             let ghost cell_ids = self.cyclic_buffer_instance@.cell_ids();
             let ghost buffer_size = self.cyclic_buffer_instance@.buffer_size();
@@ -1166,7 +1166,7 @@ impl<DT: Dispatch> NrLog<DT> {
                 };
                 ghost_data_new =
                 self.execute(replica_token, responses, actual_replica, Tracked(ghost_data0));
-                continue ;
+                continue;
             }
             // There are entries that can be freed up; update the head offset.
             // self.head.store(min_local_tail, Ordering::Relaxed);

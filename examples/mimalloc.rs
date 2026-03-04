@@ -14833,7 +14833,7 @@ impl LL {
                 count += 1;
                 p = next.ptr;
             } else {
-                break ;
+                break;
             }
         }
         let ghost old_other = *other;
@@ -15850,7 +15850,7 @@ impl ThreadLLSimple {
                 });
             match cas_result {
                 Result::Ok(_) => {
-                    break ;
+                    break;
                 },
                 _ => {},
             }
@@ -17673,7 +17673,7 @@ impl CommitMask {
                     requires
                         mask & 1 != 0usize,
                 ;
-                break ;
+                break;
             }
             i += 1;
             ofs = 0;
@@ -17744,20 +17744,20 @@ impl CommitMask {
                             requires
                                 mask & 1 != 1usize,
                         ;
-                        break ;
+                        break;
                     }
                 }
                 if ((next_idx + count) % usize::BITS as usize) == 0 {
                     i += 1;
                     if i >= COMMIT_MASK_FIELD_COUNT as usize {
-                        break ;
+                        break;
                     }
                     mask = self.mask[i];
                     assert(forall|m: u64| m >> 0u64 == m) by (bit_vector);
                     ofs = 0;
                 }
                 if (mask & 1) != 1 {
-                    break ;
+                    break;
                 }
             }
             assert forall|j: usize| next_idx <= j < next_idx + count implies self@.contains(
@@ -22728,7 +22728,7 @@ pub fn segment_delayed_decommit(
         let mask = segment.get_decommit_mask(Tracked(&*local));
         let (next_idx, count) = mask.next_run(idx);
         if count == 0 {
-            break ;
+            break;
         }
         idx = next_idx;
         let p = segment.segment_ptr.to_usize() + idx * COMMIT_SIZE as usize;
@@ -23454,7 +23454,7 @@ fn page_queue_find_free_ex(
             ),
     {
         if page.page_ptr.to_usize() == 0 {
-            break ;
+            break;
         }
         let next_ptr = page.get_next(Tracked(&*local));
         let ghost page_id = page.page_id@;
@@ -23473,7 +23473,7 @@ fn page_queue_find_free_ex(
         }
         crate::alloc_generic::page_free_collect(page, false, Tracked(&mut *local));
         if !page.get_inner_ref(Tracked(&*local)).free.is_empty() {
-            break ;
+            break;
         }
         if page.get_inner_ref(Tracked(&*local)).capacity < page.get_inner_ref(
             Tracked(&*local),
@@ -23481,7 +23481,7 @@ fn page_queue_find_free_ex(
             //let tld_ptr = heap_ptr.get_ref(Tracked(&*local)).tld_ptr;
             //assert(local.is_used_primary(page.page_id@));
             crate::alloc_generic::page_extend_free(page, Tracked(&mut *local));
-            break ;
+            break;
         }
         page_to_full(page, heap_ptr, pq, Tracked(&mut *local), Ghost(list_idx), Ghost(next_id));
         page = PagePtr { page_ptr: next_ptr, page_id: Ghost(next_id) };

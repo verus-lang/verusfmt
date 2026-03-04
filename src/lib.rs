@@ -654,7 +654,9 @@ fn to_doc<'a>(
         | Rule::star_str
         | Rule::tilde_str
         | Rule::underscore_str
-        | Rule::arrow_expr_str => s,
+        | Rule::arrow_expr_str
+        | Rule::break_str
+        | Rule::continue_str => s,
         Rule::open_str | Rule::closed_str | Rule::uninterp_str => s,
         Rule::proof_fn_str => s,
         Rule::fn_traits | Rule::impl_str => s,
@@ -680,9 +682,7 @@ fn to_doc<'a>(
         | Rule::auto_str
         | Rule::await_str
         | Rule::box_str
-        | Rule::break_str
         | Rule::const_str
-        | Rule::continue_str
         | Rule::crate_str
         | Rule::default_str
         | Rule::do_str
@@ -1264,8 +1264,37 @@ fn to_doc<'a>(
         Rule::for_expr => loop_to_doc(ctx, arena, pair),
         Rule::while_expr => loop_to_doc(ctx, arena, pair),
         Rule::label => unsupported(pair),
-        Rule::break_expr => map_to_doc(ctx, arena, pair),
-        Rule::continue_expr => map_to_doc(ctx, arena, pair),
+        Rule::break_expr => {
+            let mut children = pair.into_inner().peekable();
+            let mut doc = arena.nil();
+            while let Some(child) = children.next() {
+                let is_break_str = matches!(child.as_rule(), Rule::break_str);
+                let child_doc = to_doc(ctx, child, arena);
+                // Only add a space after break_str if something follows it
+                let child_doc = if is_break_str && children.peek().is_some() {
+                    child_doc.append(arena.space())
+                } else {
+                    child_doc
+                };
+                doc = doc.append(child_doc);
+            }
+            doc
+        }
+        Rule::continue_expr => {
+            let mut children = pair.into_inner().peekable();
+            let mut doc = arena.nil();
+            while let Some(child) = children.next() {
+                let is_continue_str = matches!(child.as_rule(), Rule::continue_str);
+                let child_doc = to_doc(ctx, child, arena);
+                let child_doc = if is_continue_str && children.peek().is_some() {
+                    child_doc.append(arena.space())
+                } else {
+                    child_doc
+                };
+                doc = doc.append(child_doc);
+            }
+            doc
+        }
         Rule::match_expr => map_to_doc(ctx, arena, pair),
         Rule::match_arm_list => {
             arena
