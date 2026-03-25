@@ -932,6 +932,67 @@ fn borrow_join2<'a>(tracked &'a self, x: u32) {
 }
 
 #[test]
+fn verus_trait_associated_const() {
+    let file = r#"
+verus! {
+
+trait SizedTypeProperties {
+    const SIZE: usize;
+    const ALIGN: usize;
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    trait SizedTypeProperties {
+        const SIZE: usize;
+        const ALIGN: usize;
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn verus_trait_associated_const_mixed() {
+    // Consecutive consts are grouped (no blank line), but blank lines are kept
+    // between consts and other associated items (functions, type aliases, etc.)
+    let file = r#"
+verus! {
+
+trait MyTrait {
+    const A: usize;
+    const B: usize;
+    fn foo();
+    const C: usize;
+    type T;
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    trait MyTrait {
+        const A: usize;
+        const B: usize;
+
+        fn foo();
+
+        const C: usize;
+
+        type T;
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_comments() {
     let file = r#"
 // External comment 1
