@@ -949,43 +949,8 @@ trait SizedTypeProperties {
 
     trait SizedTypeProperties {
         const SIZE: usize;
+
         const ALIGN: usize;
-    }
-
-    } // verus!
-    "###);
-}
-
-#[test]
-fn verus_trait_associated_const_mixed() {
-    // Consecutive consts are grouped (no blank line), but blank lines are kept
-    // between consts and other associated items (functions, type aliases, etc.)
-    let file = r#"
-verus! {
-
-trait MyTrait {
-    const A: usize;
-    const B: usize;
-    fn foo();
-    const C: usize;
-    type T;
-}
-
-} // verus!
-"#;
-
-    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
-    verus! {
-
-    trait MyTrait {
-        const A: usize;
-        const B: usize;
-
-        fn foo();
-
-        const C: usize;
-
-        type T;
     }
 
     } // verus!

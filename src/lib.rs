@@ -1031,46 +1031,7 @@ fn to_doc<'a>(
         }
         Rule::r#trait => map_to_doc(ctx, arena, pair),
         Rule::trait_alias => unsupported(pair),
-        Rule::assoc_items => {
-            // Like map_to_doc_lines, but consecutive const items are grouped with
-            // a single newline rather than a blank line between them.
-            let pairs: Vec<_> = pair.into_inner().collect();
-            if pairs.is_empty() {
-                arena.nil()
-            } else {
-                let is_const_assoc_item = |p: &Pair<Rule>| {
-                    p.as_rule() == Rule::assoc_item
-                        && p.clone().into_inner().any(|inner| inner.as_rule() == Rule::r#const)
-                };
-                let num_non_comments =
-                    pairs.iter().filter(|p| p.as_rule() != Rule::COMMENT).count();
-                let mut non_comment_index = 0;
-                let newline_separated = pairs.iter().enumerate().map(|(i, p)| match p.as_rule() {
-                    Rule::COMMENT => to_doc(ctx, p.clone(), arena),
-                    _ => {
-                        non_comment_index += 1;
-                        let doc = to_doc(ctx, p.clone(), arena);
-                        if non_comment_index < num_non_comments {
-                            // Look ahead past comments to find the next non-comment item
-                            let next_non_comment =
-                                pairs[i + 1..].iter().find(|q| q.as_rule() != Rule::COMMENT);
-                            // Suppress the blank line between consecutive consts
-                            let separator = if is_const_assoc_item(p)
-                                && next_non_comment.map_or(false, |n| is_const_assoc_item(n))
-                            {
-                                arena.line()
-                            } else {
-                                docs![arena, arena.line(), arena.line()]
-                            };
-                            doc.append(separator)
-                        } else {
-                            doc
-                        }
-                    }
-                });
-                arena.concat(newline_separated)
-            }
-        }
+        Rule::assoc_items => map_to_doc_lines(ctx, arena, pair),
         Rule::assoc_item_list => {
             arena
                 .space()
