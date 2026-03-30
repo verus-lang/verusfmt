@@ -867,7 +867,8 @@ const = {
     default_str? ~
     const_str ~ (name | underscore_str) ~ colon_str ~ type ~
     ((eq_str ~ expr? ~ semi_str?)  // Semi should not be included for const fn
-    | (ensures_clause ~ fn_block_expr))
+    | (ensures_clause ~ fn_block_expr)
+    | semi_str)  // For trait associated const declarations without a default value
 }
 
 static = {
