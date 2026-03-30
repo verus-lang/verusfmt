@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support trait associated `const` declarations
+
 # v0.6.3
 
 * Add support for `final` expressions (see [verus#2193](https://github.com/verus-lang/verus/pull/2193))
