@@ -64,26 +64,22 @@ cargo check -q
 echo "Done"
 
 if [ "$version_type" == "manual" ]; then
-  echo "Not committing and tagging a manually defined version"
+  echo "Not committing a manually defined version"
 elif [ "$VCS_TYPE" == "git" ]; then
-  echo "Making a commit, and tagging it"
+  echo "Making a commit"
   git add CHANGELOG.md Cargo.toml Cargo.lock
   git commit -m "$commit_msg"
-  git tag "v${proposed_version}"
-  echo "Done... Now you need to push with 'git push --tags'"
+  echo "Done"
 elif [ "$VCS_TYPE" == "jj" ]; then
-  echo "Making a commit, and tagging it"
+  echo "Making a commit"
   jj commit -m "$commit_msg" CHANGELOG.md Cargo.toml Cargo.lock
-  # From
-  # <https://jj-vcs.github.io/jj/v0.25.0/git-compatibility/#supported-features>:
-  # Tags: Partial. You can check out tagged commits by name (pointed to be
-  # either annotated or lightweight tags), but you cannot create new tags.
-  #
-  # Related: <https://github.com/jj-vcs/jj/issues/5426>
-  echo "jj currently doesn't support creating tags."
-  echo "We would have created the tag 'v${proposed_version}' if possible."
-  echo "For now, you'll have to do it manually on GitHub."
+  echo "Done"
 else
-  echo "FATAL: Unknown VCS TYPE. Updates were done, but cannot tag."
+  echo "FATAL: Unknown VCS TYPE. Updates were done, but not committed."
   exit 1
 fi
+
+echo ""
+echo "REMINDER: After the PR for this change has been merged, create the tag:"
+echo "  git tag v${proposed_version} <merge-commit-hash>"
+echo "  git push origin v${proposed_version}"
