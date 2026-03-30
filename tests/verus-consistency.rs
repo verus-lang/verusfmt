@@ -938,6 +938,7 @@ verus! {
 
 trait SizedTypeProperties {
     const SIZE: usize;
+
     const ALIGN: usize;
 }
 
