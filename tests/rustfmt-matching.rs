@@ -474,31 +474,19 @@ fn test() {
 }
 
 #[test]
-fn rust_no_space_after_empty_return() {
+fn rust_no_space_after_empty_return_break_continue() {
     let file = r#"
 fn foo() {
     return;
 }
-"#;
-    compare(file);
-}
 
-#[test]
-fn rust_no_space_after_empty_break() {
-    let file = r#"
-fn foo() {
+fn bar() {
     loop {
         break;
     }
 }
-"#;
-    compare(file);
-}
 
-#[test]
-fn rust_no_space_after_empty_continue() {
-    let file = r#"
-fn foo() {
+fn baz() {
     loop {
         continue;
     }
