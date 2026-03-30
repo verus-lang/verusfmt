@@ -253,11 +253,11 @@ proof fn map_fold_ok<A, B>(s: Set<A>, f: spec_fn(A) -> B)
     decreases s.len(),
 {
     if s.len() == 0 {
-        return ;
+        return;
     } else {
         let a = s.choose();
         map_fold_ok(s.remove(a), f);
-        return ;
+        return;
     }
 }
 
@@ -269,11 +269,11 @@ proof fn map_fold_finite<A, B>(s: Set<A>, f: spec_fn(A) -> B)
     decreases s.len(),
 {
     if s.len() == 0 {
-        return ;
+        return;
     } else {
         let a = s.choose();
         map_fold_finite(s.remove(a), f);
-        return ;
+        return;
     }
 }
 
