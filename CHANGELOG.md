@@ -1,5 +1,7 @@
 # Unreleased
 
+# v0.6.4
+
 * Support trait associated `const` declarations
 
 # v0.6.3
