@@ -722,7 +722,6 @@ fn to_doc<'a>(
         | Rule::r_str
         | Rule::raw_str
         | Rule::ref_str
-        | Rule::return_str
         | Rule::Self_str
         | Rule::sizeof_str
         | Rule::spaced_comma_str
@@ -794,6 +793,7 @@ fn to_doc<'a>(
         | Rule::forall_str
         | Rule::none_str
         | Rule::proof_str
+        | Rule::return_str
         | Rule::self_str
         | Rule::spec_str
         | Rule::true_str => s,
@@ -1286,7 +1286,14 @@ fn to_doc<'a>(
                 _ => to_doc(ctx, p, arena),
             }))
         }
-        Rule::return_expr => map_to_doc(ctx, arena, pair),
+        Rule::return_expr => {
+            let inner = pair.clone().into_inner();
+            if inner.len() > 1 {
+                arena.intersperse(inner.map(|p| to_doc(ctx, p, arena)), arena.space())
+            } else {
+                map_to_doc(ctx, arena, pair)
+            }
+        },
         Rule::yield_expr => map_to_doc(ctx, arena, pair),
         Rule::yeet_expr => map_to_doc(ctx, arena, pair),
         Rule::let_expr_no_struct => map_to_doc(ctx, arena, pair),
