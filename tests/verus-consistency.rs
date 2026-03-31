@@ -932,6 +932,33 @@ fn borrow_join2<'a>(tracked &'a self, x: u32) {
 }
 
 #[test]
+fn verus_trait_associated_const() {
+    let file = r#"
+verus! {
+
+trait SizedTypeProperties {
+    const SIZE: usize;
+
+    const ALIGN: usize;
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    trait SizedTypeProperties {
+        const SIZE: usize;
+
+        const ALIGN: usize;
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_comments() {
     let file = r#"
 // External comment 1
