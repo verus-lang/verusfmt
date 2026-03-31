@@ -451,6 +451,19 @@ fn if_expr_to_doc<'a>(
     }))
 }
 
+fn maybe_space_to_doc<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    let inner = pair.clone().into_inner();
+    if inner.len() > 1 {
+        arena.intersperse(inner.map(|p| to_doc(ctx, p, arena)), arena.space())
+    } else {
+        map_to_doc(ctx, arena, pair)
+    }
+}
+
 fn loop_to_doc<'a>(
     ctx: &Context,
     arena: &'a Arena<'a, ()>,
@@ -680,9 +693,7 @@ fn to_doc<'a>(
         | Rule::auto_str
         | Rule::await_str
         | Rule::box_str
-        | Rule::break_str
         | Rule::const_str
-        | Rule::continue_str
         | Rule::crate_str
         | Rule::default_str
         | Rule::do_str
@@ -722,7 +733,6 @@ fn to_doc<'a>(
         | Rule::r_str
         | Rule::raw_str
         | Rule::ref_str
-        | Rule::return_str
         | Rule::Self_str
         | Rule::sizeof_str
         | Rule::spaced_comma_str
@@ -782,11 +792,13 @@ fn to_doc<'a>(
 
         Rule::any_str
         | Rule::assert_str
-        | Rule::assume_str
         | Rule::assume_specification_str
+        | Rule::assume_str
         | Rule::axiom_str
+        | Rule::break_str
         | Rule::checked_str
         | Rule::choose_str
+        | Rule::continue_str
         | Rule::exec_str
         | Rule::exists_str
         | Rule::false_str
@@ -794,6 +806,7 @@ fn to_doc<'a>(
         | Rule::forall_str
         | Rule::none_str
         | Rule::proof_str
+        | Rule::return_str
         | Rule::self_str
         | Rule::spec_str
         | Rule::true_str => s,
@@ -1264,8 +1277,8 @@ fn to_doc<'a>(
         Rule::for_expr => loop_to_doc(ctx, arena, pair),
         Rule::while_expr => loop_to_doc(ctx, arena, pair),
         Rule::label => unsupported(pair),
-        Rule::break_expr => map_to_doc(ctx, arena, pair),
-        Rule::continue_expr => map_to_doc(ctx, arena, pair),
+        Rule::break_expr => maybe_space_to_doc(ctx, arena, pair),
+        Rule::continue_expr => maybe_space_to_doc(ctx, arena, pair),
         Rule::match_expr => map_to_doc(ctx, arena, pair),
         Rule::match_arm_list => {
             arena
@@ -1286,7 +1299,7 @@ fn to_doc<'a>(
                 _ => to_doc(ctx, p, arena),
             }))
         }
-        Rule::return_expr => map_to_doc(ctx, arena, pair),
+        Rule::return_expr => maybe_space_to_doc(ctx, arena, pair),
         Rule::yield_expr => map_to_doc(ctx, arena, pair),
         Rule::yeet_expr => map_to_doc(ctx, arena, pair),
         Rule::let_expr_no_struct => map_to_doc(ctx, arena, pair),

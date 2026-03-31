@@ -1920,7 +1920,7 @@ verus!{
         }
 }
 "#;
-    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    assert_snapshot!(parse_and_format(file).unwrap(), @"
     verus! {
 
     fn test() {
@@ -1940,14 +1940,14 @@ verus!{
             assert(i <= 9);
             i = i + 1;
             if i == 10 {
-                break ;
+                break;
             }
         }
         assert(1 <= i <= 10);
     }
 
     } // verus!
-    "###);
+    ");
 }
 
 #[test]

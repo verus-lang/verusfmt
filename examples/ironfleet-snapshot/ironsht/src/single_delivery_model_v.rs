@@ -234,7 +234,7 @@ impl CSingleDelivery {
 
         if let CSingleMessage::Ack { ack_seqno } = pkt.msg {
             if ack_seqno <= num_packets_acked {
-                return ;
+                return;
             }
             let mut local_state = CAckState::new();
             let default = CAckState::new();

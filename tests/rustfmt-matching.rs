@@ -472,3 +472,25 @@ fn test() {
 "#;
     compare(file);
 }
+
+#[test]
+fn rust_no_space_after_empty_return_break_continue() {
+    let file = r#"
+fn foo() {
+    return;
+}
+
+fn bar() {
+    loop {
+        break;
+    }
+}
+
+fn baz() {
+    loop {
+        continue;
+    }
+}
+"#;
+    compare(file);
+}

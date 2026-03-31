@@ -843,7 +843,7 @@ impl<K: KeyTrait + VerusClone> StrictlyOrderedMap<K> {
         {
             if iter.lt(&KeyIterator::new(self.keys.index(i))) {
                 // Reached a key that's too large
-                break ;
+                break;
             }
             bound = i;
             i = i + 1;

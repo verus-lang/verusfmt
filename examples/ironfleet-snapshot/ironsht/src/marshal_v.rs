@@ -1433,7 +1433,7 @@ impl<T: Marshalable, U: Marshalable> Marshalable for (T, U) {
             if si == so.subrange(0, si.len() as int) {
                 assert(si[mid + idx] == so[mid + idx]);  // OBSERVE
             }
-            return ;
+            return;
         } else {
             self.0.lemma_same_views_serialize_the_same(&other.0);
         }
@@ -1453,7 +1453,7 @@ impl<T: Marshalable, U: Marshalable> Marshalable for (T, U) {
             if si == so.subrange(0, si.len() as int) {
                 assert(si[mid + idx] == so[mid + idx]);  // OBSERVE
             }
-            return ;
+            return;
         } else {
             self.1.lemma_same_views_serialize_the_same(&other.1);
         }

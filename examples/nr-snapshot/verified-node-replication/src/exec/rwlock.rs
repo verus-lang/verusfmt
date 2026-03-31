@@ -407,7 +407,7 @@ impl<T> RwLock<T> {
                 // assert(g@.key == tid as nat);
             });
             if res.is_err() {
-                continue ;
+                continue;
             }
             // exc_locked: CachePadded<AtomicBool<_, RwLockSpec::exc_locked<PointsTo<T>>, _>>,
 
