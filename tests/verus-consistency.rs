@@ -3436,6 +3436,43 @@ pub fn test_raw_identifiers() {
 }
 
 #[test]
+fn verus_final_expr_with_attr() {
+    let file = r#"
+verus! {
+
+proof fn perm_ctr_insert()
+    ensures
+        forall|c: u64|
+            {
+                &&& #[trigger] final(ctr_auth)@.contains_key(client_id)
+            } ==> {
+                &&& final(ctr_auth)@[client_id].1
+            },
+{
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    proof fn perm_ctr_insert()
+        ensures
+            forall|c: u64|
+                {
+                    &&& #[trigger] final(ctr_auth)@.contains_key(client_id)
+                } ==> {
+                    &&& final(ctr_auth)@[client_id].1
+                },
+    {
+    }
+
+    } // verus!
+    ");
+}
+
+#[test]
 fn verus_final_expr() {
     let file = r#"
 verus! {
