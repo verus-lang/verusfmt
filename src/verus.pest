@@ -1888,7 +1888,7 @@ assume_expr = {
 }
 
 final_expr = {
-    final_str ~ lparen_str ~ expr ~ rparen_str
+    attr* ~ final_str ~ lparen_str ~ expr ~ rparen_str
 }
 
 assert_forall_expr = {
