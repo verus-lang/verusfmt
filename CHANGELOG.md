@@ -1,5 +1,8 @@
 # Unreleased
 
+* **Breaking change:** Fix unnecessary space after return/break/continue. Previously: `return ;`, more natural current behavior: `return;`.
+* Support return pattern values in function signatures (see [verus#2134](https://github.com/verus-lang/verus/pull/2134))
+
 # v0.6.4
 
 * Support trait associated `const` declarations
