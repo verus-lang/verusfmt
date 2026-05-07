@@ -89,6 +89,10 @@ fn test_views() {
 proof fn unbounded_log_append_entries() -> (tracked ret: int) {
 }
 
+proof fn test_return_pat() -> (tracked (a, b): (X, X)) {
+    (X { }, X { })
+}
+
 fn test_ghost_unwrap(
     x: u32,
     Ghost(y): Ghost<u32>,
@@ -219,6 +223,10 @@ fn test2()
     }
 
     proof fn unbounded_log_append_entries() -> (tracked ret: int) {
+    }
+
+    proof fn test_return_pat() -> (tracked (a, b): (X, X)) {
+        (X {  }, X {  })
     }
 
     fn test_ghost_unwrap(
