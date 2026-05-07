@@ -3436,43 +3436,6 @@ pub fn test_raw_identifiers() {
 }
 
 #[test]
-fn verus_final_expr_with_attr() {
-    let file = r#"
-verus! {
-
-proof fn perm_ctr_insert()
-    ensures
-        forall|c: u64|
-            {
-                &&& #[trigger] final(ctr_auth)@.contains_key(client_id)
-            } ==> {
-                &&& final(ctr_auth)@[client_id].1
-            },
-{
-}
-
-} // verus!
-"#;
-
-    assert_snapshot!(parse_and_format(file).unwrap(), @r"
-    verus! {
-
-    proof fn perm_ctr_insert()
-        ensures
-            forall|c: u64|
-                {
-                    &&& #[trigger] final(ctr_auth)@.contains_key(client_id)
-                } ==> {
-                    &&& final(ctr_auth)@[client_id].1
-                },
-    {
-    }
-
-    } // verus!
-    ");
-}
-
-#[test]
 fn verus_final_expr() {
     let file = r#"
 verus! {
@@ -3481,6 +3444,8 @@ pub fn vec_index_mut<T, A: Allocator>(vec: &mut Vec<T, A>, i: usize) -> (element
     requires i < vec.view().len(),
     ensures *element == old(vec)@.index(i as int), final(vec)@ == old(vec)@.update(i as int, *final(element)), *final(element) == final(vec).view().index(i as int),
     no_unwind;
+
+proof fn perm_ctr_insert() ensures forall|c: u64| { &&& #[trigger] final(ctr_auth)@.contains_key(client_id) } ==> { &&& final(ctr_auth)@[client_id].1 }, { }
 
 }
 "#;
@@ -3497,6 +3462,17 @@ pub fn vec_index_mut<T, A: Allocator>(vec: &mut Vec<T, A>, i: usize) -> (element
             *final(element) == final(vec).view().index(i as int),
         no_unwind
     ;
+
+    proof fn perm_ctr_insert()
+        ensures
+            forall|c: u64|
+                {
+                    &&& #[trigger] final(ctr_auth)@.contains_key(client_id)
+                } ==> {
+                    &&& final(ctr_auth)@[client_id].1
+                },
+    {
+    }
 
     } // verus!
     "###);
