@@ -668,6 +668,7 @@ fn to_doc<'a>(
         | Rule::tilde_str
         | Rule::underscore_str
         | Rule::arrow_expr_str => s,
+        Rule::rbracket_space_str => s.append(arena.space()),
         Rule::open_str | Rule::closed_str | Rule::uninterp_str => s,
         Rule::proof_fn_str => s,
         Rule::fn_traits | Rule::impl_str => s,
@@ -1343,20 +1344,7 @@ fn to_doc<'a>(
         }
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::type_bound_list => map_to_doc(ctx, arena, pair),
-        Rule::type_bound => {
-            let children: Vec<_> = pair.into_inner().collect();
-            // Special handling for [const] Type bounds: need a space after "]" before the type
-            let has_bracket_const =
-                children.first().is_some_and(|p| p.as_rule() == Rule::lbracket_str);
-            if has_bracket_const {
-                arena.concat(children.into_iter().map(|p| match p.as_rule() {
-                    Rule::rbracket_str => arena.text("]").append(arena.space()),
-                    _ => to_doc(ctx, p, arena),
-                }))
-            } else {
-                arena.concat(children.into_iter().map(|p| to_doc(ctx, p, arena)))
-            }
-        }
+        Rule::type_bound => map_to_doc(ctx, arena, pair),
 
         //************************//
         //        Patterns        //

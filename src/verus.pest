@@ -241,6 +241,7 @@ rangle_str = { ">" }
 rarrow_str = { "->" }
 rbrace_str = { "}" }
 rbracket_str = { "]" }
+rbracket_space_str = { "]" }
 rparen_str = { ")" }
 semi_str = { ";" }
 star_str = { "*" }
@@ -1627,7 +1628,7 @@ type_bound_list = {
 
 type_bound = {
     lifetime_no_space
-  | (question_str | tilde_str ~ const_str | lbracket_str ~ const_nospace_str ~ rbracket_str)? ~ type
+  | (question_str | tilde_str ~ const_str | lbracket_str ~ const_nospace_str ~ rbracket_space_str)? ~ type
 }
 
 //************************//
