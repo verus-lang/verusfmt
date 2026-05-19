@@ -1347,9 +1347,10 @@ fn to_doc<'a>(
             // Special handling for [const] Type bounds: format as "[const] Type" without
             // internal spaces (const_str normally appends a space, which would give "[const ]")
             let has_bracket_const =
-                children.first().map(|p| p.as_rule()) == Some(Rule::lbracket_str);
+                children.first().is_some_and(|p| p.as_rule() == Rule::lbracket_str);
             if has_bracket_const {
                 arena.concat(children.into_iter().map(|p| match p.as_rule() {
+                    Rule::lbracket_str => arena.text("["),
                     Rule::const_str => arena.text("const"),
                     Rule::rbracket_str => arena.text("]").append(arena.space()),
                     _ => to_doc(ctx, p, arena),
