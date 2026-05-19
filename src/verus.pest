@@ -912,7 +912,7 @@ assoc_item = {
 
 impl = {
     attr* ~ visibility? ~
-    default_str? ~ unsafe_str? ~
+    default_str? ~ unsafe_str? ~ const_str? ~
     impl_str ~ spaced_generic_param_list? ~ (const_str? ~ bang_str? ~ type ~ for_str)? ~ type ~ where_clause? ~
     assoc_item_list
 }
@@ -1626,7 +1626,7 @@ type_bound_list = {
 
 type_bound = {
     lifetime_no_space
-  | (question_str | tilde_str ~ const_str)? ~ type
+  | (question_str | tilde_str ~ const_str | lbracket_str ~ const_str ~ rbracket_str)? ~ type
 }
 
 //************************//
