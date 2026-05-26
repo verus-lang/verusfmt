@@ -314,8 +314,10 @@ fn comment_to_doc<'a>(
 ) -> DocBuilder<'a, Arena<'a>> {
     assert!(matches!(pair.as_rule(), Rule::COMMENT));
     let (line, _col) = pair.line_col();
-    let s = arena.text(pair.as_str().trim());
-    if ctx.inline_comment_lines.contains(&line) {
+    let raw_comment = pair.as_str();
+    let is_single_line_comment = !raw_comment.contains('\n') && !raw_comment.contains('\r');
+    let s = arena.text(raw_comment.trim());
+    if is_single_line_comment && ctx.inline_comment_lines.contains(&line) {
         debug!(
             "contains(line = <<{}>>) = {}, with add_newline: {}",
             pair.as_str(),
