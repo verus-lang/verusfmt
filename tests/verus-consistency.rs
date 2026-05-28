@@ -1391,6 +1391,35 @@ impl<K: KeyTrait + VerusClone> DelegationMap<K> {
 }
 
 #[test]
+fn verus_const_impl_and_bracket_const_bound() {
+    let file = r#"
+verus! {
+
+struct RawVec<A: Allocator> {
+    _marker: PhantomData<A>,
+}
+
+const impl<A: [const] Allocator> RawVec<A> {}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    struct RawVec<A: Allocator> {
+        _marker: PhantomData<A>,
+    }
+
+    const impl<A: [const] Allocator> RawVec<A> {
+
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_closures() {
     let file = r#"
 verus! {

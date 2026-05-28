@@ -241,6 +241,7 @@ rangle_str = { ">" }
 rarrow_str = { "->" }
 rbrace_str = { "}" }
 rbracket_str = { "]" }
+rbracket_space_str = { "]" }
 rparen_str = { ")" }
 semi_str = { ";" }
 star_str = { "*" }
@@ -268,6 +269,7 @@ checked_str = ${ "checked" ~ !("_" | ASCII_ALPHANUMERIC) }
 choose_str = ${ "choose" ~ !("_" | ASCII_ALPHANUMERIC) }
 closed_str = ${ "closed" ~ !("_" | ASCII_ALPHANUMERIC) }
 const_str = ${ "const" ~ !("_" | ASCII_ALPHANUMERIC) }
+const_nospace_str = ${ "const" ~ !("_" | ASCII_ALPHANUMERIC) }
 continue_str = ${ "continue" ~ !("_" | ASCII_ALPHANUMERIC) }
 crate_str = ${ "crate" ~ !("_" | ASCII_ALPHANUMERIC) }
 decreases_str = ${ "decreases" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -912,7 +914,7 @@ assoc_item = {
 
 impl = {
     attr* ~ visibility? ~
-    default_str? ~ unsafe_str? ~
+    default_str? ~ unsafe_str? ~ const_str? ~
     impl_str ~ spaced_generic_param_list? ~ (const_str? ~ bang_str? ~ type ~ for_str)? ~ type ~ where_clause? ~
     assoc_item_list
 }
@@ -1626,7 +1628,7 @@ type_bound_list = {
 
 type_bound = {
     lifetime_no_space
-  | (question_str | tilde_str ~ const_str)? ~ type
+  | (question_str | tilde_str ~ const_str | lbracket_str ~ const_nospace_str ~ rbracket_space_str)? ~ type
 }
 
 //************************//
