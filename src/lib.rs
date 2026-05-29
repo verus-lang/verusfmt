@@ -670,6 +670,7 @@ fn to_doc<'a>(
         | Rule::tilde_str
         | Rule::underscore_str
         | Rule::arrow_expr_str => s,
+        Rule::rbracket_space_str => s.append(arena.space()),
         Rule::open_str | Rule::closed_str | Rule::uninterp_str => s,
         Rule::proof_fn_str => s,
         Rule::fn_traits | Rule::impl_str => s,
@@ -800,6 +801,7 @@ fn to_doc<'a>(
         | Rule::break_str
         | Rule::checked_str
         | Rule::choose_str
+        | Rule::const_nospace_str
         | Rule::continue_str
         | Rule::exec_str
         | Rule::exists_str
