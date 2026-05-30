@@ -2900,6 +2900,13 @@ verus!{
         opens_invariants any
     {
     }
+
+    fn test5(self) -> DmaCoherent
+        returns
+            DmaCoherent { inner: self.inner },
+    {
+        self
+    }
 }
 "#;
     assert_snapshot!(parse_and_format(file).unwrap(), @r"
@@ -2945,6 +2952,13 @@ verus!{
             !b,
         opens_invariants any
     {
+    }
+
+    fn test5(self) -> DmaCoherent
+        returns
+            DmaCoherent { inner: self.inner },
+    {
+        self
     }
 
     } // verus!
