@@ -17,6 +17,26 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
 }
 
 #[test]
+fn inline_multiline_block_comment_with_line_comment_text() {
+    let file = r#"
+verus! { fn f() { x()/*//
+*/ } }
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn f() {
+        x()/*//
+    */
+
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_functions() {
     let file = r#"
 verus! {
