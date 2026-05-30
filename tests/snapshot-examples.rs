@@ -97,6 +97,7 @@ fn verus_snapshot_unchanged(path: &std::path::Path) {
                     std::fs::read_to_string("./examples/verus-snapshot/source/rustfmt.toml")
                         .unwrap(),
                 ),
+                edition: "2021".to_string(),
             },
         },
     );

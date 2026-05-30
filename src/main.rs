@@ -35,6 +35,9 @@ struct Args {
     /// Use unstable CLI features
     #[arg(short = 'Z', long = "unstable")]
     unstable_command: Option<UnstableCommand>,
+    /// Rust edition for parts outside the Verus macro
+    #[arg(long, default_value = "2021", conflicts_with = "verus_only")]
+    edition: String,
     /// Update verusfmt if an update is available
     #[arg(long = "update")]
     update: bool,
@@ -60,7 +63,10 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
             .filter_map(|p| p.exists().then(|| fs::read_to_string(p).unwrap()))
             .next();
 
-        RustFmtConfig { rustfmt_toml }
+        RustFmtConfig {
+            rustfmt_toml,
+            edition: args.edition.clone(),
+        }
     };
 
     let formatted_output = verusfmt::run(
