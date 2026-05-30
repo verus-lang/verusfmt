@@ -31,11 +31,16 @@ pub struct RustFmtConfig {
     /// otherwise, uses the default behavior (i.e., picking up `rustfmt.toml` if it exists from
     /// the file's directory or ancestors)
     pub rustfmt_toml: Option<String>,
+    /// Rust edition to pass to rustfmt.
+    pub edition: String,
 }
 
 impl Default for RustFmtConfig {
     fn default() -> Self {
-        Self { rustfmt_toml: None }
+        Self {
+            rustfmt_toml: None,
+            edition: "2021".to_string(),
+        }
     }
 }
 
@@ -150,7 +155,9 @@ fn run_rustfmt(s: &str, config: &RustFmtConfig) -> Option<String> {
     let mut rustfmt = Command::new("rustfmt");
 
     // Set up standard arguments we always pass
-    rustfmt.arg("--emit=stdout").arg("--edition=2021");
+    rustfmt
+        .arg("--emit=stdout")
+        .arg(format!("--edition={}", config.edition));
 
     // If we need to, explicitly set up the rustfmt.toml file
     let tempdir = config.rustfmt_toml.as_ref().map(|toml| {
