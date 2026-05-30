@@ -35,8 +35,8 @@ struct Args {
     /// Use unstable CLI features
     #[arg(short = 'Z', long = "unstable")]
     unstable_command: Option<UnstableCommand>,
-    /// Rust edition to pass to rustfmt
-    #[arg(long, default_value = "2021")]
+    /// Rust edition for parts outside the Verus macro
+    #[arg(long, default_value = "2021", conflicts_with = "verus_only")]
     edition: String,
     /// Update verusfmt if an update is available
     #[arg(long = "update")]

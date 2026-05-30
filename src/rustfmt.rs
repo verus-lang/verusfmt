@@ -31,7 +31,7 @@ pub struct RustFmtConfig {
     /// otherwise, uses the default behavior (i.e., picking up `rustfmt.toml` if it exists from
     /// the file's directory or ancestors)
     pub rustfmt_toml: Option<String>,
-    /// Rust edition to pass to rustfmt.
+    /// Rust edition for parts outside the Verus macro.
     pub edition: String,
 }
 
