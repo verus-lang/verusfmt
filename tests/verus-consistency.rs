@@ -1822,6 +1822,44 @@ fn foo() { for i in 0..(10 + 5) {
 }
 
 #[test]
+fn verus_range_index_expr() {
+    let file = r#"
+verus! {
+
+fn slice_stuff(buffer: &[u8; 1024], n: usize) {
+    foo(&buffer[..n]);
+    foo(&buffer[..]);
+    foo(&buffer[..=n]);
+    foo(&buffer[n..]);
+    foo(&buffer[n..n]);
+}
+
+fn foo(buffer: &[u8]) {
+
+}
+
+}
+
+"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn slice_stuff(buffer: &[u8; 1024], n: usize) {
+        foo(&buffer[..n]);
+        foo(&buffer[..]);
+        foo(&buffer[..=n]);
+        foo(&buffer[n..]);
+        foo(&buffer[n..n]);
+    }
+
+    fn foo(buffer: &[u8]) {
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_for_loops() {
     let file = r#"
 verus!{
