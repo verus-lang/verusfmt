@@ -1439,6 +1439,9 @@ struct RawVec<A: Allocator> {
 
 const impl<A: [const] Allocator> RawVec<A> {}
 
+impl<T: /* ?Sized*/ > MutexGuard<T> {
+}
+
 } // verus!
 "#;
 
@@ -1450,6 +1453,10 @@ const impl<A: [const] Allocator> RawVec<A> {}
     }
 
     const impl<A: [const] Allocator> RawVec<A> {
+
+    }
+
+    impl<T /* ?Sized*/> MutexGuard<T> {
 
     }
 

@@ -950,7 +950,7 @@ generic_param = {
 }
 
 type_param = {
-    attr* ~ name ~ (colon_str ~ type_bound_list)? ~
+    attr* ~ name ~ (colon_str ~ (type_bound_list | empty_type_bound_list))? ~
     (eq_str ~ type)?
 }
 
@@ -960,7 +960,7 @@ const_param = {
 }
 
 lifetime_param = {
-    attr* ~ lifetime_no_space ~ (colon_str ~ type_bound_list)?
+    attr* ~ lifetime_no_space ~ (colon_str ~ (type_bound_list | empty_type_bound_list))?
 }
 
 where_clause = {
@@ -1628,6 +1628,10 @@ dyn_trait_type = {
 
 type_bound_list = {
     type_bound ~ (plus_str ~ type_bound)* ~ plus_str?
+}
+
+empty_type_bound_list = {
+    &("," | ">")
 }
 
 type_bound = {
