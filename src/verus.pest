@@ -1391,7 +1391,11 @@ record_expr_field_list = {
 }
 
 record_expr_field = {
-    attr* ~ (name ~ colon_str)? ~ expr
+    attr* ~ (record_field_key ~ colon_str)? ~ expr
+}
+
+record_field_key = {
+    name | int_number
 }
 
 arg_list = {
@@ -1702,7 +1706,11 @@ record_pat_field_list = {
 }
 
 record_pat_field = {
-    attr* ~ (name_ref ~ colon_str)? ~ pat
+    attr* ~ (record_pat_field_key ~ colon_str)? ~ pat
+}
+
+record_pat_field_key = {
+    name_ref | int_number
 }
 
 tuple_struct_pat_inner = {

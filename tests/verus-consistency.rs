@@ -701,6 +701,15 @@ fn local_direct_update(loc1: Local, pq: int) -> bool {
     &&& loc2 == Local { heap: loc2.heap, ..loc1 }
 }
 
+pub struct PageTableEntry(pub usize);
+
+impl Clone for PageTableEntry {
+    fn clone(&self) -> Self {
+        let Self { 0: value } = self;
+        Self { 0: value }
+    }
+}
+
 } // verus!
 "#;
 
@@ -713,6 +722,15 @@ fn local_direct_update(loc1: Local, pq: int) -> bool {
 
     fn local_direct_update(loc1: Local, pq: int) -> bool {
         &&& loc2 == Local { heap: loc2.heap, ..loc1 }
+    }
+
+    pub struct PageTableEntry(pub usize);
+
+    impl Clone for PageTableEntry {
+        fn clone(&self) -> Self {
+            let Self { 0: value } = self;
+            Self { 0: value }
+        }
     }
 
     } // verus!

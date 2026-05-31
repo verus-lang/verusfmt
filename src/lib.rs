@@ -1228,6 +1228,7 @@ fn to_doc<'a>(
             extra_spaced_braces(arena, comma_delimited(ctx, arena, pair, false)).group()
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
+        Rule::record_field_key => map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
         Rule::proof_fn_characteristics => {
             comma_delimited(ctx, arena, pair, false).group().brackets()
@@ -1370,6 +1371,7 @@ fn to_doc<'a>(
             spaced_braces(arena, comma_delimited(ctx, arena, pair, false)).group()
         }
         Rule::record_pat_field => map_to_doc(ctx, arena, pair),
+        Rule::record_pat_field_key => map_to_doc(ctx, arena, pair),
         Rule::tuple_struct_pat_inner => comma_delimited(ctx, arena, pair, false).parens().group(),
         Rule::tuple_struct_pat => map_to_doc(ctx, arena, pair),
         Rule::tuple_pat => comma_delimited(ctx, arena, pair, false).parens().group(),
