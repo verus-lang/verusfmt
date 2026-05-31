@@ -566,8 +566,7 @@ macro_call = {
 // can switch to the alternative if we find situations where it might be better
 // suited.
 macro_call_stmt = {
-    calc_macro_call
-  | attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
+    attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
 }
 
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
@@ -1050,11 +1049,12 @@ stmt = !{
   // We can't use `expr_with_block ~ semi_str?` here, and instead need to do it
   // as the two separate ordered alternatives (`ewb ~ semi_str | ewb`) to
   // prevent munching of multi-newlines that happens otherwise
-  | expr_with_block ~ semi_str
-  | expr_with_block
+  | !(block_expr ~ dot_str) ~ expr_with_block ~ semi_str
+  | !(block_expr ~ dot_str) ~ expr_with_block
   | expr ~ semi_str
   | item_no_macro_call
-  | macro_call_stmt
+  | calc_macro_call
+  | !(macro_call_stmt ~ dot_str) ~ macro_call_stmt
 }
 
 let_stmt = {

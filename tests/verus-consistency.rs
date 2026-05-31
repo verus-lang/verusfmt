@@ -553,6 +553,42 @@ verus!{
 }
 
 #[test]
+fn block_and_macro_expr_method_suffixes() {
+    let file = r#"
+verus! {
+fn block_suffix() {
+    {#[verus_spec(with => tracked_state)] acquire_lock()}.then(|| true)
+}
+
+fn macro_suffix() -> bool {
+    atomic_with_ghost! {
+        value
+    }.is_ok()
+}
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn block_suffix() {
+        {
+            #[verus_spec(with => tracked_state)]
+            acquire_lock()
+        }.then(|| true)
+    }
+
+    fn macro_suffix() -> bool {
+        atomic_with_ghost! {
+            value
+        }.is_ok()
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_macro_statements() {
     let file = r#"
 verus! {
