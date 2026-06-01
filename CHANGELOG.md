@@ -1,5 +1,10 @@
 # Unreleased
 
+# v0.7.1
+
+* Add support for `--edition` for formatting parts outside `verus!` macro; no defaults changed currently.
+* Support `const impl`/`impl const` traits and `[const]` trait bounds (see [verus#2451](https://github.com/verus-lang/verus/pull/2451))
+
 # v0.7.0
 
 * **Breaking change:** Fix unnecessary space after return/break/continue. Previously: `return ;`, more natural current behavior: `return;`.
