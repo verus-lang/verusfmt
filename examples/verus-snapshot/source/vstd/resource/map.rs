@@ -76,9 +76,16 @@
 use super::super::map::*;
 use super::super::map_lib::*;
 use super::super::modes::*;
-use super::super::pcm::*;
 use super::super::prelude::*;
 use super::super::set_lib::*;
+use super::Loc;
+use super::algebra::ResourceAlgebra;
+#[cfg(verus_keep_ghost)]
+use super::incorporate;
+use super::pcm::PCM;
+use super::pcm::Resource;
+#[cfg(verus_keep_ghost)]
+use super::split_mut;
 
 verus! {
 
@@ -142,12 +149,12 @@ impl<K, V> FracCarrier<K, V> {
 #[verifier::reject_recursive_types(K)]
 #[verifier::ext_equal]
 // This struct represents the underlying resource algebra for GhostMaps
-struct MapCarrier<K, V> {
+tracked struct MapCarrier<K, V> {
     auth: AuthCarrier<K, V>,
     frac: FracCarrier<K, V>,
 }
 
-impl<K, V> PCM for MapCarrier<K, V> {
+impl<K, V> ResourceAlgebra for MapCarrier<K, V> {
     closed spec fn valid(self) -> bool {
         match (self.auth, self.frac) {
             (AuthCarrier::Invalid, _) => false,
@@ -163,8 +170,8 @@ impl<K, V> PCM for MapCarrier<K, V> {
         }
     }
 
-    closed spec fn op(self, other: Self) -> Self {
-        let auth = match (self.auth, other.auth) {
+    closed spec fn op(a: Self, b: Self) -> Self {
+        let auth = match (a.auth, b.auth) {
             // Invalid carriers absorb
             (AuthCarrier::Invalid, _) => AuthCarrier::Invalid,
             (_, AuthCarrier::Invalid) => AuthCarrier::Invalid,
@@ -173,11 +180,11 @@ impl<K, V> PCM for MapCarrier<K, V> {
             // Fracs remain the same
             (AuthCarrier::Frac, AuthCarrier::Frac) => AuthCarrier::Frac,
             // Whoever is the auth has precedence
-            (AuthCarrier::Auth(_), _) => self.auth,
-            (_, AuthCarrier::Auth(_)) => other.auth,
+            (AuthCarrier::Auth(_), _) => a.auth,
+            (_, AuthCarrier::Auth(_)) => b.auth,
         };
 
-        let frac = match (self.frac, other.frac) {
+        let frac = match (a.frac, b.frac) {
             // Invalid fracs remain invalid
             (FracCarrier::Invalid, _) => FracCarrier::Invalid,
             (_, FracCarrier::Invalid) => FracCarrier::Invalid,
@@ -187,19 +194,19 @@ impl<K, V> PCM for MapCarrier<K, V> {
             //  - there is no real way to express this in the typesystem
             //  - we need to allow that through (because it does not equal Invalid)
             (
-                FracCarrier::Frac { owning: self_owning, dup: self_dup },
-                FracCarrier::Frac { owning: other_owning, dup: other_dup },
+                FracCarrier::Frac { owning: a_owning, dup: a_dup },
+                FracCarrier::Frac { owning: b_owning, dup: b_dup },
             ) => {
                 let non_overlapping = {
-                    &&& self_owning.dom().disjoint(other_dup.dom())
-                    &&& other_owning.dom().disjoint(self_dup.dom())
-                    &&& self_owning.dom().disjoint(other_owning.dom())
+                    &&& a_owning.dom().disjoint(b_dup.dom())
+                    &&& b_owning.dom().disjoint(a_dup.dom())
+                    &&& a_owning.dom().disjoint(b_owning.dom())
                 };
-                let aggreement = self_dup.agrees(other_dup);
+                let aggreement = a_dup.agrees(b_dup);
                 if non_overlapping && aggreement {
                     FracCarrier::Frac {
-                        owning: self_owning.union_prefer_right(other_owning),
-                        dup: self_dup.union_prefer_right(other_dup),
+                        owning: a_owning.union_prefer_right(b_owning),
+                        dup: a_dup.union_prefer_right(b_dup),
                     }
                 } else {
                     FracCarrier::Invalid
@@ -210,14 +217,7 @@ impl<K, V> PCM for MapCarrier<K, V> {
         MapCarrier { auth, frac }
     }
 
-    closed spec fn unit() -> Self {
-        MapCarrier {
-            auth: AuthCarrier::Frac,
-            frac: FracCarrier::Frac { owning: Map::empty(), dup: Map::empty() },
-        }
-    }
-
-    proof fn closed_under_incl(a: Self, b: Self) {
+    proof fn valid_op(a: Self, b: Self) {
         broadcast use lemma_submap_of_trans;
 
         let ab = MapCarrier::op(a, b);
@@ -248,10 +248,19 @@ impl<K, V> PCM for MapCarrier<K, V> {
         let ab_c = Self::op(ab, c);
         assert(a_bc == ab_c);
     }
+}
 
-    proof fn op_unit(a: Self) {
-        let x = Self::op(a, Self::unit());
-        assert(a == x);
+impl<K, V> PCM for MapCarrier<K, V> {
+    closed spec fn unit() -> Self {
+        MapCarrier {
+            auth: AuthCarrier::Frac,
+            frac: FracCarrier::Frac { owning: Map::empty(), dup: Map::empty() },
+        }
+    }
+
+    proof fn op_unit(self) {
+        let x = Self::op(self, Self::unit());
+        assert(self == x);
     }
 
     proof fn unit_valid() {
@@ -287,16 +296,16 @@ broadcast proof fn lemma_submap_of_op<K, V>(a: MapCarrier<K, V>, b: MapCarrier<K
         b.valid(),
 {
     lemma_submap_of_op_frac(a, b);
-    MapCarrier::closed_under_incl(a, b);
+    MapCarrier::valid_op(a, b);
     MapCarrier::commutative(a, b);
-    MapCarrier::closed_under_incl(b, a);
+    MapCarrier::valid_op(b, a);
     let ab = MapCarrier::op(a, b);
     assert(ab.auth.map() == a.auth.map().union_prefer_right(b.auth.map()));
 }
 
 /// A resource that has the authoritative ownership on the entire map
 #[verifier::reject_recursive_types(K)]
-pub struct GhostMapAuth<K, V> {
+pub tracked struct GhostMapAuth<K, V> {
     r: Resource<MapCarrier<K, V>>,
 }
 
@@ -307,7 +316,7 @@ pub struct GhostMapAuth<K, V> {
 ///  - Those keys will remain pointing to the same values (unless the onwer of the [`GhostSubmap`] updates them using [`GhostSubmap::update`])
 ///  - All other [`GhostSubmap`]/[`GhostPointsTo`]/[`GhostPersistentSubmap`]/[`GhostPersistentPointsTo`] are disjoint subsets of the domain
 #[verifier::reject_recursive_types(K)]
-pub struct GhostSubmap<K, V> {
+pub tracked struct GhostSubmap<K, V> {
     r: Resource<MapCarrier<K, V>>,
 }
 
@@ -317,7 +326,7 @@ pub struct GhostSubmap<K, V> {
 ///  - Those keys will remain in the map, pointing to the same values, forever;
 ///  - All other [`GhostSubmap`]/[`GhostPointsTo`] are disjoint subsets of the domain
 #[verifier::reject_recursive_types(K)]
-pub struct GhostPersistentSubmap<K, V> {
+pub tracked struct GhostPersistentSubmap<K, V> {
     r: Resource<MapCarrier<K, V>>,
 }
 
@@ -328,7 +337,7 @@ pub struct GhostPersistentSubmap<K, V> {
 ///  - Those key will remain pointing to the same value (unless the onwer of the [`GhostPointsTo`] updates them using [`GhostPointsTo::update`])
 ///  - All other [`GhostSubmap`]/[`GhostPointsTo`]/[`GhostPersistentSubmap`]/[`GhostPersistentPointsTo`] are disjoint subsets of the domain
 #[verifier::reject_recursive_types(K)]
-pub struct GhostPointsTo<K, V> {
+pub tracked struct GhostPointsTo<K, V> {
     submap: GhostSubmap<K, V>,
 }
 
@@ -338,7 +347,7 @@ pub struct GhostPointsTo<K, V> {
 ///  - The key-value pair will remain in the map, forever;
 ///  - All other [`GhostSubmap`]/[`GhostPointsTo`] are disjoint subsets of the domain
 #[verifier::reject_recursive_types(K)]
-pub struct GhostPersistentPointsTo<K, V> {
+pub tracked struct GhostPersistentPointsTo<K, V> {
     submap: GhostPersistentSubmap<K, V>,
 }
 
@@ -399,7 +408,8 @@ impl<K, V> GhostMapAuth<K, V> {
             result@ == Map::<K, V>::empty(),
     {
         use_type_invariant(self);
-        GhostSubmap::<K, V>::empty(self.id())
+        let tracked r = Resource::<MapCarrier<_, _>>::create_unit(self.r.loc());
+        GhostSubmap { r }
     }
 
     /// Insert a [`Map`] of values, receiving the [`GhostSubmap`] that asserts ownership over the key
@@ -420,9 +430,9 @@ impl<K, V> GhostMapAuth<K, V> {
         requires
             old(self)@.dom().disjoint(m.dom()),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.union_prefer_right(m),
-            result.id() == self.id(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.union_prefer_right(m),
+            result.id() == final(self).id(),
             result@ == m,
     {
         broadcast use lemma_submap_of_trans;
@@ -471,9 +481,9 @@ impl<K, V> GhostMapAuth<K, V> {
         requires
             !old(self)@.contains_key(k),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.insert(k, v),
-            result.id() == self.id(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.insert(k, v),
+            result.id() == final(self).id(),
             result@ == (k, v),
     {
         let tracked submap = self.insert_map(map![k => v]);
@@ -498,8 +508,8 @@ impl<K, V> GhostMapAuth<K, V> {
         requires
             submap.id() == old(self).id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.remove_keys(submap@.dom()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.remove_keys(submap@.dom()),
     {
         broadcast use lemma_submap_of_trans;
         broadcast use lemma_submap_of_op;
@@ -544,8 +554,8 @@ impl<K, V> GhostMapAuth<K, V> {
         requires
             p.id() == old(self).id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.remove(p.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.remove(p.key()),
     {
         use_type_invariant(&p);
         p.lemma_map_view();
@@ -637,27 +647,28 @@ impl<K, V> GhostSubmap<K, V> {
         submap
     }
 
-    /// Instantiate an empty [`GhostSubmap`] of a particular id
-    pub proof fn empty(id: int) -> (tracked result: GhostSubmap<K, V>)
+    /// Create an empty [`GhostSubmap`]
+    pub proof fn empty(tracked &self) -> (tracked result: GhostSubmap<K, V>)
         ensures
-            result.id() == id,
+            result.id() == self.id(),
             result@ == Map::<K, V>::empty(),
     {
-        let tracked r = Resource::create_unit(id);
+        use_type_invariant(self);
+        let tracked r = Resource::<MapCarrier<_, _>>::create_unit(self.r.loc());
         GhostSubmap { r }
     }
 
     /// Extract the [`GhostSubmap`] from a mutable reference, leaving behind an empty map.
     pub proof fn take(tracked &mut self) -> (tracked result: GhostSubmap<K, V>)
         ensures
-            old(self).id() == self.id(),
-            self@.is_empty(),
+            old(self).id() == final(self).id(),
+            final(self)@.is_empty(),
             result == *old(self),
-            result.id() == self.id(),
+            result.id() == final(self).id(),
     {
         use_type_invariant(&*self);
 
-        let tracked mut r = Self::empty(self.id());
+        let tracked mut r = self.empty();
         tracked_swap(self, &mut r);
         r
     }
@@ -704,17 +715,15 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.union_prefer_right(other@),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.union_prefer_right(other@),
             old(self)@.dom().disjoint(other@.dom()),
     {
         use_type_invariant(&*self);
         use_type_invariant(&other);
 
-        let tracked mut r = Resource::alloc(MapCarrier::unit());
-        tracked_swap(&mut self.r, &mut r);
-        r.validate_2(&other.r);
-        self.r = r.join(other.r);
+        self.r.validate_2(&other.r);
+        incorporate(&mut self.r, other.r);
     }
 
     /// Combining a [`GhostPointsTo`] into [`GhostSubmap`] is possible, in a similar way to the way to combine
@@ -723,8 +732,8 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.insert(other.key(), other.value()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.insert(other.key(), other.value()),
             !old(self)@.contains_key(other.key()),
     {
         use_type_invariant(&*self);
@@ -739,9 +748,9 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self@.dom().disjoint(other@.dom()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self)@.dom().disjoint(other@.dom()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -754,9 +763,9 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self@.dom().disjoint(other@.dom()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self)@.dom().disjoint(other@.dom()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -769,9 +778,9 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            !self@.contains_key(other.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            !final(self)@.contains_key(other.key()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -787,9 +796,9 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            !self@.contains_key(other.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            !final(self)@.contains_key(other.key()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -801,37 +810,33 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             s <= old(self)@.dom(),
         ensures
-            self.id() == old(self).id(),
-            result.id() == self.id(),
-            old(self)@ == self@.union_prefer_right(result@),
+            final(self).id() == old(self).id(),
+            result.id() == final(self).id(),
+            old(self)@ == final(self)@.union_prefer_right(result@),
             result@.dom() =~= s,
-            self@.dom() =~= old(self)@.dom() - s,
+            final(self)@.dom() =~= old(self)@.dom() - s,
     {
         use_type_invariant(&*self);
-
-        let tracked mut r = Resource::alloc(MapCarrier::<K, V>::unit());
-        tracked_swap(&mut self.r, &mut r);
 
         let self_carrier = MapCarrier {
             auth: AuthCarrier::Frac,
             frac: FracCarrier::Frac {
-                owning: r.value().frac.owning_map().remove_keys(s),
-                dup: r.value().frac.dup_map(),
+                owning: self.r.value().frac.owning_map().remove_keys(s),
+                dup: self.r.value().frac.dup_map(),
             },
         };
 
         let res_carrier = MapCarrier {
             auth: AuthCarrier::Frac,
             frac: FracCarrier::Frac {
-                owning: r.value().frac.owning_map().restrict(s),
-                dup: r.value().frac.dup_map(),
+                owning: self.r.value().frac.owning_map().restrict(s),
+                dup: self.r.value().frac.dup_map(),
             },
         };
 
-        assert(r.value().frac == MapCarrier::op(self_carrier, res_carrier).frac);
-        let tracked (self_r, res_r) = r.split(self_carrier, res_carrier);
-        self.r = self_r;
-        GhostSubmap { r: res_r }
+        assert(self.r.value().frac == MapCarrier::op(self_carrier, res_carrier).frac);
+        let tracked r = split_mut(&mut self.r, self_carrier, res_carrier);
+        GhostSubmap { r }
     }
 
     /// We can separate a single key out of a [`GhostSubmap`]
@@ -839,11 +844,11 @@ impl<K, V> GhostSubmap<K, V> {
         requires
             old(self)@.contains_key(k),
         ensures
-            self.id() == old(self).id(),
-            result.id() == self.id(),
-            old(self)@ == self@.insert(result.key(), result.value()),
+            final(self).id() == old(self).id(),
+            result.id() == final(self).id(),
+            old(self)@ == final(self)@.insert(result.key(), result.value()),
             result.key() == k,
-            self@ == old(self)@.remove(k),
+            final(self)@ == old(self)@.remove(k),
     {
         use_type_invariant(&*self);
 
@@ -874,10 +879,10 @@ impl<K, V> GhostSubmap<K, V> {
             m.dom() <= old(self)@.dom(),
             old(self).id() == old(auth).id(),
         ensures
-            self.id() == old(self).id(),
-            auth.id() == old(auth).id(),
-            self@ == old(self)@.union_prefer_right(m),
-            auth@ == old(auth)@.union_prefer_right(m),
+            final(self).id() == old(self).id(),
+            final(auth).id() == old(auth).id(),
+            final(self)@ == old(self)@.union_prefer_right(m),
+            final(auth)@ == old(auth)@.union_prefer_right(m),
     {
         broadcast use lemma_submap_of_trans;
         broadcast use lemma_submap_of_op;
@@ -1013,34 +1018,29 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         owned.persist()
     }
 
-    /// Instantiate an empty [`GhostPersistentSubmap`] of a particular id
-    pub proof fn empty(id: int) -> (tracked result: GhostPersistentSubmap<K, V>)
+    /// Create an empty [`GhostPersistentSubmap`]
+    pub proof fn empty(tracked &self) -> (tracked result: GhostPersistentSubmap<K, V>)
         ensures
-            result.id() == id,
+            result.id() == self.id(),
             result@ == Map::<K, V>::empty(),
     {
-        let tracked r = Resource::create_unit(id);
-        GhostPersistentSubmap { r }
+        use_type_invariant(self);
+        let tracked r = Resource::<MapCarrier<_, _>>::create_unit(self.r.loc());
+        GhostSubmap { r }.persist()
     }
 
     /// Duplicate the [`GhostPersistentSubmap`]
-    pub proof fn duplicate(tracked &mut self) -> (tracked result: GhostPersistentSubmap<K, V>)
+    pub proof fn duplicate(tracked &self) -> (tracked result: GhostPersistentSubmap<K, V>)
         ensures
-            self.id() == result.id(),
-            old(self).id() == self.id(),
-            old(self)@ == self@,
+            result.id() == self.id(),
             result@ == self@,
     {
         use_type_invariant(&*self);
 
-        let tracked mut owned = Self::empty(self.id());
-        let carrier = self.r.value();
-        assert(carrier == MapCarrier::op(carrier, carrier));
+        assert(MapCarrier::op(self.r.value(), self.r.value()) == self.r.value());
+        let tracked r = super::lib::duplicate(&self.r);
 
-        tracked_swap(self, &mut owned);
-        let tracked (mut orig, new) = owned.r.split(carrier, carrier);
-        tracked_swap(&mut self.r, &mut orig);
-        GhostPersistentSubmap { r: new }
+        GhostPersistentSubmap { r }
     }
 
     /// Agreement between a [`GhostPersistentSubmap`] and a corresponding [`GhostMapAuth`]
@@ -1088,17 +1088,15 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.union_prefer_right(other@),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.union_prefer_right(other@),
             old(self)@.agrees(other@),
     {
         use_type_invariant(&*self);
         use_type_invariant(&other);
 
-        let tracked mut r = Resource::alloc(MapCarrier::unit());
-        tracked_swap(&mut self.r, &mut r);
-        r.validate_2(&other.r);
-        self.r = r.join(other.r);
+        self.r.validate_2(&other.r);
+        incorporate(&mut self.r, other.r);
     }
 
     /// Combining a [`GhostPersistentPointsTo`] into [`GhostPersistentSubmap`] is possible, in a similar way to the way to combine
@@ -1107,8 +1105,8 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@.insert(other.key(), other.value()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@.insert(other.key(), other.value()),
             old(self)@.contains_key(other.key()) ==> old(self)@[other.key()] == other.value(),
     {
         use_type_invariant(&*self);
@@ -1123,9 +1121,9 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self@.dom().disjoint(other@.dom()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self)@.dom().disjoint(other@.dom()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1137,9 +1135,9 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self@.agrees(other@),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self)@.agrees(other@),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1152,9 +1150,9 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            !self@.contains_key(other.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            !final(self)@.contains_key(other.key()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1171,9 +1169,9 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self@.contains_key(other.key()) ==> self@[other.key()] == other.value(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self)@.contains_key(other.key()) ==> final(self)@[other.key()] == other.value(),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1188,11 +1186,11 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             s <= old(self)@.dom(),
         ensures
-            self.id() == old(self).id(),
-            result.id() == self.id(),
-            old(self)@ == self@.union_prefer_right(result@),
+            final(self).id() == old(self).id(),
+            result.id() == final(self).id(),
+            old(self)@ == final(self)@.union_prefer_right(result@),
             result@.dom() =~= s,
-            self@.dom() =~= old(self)@.dom() - s,
+            final(self)@.dom() =~= old(self)@.dom() - s,
     {
         use_type_invariant(&*self);
 
@@ -1227,11 +1225,11 @@ impl<K, V> GhostPersistentSubmap<K, V> {
         requires
             old(self)@.contains_key(k),
         ensures
-            self.id() == old(self).id(),
-            result.id() == self.id(),
-            old(self)@ == self@.insert(result.key(), result.value()),
+            final(self).id() == old(self).id(),
+            result.id() == final(self).id(),
+            old(self)@ == final(self)@.insert(result.key(), result.value()),
             result.key() == k,
-            self@ == old(self)@.remove(k),
+            final(self)@ == old(self)@.remove(k),
     {
         use_type_invariant(&*self);
 
@@ -1308,8 +1306,10 @@ impl<K, V> GhostPointsTo<K, V> {
         self.lemma_map_view();
         self.submap.agree(auth);
         assert(self.submap@ <= auth@);
-        assert(self.submap@.contains_key(self.key()));
-        assert(self.submap@.contains_pair(self.key(), self.value()));
+        assert(self.submap@.dom().contains(self.key()));
+        assert(auth@.dom().contains(self.key()));
+        assert(self.submap@[self.key()] == self.value());
+        assert(auth@[self.key()] == self.value());
     }
 
     /// We can combine two [`GhostPointsTo`]s into a [`GhostSubmap`]
@@ -1337,9 +1337,9 @@ impl<K, V> GhostPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self.key() != other.key(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self).key() != other.key(),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1351,9 +1351,9 @@ impl<K, V> GhostPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            !other.dom().contains(self.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            !other.dom().contains(final(self).key()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1368,9 +1368,9 @@ impl<K, V> GhostPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            !other.dom().contains(self.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            !other.dom().contains(final(self).key()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1385,9 +1385,9 @@ impl<K, V> GhostPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self.key() != other.key(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self).key() != other.key(),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1399,11 +1399,11 @@ impl<K, V> GhostPointsTo<K, V> {
         requires
             old(self).id() == old(auth).id(),
         ensures
-            self.id() == old(self).id(),
-            auth.id() == old(auth).id(),
-            self.key() == old(self).key(),
-            self@ == (self.key(), v),
-            auth@ == old(auth)@.union_prefer_right(map![self.key() => v]),
+            final(self).id() == old(self).id(),
+            final(auth).id() == old(auth).id(),
+            final(self).key() == old(self).key(),
+            final(self)@ == (final(self).key(), v),
+            final(auth)@ == old(auth)@.union_prefer_right(map![final(self).key() => v]),
     {
         broadcast use lemma_submap_of_trans;
         broadcast use lemma_submap_of_op;
@@ -1497,11 +1497,9 @@ impl<K, V> GhostPersistentPointsTo<K, V> {
     }
 
     /// Duplicate the [`GhostPersistentPointsTo`]
-    pub proof fn duplicate(tracked &mut self) -> (tracked result: GhostPersistentPointsTo<K, V>)
+    pub proof fn duplicate(tracked &self) -> (tracked result: GhostPersistentPointsTo<K, V>)
         ensures
-            self.id() == result.id(),
-            old(self).id() == self.id(),
-            old(self)@ == self@,
+            result.id() == self.id(),
             result@ == self@,
     {
         use_type_invariant(&*self);
@@ -1572,9 +1570,9 @@ impl<K, V> GhostPersistentPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self.key() != other.key(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self).key() != other.key(),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1587,9 +1585,9 @@ impl<K, V> GhostPersistentPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            !other@.contains_key(self.key()),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            !other@.contains_key(final(self).key()),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1605,9 +1603,9 @@ impl<K, V> GhostPersistentPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            self.key() == other.key() ==> self.value() == other.value(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            final(self).key() == other.key() ==> final(self).value() == other.value(),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
@@ -1622,9 +1620,10 @@ impl<K, V> GhostPersistentPointsTo<K, V> {
         requires
             old(self).id() == other.id(),
         ensures
-            self.id() == old(self).id(),
-            self@ == old(self)@,
-            other@.contains_key(self.key()) ==> other@[self.key()] == self.value(),
+            final(self).id() == old(self).id(),
+            final(self)@ == old(self)@,
+            other@.contains_key(final(self).key()) ==> other@[final(self).key()]
+                == final(self).value(),
     {
         use_type_invariant(&*self);
         use_type_invariant(other);
