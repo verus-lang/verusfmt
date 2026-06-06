@@ -1603,7 +1603,17 @@ fn_traits = {
 }
 
 fn_trait_type = {
-    fn_traits ~ generic_param_list? ~ param_list? ~ ret_type?
+    fn_traits ~ generic_param_list? ~ fn_trait_param_list? ~ ret_type?
+}
+
+fn_trait_param_list = {
+    "(" ~ (fn_trait_param ~ ("," ~ fn_trait_param)* ~ ","?)? ~ ")"
+}
+
+fn_trait_param = {
+    type
+  | tracked_str? ~ pat_no_top_alt ~ (colon_str ~ type)?
+  | ellipses_str
 }
 
 proof_fn_type = {

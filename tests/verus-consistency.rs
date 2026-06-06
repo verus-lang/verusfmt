@@ -987,6 +987,29 @@ trait SizedTypeProperties {
 }
 
 #[test]
+fn verus_nested_spec_fn_type() {
+    let file = r#"
+verus! {
+
+pub open spec fn foo(f: spec_fn(spec_fn(nat) -> nat) -> nat) -> nat {
+    0nat
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub open spec fn foo(f: spec_fn(spec_fn(nat) -> nat) -> nat) -> nat {
+        0nat
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_comments() {
     let file = r#"
 // External comment 1

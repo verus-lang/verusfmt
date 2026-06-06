@@ -1335,6 +1335,8 @@ fn to_doc<'a>(
         Rule::infer_type => map_to_doc(ctx, arena, pair),
         Rule::fn_ptr_type => map_to_doc(ctx, arena, pair),
         Rule::fn_trait_type => map_to_doc(ctx, arena, pair),
+        Rule::fn_trait_param_list => comma_delimited(ctx, arena, pair, false).parens().group(),
+        Rule::fn_trait_param => map_to_doc(ctx, arena, pair),
         Rule::proof_fn_type => map_to_doc(ctx, arena, pair),
         Rule::for_type => map_to_doc(ctx, arena, pair),
         Rule::impl_trait_type => {
