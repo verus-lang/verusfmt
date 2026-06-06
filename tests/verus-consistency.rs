@@ -960,6 +960,45 @@ fn borrow_join2<'a>(tracked &'a self, x: u32) {
 }
 
 #[test]
+fn verus_const_unsafe_trait() {
+    let file = r#"
+verus! {
+
+const unsafe trait A {
+    fn f(x: u8) -> bool;
+}
+
+struct T;
+
+unsafe impl const A for T {
+    fn f(x: u8) -> bool {
+        false
+    }
+}
+
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    const unsafe trait A {
+        fn f(x: u8) -> bool;
+    }
+
+    struct T;
+
+    unsafe impl const A for T {
+        fn f(x: u8) -> bool {
+            false
+        }
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_trait_associated_const() {
     let file = r#"
 verus! {
