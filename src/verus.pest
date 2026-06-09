@@ -881,7 +881,7 @@ static = {
 
 trait = {
     attr* ~ visibility? ~
-    unsafe_str? ~ auto_str? ~
+    const_str? ~ unsafe_str? ~ auto_str? ~
     trait_str ~ name ~ generic_param_list? ~
     (colon_str ~ type_bound_list)? ~ where_clause? ~ assoc_item_list
 }
