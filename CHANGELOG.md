@@ -1,5 +1,9 @@
 # Unreleased
 
+# v0.7.2
+
+* Add support for `const unsafe trait`s
+
 # v0.7.1
 
 * Add support for `--edition` for formatting parts outside `verus!` macro; no defaults changed currently.
