@@ -553,6 +553,42 @@ verus!{
 }
 
 #[test]
+fn block_and_macro_expr_method_suffixes() {
+    let file = r#"
+verus! {
+fn block_suffix() {
+    {#[verus_spec(with => tracked_state)] acquire_lock()}.then(|| true)
+}
+
+fn macro_suffix() -> bool {
+    atomic_with_ghost! {
+        value
+    }.is_ok()
+}
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn block_suffix() {
+        {
+            #[verus_spec(with => tracked_state)]
+            acquire_lock()
+        }.then(|| true)
+    }
+
+    fn macro_suffix() -> bool {
+        atomic_with_ghost! {
+            value
+        }.is_ok()
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_macro_statements() {
     let file = r#"
 verus! {
@@ -701,6 +737,15 @@ fn local_direct_update(loc1: Local, pq: int) -> bool {
     &&& loc2 == Local { heap: loc2.heap, ..loc1 }
 }
 
+pub struct PageTableEntry(pub usize);
+
+impl Clone for PageTableEntry {
+    fn clone(&self) -> Self {
+        let Self { 0: value } = self;
+        Self { 0: value }
+    }
+}
+
 } // verus!
 "#;
 
@@ -713,6 +758,15 @@ fn local_direct_update(loc1: Local, pq: int) -> bool {
 
     fn local_direct_update(loc1: Local, pq: int) -> bool {
         &&& loc2 == Local { heap: loc2.heap, ..loc1 }
+    }
+
+    pub struct PageTableEntry(pub usize);
+
+    impl Clone for PageTableEntry {
+        fn clone(&self) -> Self {
+            let Self { 0: value } = self;
+            Self { 0: value }
+        }
     }
 
     } // verus!
@@ -1460,6 +1514,9 @@ struct RawVec<A: Allocator> {
 
 const impl<A: [const] Allocator> RawVec<A> {}
 
+impl<T: /* ?Sized*/ > MutexGuard<T> {
+}
+
 } // verus!
 "#;
 
@@ -1471,6 +1528,10 @@ const impl<A: [const] Allocator> RawVec<A> {}
     }
 
     const impl<A: [const] Allocator> RawVec<A> {
+
+    }
+
+    impl<T /* ?Sized*/> MutexGuard<T> {
 
     }
 
@@ -2939,6 +3000,13 @@ verus!{
         opens_invariants any
     {
     }
+
+    fn test5(self) -> DmaCoherent
+        returns
+            DmaCoherent { inner: self.inner },
+    {
+        self
+    }
 }
 "#;
     assert_snapshot!(parse_and_format(file).unwrap(), @r"
@@ -2984,6 +3052,13 @@ verus!{
             !b,
         opens_invariants any
     {
+    }
+
+    fn test5(self) -> DmaCoherent
+        returns
+            DmaCoherent { inner: self.inner },
+    {
+        self
     }
 
     } // verus!
