@@ -150,26 +150,34 @@ fn main() -> miette::Result<()> {
         .init();
 
     if args.update {
-        info!("Attempting update");
-        let mut updater = axoupdater::AxoUpdater::new_for("verusfmt");
-        if let Err(e) = updater.load_receipt() {
-            error!("Failed to load receipt.");
-            return Err(e).into_diagnostic();
-        }
-        if !updater
-            .check_receipt_is_for_this_executable()
-            .into_diagnostic()?
+        #[cfg(feature = "axoupdater")]
         {
-            error!("This verusfmt installation does not support updating.");
-            info!("Consider updating using the approach you initially installed it with.");
-            return Err(miette!("Incorrect receipt for executable"));
+            info!("Attempting update");
+            let mut updater = axoupdater::AxoUpdater::new_for("verusfmt");
+            if let Err(e) = updater.load_receipt() {
+                error!("Failed to load receipt.");
+                return Err(e).into_diagnostic();
+            }
+            if !updater
+                .check_receipt_is_for_this_executable()
+                .into_diagnostic()?
+            {
+                error!("This verusfmt installation does not support updating.");
+                info!("Consider updating using the approach you initially installed it with.");
+                return Err(miette!("Incorrect receipt for executable"));
+            }
+            if updater.run_sync().into_diagnostic()?.is_some() {
+                info!("Update installed!");
+            } else {
+                info!("Already up to date");
+            }
+            return Ok(());
         }
-        if updater.run_sync().into_diagnostic()?.is_some() {
-            info!("Update installed!");
-        } else {
-            info!("Already up to date");
-        }
-        return Ok(());
+        #[cfg(not(feature = "axoupdater"))]
+        return Err(miette!(
+            "Auto-updater not enabled in this build, re-compile with feature \
+             `axoupdater` enabled."
+        ));
     }
 
     if args.files.is_empty() {
