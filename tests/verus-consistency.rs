@@ -1544,7 +1544,7 @@ fn test() {
 }
 
 fn test() {
-    loop
+    'somelabel: loop
         invariant
             false,
         invariant_ensures
@@ -1587,7 +1587,7 @@ fn test() {
     }
 
     fn test() {
-        loop
+        'somelabel: loop
             invariant
                 false,
             invariant_ensures
