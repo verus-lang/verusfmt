@@ -1280,7 +1280,7 @@ fn to_doc<'a>(
         Rule::loop_expr => loop_to_doc(ctx, arena, pair),
         Rule::for_expr => loop_to_doc(ctx, arena, pair),
         Rule::while_expr => loop_to_doc(ctx, arena, pair),
-        Rule::label => unsupported(pair),
+        Rule::label => map_to_doc(ctx, arena, pair),
         Rule::break_expr => maybe_space_to_doc(ctx, arena, pair),
         Rule::continue_expr => maybe_space_to_doc(ctx, arena, pair),
         Rule::match_expr => map_to_doc(ctx, arena, pair),
