@@ -576,6 +576,26 @@ fn terminal_expr(pairs: &Pairs<Rule>) -> bool {
     e.is_some()
 }
 
+fn generic_param_with_empty_bound_to_doc<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    let has_empty_bound = pair
+        .clone()
+        .into_inner()
+        .any(|p| p.as_rule() == Rule::empty_type_bound_list);
+    if !has_empty_bound {
+        return map_to_doc(ctx, arena, pair);
+    }
+
+    arena.concat(pair.into_inner().filter_map(|p| match p.as_rule() {
+        Rule::colon_str | Rule::empty_type_bound_list => None,
+        Rule::COMMENT => Some(arena.space().append(arena.text(p.as_str().trim()))),
+        _ => Some(to_doc(ctx, p, arena)),
+    }))
+}
+
 fn debug_print(pair: Pair<Rule>, indent: usize) {
     if pair.as_rule() == Rule::COMMENT {
         print!(
@@ -1082,9 +1102,9 @@ fn to_doc<'a>(
         Rule::generic_param_list => comma_delimited(ctx, arena, pair, false).angles().group(),
         Rule::spaced_generic_param_list => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::generic_param => map_to_doc(ctx, arena, pair),
-        Rule::type_param => map_to_doc(ctx, arena, pair),
+        Rule::type_param => generic_param_with_empty_bound_to_doc(ctx, arena, pair),
         Rule::const_param => map_to_doc(ctx, arena, pair),
-        Rule::lifetime_param => map_to_doc(ctx, arena, pair),
+        Rule::lifetime_param => generic_param_with_empty_bound_to_doc(ctx, arena, pair),
         Rule::where_clause => arena.space().append(map_to_doc(ctx, arena, pair)),
         Rule::where_preds => comma_delimited(ctx, arena, pair, false).group(),
         Rule::where_pred => map_to_doc(ctx, arena, pair),
@@ -1228,6 +1248,7 @@ fn to_doc<'a>(
             extra_spaced_braces(arena, comma_delimited(ctx, arena, pair, false)).group()
         }
         Rule::record_expr_field => map_to_doc(ctx, arena, pair),
+        Rule::record_field_key => map_to_doc(ctx, arena, pair),
         Rule::arg_list => sticky_delims(ctx, arena, pair, Enclosure::Parens, false),
         Rule::proof_fn_characteristics => {
             comma_delimited(ctx, arena, pair, false).group().brackets()
@@ -1346,6 +1367,7 @@ fn to_doc<'a>(
         }
         Rule::dyn_trait_type => map_to_doc(ctx, arena, pair),
         Rule::type_bound_list => map_to_doc(ctx, arena, pair),
+        Rule::empty_type_bound_list => map_to_doc(ctx, arena, pair),
         Rule::type_bound => map_to_doc(ctx, arena, pair),
 
         //************************//
@@ -1370,6 +1392,7 @@ fn to_doc<'a>(
             spaced_braces(arena, comma_delimited(ctx, arena, pair, false)).group()
         }
         Rule::record_pat_field => map_to_doc(ctx, arena, pair),
+        Rule::record_pat_field_key => map_to_doc(ctx, arena, pair),
         Rule::tuple_struct_pat_inner => comma_delimited(ctx, arena, pair, false).parens().group(),
         Rule::tuple_struct_pat => map_to_doc(ctx, arena, pair),
         Rule::tuple_pat => comma_delimited(ctx, arena, pair, false).parens().group(),
@@ -1396,6 +1419,9 @@ fn to_doc<'a>(
             map_to_doc(ctx, arena, pair).nest(INDENT_SPACES).group()
         }
         Rule::single_expr_for_verus_clause => {
+            comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES)
+        }
+        Rule::single_returns_expr_for_verus_clause => {
             comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES)
         }
         Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),

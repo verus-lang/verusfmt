@@ -566,8 +566,7 @@ macro_call = {
 // can switch to the alternative if we find situations where it might be better
 // suited.
 macro_call_stmt = {
-    calc_macro_call
-  | attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
+    attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
 }
 
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
@@ -950,7 +949,7 @@ generic_param = {
 }
 
 type_param = {
-    attr* ~ name ~ (colon_str ~ type_bound_list)? ~
+    attr* ~ name ~ (colon_str ~ (type_bound_list | empty_type_bound_list))? ~
     (eq_str ~ type)?
 }
 
@@ -960,7 +959,7 @@ const_param = {
 }
 
 lifetime_param = {
-    attr* ~ lifetime_no_space ~ (colon_str ~ type_bound_list)?
+    attr* ~ lifetime_no_space ~ (colon_str ~ (type_bound_list | empty_type_bound_list))?
 }
 
 where_clause = {
@@ -1050,11 +1049,12 @@ stmt = !{
   // We can't use `expr_with_block ~ semi_str?` here, and instead need to do it
   // as the two separate ordered alternatives (`ewb ~ semi_str | ewb`) to
   // prevent munching of multi-newlines that happens otherwise
-  | expr_with_block ~ semi_str
-  | expr_with_block
+  | !(block_expr ~ dot_str) ~ expr_with_block ~ semi_str
+  | !(block_expr ~ dot_str) ~ expr_with_block
   | expr ~ semi_str
   | item_no_macro_call
-  | macro_call_stmt
+  | calc_macro_call
+  | !(macro_call_stmt ~ dot_str) ~ macro_call_stmt
 }
 
 let_stmt = {
@@ -1391,7 +1391,11 @@ record_expr_field_list = {
 }
 
 record_expr_field = {
-    attr* ~ (name ~ colon_str)? ~ expr
+    attr* ~ (record_field_key ~ colon_str)? ~ expr
+}
+
+record_field_key = {
+    name | int_number
 }
 
 arg_list = {
@@ -1626,6 +1630,10 @@ type_bound_list = {
     type_bound ~ (plus_str ~ type_bound)* ~ plus_str?
 }
 
+empty_type_bound_list = {
+    &("," | ">")
+}
+
 type_bound = {
     lifetime_no_space
   | (question_str | tilde_str ~ const_str | lbracket_str ~ const_nospace_str ~ rbracket_space_str)? ~ type
@@ -1702,7 +1710,11 @@ record_pat_field_list = {
 }
 
 record_pat_field = {
-    attr* ~ (name_ref ~ colon_str)? ~ pat
+    attr* ~ (record_pat_field_key ~ colon_str)? ~ pat
+}
+
+record_pat_field_key = {
+    name_ref | int_number
 }
 
 tuple_struct_pat_inner = {
@@ -1795,6 +1807,10 @@ single_expr_for_verus_clause = {
     !verus_clause_non_expr ~ expr_no_struct ~ ","?
 }
 
+single_returns_expr_for_verus_clause = {
+    !verus_clause_non_expr ~ (struct_expr | expr_no_struct) ~ ","?
+}
+
 verus_clause_non_expr = _{
     "{"             // TODO: Why is this permitted here?
   | requires_str
@@ -1825,7 +1841,7 @@ default_ensures_clause = {
 }
 
 returns_clause = {
-    returns_str ~ single_expr_for_verus_clause
+    returns_str ~ single_returns_expr_for_verus_clause
 }
 
 invariant_except_break_clause = {
