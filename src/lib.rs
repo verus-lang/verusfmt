@@ -1688,6 +1688,11 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
 
     let mut formatted_output = String::new();
 
+    // Only format inside the verus! macro, leave everything else up to
+    // rustfmt. This cursor indicates how far we've progressed and written
+    // back, relative to the source file.
+    let mut copied_until = 0;
+
     for pair in parsed_file {
         if enabled!(Level::DEBUG) {
             debug_print(pair.clone(), 0);
@@ -1696,12 +1701,17 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
         debug!(?rule, "Processing top-level");
         match rule {
             Rule::non_verus | Rule::COMMENT => {
-                formatted_output += pair.as_str();
-                if matches!(pair.as_rule(), Rule::COMMENT) {
-                    formatted_output += "\n";
-                }
+                // Defer copying until a verus macro or EOI is reached. All of
+                // this will be copied verbatim, to ensure that a `--verus-only`
+                // invocation doesn't format anything outside of the `verus!`
+                // macro.
             }
             Rule::verus_macro_use => {
+                let span = pair.as_span();
+
+                // Copy any uncopied content from before this macro:
+                formatted_output += &s[copied_until..span.start()];
+
                 let body = pair.into_inner().collect::<Vec<_>>();
                 let (prefix_comments, body, suffix_comments) = {
                     assert_eq!(
@@ -1739,9 +1749,24 @@ fn parse_and_format(s: &str) -> miette::Result<String> {
                     formatted_output += comment.as_str();
                 }
                 formatted_output += VERUS_SUFFIX;
+
+                // Mark any content after this macro as eligible to be copied
+                // verbatim:
+                copied_until = span.end();
+
+                // VERUS_SUFFIX unconditionally inserts a newline after the
+                // macro. To avoid double-inserting one, remove any newlines
+                // from the source if they directly followed the closing macro
+                // brace `}`:
+                if s[copied_until..].starts_with("\r\n") {
+                    copied_until += 2;
+                } else if s[copied_until..].starts_with('\n') {
+                    copied_until += 1;
+                }
             }
             Rule::EOI => {
-                // end of input; do nothing
+                // End of input, copy any remaining, uncopied input verbatim:
+                formatted_output += &s[copied_until..];
             }
             _ => unreachable!("Unexpected rule: {:?}", rule),
         }
