@@ -1111,6 +1111,7 @@ expr_inner_no_struct = _{
   | box_expr
   | break_expr
   | prefix_expr_no_struct
+  | range_expr_inner_no_struct
   | closure_expr
   | quantifier_expr_no_struct
   | continue_expr
@@ -1192,7 +1193,7 @@ expr_outer = _{
     // bin_expr
     | bin_expr_ops ~ expr
     // range_expr
-    | (dot_dot_str | dot_dot_eq_str) ~ expr?
+    | (dot_dot_eq_str | dot_dot_str) ~ expr?
 }
 
 expr_outer_no_struct = _{
@@ -1225,7 +1226,7 @@ expr_outer_no_struct = _{
     // bin_expr
     | bin_expr_ops ~ expr_no_struct
     // range_expr
-    | (dot_dot_str | dot_dot_eq_str) ~ expr_no_struct?
+    | (dot_dot_eq_str | dot_dot_str) ~ expr_no_struct?
 }
 
 expr_inner = {
@@ -1233,6 +1234,7 @@ expr_inner = {
   | struct_expr // Must precede expr_inner_no_struct or `my_struct { }` will be `my_struct`: path_expr
   | quantifier_expr
   | prefix_expr
+  | range_expr_inner
   | expr_inner_no_struct
   | path_expr
 }
@@ -1322,6 +1324,10 @@ prefix_expr_no_struct = {
     attr* ~ (dash_str | bang_str | star_str) ~ expr_no_struct
 }
 
+// range_expr with no left-hand side (e.g. `..n`, `..=n`, `..`)
+range_expr_inner = _{ (dot_dot_eq_str | dot_dot_str) ~ expr? }
+range_expr_inner_no_struct = _{ (dot_dot_eq_str | dot_dot_str) ~ expr_no_struct? }
+
 assignment_ops = {
     "=" | "+=" | "/=" | "*=" | "%=" | ">>=" | "<<=" | "-=" | "|=" | "&=" | "^="
 }
@@ -1391,7 +1397,7 @@ record_expr_field_list = {
 }
 
 record_expr_field = {
-    attr* ~ (name ~ colon_str)? ~ expr
+    attr* ~ (name ~ colon_str ~ expr | !".." ~ expr)
 }
 
 arg_list = {
