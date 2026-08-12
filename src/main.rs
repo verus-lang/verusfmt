@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    io::{self, Read, Write},
+    path::PathBuf,
+};
 
 use clap::{Parser as ClapParser, ValueEnum};
 use fs_err as fs;
@@ -21,10 +24,10 @@ enum UnstableCommand {
 #[derive(ClapParser)]
 #[command(version, about)]
 struct Args {
-    /// Run in 'check' mode. Exits with 0 only if the file is formatted correctly.
+    /// Run in 'check' mode. Exits with 0 only if the input is formatted correctly.
     #[arg(long = "check")]
     check: bool,
-    /// Input files to be formatted
+    /// Input files to be formatted; reads from stdin when omitted
     files: Vec<PathBuf>,
     /// Only format code inside the Verus macro
     #[arg(long = "verus-only")]
@@ -43,36 +46,16 @@ struct Args {
     update: bool,
 }
 
-fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
-    let unparsed_file = fs::read_to_string(file).into_diagnostic()?;
-
-    let rustfmt_config = {
-        // Repeatedly check for ancestors of `file` until we find either `rustfmt.toml` or
-        // `.rustfmt.toml`; if we do, that becomes `rustfmt_toml`
-        let rustfmt_toml = file
-            .canonicalize()
-            .unwrap()
-            .ancestors()
-            .flat_map(|dir| {
-                // Why in this particular order? That's the order in which rustfmt checks:
-                // https://github.com/rust-lang/rustfmt/blob/202fa22cee5badff77129a7bea5c90228d354ac9/src/config/mod.rs#L368-L369
-                [".rustfmt.toml", "rustfmt.toml"]
-                    .into_iter()
-                    .map(|n| dir.join(n))
-            })
-            .filter_map(|p| p.exists().then(|| fs::read_to_string(p).unwrap()))
-            .next();
-
-        RustFmtConfig {
-            rustfmt_toml,
-            edition: args.edition.clone(),
-        }
-    };
-
+fn process_source(
+    unparsed_file: &str,
+    source_name: &str,
+    rustfmt_config: RustFmtConfig,
+    args: &Args,
+) -> miette::Result<Option<String>> {
     let formatted_output = verusfmt::run(
-        &unparsed_file,
+        unparsed_file,
         verusfmt::RunOptions {
-            file_name: Some(file.to_string_lossy().into()),
+            file_name: Some(source_name.to_owned()),
             run_rustfmt: !args.verus_only,
             rustfmt_config: rustfmt_config.clone(),
         },
@@ -81,19 +64,17 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
     if args.check {
         if unparsed_file == formatted_output {
             info!("✨Perfectly formatted✨");
-            Ok(())
+            Ok(None)
         } else {
-            info!("Found some differences in {}", file.display());
+            info!("Found some differences in {source_name}");
             error!("Input found not to be well formatted");
+            let formatted_name = format!("{source_name}.formatted");
             let diff = similar::udiff::unified_diff(
                 similar::Algorithm::Patience,
-                &unparsed_file,
+                unparsed_file,
                 &formatted_output,
                 3,
-                Some((
-                    &file.to_string_lossy(),
-                    &format!("{}.formatted", file.to_string_lossy()),
-                )),
+                Some((source_name, &formatted_name)),
             );
             println!("{diff}");
             Err(miette!("invalid formatting"))
@@ -105,7 +86,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
         let reformatted = verusfmt::run(
             &formatted_output,
             verusfmt::RunOptions {
-                file_name: Some(file.to_string_lossy().into()),
+                file_name: Some(source_name.to_owned()),
                 run_rustfmt: !args.verus_only,
                 rustfmt_config,
             },
@@ -113,25 +94,80 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
         if formatted_output == reformatted {
             return Err(miette!("✨Idempotent run✨"));
         } else {
-            info!("Non-idempotency found in {}", file.display());
+            info!("Non-idempotency found in {source_name}");
             error!("😱Formatting found to not be idempotent😱");
+            let formatted_once_name = format!("{source_name}.formatted-once");
+            let formatted_twice_name = format!("{source_name}.formatted-twice");
             let diff = similar::udiff::unified_diff(
                 similar::Algorithm::Patience,
                 &formatted_output,
                 &reformatted,
                 3,
-                Some((
-                    &format!("{}.formatted-once", file.to_string_lossy()),
-                    &format!("{}.formatted-twice", file.to_string_lossy()),
-                )),
+                Some((&formatted_once_name, &formatted_twice_name)),
             );
             println!("{diff}");
-            return Ok(());
+            return Ok(None);
         }
     } else {
-        fs::write(file, formatted_output).into_diagnostic()?;
-        Ok(())
+        Ok(Some(formatted_output))
     }
+}
+
+fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
+    let unparsed_file = fs::read_to_string(file).into_diagnostic()?;
+
+    // Repeatedly check for ancestors of `file` until we find either `rustfmt.toml` or
+    // `.rustfmt.toml`; if we do, that becomes `rustfmt_toml`.
+    let rustfmt_toml = file
+        .canonicalize()
+        .unwrap()
+        .ancestors()
+        .flat_map(|dir| {
+            // Why in this particular order? That's the order in which rustfmt checks:
+            // https://github.com/rust-lang/rustfmt/blob/202fa22cee5badff77129a7bea5c90228d354ac9/src/config/mod.rs#L368-L369
+            [".rustfmt.toml", "rustfmt.toml"]
+                .into_iter()
+                .map(|n| dir.join(n))
+        })
+        .filter_map(|p| p.exists().then(|| fs::read_to_string(p).unwrap()))
+        .next();
+
+    let source_name = file.to_string_lossy();
+    if let Some(formatted_output) = process_source(
+        &unparsed_file,
+        &source_name,
+        RustFmtConfig {
+            rustfmt_toml,
+            edition: args.edition.clone(),
+        },
+        args,
+    )? {
+        fs::write(file, formatted_output).into_diagnostic()?;
+    }
+    Ok(())
+}
+
+fn format_stdin(args: &Args) -> miette::Result<()> {
+    let mut unparsed_file = String::new();
+    io::stdin()
+        .read_to_string(&mut unparsed_file)
+        .into_diagnostic()?;
+
+    if let Some(formatted_output) = process_source(
+        &unparsed_file,
+        "<stdin>",
+        RustFmtConfig {
+            rustfmt_toml: None,
+            edition: args.edition.clone(),
+        },
+        args,
+    )? {
+        io::stdout()
+            .lock()
+            .write_all(formatted_output.as_bytes())
+            .into_diagnostic()?;
+    }
+    Ok(())
 }
 
 fn main() -> miette::Result<()> {
@@ -181,7 +217,7 @@ fn main() -> miette::Result<()> {
     }
 
     if args.files.is_empty() {
-        return Err(miette!("No files specified"));
+        return format_stdin(&args);
     }
 
     let mut errors = vec![];
