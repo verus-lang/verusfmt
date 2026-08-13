@@ -3565,3 +3565,80 @@ proof fn perm_ctr_insert() ensures forall|c: u64| { &&& #[trigger] final(ctr_aut
     } // verus!
     "###);
 }
+
+#[test]
+fn logically_atomic_functions() {
+    let file = r#"
+verus! {
+
+fn increment(var: &PAtomicU64) -> (out: u64)
+atomically(atomic_update){type IncrementPred,(perm:PermissionU64)->(res:Result<PermissionU64,(PermissionU64,OpenInvariantCredit)>),requires perm@.patomic==var.id(),ensures match res {Err((p,_))=>p@==perm@,Ok(p)=>p@.patomic==perm@.patomic},outer_mask any/[ns(var.id())],inner_mask [ns(var.id())],},
+ensures out==perm@.value,
+{
+}
+
+fn clients(var: &PAtomicU64) {
+let prev=increment(var) atomically loop |update| -> (au:AtomicUpdate<PermissionU64,Result<PermissionU64,PermissionU64>,IncrementPred>) invariant perm.is_for(var), ensures true, {perm=update(perm);break};
+let next=var.increment() 'retry: atomically loop |update| -> IncrementAU invariant_except_break perm.is_for(var), {match update(perm){Ok(p)=>{perm=p;break 'retry},Err(p)=>perm=p}};
+increment(var) atomically |update| {perm=Commit::get(update(perm));};
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn increment(var: &PAtomicU64) -> (out: u64)
+        atomically (atomic_update) {
+            type IncrementPred,
+            (perm: PermissionU64) -> (res: Result<PermissionU64, (PermissionU64, OpenInvariantCredit)>),
+            requires
+                perm@.patomic == var.id(),
+            ensures
+                match res {
+                    Err((p, _)) => p@ == perm@,
+                    Ok(p) => p@.patomic == perm@.patomic,
+                },
+            outer_mask any / [ns(var.id())],
+            inner_mask [ns(var.id())],
+        },
+        ensures
+            out == perm@.value,
+    {
+    }
+
+    fn clients(var: &PAtomicU64) {
+        let prev = increment(var) atomically loop |update| -> (au: AtomicUpdate<
+            PermissionU64,
+            Result<PermissionU64, PermissionU64>,
+            IncrementPred,
+        >)
+            invariant
+                perm.is_for(var),
+            ensures
+                true,
+        {
+            perm = update(perm);
+            break
+        };
+        let next = var.increment() 'retry: atomically loop |update| -> IncrementAU
+            invariant_except_break
+                perm.is_for(var),
+        {
+            match update(perm) {
+                Ok(p) => {
+                    perm = p;
+                    break 'retry
+                },
+                Err(p) => perm = p,
+            }
+        };
+        increment(var) atomically |update| {
+            perm = Commit::get(update(perm));
+        };
+    }
+
+    } // verus!
+    "###);
+}

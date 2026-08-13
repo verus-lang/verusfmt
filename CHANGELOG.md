@@ -1,5 +1,7 @@
 # Unreleased
 
+* Add support for [logically atomic functions](https://verus-lang.github.io/verus/guide/logatom.html)
+
 # v0.7.2
 
 * Add support for `const unsafe trait`s

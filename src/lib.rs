@@ -677,6 +677,7 @@ fn to_doc<'a>(
         Rule::calc_str | Rule::seq_str => s,
         Rule::has_str | Rule::is_str => s,
         Rule::pipe_str => docs!(arena, arena.line(), s, arena.space()),
+        Rule::slash_str => arena.space().append(s).append(arena.space()),
         //        Rule::triple_and |
         //        Rule::triple_or =>
         //            docs![arena, arena.hardline(), s, arena.space()].nest(INDENT_SPACES),
@@ -794,6 +795,7 @@ fn to_doc<'a>(
         Rule::no_unwind_when_str => arena.space().append(s).append(arena.space()),
 
         Rule::any_str
+        | Rule::atomically_str
         | Rule::assert_str
         | Rule::assume_specification_str
         | Rule::assume_str
@@ -809,6 +811,8 @@ fn to_doc<'a>(
         | Rule::final_str
         | Rule::forall_str
         | Rule::none_str
+        | Rule::inner_mask_str
+        | Rule::outer_mask_str
         | Rule::proof_str
         | Rule::return_str
         | Rule::self_str
@@ -1277,6 +1281,33 @@ fn to_doc<'a>(
         Rule::condition => map_to_doc(ctx, arena, pair),
         Rule::if_expr => if_expr_to_doc(ctx, arena, pair),
         Rule::loop_clause => map_to_doc(ctx, arena, pair),
+        Rule::atomically_block => {
+            let has_clause = pair
+                .clone()
+                .into_inner()
+                .any(|p| matches!(p.as_rule(), Rule::atomic_loop_clause));
+            arena
+                .space()
+                .append(arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+                    Rule::atomically_str => to_doc(ctx, p, arena).append(arena.space()),
+                    Rule::loop_str => to_doc(ctx, p, arena),
+                    Rule::fn_block_expr if has_clause => {
+                        arena.hardline().append(to_doc(ctx, p, arena))
+                    }
+                    Rule::fn_block_expr => arena.space().append(to_doc(ctx, p, arena)),
+                    _ => to_doc(ctx, p, arena),
+                })))
+        }
+        Rule::atomic_update_binder => arena
+            .concat(
+                pair.into_inner()
+                    .filter(|p| !matches!(p.as_rule(), Rule::pipe_str))
+                    .map(|p| to_doc(ctx, p, arena)),
+            )
+            .enclose(arena.text("|"), arena.text("|")),
+        Rule::atomic_return_pat => map_to_doc(ctx, arena, pair),
+        Rule::atomic_return_pat_inner => map_to_doc(ctx, arena, pair).parens().group(),
+        Rule::atomic_loop_clause => map_to_doc(ctx, arena, pair),
         Rule::loop_expr => loop_to_doc(ctx, arena, pair),
         Rule::for_expr => loop_to_doc(ctx, arena, pair),
         Rule::while_expr => loop_to_doc(ctx, arena, pair),
@@ -1384,6 +1415,60 @@ fn to_doc<'a>(
         //************************//
         //        Verus           //
         //************************//
+        Rule::atomic_spec => arena
+            .hardline()
+            .append(map_to_doc(ctx, arena, pair))
+            .nest(INDENT_SPACES),
+        Rule::atomic_update_name => arena
+            .space()
+            .append(map_to_doc(ctx, arena, pair).parens().group()),
+        Rule::atomic_spec_block => {
+            let pairs = pair.into_inner();
+            if pairs.len() == 0 {
+                arena.text(" {}")
+            } else {
+                arena.space().append(
+                    arena
+                        .concat(pairs.map(|p| {
+                            match p.as_rule() {
+                                Rule::requires_clause | Rule::ensures_clause => arena
+                                    .hardline()
+                                    .append(arena.concat(p.into_inner().map(
+                                        |p| match p.as_rule() {
+                                            Rule::requires_str => arena.text("requires"),
+                                            Rule::ensures_str => arena.text("ensures"),
+                                            Rule::comma_delimited_exprs_for_verus_clauses => {
+                                                comma_delimited_full(ctx, arena, p)
+                                            }
+                                            _ => to_doc(ctx, p, arena),
+                                        },
+                                    ))),
+                                _ => to_doc(ctx, p, arena),
+                            }
+                        }))
+                        .nest(INDENT_SPACES)
+                        .append(arena.hardline())
+                        .braces(),
+                )
+            }
+        }
+        Rule::atomic_pred_type_clause | Rule::atomic_perm_clause => {
+            arena.hardline().append(map_to_doc(ctx, arena, pair))
+        }
+        Rule::outer_mask_clause | Rule::inner_mask_clause => {
+            arena
+                .hardline()
+                .append(arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+                    Rule::outer_mask_str | Rule::inner_mask_str => {
+                        to_doc(ctx, p, arena).append(arena.space())
+                    }
+                    _ => to_doc(ctx, p, arena),
+                })))
+        }
+        Rule::atomic_perm_tuple => comma_delimited(ctx, arena, pair, false).parens().group(),
+        Rule::atomic_perm_field => map_to_doc(ctx, arena, pair),
+        Rule::invariant_name_set => map_to_doc(ctx, arena, pair),
+        Rule::invariant_name_list => map_to_doc(ctx, arena, pair).brackets().group(),
         Rule::publish => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::fn_mode => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::mode_spec_checked => map_to_doc(ctx, arena, pair),
