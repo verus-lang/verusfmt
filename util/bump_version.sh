@@ -63,11 +63,56 @@ fi
 echo "Using $proposed_version (tested valid and newer than the latest version)"
 
 echo "Updating versions in files, and running 'cargo check'"
-sed -i.bak "s/^# Unreleased$/# Unreleased\\
-\\
-# v${proposed_version}/" CHANGELOG.md
+UNRELEASED_DIR=".changelog-unreleased"
+changelog_entries=""
+unreleased_files=()
+if [ -d "$UNRELEASED_DIR" ]; then
+  for f in "$UNRELEASED_DIR"/*; do
+    [ -f "$f" ] || continue
+    [ "$(basename "$f")" = '.keep' ] && continue
+    case "$f" in
+      *[[:space:]]*)
+        echo "Error: unreleased changelog filename contains whitespace: $f"
+        exit 1
+        ;;
+    esac
+    # Bash expands this glob in lexicographic order.
+    unreleased_files+=("$f")
+  done
+fi
+for f in "${unreleased_files[@]}"; do
+  # `$(cat ...)` strips trailing newlines, keeping the rest verbatim
+  body=$(cat "$f")
+  [ -n "$body" ] || continue
+  changelog_entries+="$body"$'\n'
+done
+
+# Split the changelog into the "# Unreleased" section and the previous releases
+first_release_line=$(grep -n '^# v' CHANGELOG.md | head -n 1 | cut -d: -f1)
+if [ -n "$first_release_line" ]; then
+  head -n $((first_release_line - 1)) CHANGELOG.md >CHANGELOG.md.new
+  tail -n +"$first_release_line" CHANGELOG.md >CHANGELOG.md.rest
+else
+  cat CHANGELOG.md >CHANGELOG.md.new
+  : >CHANGELOG.md.rest
+fi
+{
+  echo "# v${proposed_version}"
+  echo ""
+  if [ -n "$changelog_entries" ]; then
+    printf '%s' "$changelog_entries"
+    echo ""
+  fi
+} >>CHANGELOG.md.new
+cat CHANGELOG.md.rest >>CHANGELOG.md.new
+mv CHANGELOG.md.new CHANGELOG.md
+rm -f CHANGELOG.md.rest
+
+for f in "${unreleased_files[@]}"; do
+  rm -f "$f"
+done
 sed -i.bak "s/^version = \".*\"/version = \"${proposed_version}\"/" Cargo.toml
-rm -f CHANGELOG.md.bak Cargo.toml.bak
+rm -f Cargo.toml.bak
 cargo check -q
 echo "Done"
 
@@ -75,12 +120,12 @@ if [ "$version_type" == "manual" ]; then
   echo "Not committing a manually defined version"
 elif [ "$VCS_TYPE" == "git" ]; then
   echo "Making a commit"
-  git add CHANGELOG.md Cargo.toml Cargo.lock
+  git add CHANGELOG.md Cargo.toml Cargo.lock "$UNRELEASED_DIR"
   git commit -m "$commit_msg"
   echo "Done"
 elif [ "$VCS_TYPE" == "jj" ]; then
   echo "Making a commit"
-  jj commit -m "$commit_msg" CHANGELOG.md Cargo.toml Cargo.lock
+  jj commit -m "$commit_msg" CHANGELOG.md Cargo.toml Cargo.lock "$UNRELEASED_DIR"
   echo "Done"
 else
   echo "FATAL: Unknown VCS TYPE. Updates were done, but not committed."
