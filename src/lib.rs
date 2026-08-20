@@ -1135,6 +1135,8 @@ fn to_doc<'a>(
         Rule::expr_matches => map_to_doc(ctx, arena, pair),
         Rule::expr_outer => map_to_doc(ctx, arena, pair),
         Rule::expr_outer_no_struct => map_to_doc(ctx, arena, pair),
+        Rule::range_expr_inner => map_to_doc(ctx, arena, pair),
+        Rule::range_expr_inner_no_struct => map_to_doc(ctx, arena, pair),
         Rule::expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::bulleted_expr => block_braces(arena, map_to_doc(ctx, arena, pair), true),
         Rule::bulleted_expr_inner => {
