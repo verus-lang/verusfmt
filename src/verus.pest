@@ -787,9 +787,13 @@ self_param = {
 }
 
 param = {
+    // PEG ordering matters here:
+    // - typed patterns (`x: T`) must be matched before bare pattern fallback
+    // - type-only params must be matched before bare pattern fallback to handle nested `spec_fn(...) -> ...`
     attr* ~ (
-        tracked_str? ~ pat_no_top_alt ~ (colon_str ~ type)?
-        | type
+        tracked_str? ~ pat_no_top_alt ~ colon_str ~ type
+        | type ~ &(comma_str | rparen_str)
+        | tracked_str? ~ pat_no_top_alt
         | ellipses_str
     )
 }
