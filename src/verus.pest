@@ -1171,7 +1171,7 @@ expr_outer = _{
     // await_expr
     dot_str ~ await_str
     // call_expr
-    | arg_list ~ atomically_block?
+    | (arg_list ~ atomically_block | arg_list)
     // cast_expr
     | expr_as
     // collection test
@@ -1187,7 +1187,7 @@ expr_outer = _{
     // index_expr
     | lbracket_str ~ expr ~ rbracket_str
     // method_call_expr
-    | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list ~ atomically_block?
+    | dot_str ~ name_ref ~ generic_arg_list? ~ (arg_list ~ atomically_block | arg_list)
     // field_expr
     | dot_str ~ name_ref
     // arrow_expr
@@ -1204,7 +1204,7 @@ expr_outer_no_struct = _{
     // await_expr
     dot_str ~ await_str
     // call_expr
-    | arg_list ~ atomically_block?
+    | (arg_list ~ atomically_block | arg_list)
     // cast_expr
     | expr_as
     // collection test
@@ -1220,7 +1220,7 @@ expr_outer_no_struct = _{
     // index_expr
     | lbracket_str ~ expr_no_struct ~ rbracket_str
     // method_call_expr
-    | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list ~ atomically_block?
+    | dot_str ~ name_ref ~ generic_arg_list? ~ (arg_list ~ atomically_block | arg_list)
     // field_expr
     | dot_str ~ name_ref
     // arrow_expr
