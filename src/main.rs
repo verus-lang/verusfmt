@@ -1,5 +1,5 @@
 use std::{
-    io::{self, Read, Write},
+    io::{Read as _, Write as _},
     path::PathBuf,
 };
 
@@ -149,7 +149,7 @@ fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
 
 fn format_stdin(args: &Args) -> miette::Result<()> {
     let mut unparsed_file = String::new();
-    io::stdin()
+    std::io::stdin()
         .read_to_string(&mut unparsed_file)
         .into_diagnostic()?;
 
@@ -162,7 +162,7 @@ fn format_stdin(args: &Args) -> miette::Result<()> {
         },
         args,
     )? {
-        io::stdout()
+        std::io::stdout()
             .lock()
             .write_all(formatted_output.as_bytes())
             .into_diagnostic()?;
