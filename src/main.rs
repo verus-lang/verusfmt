@@ -1,6 +1,6 @@
 use std::{
     io::{Read as _, Write as _},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use clap::{Parser as ClapParser, ValueEnum};
@@ -113,24 +113,29 @@ fn process_source(
     }
 }
 
+fn discover_rustfmt_toml(start_dir: &Path) -> miette::Result<Option<String>> {
+    for dir in start_dir.ancestors() {
+        // This is the order in which rustfmt checks:
+        // https://github.com/rust-lang/rustfmt/blob/202fa22cee5badff77129a7bea5c90228d354ac9/src/config/mod.rs#L368-L369
+        for name in [".rustfmt.toml", "rustfmt.toml"] {
+            let path = dir.join(name);
+            if path.exists() {
+                return fs::read_to_string(path).map(Some).into_diagnostic();
+            }
+        }
+    }
+
+    Ok(None)
+}
+
 fn format_file(file: &PathBuf, args: &Args) -> miette::Result<()> {
     let unparsed_file = fs::read_to_string(file).into_diagnostic()?;
 
-    // Repeatedly check for ancestors of `file` until we find either `rustfmt.toml` or
-    // `.rustfmt.toml`; if we do, that becomes `rustfmt_toml`.
-    let rustfmt_toml = file
-        .canonicalize()
-        .unwrap()
-        .ancestors()
-        .flat_map(|dir| {
-            // Why in this particular order? That's the order in which rustfmt checks:
-            // https://github.com/rust-lang/rustfmt/blob/202fa22cee5badff77129a7bea5c90228d354ac9/src/config/mod.rs#L368-L369
-            [".rustfmt.toml", "rustfmt.toml"]
-                .into_iter()
-                .map(|n| dir.join(n))
-        })
-        .filter_map(|p| p.exists().then(|| fs::read_to_string(p).unwrap()))
-        .next();
+    let canonical_file = file.canonicalize().into_diagnostic()?;
+    let source_dir = canonical_file
+        .parent()
+        .ok_or_else(|| miette!("Input file has no parent directory: {}", file.display()))?;
+    let rustfmt_toml = discover_rustfmt_toml(source_dir)?;
 
     let source_name = file.to_string_lossy();
     if let Some(formatted_output) = process_source(
@@ -152,12 +157,13 @@ fn format_stdin(args: &Args) -> miette::Result<()> {
     std::io::stdin()
         .read_to_string(&mut unparsed_file)
         .into_diagnostic()?;
+    let current_dir = std::env::current_dir().into_diagnostic()?;
 
     if let Some(formatted_output) = process_source(
         &unparsed_file,
         "<stdin>",
         RustFmtConfig {
-            rustfmt_toml: None,
+            rustfmt_toml: discover_rustfmt_toml(&current_dir)?,
             edition: args.edition.clone(),
         },
         args,
