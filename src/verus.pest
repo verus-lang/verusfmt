@@ -244,12 +244,14 @@ rbracket_str = { "]" }
 rbracket_space_str = { "]" }
 rparen_str = { ")" }
 semi_str = { ";" }
+slash_str = { "/" }
 star_str = { "*" }
 tilde_str = { "~" }
 triple_and = { "&&&" }
 triple_or = { "|||" }
 underscore_str = { "_" }
 any_str = ${ "any" ~ !("_" | ASCII_ALPHANUMERIC) }
+atomically_str = ${ "atomically" ~ !("_" | ASCII_ALPHANUMERIC) }
 assert_space_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
 assert_str = ${ "assert" ~ !("_" | ASCII_ALPHANUMERIC) }
 assume_str = ${ "assume" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -311,6 +313,7 @@ int_str = ${ "int" ~ !("_" | ASCII_ALPHANUMERIC) }
 invariant_ensures_str = ${ "invariant_ensures" ~ !("_" | ASCII_ALPHANUMERIC) }
 invariant_except_break_str = ${ "invariant_except_break" ~ !("_" | ASCII_ALPHANUMERIC) }
 invariant_str = ${ "invariant" ~ !("_" | ASCII_ALPHANUMERIC) }
+inner_mask_str = ${ "inner_mask" ~ !("_" | ASCII_ALPHANUMERIC) }
 in_str = ${ "in" ~ !("_" | ASCII_ALPHANUMERIC) }
 isize_str = ${ "isize" ~ !("_" | ASCII_ALPHANUMERIC) }
 is_str = ${ "is" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -330,6 +333,7 @@ no_unwind_str = ${ "no_unwind" ~ !("_" | ASCII_ALPHANUMERIC) }
 no_unwind_when_str = ${ "when" ~ !("_" | ASCII_ALPHANUMERIC) }
 opens_invariants_str = ${ "opens_invariants" ~ !("_" | ASCII_ALPHANUMERIC) }
 open_str = ${ "open" ~ !("_" | ASCII_ALPHANUMERIC) }
+outer_mask_str = ${ "outer_mask" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_fn_str = ${ "proof_fn" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_space_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
 proof_str = ${ "proof" ~ !("_" | ASCII_ALPHANUMERIC) }
@@ -731,7 +735,8 @@ use_tree_list = {
 }
 
 fn_qualifier = {
-    (requires_clause | recommends_clause | ensures_clause | default_ensures_clause | returns_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
+    atomic_spec?
+    ~ (requires_clause | recommends_clause | ensures_clause | default_ensures_clause | returns_clause | decreases_clause | opens_invariants_clause | unwind_clause)*
 }
 
 fn_terminator = {
@@ -1166,7 +1171,7 @@ expr_outer = _{
     // await_expr
     dot_str ~ await_str
     // call_expr
-    | arg_list
+    | (arg_list ~ atomically_block | arg_list)
     // cast_expr
     | expr_as
     // collection test
@@ -1182,7 +1187,7 @@ expr_outer = _{
     // index_expr
     | lbracket_str ~ expr ~ rbracket_str
     // method_call_expr
-    | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
+    | dot_str ~ name_ref ~ generic_arg_list? ~ (arg_list ~ atomically_block | arg_list)
     // field_expr
     | dot_str ~ name_ref
     // arrow_expr
@@ -1199,7 +1204,7 @@ expr_outer_no_struct = _{
     // await_expr
     dot_str ~ await_str
     // call_expr
-    | arg_list
+    | (arg_list ~ atomically_block | arg_list)
     // cast_expr
     | expr_as
     // collection test
@@ -1215,7 +1220,7 @@ expr_outer_no_struct = _{
     // index_expr
     | lbracket_str ~ expr_no_struct ~ rbracket_str
     // method_call_expr
-    | dot_str ~ name_ref ~ generic_arg_list? ~ arg_list
+    | dot_str ~ name_ref ~ generic_arg_list? ~ (arg_list ~ atomically_block | arg_list)
     // field_expr
     | dot_str ~ name_ref
     // arrow_expr
@@ -1449,6 +1454,29 @@ loop_clause = {
   | invariant_ensures_clause
   | ensures_clause
   | decreases_clause
+}
+
+atomically_block = {
+    label? ~ atomically_str ~ loop_str? ~ atomic_update_binder ~ atomic_return_pat? ~
+    atomic_loop_clause* ~ fn_block_expr
+}
+
+atomic_update_binder = {
+    pipe_str ~ identifier ~ comma_str? ~ pipe_str
+}
+
+atomic_return_pat = {
+    rarrow_str ~ (atomic_return_pat_inner | type)
+}
+
+atomic_return_pat_inner = {
+    "(" ~ pat ~ (colon_str ~ type)? ~ ")"
+}
+
+atomic_loop_clause = {
+    invariant_except_break_clause
+  | invariant_clause
+  | ensures_clause
 }
 
 loop_expr = {
@@ -1749,6 +1777,60 @@ const_block_pat = {
 //        Verus           //
 //************************//
 
+atomic_spec = {
+    atomically_str ~ atomic_update_name ~ atomic_spec_block ~ comma_str?
+}
+
+atomic_update_name = {
+    "(" ~ identifier ~ ")"
+}
+
+atomic_spec_block = {
+    "{" ~
+    atomic_pred_type_clause? ~
+    atomic_perm_clause? ~
+    requires_clause? ~
+    ensures_clause? ~
+    outer_mask_clause? ~
+    inner_mask_clause? ~
+    "}"
+}
+
+atomic_pred_type_clause = {
+    type_str ~ identifier ~ comma_str
+}
+
+atomic_perm_clause = {
+    atomic_perm_tuple ~ (rarrow_str ~ atomic_perm_tuple)? ~ comma_str?
+}
+
+atomic_perm_tuple = {
+    "(" ~ (atomic_perm_field ~ ("," ~ atomic_perm_field)* ~ ","?)? ~ ")"
+}
+
+atomic_perm_field = {
+    identifier ~ colon_str ~ type
+}
+
+invariant_name_set = {
+    any_str ~ (slash_str ~ invariant_name_list)?
+  | none_str
+  | invariant_name_list
+  | expr_no_struct
+}
+
+invariant_name_list = {
+    "[" ~ comma_delimited_exprs? ~ "]"
+}
+
+outer_mask_clause = {
+    outer_mask_str ~ invariant_name_set ~ comma_str?
+}
+
+inner_mask_clause = {
+    inner_mask_str ~ invariant_name_set ~ comma_str?
+}
+
 publish = {
     closed_str
   | open_str ~ (lparen_str ~ (in_str)? ~ path ~ rparen_str)?
@@ -1809,6 +1891,8 @@ verus_clause_non_expr = _{
   | decreases_str
   | when_str
   | opens_invariants_str
+  | outer_mask_str
+  | inner_mask_str
   | no_unwind_str
 }
 

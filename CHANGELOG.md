@@ -1,5 +1,6 @@
 # Unreleased
 
+* Add support for [logically atomic functions](https://verus-lang.github.io/verus/guide/logatom.html)
 * Support reading source code from stdin and writing the formatted source to stdout when no input files are specified.
 
 # v0.7.2
