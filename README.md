@@ -42,13 +42,6 @@ These will install the `verusfmt` binary. You can then run it on a file using:
 verusfmt foo.rs
 ```
 
-When no files are specified, `verusfmt` reads source code from standard input
-and writes the formatted source to standard output:
-
-``` sh
-verusfmt < foo.rs
-```
-
 See `verusfmt --help` for more options and details.
 
 **Overriding verusfmt**
