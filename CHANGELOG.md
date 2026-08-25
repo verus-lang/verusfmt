@@ -1,5 +1,7 @@
 # Unreleased
 
+* Support reading source code from stdin and writing the formatted source to stdout when no input files are specified.
+
 # v0.7.2
 
 * Add support for `const unsafe trait`s
