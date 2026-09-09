@@ -6,14 +6,9 @@
     ./util/bump_version.sh --patch  
     # or --minor, --major, or an explicit version such as 0.8.0
     ```
- This:
-  - Adds # vX.Y.Z below # Unreleased.
-  - Updates the version in Cargo.toml.
-  - Runs `cargo check`, updating `Cargo.lock`.
-  - Commits the changes automatically for --patch/--minor/--major. An explicit version leaves them uncommitted.
+   This updates versions and tweaks the changelog and creates a commit.
 
-3. Open and merge a release PR. The title should be `chore: release v0.7.2.` (with your new version number).
-   CI runs formatting, clippy, build, and the full test suite; the release workflow also validates the cargo-dist plan on PRs.
+3. Open and merge a release PR. The title should be `chore: release vX.Y.Z.` (with your new version number).
 
 4. Tag the merged release commit and push the tag:
     ```
@@ -22,13 +17,6 @@
     ```
    The tag version must match the version in Cargo.toml.
 
-5. The GitHub workflow in `.github/workflows/release.yml` then:
-  - Builds binaries for macOS ARM/x86, Linux x86, and Windows x86.
-  - Generates shell and PowerShell installers.
-  - Creates a GitHub Release with notes derived from CHANGELOG.md.
-  - Uploads binaries, installers, and checksums.
-  - Invokes `.github/workflows/publish-crates.yml`, which runs `cargo publish -p verusfmt` 
-    using the `CRATES_TOKEN` repository secret.
+5. Wait for the release workflow to complete.
 
-6. Confirm that the GitHub Release completed and the new version appears on crates.io.
-
+6. Confirm that the new release showed up at the [releases page](https://github.com/verus-lang/verusfmt/releases) and the new version appears on [crates.io](https://crates.io/crates/verusfmt). If it does not, then likely some update is needed to the auto-release process.  In such a case, the tagged `vX.Y.Z` should be considered "used", and the next attempt should be `vX.Y.{Z+1}`.
