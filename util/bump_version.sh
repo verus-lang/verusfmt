@@ -28,8 +28,12 @@ fi
 
 cd "$ROOT_DIR" || exit 1
 
-existing_versions=$(grep -oP '# v\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md || echo "")
-latest_version=$(echo "$existing_versions" | sort -V | tail -n 1)
+sort_versions() {
+  sort -t. -k1,1n -k2,2n -k3,3n
+}
+
+existing_versions=$(sed -E -n 's/^# v([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' CHANGELOG.md)
+latest_version=$(printf "%s\n" "$existing_versions" | sort_versions | tail -n 1)
 
 if [ "$version_type" == "manual" ]; then
   proposed_version="$input_version"
@@ -51,15 +55,19 @@ else
   esac
 fi
 
-if printf "%s\n" "$latest_version" "$proposed_version" | sort -V | head -n1 | grep -q "$proposed_version"; then
+newest_version=$(printf "%s\n" "$latest_version" "$proposed_version" | sort_versions | tail -n 1)
+if [ "$proposed_version" = "$latest_version" ] || [ "$newest_version" != "$proposed_version" ]; then
   echo "Error: provided version $proposed_version is not newer than the latest version ($latest_version)"
   exit 1
 fi
 echo "Using $proposed_version (tested valid and newer than the latest version)"
 
 echo "Updating versions in files, and running 'cargo check'"
-sed -i "s/# Unreleased/# Unreleased\n\n# v${proposed_version}/" CHANGELOG.md
-sed -i "s/^version = \".*\"/version = \"${proposed_version}\"/" Cargo.toml
+sed -i.bak "s/^# Unreleased$/# Unreleased\\
+\\
+# v${proposed_version}/" CHANGELOG.md
+sed -i.bak "s/^version = \".*\"/version = \"${proposed_version}\"/" Cargo.toml
+rm -f CHANGELOG.md.bak Cargo.toml.bak
 cargo check -q
 echo "Done"
 
