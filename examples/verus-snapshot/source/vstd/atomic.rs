@@ -509,7 +509,26 @@ macro_rules! atomic_bool_methods {
 }
 
 macro_rules! ptr_atomic_methods {
-    ($at_ty: ty, $rust_ty: ty, $value_ty: ty) => {
+    ($at_ty: ty, $rust_ty: ty, $value_ty: ty, $width: literal) => {
+        // `from_ptr` requires alignment to `$rust_ty`; the caller holds a
+        // `PointsTo<$value_ty>`, which guarantees only `align_of::<$value_ty>()`
+        // (`PointsTo::is_aligned`). `target_has_atomic_primitive_alignment` is
+        // rustc's name for those two being equal at a given width, so define
+        // these only where it holds.
+        #[cfg(target_has_atomic_primitive_alignment = $width)]
+        const _: () = assert!(
+            core::mem::align_of::<$value_ty>() == core::mem::align_of::<$rust_ty>(),
+            concat!(
+                stringify!($at_ty),
+                ": align_of::<",
+                stringify!($value_ty),
+                ">() differs from align_of::<",
+                stringify!($rust_ty),
+                ">() on this target",
+            )
+        );
+
+        #[cfg(target_has_atomic_primitive_alignment = $width)]
         verus!{
     impl $at_ty {
         /// Store a value via a raw pointer using atomic store.
@@ -554,14 +573,19 @@ macro_rules! ptr_atomic_methods {
         }
 
         /// Swap the value via atomic swap.
+        ///
+        /// The swap reads the old value, so the memory must already be
+        /// initialized; it writes `v`, so it is initialized on return.
         #[inline(always)]
         #[verifier::external_body] /* vattr */
         #[verifier::atomic] /* vattr */
         pub fn from_ptr_swap(ptr: *mut $value_ty, Tracked(perm): Tracked<&mut PointsTo<$value_ty>>, v: $value_ty) -> (ret: $value_ty)
             requires
                 ptr == old(perm).ptr(),
+                old(perm).is_init(),
             ensures
                 final(perm).value() == v,
+                final(perm).is_init(),
                 old(perm).value() == ret,
                 ptr == final(perm).ptr(),
             opens_invariants none
@@ -576,20 +600,20 @@ macro_rules! ptr_atomic_methods {
 }
 
 #[cfg(target_has_atomic = "64")]
-ptr_atomic_methods!(PAtomicU64, AtomicU64, u64);
+ptr_atomic_methods!(PAtomicU64, AtomicU64, u64, "64");
 
-ptr_atomic_methods!(PAtomicU32, AtomicU32, u32);
-ptr_atomic_methods!(PAtomicU16, AtomicU16, u16);
-ptr_atomic_methods!(PAtomicU8, AtomicU8, u8);
-ptr_atomic_methods!(PAtomicUsize, AtomicUsize, usize);
+ptr_atomic_methods!(PAtomicU32, AtomicU32, u32, "32");
+ptr_atomic_methods!(PAtomicU16, AtomicU16, u16, "16");
+ptr_atomic_methods!(PAtomicU8, AtomicU8, u8, "8");
+ptr_atomic_methods!(PAtomicUsize, AtomicUsize, usize, "ptr");
 
 #[cfg(target_has_atomic = "64")]
-ptr_atomic_methods!(PAtomicI64, AtomicI64, i64);
+ptr_atomic_methods!(PAtomicI64, AtomicI64, i64, "64");
 
-ptr_atomic_methods!(PAtomicI32, AtomicI32, i32);
-ptr_atomic_methods!(PAtomicI16, AtomicI16, i16);
-ptr_atomic_methods!(PAtomicI8, AtomicI8, i8);
-ptr_atomic_methods!(PAtomicIsize, AtomicIsize, isize);
+ptr_atomic_methods!(PAtomicI32, AtomicI32, i32, "32");
+ptr_atomic_methods!(PAtomicI16, AtomicI16, i16, "16");
+ptr_atomic_methods!(PAtomicI8, AtomicI8, i8, "8");
+ptr_atomic_methods!(PAtomicIsize, AtomicIsize, isize, "ptr");
 
 make_bool_atomic!(PAtomicBool, PermissionBool, PermissionDataBool, AtomicBool, bool);
 

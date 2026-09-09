@@ -359,6 +359,37 @@ pub assume_specification[ String::new ]() -> (res: String)
 ;
 
 #[cfg(all(feature = "alloc", not(verus_verify_core)))]
+pub assume_specification[ String::push ](s: &mut String, c: char)
+    ensures
+        final(s)@ == old(s)@.push(c),
+;
+
+#[cfg(all(feature = "alloc", not(verus_verify_core)))]
+pub assume_specification[ String::pop ](s: &mut String) -> (res: Option<char>)
+    ensures
+        old(s)@.len() == 0 ==> res is None && final(s)@ == old(s)@,
+        old(s)@.len() > 0 ==> res == Some(old(s)@.last()) && final(s)@ == old(s)@.drop_last(),
+;
+
+#[cfg(all(feature = "alloc", not(verus_verify_core)))]
+pub assume_specification[ String::push_str ](s: &mut String, other: &str)
+    ensures
+        final(s)@ == old(s)@ + other@,
+;
+
+#[cfg(all(feature = "alloc", not(verus_verify_core)))]
+pub assume_specification[ String::is_empty ](s: &String) -> (res: bool)
+    ensures
+        res == (s@.len() == 0),
+;
+
+#[cfg(all(feature = "alloc", not(verus_verify_core)))]
+pub assume_specification[ String::clear ](s: &mut String)
+    ensures
+        final(s)@ == Seq::<char>::empty(),
+;
+
+#[cfg(all(feature = "alloc", not(verus_verify_core)))]
 pub assume_specification[ <String as core::default::Default>::default ]() -> (r: String)
     ensures
         r@ == Seq::<char>::empty(),
@@ -435,7 +466,6 @@ pub assume_specification[ str::chars ](s: &str) -> (iter: Chars<'_>)
     ensures
         IteratorSpec::remaining(&iter) == s@,
         IteratorSpec::decrease(&iter) is Some,
-        IteratorSpec::initial_value_relation(&iter, &iter),
 ;
 
 #[cfg(verus_keep_ghost)]
@@ -448,12 +478,6 @@ impl<'a> super::std_specs::iter::IteratorSpecImpl for Chars<'a> {
     uninterp spec fn remaining(&self) -> Seq<Self::Item>;
 
     uninterp spec fn will_return_none(&self) -> bool;
-
-    #[verifier::prophetic]
-    open spec fn initial_value_relation(&self, init: &Self) -> bool {
-        &&& IteratorSpec::remaining(init) == IteratorSpec::remaining(self)
-        &&& into_iter_elts(*self) == IteratorSpec::remaining(self)
-    }
 
     uninterp spec fn decrease(&self) -> Option<nat>;
 

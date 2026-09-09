@@ -92,16 +92,6 @@ pub trait ExFreeze: PointeeSized {
 }
 
 #[verifier::external_trait_specification]
-pub trait ExDebug: PointeeSized {
-    type ExternalTraitSpecificationFor: core::fmt::Debug;
-}
-
-#[verifier::external_trait_specification]
-pub trait ExDisplay: PointeeSized {
-    type ExternalTraitSpecificationFor: core::fmt::Display;
-}
-
-#[verifier::external_trait_specification]
 pub trait ExHash: PointeeSized {
     type ExternalTraitSpecificationFor: core::hash::Hash;
 }
@@ -181,12 +171,19 @@ pub assume_specification[ core::intrinsics::unlikely ](b: bool) -> (c: bool)
 ;
 
 pub assume_specification<T, F: FnOnce() -> T>[ bool::then ](b: bool, f: F) -> (ret: Option<T>)
+    requires
+        b ==> f.requires(()),
     ensures
         if b {
             ret.is_some() && f.ensures((), ret.unwrap())
         } else {
             ret.is_none()
         },
+;
+
+pub assume_specification<T> [core::hint::must_use] (value: T) -> (ret: T)
+    ensures
+        ret == value,
 ;
 
 } // verus!
