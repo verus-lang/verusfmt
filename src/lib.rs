@@ -1178,7 +1178,7 @@ fn to_doc<'a>(
         Rule::stmt_list => {
             let rule = pair.as_rule();
             let pairs = pair.clone().into_inner();
-            if pairs.len() == 0 {
+            if pairs.is_empty() {
                 // Rust says: "An empty block should be written as {}"
                 arena.text("{}")
             } else if expr_only_block(rule, &pairs) {
@@ -1425,7 +1425,7 @@ fn to_doc<'a>(
             .append(map_to_doc(ctx, arena, pair).parens().group()),
         Rule::atomic_spec_block => {
             let pairs = pair.into_inner();
-            if pairs.len() == 0 {
+            if pairs.is_empty() {
                 arena.text(" {}")
             } else {
                 arena.space().append(
