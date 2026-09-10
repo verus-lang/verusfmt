@@ -841,7 +841,7 @@ fn to_doc<'a>(
         Rule::calc_macro_reln => s,
         Rule::calc_macro_body => {
             let mut inner = arena.nil();
-            let pairs = pair.into_inner();
+            let mut pairs = pair.into_inner();
             let mut first_reln_done = false;
             for p in pairs.clone() {
                 let doc = to_doc(ctx, p.clone(), arena);
@@ -871,7 +871,7 @@ fn to_doc<'a>(
             arena.space().append(block_braces(
                 arena,
                 inner,
-                pairs.rev().next().unwrap().as_rule() == Rule::semi_str,
+                pairs.next_back().unwrap().as_rule() == Rule::semi_str,
             ))
         }
         Rule::calc_macro_call => map_to_doc(ctx, arena, pair),
