@@ -1,6 +1,6 @@
-use insta::assert_snapshot;
+//! Tests of Verus-specific formatting
 
-/// Tests of Verus-specific formatting
+use insta::assert_snapshot;
 
 // We use insta tests (http://insta.rs) to manage the correct answers.
 // See README.md for details on how to run and update these tests.

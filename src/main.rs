@@ -92,7 +92,7 @@ fn process_source(
             },
         )?;
         if formatted_output == reformatted {
-            return Err(miette!("✨Idempotent run✨"));
+            Err(miette!("✨Idempotent run✨"))
         } else {
             info!("Non-idempotency found in {source_name}");
             error!("😱Formatting found to not be idempotent😱");
@@ -106,7 +106,7 @@ fn process_source(
                 Some((&formatted_once_name, &formatted_twice_name)),
             );
             println!("{diff}");
-            return Ok(None);
+            Ok(None)
         }
     } else {
         Ok(Some(formatted_output))

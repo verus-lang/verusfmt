@@ -1,7 +1,7 @@
-use verusfmt::{rustfmt, VERUS_PREFIX, VERUS_SUFFIX};
+//! Tests to check that when formatting standard Rust syntax,
+//! we match rustfmt
 
-/// Tests to check that when formatting standard Rust syntax,
-/// we match rustfmt
+use verusfmt::{rustfmt, VERUS_PREFIX, VERUS_SUFFIX};
 
 fn compare(file: &str) {
     let verus_file = format!("{}{}{}", VERUS_PREFIX, file, VERUS_SUFFIX);

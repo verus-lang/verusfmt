@@ -841,7 +841,7 @@ fn to_doc<'a>(
         Rule::calc_macro_reln => s,
         Rule::calc_macro_body => {
             let mut inner = arena.nil();
-            let pairs = pair.into_inner();
+            let mut pairs = pair.into_inner();
             let mut first_reln_done = false;
             for p in pairs.clone() {
                 let doc = to_doc(ctx, p.clone(), arena);
@@ -865,13 +865,13 @@ fn to_doc<'a>(
                     Rule::COMMENT => {
                         inner = inner.append(doc);
                     }
-                    rule @ _ => unreachable!("Unreachable rule {rule:?}"),
+                    rule => unreachable!("Unreachable rule {rule:?}"),
                 }
             }
             arena.space().append(block_braces(
                 arena,
                 inner,
-                pairs.rev().next().unwrap().as_rule() == Rule::semi_str,
+                pairs.next_back().unwrap().as_rule() == Rule::semi_str,
             ))
         }
         Rule::calc_macro_call => map_to_doc(ctx, arena, pair),
@@ -1161,7 +1161,8 @@ fn to_doc<'a>(
                         }
                     }
                     _ => {
-                        if p.into_inner().flatten().last().unwrap().as_rule() == Rule::COMMENT {
+                        if p.into_inner().flatten().next_back().unwrap().as_rule() == Rule::COMMENT
+                        {
                             // Prevent an unnecessary additional newline after comments
                             prefix_hardline = false;
                         }
@@ -1177,7 +1178,7 @@ fn to_doc<'a>(
         Rule::stmt_list => {
             let rule = pair.as_rule();
             let pairs = pair.clone().into_inner();
-            if pairs.len() == 0 {
+            if pairs.is_empty() {
                 // Rust says: "An empty block should be written as {}"
                 arena.text("{}")
             } else if expr_only_block(rule, &pairs) {
@@ -1424,7 +1425,7 @@ fn to_doc<'a>(
             .append(map_to_doc(ctx, arena, pair).parens().group()),
         Rule::atomic_spec_block => {
             let pairs = pair.into_inner();
-            if pairs.len() == 0 {
+            if pairs.is_empty() {
                 arena.text(" {}")
             } else {
                 arena.space().append(

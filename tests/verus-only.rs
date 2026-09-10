@@ -1,6 +1,6 @@
-use insta::assert_snapshot;
+//! Tests of verusfmt behavior in `--verus-only` mode.
 
-/// Tests of verusfmt behavior in `--verus-only` mode.
+use insta::assert_snapshot;
 
 // We use insta tests (http://insta.rs) to manage the correct answers.
 // See README.md for details on how to run and update these tests.

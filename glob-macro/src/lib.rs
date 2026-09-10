@@ -95,11 +95,9 @@ fn glob2(glob_path: syn::LitStr, function: ItemFn) -> TokenStream2 {
 
         let mut inner_function = function.clone();
         inner_function.sig.ident = syn::Ident::new("test", function.sig.ident.span());
-        inner_function.attrs = inner_function
+        inner_function
             .attrs
-            .into_iter()
-            .filter(|attr| !attr.path().is_ident("test"))
-            .collect();
+            .retain(|attr| !attr.path().is_ident("test"));
 
         let function = quote! {
             #[test]
