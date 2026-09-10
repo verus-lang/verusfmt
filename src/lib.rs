@@ -1161,7 +1161,8 @@ fn to_doc<'a>(
                         }
                     }
                     _ => {
-                        if p.into_inner().flatten().last().unwrap().as_rule() == Rule::COMMENT {
+                        if p.into_inner().flatten().next_back().unwrap().as_rule() == Rule::COMMENT
+                        {
                             // Prevent an unnecessary additional newline after comments
                             prefix_hardline = false;
                         }
