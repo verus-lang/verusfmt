@@ -865,7 +865,7 @@ fn to_doc<'a>(
                     Rule::COMMENT => {
                         inner = inner.append(doc);
                     }
-                    rule @ _ => unreachable!("Unreachable rule {rule:?}"),
+                    rule => unreachable!("Unreachable rule {rule:?}"),
                 }
             }
             arena.space().append(block_braces(
