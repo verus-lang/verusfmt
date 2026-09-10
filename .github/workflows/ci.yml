@@ -22,5 +22,5 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --check --verbose
       - run: cargo clippy --verbose
-      - run: cargo build --verbose
-      - run: RUN_SLOW_TESTS=1 cargo test --verbose
+      - run: cargo --config 'profile.dev.package.verusfmt.opt-level=3' build --verbose
+      - run: RUN_SLOW_TESTS=1 cargo --config 'profile.dev.package.verusfmt.opt-level=3' test --verbose
