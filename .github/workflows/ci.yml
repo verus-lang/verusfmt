@@ -16,10 +16,10 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Rust
         run: rustup toolchain install stable --profile minimal --no-self-update
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - run: cargo fmt --check --verbose
       - run: cargo clippy --verbose
       - run: cargo --config 'profile.dev.package.verusfmt.opt-level=3' build --verbose
