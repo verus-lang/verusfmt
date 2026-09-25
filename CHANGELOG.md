@@ -1,5 +1,7 @@
 # Unreleased
 
+A log of unreleased changes lives in [`.changelog-unreleased/`](.changelog-unreleased/); to record a new change, add a new file there. All lines from there will be concatenated together when making a new release.
+
 # v0.7.3
 
 * Add support for [logically atomic functions](https://verus-lang.github.io/verus/guide/logatom.html)

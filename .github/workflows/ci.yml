@@ -20,6 +20,7 @@ jobs:
       - name: Set up Rust
         run: rustup toolchain install stable --profile minimal --no-self-update
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - run: ./util/check_unreleased_changelog.sh
       - run: cargo fmt --check --verbose
       - run: cargo clippy --verbose
       - run: cargo --config 'profile.dev.package.verusfmt.opt-level=3' build --verbose
