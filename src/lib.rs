@@ -1212,6 +1212,7 @@ fn to_doc<'a>(
         }
         Rule::prefix_expr => map_to_doc(ctx, arena, pair),
         Rule::prefix_expr_no_struct => map_to_doc(ctx, arena, pair),
+        Rule::range_expr | Rule::range_expr_no_struct => map_to_doc(ctx, arena, pair),
         Rule::assignment_ops => docs![arena, arena.space(), s, arena.line()],
         Rule::bin_expr_ops_normal => docs![arena, arena.line(), s, arena.space()]
             .nest(INDENT_SPACES)
