@@ -1518,7 +1518,11 @@ fn to_doc<'a>(
         Rule::multiline_comment => s.append(arena.line()),
         Rule::inner_docstring_comment => s,
         Rule::verus_macro_body => items_to_doc(ctx, arena, pair, false),
-        Rule::file | Rule::non_verus | Rule::verus_macro_use | Rule::EOI => unreachable!(),
+        Rule::file
+        | Rule::non_verus
+        | Rule::non_verus_macro_call
+        | Rule::verus_macro_use
+        | Rule::EOI => unreachable!(),
     }
 }
 
