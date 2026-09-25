@@ -1881,6 +1881,36 @@ fn foo() { for i in 0..(10 + 5) {
 }
 
 #[test]
+fn verus_slice_ranges() {
+    let file = r#"verus! {
+    fn slice_stuff(buffer: &[u8; 1024], n: usize) {
+        foo(&buffer[..n]);
+        foo(&buffer[..]);
+        foo(&buffer[..=n]);
+        foo(&buffer[0..n]);
+        foo(&buffer[0..=n]);
+        foo(&buffer[0..]);
+        let updated = Foo { value: n, ..old };
+    }
+}"#;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn slice_stuff(buffer: &[u8; 1024], n: usize) {
+        foo(&buffer[..n]);
+        foo(&buffer[..]);
+        foo(&buffer[..=n]);
+        foo(&buffer[0..n]);
+        foo(&buffer[0..=n]);
+        foo(&buffer[0..]);
+        let updated = Foo { value: n, ..old };
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_for_loops() {
     let file = r#"
 verus!{
