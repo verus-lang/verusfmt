@@ -1086,7 +1086,17 @@ fn to_doc<'a>(
         Rule::generic_param_list => comma_delimited(ctx, arena, pair, false).angles().group(),
         Rule::spaced_generic_param_list => map_to_doc(ctx, arena, pair).append(arena.space()),
         Rule::generic_param => map_to_doc(ctx, arena, pair),
-        Rule::type_param => map_to_doc(ctx, arena, pair),
+        Rule::type_param => {
+            let has_bound = pair
+                .clone()
+                .into_inner()
+                .any(|p| p.as_rule() == Rule::type_bound_list);
+            arena.concat(
+                pair.into_inner()
+                    .filter(|p| has_bound || p.as_rule() != Rule::colon_str)
+                    .map(|p| to_doc(ctx, p, arena)),
+            )
+        }
         Rule::const_param => map_to_doc(ctx, arena, pair),
         Rule::lifetime_param => map_to_doc(ctx, arena, pair),
         Rule::where_clause => arena.space().append(map_to_doc(ctx, arena, pair)),
