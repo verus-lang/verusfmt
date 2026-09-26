@@ -1414,7 +1414,7 @@ record_expr_field_list = {
 }
 
 record_expr_field = {
-    !".." ~ attr* ~ (name ~ colon_str)? ~ expr
+    !".." ~ attr* ~ ((name | decimal_number) ~ colon_str)? ~ expr
 }
 
 arg_list = {
