@@ -963,7 +963,7 @@ generic_param = {
 }
 
 type_param = {
-    attr* ~ name ~ (colon_str ~ type_bound_list)? ~
+    attr* ~ name ~ (colon_str ~ type_bound_list?)? ~
     (eq_str ~ type)?
 }
 
