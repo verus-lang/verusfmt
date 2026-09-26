@@ -46,6 +46,28 @@ impl Clone for Foo {
 }
 
 #[test]
+fn block_expression_method_call() {
+    let file = r#"verus! {
+fn test() {
+    {#[foo] bar()}.baz(asd);
+}
+}"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r"
+    verus! {
+
+    fn test() {
+        {
+            #[foo]
+            bar()
+        }.baz(asd);
+    }
+
+    } // verus!
+    ");
+}
+
+#[test]
 fn inline_multiline_block_comment_with_line_comment_text() {
     let file = r#"
 verus! { fn f() { x()/*//
