@@ -2,6 +2,14 @@
 
 A log of unreleased changes lives in [`.changelog-unreleased/`](.changelog-unreleased/); to record a new change, add a new file there. All lines from there will be concatenated together when making a new release.
 
+# v0.7.4
+
+* Improve support for generic type bounds
+* Handle nested `spec_fn` types in function parameters
+* Handle non-Verus macro calls containing `verus!`
+* Support numbered fields in record expressions for tuple structs.
+* Fix range expression parsing and formatting
+
 # v0.7.3
 
 * Add support for [logically atomic functions](https://verus-lang.github.io/verus/guide/logatom.html)
