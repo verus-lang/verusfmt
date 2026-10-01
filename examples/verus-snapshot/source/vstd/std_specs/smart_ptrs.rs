@@ -19,9 +19,8 @@ pub assume_specification<T>[ Box::<T>::new ](t: T) -> (v: Box<T>)
         *v == t,
 ;
 
-pub assume_specification<T: core::default::Default>[ <Box<
-    T,
-> as core::default::Default>::default ]() -> (res: Box<T>)
+pub assume_specification<T: core::default::Default>[ <Box<T> as core::default::Default>::default ]()
+    -> (res: Box<T>)
     ensures
         T::default.ensures((), *res),
 ;
@@ -31,9 +30,8 @@ pub assume_specification<T>[ Rc::<T>::new ](t: T) -> (v: Rc<T>)
         *v == t,
 ;
 
-pub assume_specification<T: core::default::Default>[ <Rc<
-    T,
-> as core::default::Default>::default ]() -> (res: Rc<T>)
+pub assume_specification<T: core::default::Default>[ <Rc<T> as core::default::Default>::default ]()
+    -> (res: Rc<T>)
     ensures
         T::default.ensures((), *res),
 ;
@@ -43,9 +41,8 @@ pub assume_specification<T>[ Arc::<T>::new ](t: T) -> (v: Arc<T>)
         *v == t,
 ;
 
-pub assume_specification<T: core::default::Default>[ <Arc<
-    T,
-> as core::default::Default>::default ]() -> (res: Arc<T>)
+pub assume_specification<T: core::default::Default>[ <Arc<T> as core::default::Default>::default ]()
+    -> (res: Arc<T>)
     ensures
         T::default.ensures((), *res),
 ;
@@ -57,10 +54,8 @@ pub assume_specification<T: Clone, A: Allocator + Clone>[ <Box<T, A> as Clone>::
         cloned::<T>(**b, *res),
 ;
 
-pub assume_specification<T, A: Allocator>[ Rc::<T, A>::try_unwrap ](v: Rc<T, A>) -> (result: Result<
-    T,
-    Rc<T, A>,
->)
+pub assume_specification<T, A: Allocator>[ Rc::<T, A>::try_unwrap ](v: Rc<T, A>)
+    -> (result: Result<T, Rc<T, A>>)
     ensures
         match result {
             Ok(t) => t == *v,
@@ -68,9 +63,8 @@ pub assume_specification<T, A: Allocator>[ Rc::<T, A>::try_unwrap ](v: Rc<T, A>)
         },
 ;
 
-pub assume_specification<T, A: Allocator>[ Rc::<T, A>::into_inner ](v: Rc<T, A>) -> (result: Option<
-    T,
->)
+pub assume_specification<T, A: Allocator>[ Rc::<T, A>::into_inner ](v: Rc<T, A>)
+    -> (result: Option<T>)
     ensures
         result matches Some(t) ==> t == *v,
 ;

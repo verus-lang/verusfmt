@@ -148,12 +148,9 @@ pub open spec fn step_Map(
     &&& spec_pt::step_Map(s1.pt_variables(), s2.pt_variables(), base, pte, result)
 }
 
-pub open spec fn step_Unmap(
-    s1: OSVariables,
-    s2: OSVariables,
-    base: nat,
-    result: Result<(), ()>,
-) -> bool {
+pub open spec fn step_Unmap(s1: OSVariables, s2: OSVariables, base: nat, result: Result<(), ()>)
+    -> bool
+{
     // The hw step tells us that s2.tlb is a submap of s1.tlb, so all we need to specify is
     // that s2.tlb doesn't contain this particular entry.
     &&& !s2.hw.tlb.dom().contains(base)

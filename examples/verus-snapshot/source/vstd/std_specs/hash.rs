@@ -344,9 +344,8 @@ pub struct ExMapIter<'a, Key: 'a, Value: 'a>(hash_map::Iter<'a, Key, Value>);
 
 // To allow reasoning about the "contents" of the Iter iterator, without using
 // a prophecy, we need a function that gives us the underlying sequence of the original map.
-pub uninterp spec fn into_iter<'a, Key, Value>(i: hash_map::Iter<'a, Key, Value>) -> Seq<
-    (Key, Value),
->;
+pub uninterp spec fn into_iter<'a, Key, Value>(i: hash_map::Iter<'a, Key, Value>)
+    -> Seq<(Key, Value)>;
 
 impl<'a, K, V> super::iter::IteratorSpecImpl for hash_map::Iter<'a, K, V> {
     open spec fn obeys_prophetic_iter_laws(&self) -> bool {
@@ -546,9 +545,8 @@ pub broadcast proof fn axiom_hashmap_deepview_borrow<
     admit();
 }
 
-pub uninterp spec fn spec_hash_map_len<Key, Value, S, A: Allocator>(
-    m: &HashMap<Key, Value, S, A>,
-) -> usize;
+pub uninterp spec fn spec_hash_map_len<Key, Value, S, A: Allocator>(m: &HashMap<Key, Value, S, A>)
+    -> usize;
 
 pub broadcast proof fn axiom_spec_hash_map_len<Key, Value, S, A: Allocator>(
     m: &HashMap<Key, Value, S, A>,
@@ -588,11 +586,8 @@ pub assume_specification<K: Clone, V: Clone, S: Clone, A: Allocator + Clone>[ <H
             other@.dom().contains(key) ==> cloned(this@[key], #[trigger] other@[key]),
 ;
 
-pub assume_specification<Key, Value>[ HashMap::<Key, Value>::new ]() -> (m: HashMap<
-    Key,
-    Value,
-    RandomState,
->)
+pub assume_specification<Key, Value>[ HashMap::<Key, Value>::new ]()
+    -> (m: HashMap<Key, Value, RandomState>)
     ensures
         m@ == Map::<Key, Value>::empty(),
 ;
@@ -606,8 +601,8 @@ pub assume_specification<K, V, S: core::default::Default>[ <HashMap<
         m@ == Map::<K, V>::empty(),
 ;
 
-pub assume_specification<Key, Value>[ HashMap::<Key, Value>::with_capacity ](capacity: usize) -> (m:
-    HashMap<Key, Value, RandomState>)
+pub assume_specification<Key, Value>[ HashMap::<Key, Value>::with_capacity ](capacity: usize)
+    -> (m: HashMap<Key, Value, RandomState>)
     ensures
         m@ == Map::<Key, Value>::empty(),
 ;
@@ -652,10 +647,8 @@ pub assume_specification<Key: Eq + Hash, Value, S: BuildHasher, A: Allocator>[ H
 // specification function. So we have special-case axioms that say
 // what this means in two important circumstances: (1) `Key = Q` and
 // (2) `Key = Box<Q>`.
-pub uninterp spec fn contains_borrowed_key<Key, Value, Q: ?Sized>(
-    m: Map<Key, Value>,
-    k: &Q,
-) -> bool;
+pub uninterp spec fn contains_borrowed_key<Key, Value, Q: ?Sized>(m: Map<Key, Value>, k: &Q)
+    -> bool;
 
 pub broadcast proof fn axiom_contains_deref_key<Q, Value>(m: Map<Q, Value>, k: &Q)
     ensures
@@ -679,10 +672,8 @@ pub assume_specification<
     S: BuildHasher,
     A: Allocator,
     Q: Hash + Eq + ?Sized,
->[ HashMap::<Key, Value, S, A>::contains_key::<Q> ](
-    m: &HashMap<Key, Value, S, A>,
-    k: &Q,
-) -> (result: bool)
+>[ HashMap::<Key, Value, S, A>::contains_key::<Q> ](m: &HashMap<Key, Value, S, A>, k: &Q)
+    -> (result: bool)
     ensures
         obeys_key_model::<Key>() && builds_valid_hashers::<S>() ==> result == contains_borrowed_key(
             m@,
@@ -738,8 +729,8 @@ pub assume_specification<
     S: BuildHasher,
     A: Allocator,
     Q: Hash + Eq + ?Sized,
->[ HashMap::<Key, Value, S, A>::get::<Q> ](m: &'a HashMap<Key, Value, S, A>, k: &Q) -> (result:
-    Option<&'a Value>)
+>[ HashMap::<Key, Value, S, A>::get::<Q> ](m: &'a HashMap<Key, Value, S, A>, k: &Q)
+    -> (result: Option<&'a Value>)
     ensures
         obeys_key_model::<Key>() && builds_valid_hashers::<S>() ==> match result {
             Some(v) => maps_borrowed_key_to_value(m@, k, *v),
@@ -799,8 +790,8 @@ pub assume_specification<
     S: BuildHasher,
     A: Allocator,
     Q: Hash + Eq + ?Sized,
->[ HashMap::<Key, Value, S, A>::remove::<Q> ](m: &mut HashMap<Key, Value, S, A>, k: &Q) -> (result:
-    Option<Value>)
+>[ HashMap::<Key, Value, S, A>::remove::<Q> ](m: &mut HashMap<Key, Value, S, A>, k: &Q)
+    -> (result: Option<Value>)
     ensures
         obeys_key_model::<Key>() && builds_valid_hashers::<S>() ==> {
             &&& borrowed_key_removed(old(m)@, final(m)@, k)
@@ -910,9 +901,8 @@ pub broadcast proof fn axiom_spec_hash_set_len<Key, S, A: Allocator>(m: &HashSet
 }
 
 #[verifier::when_used_as_spec(spec_hash_set_len)]
-pub assume_specification<Key, S, A: Allocator>[ HashSet::<Key, S, A>::len ](
-    m: &HashSet<Key, S, A>,
-) -> (len: usize)
+pub assume_specification<Key, S, A: Allocator>[ HashSet::<Key, S, A>::len ](m: &HashSet<Key, S, A>)
+    -> (len: usize)
     ensures
         len == spec_hash_set_len(m),
 ;
@@ -937,10 +927,8 @@ pub assume_specification<T, S: core::default::Default>[ <HashSet<
         m@ == Set::<T>::empty(),
 ;
 
-pub assume_specification<Key>[ HashSet::<Key>::with_capacity ](capacity: usize) -> (m: HashSet<
-    Key,
-    RandomState,
->)
+pub assume_specification<Key>[ HashSet::<Key>::with_capacity ](capacity: usize)
+    -> (m: HashSet<Key, RandomState>)
     ensures
         m@ == Set::<Key>::empty(),
 ;
@@ -1269,9 +1257,8 @@ pub assume_specification<'a, Key: Hash + Eq, Value, S: BuildHasher, A: Allocator
 
 //// Entry
 #[verifier::allow_in_spec]
-pub assume_specification<'a, 'b, K, V, A: Allocator>[ Entry::key ](
-    entry: &'b Entry::<'a, K, V, A>,
-) -> (key: &'b K)
+pub assume_specification<'a, 'b, K, V, A: Allocator>[ Entry::key ](entry: &'b Entry::<'a, K, V, A>)
+    -> (key: &'b K)
     returns
         &entry.spec_key(),
 ;

@@ -30,9 +30,8 @@ pub open spec fn tombstone_table_lookup(src: AbstractEndPoint, t: TombstoneTable
 
 pub type AckList<MT> = Seq<SingleMessage<MT>>;
 
-pub open spec(checked) fn truncate_un_ack_list<MT>(un_acked: AckList<MT>, seqno_acked: nat) -> Seq<
-    SingleMessage<MT>,
->
+pub open spec(checked) fn truncate_un_ack_list<MT>(un_acked: AckList<MT>, seqno_acked: nat)
+    -> Seq<SingleMessage<MT>>
     decreases un_acked.len(),
 {
     if un_acked.len() > 0 && un_acked[0] is Message && un_acked[0].arrow_Message_seqno()
@@ -58,10 +57,9 @@ impl AckState<Message> {
 
 pub type SendState<MT> = Map<AbstractEndPoint, AckState<MT>>;
 
-pub open spec(checked) fn ack_state_lookup<MT>(
-    src: AbstractEndPoint,
-    send_state: SendState<MT>,
-) -> AckState<MT> {
+pub open spec(checked) fn ack_state_lookup<MT>(src: AbstractEndPoint, send_state: SendState<MT>)
+    -> AckState<MT>
+{
     if send_state.contains_key(src) {
         send_state[src]
     } else {
@@ -89,12 +87,8 @@ impl<MT> SingleDelivery<MT> {
     }
 
     /// Protocol/SHT/SingleDelivery.i.dfy ReceiveAck
-    pub open spec(checked) fn receive_ack(
-        pre: Self,
-        post: Self,
-        pkt: Packet,
-        acks: Set<Packet>,
-    ) -> bool
+    pub open spec(checked) fn receive_ack(pre: Self, post: Self, pkt: Packet, acks: Set<Packet>)
+        -> bool
         recommends
             pkt.msg is Ack,
     {

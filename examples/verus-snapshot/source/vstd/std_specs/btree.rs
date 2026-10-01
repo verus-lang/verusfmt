@@ -130,9 +130,8 @@ pub struct ExMapIter<'a, K, V>(btree_map::Iter<'a, K, V>);
 
 // To allow reasoning about the "contents" of the Iter iterator, without using
 // a prophecy, we need a function that gives us the underlying sequence of the original map.
-pub uninterp spec fn into_iter<'a, Key, Value>(i: btree_map::Iter<'a, Key, Value>) -> Seq<
-    (Key, Value),
->;
+pub uninterp spec fn into_iter<'a, Key, Value>(i: btree_map::Iter<'a, Key, Value>)
+    -> Seq<(Key, Value)>;
 
 impl<'a, K, V> super::iter::IteratorSpecImpl for btree_map::Iter<'a, K, V> {
     open spec fn obeys_prophetic_iter_laws(&self) -> bool {
@@ -366,8 +365,8 @@ pub assume_specification<Key, Value>[ BTreeMap::<Key, Value>::new ]() -> (m: BTr
         m@ == Map::<Key, Value>::empty(),
 ;
 
-pub assume_specification<K, V>[ <BTreeMap<K, V> as core::default::Default>::default ]() -> (m:
-    BTreeMap<K, V>)
+pub assume_specification<K, V>[ <BTreeMap<K, V> as core::default::Default>::default ]()
+    -> (m: BTreeMap<K, V>)
     ensures
         m@ == Map::<K, V>::empty(),
 ;
@@ -401,10 +400,8 @@ pub assume_specification<Key: Ord, Value, A: Allocator + Clone>[ BTreeMap::<
 // specification function. So we have special-case axioms that say
 // what this means in two important circumstances: (1) `Key = Q` and
 // (2) `Key = Box<Q>`.
-pub uninterp spec fn contains_borrowed_key<Key, Value, Q: ?Sized>(
-    m: Map<Key, Value>,
-    k: &Q,
-) -> bool;
+pub uninterp spec fn contains_borrowed_key<Key, Value, Q: ?Sized>(m: Map<Key, Value>, k: &Q)
+    -> bool;
 
 pub broadcast axiom fn axiom_contains_deref_key<Q, Value>(m: Map<Q, Value>, k: &Q)
     ensures
@@ -423,8 +420,8 @@ pub assume_specification<
     Value,
     A: Allocator + Clone,
     Q: Ord + ?Sized,
->[ BTreeMap::<Key, Value, A>::contains_key::<Q> ](m: &BTreeMap<Key, Value, A>, k: &Q) -> (result:
-    bool)
+>[ BTreeMap::<Key, Value, A>::contains_key::<Q> ](m: &BTreeMap<Key, Value, A>, k: &Q)
+    -> (result: bool)
     ensures
         obeys_cmp::<Key>() ==> result == contains_borrowed_key(m@, k),
 ;
@@ -472,9 +469,8 @@ pub assume_specification<
     Value,
     A: Allocator + Clone,
     Q: Ord + ?Sized,
->[ BTreeMap::<Key, Value, A>::get::<Q> ](m: &'a BTreeMap<Key, Value, A>, k: &Q) -> (result: Option<
-    &'a Value,
->)
+>[ BTreeMap::<Key, Value, A>::get::<Q> ](m: &'a BTreeMap<Key, Value, A>, k: &Q)
+    -> (result: Option<&'a Value>)
     ensures
         obeys_cmp::<Key>() ==> match result {
             Some(v) => maps_borrowed_key_to_value(m@, k, *v),
@@ -529,8 +525,8 @@ pub assume_specification<
     Value,
     A: Allocator + Clone,
     Q: Ord + ?Sized,
->[ BTreeMap::<Key, Value, A>::remove::<Q> ](m: &mut BTreeMap<Key, Value, A>, k: &Q) -> (result:
-    Option<Value>)
+>[ BTreeMap::<Key, Value, A>::remove::<Q> ](m: &mut BTreeMap<Key, Value, A>, k: &Q)
+    -> (result: Option<Value>)
     ensures
         obeys_cmp::<Key>() ==> {
             &&& borrowed_key_removed(old(m)@, final(m)@, k)
@@ -655,9 +651,8 @@ pub broadcast axiom fn axiom_spec_btree_set_len<Key, A: Allocator + Clone>(m: &B
 ;
 
 #[verifier::when_used_as_spec(spec_btree_set_len)]
-pub assume_specification<Key, A: Allocator + Clone>[ BTreeSet::<Key, A>::len ](
-    m: &BTreeSet<Key, A>,
-) -> (len: usize)
+pub assume_specification<Key, A: Allocator + Clone>[ BTreeSet::<Key, A>::len ](m: &BTreeSet<Key, A>)
+    -> (len: usize)
     ensures
         len == spec_btree_set_len(m),
 ;
@@ -681,9 +676,8 @@ pub assume_specification<Key>[ BTreeSet::<Key>::new ]() -> (m: BTreeSet<Key>)
         m@ == Set::<Key>::empty(),
 ;
 
-pub assume_specification<T>[ <BTreeSet<T> as core::default::Default>::default ]() -> (m: BTreeSet<
-    T,
->)
+pub assume_specification<T>[ <BTreeSet<T> as core::default::Default>::default ]()
+    -> (m: BTreeSet<T>)
     ensures
         m@ == Set::<T>::empty(),
 ;

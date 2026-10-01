@@ -32,19 +32,11 @@ pub trait MutOperation: Sized {
     // type of new value for the resource
     type NewState;
 
-    spec fn requires(
-        self,
-        pre: Self::Resource,
-        new_state: Self::NewState,
-        e: Self::ExecResult,
-    ) -> bool;
+    spec fn requires(self, pre: Self::Resource, new_state: Self::NewState, e: Self::ExecResult)
+        -> bool;
 
-    spec fn ensures(
-        self,
-        pre: Self::Resource,
-        post: Self::Resource,
-        new_state: Self::NewState,
-    ) -> bool;
+    spec fn ensures(self, pre: Self::Resource, post: Self::Resource, new_state: Self::NewState)
+        -> bool;
 
     // Optionally support peeking, which provides initial validation
     // before the operation is linearized.
@@ -72,12 +64,8 @@ pub trait ReadLinearizer<Op: ReadOperation>: Sized {
         true
     }
 
-    proof fn apply(
-        tracked self,
-        op: Op,
-        tracked r: &Op::Resource,
-        e: &Op::ExecResult,
-    ) -> (tracked out: Self::Completion)
+    proof fn apply(tracked self, op: Op, tracked r: &Op::Resource, e: &Op::ExecResult)
+        -> (tracked out: Self::Completion)
         requires
             self.pre(op),
             op.requires(*r, *e),

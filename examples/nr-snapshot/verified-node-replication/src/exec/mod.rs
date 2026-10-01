@@ -112,8 +112,8 @@ impl<DT: Dispatch + Sync> crate::NodeReplicatedT<DT> for NodeReplicated<DT> {
     ///
     ///  - Dafny: n/a ?
     ///  - Rust:  pub fn new(num_replicas: NonZeroUsize) -> Result<Self, NodeReplicatedError>
-    fn new(num_replicas: usize, chg_mem_affinity: AffinityFn) -> (res:
-        Self)
+    fn new(num_replicas: usize, chg_mem_affinity: AffinityFn)
+        -> (res: Self)
     // requires
     //     num_replicas <= MAX_REPLICAS
     // ensures res.wf()
@@ -216,9 +216,8 @@ impl<DT: Dispatch + Sync> crate::NodeReplicatedT<DT> for NodeReplicated<DT> {
     ///
     ///  - Dafny: N/A (in c++ code?)
     ///  - Rust:  pub fn register(&self, replica_id: ReplicaId) -> Option<ThreadToken>
-    fn register(&mut self, replica_id: ReplicaId) -> (result: Option<
-        ThreadToken<DT>,
-    >)
+    fn register(&mut self, replica_id: ReplicaId)
+        -> (result: Option<ThreadToken<DT>>)
     // requires old(self).wf()
     // ensures
     //     self.wf(),
@@ -246,10 +245,11 @@ impl<DT: Dispatch + Sync> crate::NodeReplicatedT<DT> for NodeReplicated<DT> {
         op: DT::WriteOperation,
         tkn: ThreadToken<DT>,
         ticket: Tracked<UnboundedLog::local_updates<DT>>,
-    ) -> (result: Result<
-        (DT::Response, ThreadToken<DT>, Tracked<UnboundedLog::local_updates<DT>>),
-        (ThreadToken<DT>, Tracked<UnboundedLog::local_updates<DT>>),
-    >)
+    )
+        -> (result: Result<
+            (DT::Response, ThreadToken<DT>, Tracked<UnboundedLog::local_updates<DT>>),
+            (ThreadToken<DT>, Tracked<UnboundedLog::local_updates<DT>>),
+        >)
     // requires
     //     self.wf(), // wf global node
     //     tkn.WF(&self.replicas.spec_index(tkn.replica_id_spec() as int)),
@@ -279,10 +279,11 @@ impl<DT: Dispatch + Sync> crate::NodeReplicatedT<DT> for NodeReplicated<DT> {
         op: DT::ReadOperation,
         tkn: ThreadToken<DT>,
         ticket: Tracked<UnboundedLog::local_reads<DT>>,
-    ) -> (result: Result<
-        (DT::Response, ThreadToken<DT>, Tracked<UnboundedLog::local_reads<DT>>),
-        (ThreadToken<DT>, Tracked<UnboundedLog::local_reads<DT>>),
-    >)
+    )
+        -> (result: Result<
+            (DT::Response, ThreadToken<DT>, Tracked<UnboundedLog::local_reads<DT>>),
+            (ThreadToken<DT>, Tracked<UnboundedLog::local_reads<DT>>),
+        >)
     // requires
     //     self.wf(), // wf global node
     //     tkn.WF(&self.replicas.spec_index(tkn.replica_id_spec() as int)),

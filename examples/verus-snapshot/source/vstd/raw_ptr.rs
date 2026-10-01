@@ -390,9 +390,9 @@ pub broadcast proof fn ptrs_mut_eq_sized<T>(a: *mut T)
 /// NOTE: Trait aliases are not yet supported,
 /// so we use `Pointee<Metadata = ()>` instead of `core::ptr::Thin` here
 #[verifier::inline]
-pub open spec fn ptr_null<
-    T: ::core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>,
->() -> *const T {
+pub open spec fn ptr_null<T: ::core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>>()
+    -> *const T
+{
     ptr_from_data(PtrData::<T> { addr: 0, provenance: Provenance::null(), metadata: () })
 }
 
@@ -411,9 +411,9 @@ pub assume_specification<
 /// NOTE: Trait aliases are not yet supported,
 /// so we use `Pointee<Metadata = ()>` instead of `core::ptr::Thin` here
 #[verifier::inline]
-pub open spec fn ptr_null_mut<
-    T: core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>,
->() -> *mut T {
+pub open spec fn ptr_null_mut<T: core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>>()
+    -> *mut T
+{
     ptr_mut_from_data(PtrData::<T> { addr: 0, provenance: Provenance::null(), metadata: () })
 }
 
@@ -741,10 +741,8 @@ pub fn expose_provenance<T: Sized>(m: *mut T) -> (provenance: Tracked<IsExposed>
 /// Construct a pointer with the given provenance from a _usize_ address.
 /// The provenance must have previously been exposed.
 #[verifier::external_body]
-pub fn with_exposed_provenance<T: Sized>(
-    addr: usize,
-    Tracked(provenance): Tracked<IsExposed>,
-) -> (p: *mut T)
+pub fn with_exposed_provenance<T: Sized>(addr: usize, Tracked(provenance): Tracked<IsExposed>)
+    -> (p: *mut T)
     ensures
         p == ptr_mut_from_data::<T>(
             PtrData::<T> { addr: addr, provenance: provenance@, metadata: () },
@@ -905,11 +903,8 @@ impl Dealloc {
 /// Returns a pointer with a corresponding [`PointsToRaw`] and [`Dealloc`] permissions.
 #[cfg(feature = "std")]
 #[verifier::external_body]
-pub fn allocate(size: usize, align: usize) -> (pt: (
-    *mut u8,
-    Tracked<PointsToRaw>,
-    Tracked<Dealloc>,
-))
+pub fn allocate(size: usize, align: usize)
+    -> (pt: (*mut u8, Tracked<PointsToRaw>, Tracked<Dealloc>))
     requires
         valid_layout(size, align),
         size != 0,
@@ -1035,10 +1030,8 @@ impl<'a, T> SharedReference<'a, T> {
 /// gets a new tag.
 #[inline(always)]
 #[verifier::external_body]
-pub fn ptr_ref2<'a, T>(ptr: *const T, Tracked(perm): Tracked<&PointsTo<T>>) -> (v: SharedReference<
-    'a,
-    T,
->)
+pub fn ptr_ref2<'a, T>(ptr: *const T, Tracked(perm): Tracked<&PointsTo<T>>)
+    -> (v: SharedReference<'a, T>)
     requires
         perm.ptr() == ptr,
         perm.is_init(),

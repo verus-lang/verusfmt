@@ -152,10 +152,8 @@ pub assume_specification<T, E>[ Result::<T, E>::is_err ](r: &Result<T, E>) -> (b
 ;
 
 // as_ref
-pub assume_specification<T, E>[ Result::<T, E>::as_ref ](result: &Result<T, E>) -> (r: Result<
-    &T,
-    &E,
->)
+pub assume_specification<T, E>[ Result::<T, E>::as_ref ](result: &Result<T, E>)
+    -> (r: Result<&T, &E>)
     ensures
         r is Ok <==> result is Ok,
         r is Ok ==> result->Ok_0 == r->Ok_0,
@@ -174,9 +172,8 @@ pub open spec fn spec_unwrap<T, E: core::fmt::Debug>(result: Result<T, E>) -> T
 }
 
 #[verifier::when_used_as_spec(spec_unwrap)]
-pub assume_specification<T, E: core::fmt::Debug>[ Result::<T, E>::unwrap ](
-    result: Result<T, E>,
-) -> (t: T)
+pub assume_specification<T, E: core::fmt::Debug>[ Result::<T, E>::unwrap ](result: Result<T, E>)
+    -> (t: T)
     requires
         result is Ok,
     ensures
@@ -193,9 +190,8 @@ pub open spec fn spec_unwrap_err<T: core::fmt::Debug, E>(result: Result<T, E>) -
 }
 
 #[verifier::when_used_as_spec(spec_unwrap_err)]
-pub assume_specification<T: core::fmt::Debug, E>[ Result::<T, E>::unwrap_err ](
-    result: Result<T, E>,
-) -> (e: E)
+pub assume_specification<T: core::fmt::Debug, E>[ Result::<T, E>::unwrap_err ](result: Result<T, E>)
+    -> (e: E)
     requires
         result is Err,
     ensures

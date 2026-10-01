@@ -400,12 +400,9 @@ tracked struct TrackedAndGhost<T, G>(tracked T, ghost G);
 proof fn consume(tracked x: int) {
 }
 
-proof fn test_tracked(
-    tracked w: int,
-    tracked x: int,
-    tracked y: int,
-    z: int,
-) -> tracked TrackedAndGhost<(int, int), int> {
+proof fn test_tracked(tracked w: int, tracked x: int, tracked y: int, z: int)
+    -> tracked TrackedAndGhost<(int, int), int>
+{
     consume(w);
     let tracked tag: TrackedAndGhost<(int, int), int> = TrackedAndGhost((x, y), z);
     let tracked TrackedAndGhost((a, b), c) = tag;

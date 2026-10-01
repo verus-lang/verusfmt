@@ -110,10 +110,9 @@ impl CAckState {
         &&& Self::un_acked_list_sequential(list)
     }
 
-    pub open spec fn un_acked_list_valid_for_dst(
-        list: Seq<CSingleMessage>,
-        dst: AbstractEndPoint,
-    ) -> bool {
+    pub open spec fn un_acked_list_valid_for_dst(list: Seq<CSingleMessage>, dst: AbstractEndPoint)
+        -> bool
+    {
         &&& Self::un_acked_list_valid(list)
         &&& forall|i: int| 0 <= i < list.len() ==> (#[trigger] list[i].arrow_Message_dst())@ == dst
     }

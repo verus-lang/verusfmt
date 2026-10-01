@@ -69,12 +69,9 @@ pub open spec fn guards<K, V, P: Protocol<K, V>>(p: P, b: IMap<K, V>) -> bool {
     forall|q: P, t: IMap<K, V>| #![all_triggers] P::rel(P::op(p, q), t) ==> b.submap_of(t)
 }
 
-pub open spec fn exchanges<K, V, P: Protocol<K, V>>(
-    p1: P,
-    b1: IMap<K, V>,
-    p2: P,
-    b2: IMap<K, V>,
-) -> bool {
+pub open spec fn exchanges<K, V, P: Protocol<K, V>>(p1: P, b1: IMap<K, V>, p2: P, b2: IMap<K, V>)
+    -> bool
+{
     forall|q: P, t1: IMap<K, V>|
         #![all_triggers]
         P::rel(P::op(p1, q), t1) ==> {
@@ -126,9 +123,9 @@ pub open spec fn updates<K, V, P: Protocol<K, V>>(p1: P, p2: P) -> bool {
         P::rel(P::op(p1, q), t1) ==> P::rel(P::op(p2, q), t1)
 }
 
-pub open spec fn set_op<K, V, P: Protocol<K, V>>(s: ISet<(P, IMap<K, V>)>, t: P) -> ISet<
-    (P, IMap<K, V>),
-> {
+pub open spec fn set_op<K, V, P: Protocol<K, V>>(s: ISet<(P, IMap<K, V>)>, t: P)
+    -> ISet<(P, IMap<K, V>)>
+{
     s.map(|q: (P, IMap<K, V>)| (P::op(q.0, t), q.1))
 }
 
@@ -214,8 +211,8 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
         Self::exchange_nondeterministic(p, s, se)
     }
 
-    pub proof fn deposit(tracked self, tracked base: IMap<K, V>, new_value: P) -> (tracked out:
-        Self)
+    pub proof fn deposit(tracked self, tracked base: IMap<K, V>, new_value: P)
+        -> (tracked out: Self)
         requires
             deposits(self.value(), base, new_value),
         ensures
@@ -226,10 +223,8 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
         Self::exchange(self, base, new_value, IMap::empty()).0
     }
 
-    pub proof fn withdraw(tracked self, new_value: P, new_base: IMap<K, V>) -> (tracked out: (
-        Self,
-        IMap<K, V>,
-    ))
+    pub proof fn withdraw(tracked self, new_value: P, new_base: IMap<K, V>)
+        -> (tracked out: (Self, IMap<K, V>))
         requires
             withdraws(self.value(), new_value, new_base),
         ensures
@@ -293,8 +288,8 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
     ;
 
     // Operations with shared references
-    pub axiom fn join_shared<'a>(tracked &'a self, tracked other: &'a Self) -> (tracked out:
-        &'a Self)
+    pub axiom fn join_shared<'a>(tracked &'a self, tracked other: &'a Self)
+        -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
         ensures
@@ -311,10 +306,8 @@ impl<K, V, P: Protocol<K, V>> StorageResource<K, V, P> {
             out.value() == target,
     ;
 
-    pub axiom fn validate_with_shared(tracked self: &mut Self, tracked x: &Self) -> (res: (
-        P,
-        IMap<K, V>,
-    ))
+    pub axiom fn validate_with_shared(tracked self: &mut Self, tracked x: &Self)
+        -> (res: (P, IMap<K, V>))
         requires
             old(self).loc() == x.loc(),
         ensures

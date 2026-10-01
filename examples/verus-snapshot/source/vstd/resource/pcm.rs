@@ -202,8 +202,8 @@ impl<P: PCM> Resource<P> {
     // AXIOMS on shared references
     /// This is useful when you have two (or more) shared resources and want to learn
     /// that they agree, as you can combine this validate, e.g., `x.join_shared(y).validate()`.
-    pub axiom fn join_shared<'a>(tracked &'a self, tracked other: &'a Self) -> (tracked out:
-        &'a Self)
+    pub axiom fn join_shared<'a>(tracked &'a self, tracked other: &'a Self)
+        -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
         ensures
@@ -250,11 +250,8 @@ impl<P: PCM> Resource<P> {
 
     // VERIFIED facts about shared references
     /// We can do a similar update to [`update_with_shared`](Self::update_with_shared) for non-deterministic updates
-    pub proof fn join_shared_to_target<'a>(
-        tracked &'a self,
-        tracked other: &'a Self,
-        target: P,
-    ) -> (tracked out: &'a Self)
+    pub proof fn join_shared_to_target<'a>(tracked &'a self, tracked other: &'a Self, target: P)
+        -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
             conjunct_shared(self.value(), other.value(), target),
@@ -269,11 +266,8 @@ impl<P: PCM> Resource<P> {
 
     /// If `x · y --> x · z` is a frame-perserving update, and we have a shared reference to `x`,
     /// we can update the `y` resource to `z`.
-    pub proof fn update_with_shared(
-        tracked self,
-        tracked other: &Self,
-        new_value: P,
-    ) -> (tracked out: Self)
+    pub proof fn update_with_shared(tracked self, tracked other: &Self, new_value: P)
+        -> (tracked out: Self)
         requires
             self.loc() == other.loc(),
             frame_preserving_update(

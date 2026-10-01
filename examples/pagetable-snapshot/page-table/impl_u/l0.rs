@@ -119,11 +119,9 @@ impl PageTableContents {
             ))
     }
 
-    pub open spec(checked) fn candidate_mapping_in_bounds(
-        self,
-        base: nat,
-        pte: PageTableEntry,
-    ) -> bool {
+    pub open spec(checked) fn candidate_mapping_in_bounds(self, base: nat, pte: PageTableEntry)
+        -> bool
+    {
         self.lower <= base && base + pte.frame.size <= self.upper
     }
 
@@ -152,10 +150,9 @@ impl PageTableContents {
     }
 
     /// Maps the given `pte` at `base` in the address space
-    pub open spec(checked) fn map_frame(self, base: nat, pte: PageTableEntry) -> Result<
-        PageTableContents,
-        PageTableContents,
-    > {
+    pub open spec(checked) fn map_frame(self, base: nat, pte: PageTableEntry)
+        -> Result<PageTableContents, PageTableContents>
+    {
         if self.accepted_mapping(base, pte) {
             if self.valid_mapping(base, pte) {
                 Ok(PageTableContents { map: self.map.insert(base, pte), ..self })

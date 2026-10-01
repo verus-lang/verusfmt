@@ -15,10 +15,8 @@ pub struct ExControlFlow<B, C>(ControlFlow<B, C>);
 #[verifier::external_body]
 pub struct ExInfallible(Infallible);
 
-pub assume_specification<T, E>[ Result::<T, E>::branch ](result: Result<T, E>) -> (cf: ControlFlow<
-    <Result<T, E> as Try>::Residual,
-    <Result<T, E> as Try>::Output,
->)
+pub assume_specification<T, E>[ Result::<T, E>::branch ](result: Result<T, E>)
+    -> (cf: ControlFlow<<Result<T, E> as Try>::Residual, <Result<T, E> as Try>::Output>)
     ensures
         cf == match result {
             Ok(v) => ControlFlow::Continue(v),
@@ -27,10 +25,8 @@ pub assume_specification<T, E>[ Result::<T, E>::branch ](result: Result<T, E>) -
     no_unwind
 ;
 
-pub assume_specification<T>[ Option::<T>::branch ](option: Option<T>) -> (cf: ControlFlow<
-    <Option<T> as Try>::Residual,
-    <Option<T> as Try>::Output,
->)
+pub assume_specification<T>[ Option::<T>::branch ](option: Option<T>)
+    -> (cf: ControlFlow<<Option<T> as Try>::Residual, <Option<T> as Try>::Output>)
     ensures
         cf == match option {
             Some(v) => ControlFlow::Continue(v),
@@ -39,8 +35,8 @@ pub assume_specification<T>[ Option::<T>::branch ](option: Option<T>) -> (cf: Co
     no_unwind
 ;
 
-pub assume_specification<T>[ Option::<T>::from_residual ](option: Option<Infallible>) -> (option2:
-    Option<T>)
+pub assume_specification<T>[ Option::<T>::from_residual ](option: Option<Infallible>)
+    -> (option2: Option<T>)
     ensures
         option.is_none(),
         option2.is_none(),

@@ -98,10 +98,8 @@ pub assume_specification<
     'a,
     T,
     const N: usize,
->[ <&'a [T; N] as core::iter::IntoIterator>::into_iter ](s: &'a [T; N]) -> (iter: core::slice::Iter<
-    'a,
-    T,
->)
+>[ <&'a [T; N] as core::iter::IntoIterator>::into_iter ](s: &'a [T; N])
+    -> (iter: core::slice::Iter<'a, T>)
     ensures
         IteratorSpec::remaining(&iter) == s@.as_ref(),
         IteratorSpec::decrease(&iter) is Some,

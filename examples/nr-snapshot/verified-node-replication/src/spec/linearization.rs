@@ -36,9 +36,8 @@ pub tracked struct RefinementProof;
 
 #[cfg(verus_keep_ghost)]
 impl<DT: Dispatch> SimpleLogRefinesAsynchronousSingleton<DT> for RefinementProof {
-    proof fn exists_equiv_behavior(a: SimpleLogBehavior<DT>) -> (b: AsynchronousSingletonBehavior<
-        DT,
-    >)
+    proof fn exists_equiv_behavior(a: SimpleLogBehavior<DT>)
+        -> (b: AsynchronousSingletonBehavior<DT>)
     // requires a.wf(),
     // ensures b.wf() && behavior_equiv(a, b)
     {
@@ -268,10 +267,9 @@ spec fn update_response_is_valid<DT: Dispatch>(
 }
 
 /// checks whether the upate responses have versions that matche the log         (Dafny: HasVersion)
-spec fn update_response_with_version(
-    update_resps: Map<ReqId, UpdateResp>,
-    version: LogIdx,
-) -> bool {
+spec fn update_response_with_version(update_resps: Map<ReqId, UpdateResp>, version: LogIdx)
+    -> bool
+{
     exists|rid| #[trigger] update_resps.contains_key(rid) && update_resps[rid].0 == version
 }
 

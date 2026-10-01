@@ -57,10 +57,9 @@ pub open spec fn mem_domain_from_mappings_contains(
         }
 }
 
-pub open spec fn mem_domain_from_mappings(
-    phys_mem_size: nat,
-    mappings: Map<nat, PageTableEntry>,
-) -> Set<nat> {
+pub open spec fn mem_domain_from_mappings(phys_mem_size: nat, mappings: Map<nat, PageTableEntry>)
+    -> Set<nat>
+{
     Set::new(|word_idx: nat| mem_domain_from_mappings_contains(phys_mem_size, word_idx, mappings))
 }
 
@@ -200,11 +199,9 @@ pub open spec fn step_ReadWrite(
     }
 }
 
-pub open spec fn step_Map_enabled(
-    map: Map<nat, PageTableEntry>,
-    vaddr: nat,
-    pte: PageTableEntry,
-) -> bool {
+pub open spec fn step_Map_enabled(map: Map<nat, PageTableEntry>, vaddr: nat, pte: PageTableEntry)
+    -> bool
+{
     &&& aligned(vaddr, pte.frame.size)
     &&& aligned(pte.frame.base, pte.frame.size)
     &&& pte.frame.base <= MAX_PHYADDR
@@ -294,11 +291,9 @@ pub open spec fn step_Resolve(
     }
 }
 
-pub open spec fn step_Stutter(
-    c: AbstractConstants,
-    s1: AbstractVariables,
-    s2: AbstractVariables,
-) -> bool {
+pub open spec fn step_Stutter(c: AbstractConstants, s1: AbstractVariables, s2: AbstractVariables)
+    -> bool
+{
     s1 === s2
 }
 

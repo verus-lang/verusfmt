@@ -10,11 +10,11 @@ use vstd::set::Set;
 
 verus! {
 
-pub open spec fn seq_unique<A>(
-    seq: Seq<A>,
-) -> bool
-// where A: PartialEq + Structural
- {
+pub open spec fn seq_unique<A>(seq: Seq<A>)
+    -> bool
+    // where A: PartialEq + Structural
+
+{
     forall|i: int, j: int|
         (0 <= i < seq.len() && 0 <= j < seq.len() && i != j) ==> seq.index(i as int) !== seq.index(
             j as int,
@@ -146,12 +146,11 @@ pub proof fn map_new_rec_dom_finite<V>(dom: nat, val: V)
     }
 }
 
-pub open spec fn map_contains_value<K, V>(
-    map: Map<K, V>,
-    val: V,
-) -> bool
-// where K: PartialEq + Structural
- {
+pub open spec fn map_contains_value<K, V>(map: Map<K, V>, val: V)
+    -> bool
+    // where K: PartialEq + Structural
+
+{
     exists|i: K| #[trigger] map.contains_key(i) && map.index(i) == val
 }
 

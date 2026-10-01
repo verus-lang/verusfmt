@@ -429,10 +429,8 @@ impl<K, V> GhostIMapAuth<K, V> {
     ///     submap
     /// }
     /// ```
-    pub proof fn insert_map(tracked &mut self, m: IMap<K, V>) -> (tracked result: GhostISubmap<
-        K,
-        V,
-    >)
+    pub proof fn insert_map(tracked &mut self, m: IMap<K, V>)
+        -> (tracked result: GhostISubmap<K, V>)
         requires
             old(self)@.dom().disjoint(m.dom()),
         ensures
@@ -848,11 +846,8 @@ impl<K, V> GhostISubmap<K, V> {
         GhostISubmap { r }
     }
 
-    pub proof fn split_with_olddom(
-        tracked &mut self,
-        s: ISet<K>,
-        olddom: ISet<K>,
-    ) -> (tracked result: GhostISubmap<K, V>)
+    pub proof fn split_with_olddom(tracked &mut self, s: ISet<K>, olddom: ISet<K>)
+        -> (tracked result: GhostISubmap<K, V>)
         requires
             olddom == old(self)@.dom(),
             s <= olddom,
@@ -1214,10 +1209,8 @@ impl<K, V> GhostPersistentISubmap<K, V> {
     }
 
     /// We can split a [`GhostPersistentISubmap`] based on a set of keys in its domain.
-    pub proof fn split(tracked &mut self, s: ISet<K>) -> (tracked result: GhostPersistentISubmap<
-        K,
-        V,
-    >)
+    pub proof fn split(tracked &mut self, s: ISet<K>)
+        -> (tracked result: GhostPersistentISubmap<K, V>)
         requires
             s <= old(self)@.dom(),
         ensures
@@ -1255,8 +1248,8 @@ impl<K, V> GhostPersistentISubmap<K, V> {
     }
 
     /// We can separate a single key out of a [`GhostPersistentISubmap`]
-    pub proof fn split_points_to(tracked &mut self, k: K) -> (tracked result:
-        GhostPersistentIPointsTo<K, V>)
+    pub proof fn split_points_to(tracked &mut self, k: K)
+        -> (tracked result: GhostPersistentIPointsTo<K, V>)
         requires
             old(self)@.contains_key(k),
         ensures
@@ -1349,8 +1342,8 @@ impl<K, V> GhostIPointsTo<K, V> {
 
     /// We can combine two [`GhostIPointsTo`]s into a [`GhostISubmap`]
     /// We also learn that they were disjoint.
-    pub proof fn combine(tracked self, tracked other: GhostIPointsTo<K, V>) -> (tracked r:
-        GhostISubmap<K, V>)
+    pub proof fn combine(tracked self, tracked other: GhostIPointsTo<K, V>)
+        -> (tracked r: GhostISubmap<K, V>)
         requires
             self.id() == other.id(),
         ensures
@@ -1578,10 +1571,8 @@ impl<K, V> GhostPersistentIPointsTo<K, V> {
     }
 
     /// We can combine two [`GhostPersistentIPointsTo`]s into a [`GhostPersistentISubmap`]
-    pub proof fn combine(
-        tracked self,
-        tracked other: GhostPersistentIPointsTo<K, V>,
-    ) -> (tracked submap: GhostPersistentISubmap<K, V>)
+    pub proof fn combine(tracked self, tracked other: GhostPersistentIPointsTo<K, V>)
+        -> (tracked submap: GhostPersistentISubmap<K, V>)
         requires
             self.id() == other.id(),
         ensures

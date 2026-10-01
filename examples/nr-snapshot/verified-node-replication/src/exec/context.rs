@@ -292,10 +292,8 @@ impl<DT: Dispatch> Context<DT> {
     /// Returns a single response if available. Otherwise, returns None.
     ///
     /// this is invoked by the thread that has enqueued the operation before
-    pub fn dequeue_response(
-        &self,
-        context_ghost: Tracked<FCClientRequestResponseGhost<DT>>,
-    ) -> (res: (Option<DT::Response>, Tracked<FCClientRequestResponseGhost<DT>>))
+    pub fn dequeue_response(&self, context_ghost: Tracked<FCClientRequestResponseGhost<DT>>)
+        -> (res: (Option<DT::Response>, Tracked<FCClientRequestResponseGhost<DT>>))
         requires
             context_ghost@.dequeue_resp_pre(
                 self.batch.0.id(),

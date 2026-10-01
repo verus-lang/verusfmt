@@ -800,13 +800,9 @@ pub mod PT {
     }
 
     /// Get the view of the entry at address ptr + i * WORD_SIZE
-    pub open spec fn view_at(
-        mem: &mem::PageTableMemory,
-        pt: PTDir,
-        layer: nat,
-        ptr: usize,
-        i: nat,
-    ) -> GhostPageDirectoryEntry {
+    pub open spec fn view_at(mem: &mem::PageTableMemory, pt: PTDir, layer: nat, ptr: usize, i: nat)
+        -> GhostPageDirectoryEntry
+    {
         PageDirectoryEntry { entry: mem.spec_read(i, pt.region), layer: Ghost(layer) }@
     }
 
@@ -876,12 +872,9 @@ pub mod PT {
             }
     }
 
-    pub open spec fn empty_at(
-        mem: &mem::PageTableMemory,
-        pt: PTDir,
-        layer: nat,
-        ptr: usize,
-    ) -> bool {
+    pub open spec fn empty_at(mem: &mem::PageTableMemory, pt: PTDir, layer: nat, ptr: usize)
+        -> bool
+    {
         forall|i: nat| i < X86_NUM_ENTRIES ==> view_at(mem, pt, layer, ptr, i) is Empty
     }
 
@@ -889,12 +882,8 @@ pub mod PT {
         layer < X86_NUM_LAYERS
     }
 
-    pub open spec(checked) fn inv_at(
-        mem: &mem::PageTableMemory,
-        pt: PTDir,
-        layer: nat,
-        ptr: usize,
-    ) -> bool
+    pub open spec(checked) fn inv_at(mem: &mem::PageTableMemory, pt: PTDir, layer: nat, ptr: usize)
+        -> bool
         decreases X86_NUM_LAYERS - layer,
     {
         &&& ptr % PAGE_SIZE == 0
@@ -948,12 +937,9 @@ pub mod PT {
 
     /// Entries for super pages and huge pages use bit 12 to denote the PAT flag. We always set that
     /// flag to zero, which allows us to always use the same mask to get the address.
-    pub open spec fn hp_pat_is_zero(
-        mem: &mem::PageTableMemory,
-        pt: PTDir,
-        layer: nat,
-        ptr: usize,
-    ) -> bool {
+    pub open spec fn hp_pat_is_zero(mem: &mem::PageTableMemory, pt: PTDir, layer: nat, ptr: usize)
+        -> bool
+    {
         forall|i: nat|
             #![auto]
             i < X86_NUM_ENTRIES ==> entry_at_spec(mem, pt, layer, ptr, i).hp_pat_is_zero()
@@ -1508,8 +1494,8 @@ pub mod PT {
         }
     }
 
-    pub fn resolve(mem: &mem::PageTableMemory, Ghost(pt): Ghost<PTDir>, vaddr: usize) -> (res:
-        Result<(usize, PageTableEntryExec), ()>)
+    pub fn resolve(mem: &mem::PageTableMemory, Ghost(pt): Ghost<PTDir>, vaddr: usize)
+        -> (res: Result<(usize, PageTableEntryExec), ()>)
         requires
             inv(mem, pt),
             interp(mem, pt).inv(),
@@ -4121,8 +4107,8 @@ pub mod PT {
         }
     }
 
-    pub fn unmap(mem: &mut mem::PageTableMemory, pt: &mut Ghost<PTDir>, vaddr: usize) -> (res:
-        Result<(), ()>)
+    pub fn unmap(mem: &mut mem::PageTableMemory, pt: &mut Ghost<PTDir>, vaddr: usize)
+        -> (res: Result<(), ()>)
         requires
             inv(&*old(mem), old(pt)@),
             interp(&*old(mem), old(pt)@).inv(),

@@ -33,9 +33,8 @@ pub assume_specification<T>[ alloc::intrinsics::write_box_via_move ](
 
 #[cfg(feature = "alloc")]
 #[feature(liballoc_internals)]
-pub assume_specification<T>[ alloc::boxed::Box::<T>::new_uninit ]() -> alloc::boxed::Box<
-    core::mem::MaybeUninit<T>,
->
+pub assume_specification<T>[ alloc::boxed::Box::<T>::new_uninit ]()
+    -> alloc::boxed::Box<core::mem::MaybeUninit<T>>
 ;
 
 } // verus!

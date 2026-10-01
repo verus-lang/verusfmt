@@ -155,9 +155,8 @@ pub broadcast proof fn to_string_from_display_ensures_for_str(t: &str, res: Stri
 }
 
 #[cfg(all(feature = "alloc", not(verus_verify_core)))]
-pub assume_specification<T: core::fmt::Display + ?Sized>[ <T as ToString>::to_string ](
-    t: &T,
-) -> (res: String)
+pub assume_specification<T: core::fmt::Display + ?Sized>[ <T as ToString>::to_string ](t: &T)
+    -> (res: String)
     ensures
         to_string_from_display_ensures::<T>(t, res),
 ;

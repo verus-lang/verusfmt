@@ -971,9 +971,9 @@ pub struct BlockGuard<T> {
 #[cfg(verus_keep_ghost)]
 #[doc(hidden)]
 #[verifier::external]  /* vattr */
-pub fn bind_lifetime_internal<'a, X: 'a, Y, P>(
-    _block_guard: &'a BlockGuard<AtomicUpdate<X, Y, P>>,
-) -> X {
+pub fn bind_lifetime_internal<'a, X: 'a, Y, P>(_block_guard: &'a BlockGuard<AtomicUpdate<X, Y, P>>)
+    -> X
+{
     unimplemented!()
 }
 
@@ -1154,8 +1154,8 @@ impl<T> PAtomicPtr<T> {
     #[verifier::external_body]  /* vattr */
     #[verifier::atomic]  /* vattr */
     #[cfg(any(verus_keep_ghost, feature = "strict_provenance_atomic_ptr"))]
-    pub fn fetch_and(&self, Tracked(perm): Tracked<&mut PermissionPtr<T>>, n: usize) -> (ret:
-        *mut T)
+    pub fn fetch_and(&self, Tracked(perm): Tracked<&mut PermissionPtr<T>>, n: usize)
+        -> (ret: *mut T)
         requires
             equal(self.id(), old(perm).view().patomic),
         ensures
@@ -1174,8 +1174,8 @@ impl<T> PAtomicPtr<T> {
     #[verifier::external_body]  /* vattr */
     #[verifier::atomic]  /* vattr */
     #[cfg(any(verus_keep_ghost, feature = "strict_provenance_atomic_ptr"))]
-    pub fn fetch_xor(&self, Tracked(perm): Tracked<&mut PermissionPtr<T>>, n: usize) -> (ret:
-        *mut T)
+    pub fn fetch_xor(&self, Tracked(perm): Tracked<&mut PermissionPtr<T>>, n: usize)
+        -> (ret: *mut T)
         requires
             equal(self.id(), old(perm).view().patomic),
         ensures
