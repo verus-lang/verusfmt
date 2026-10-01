@@ -56,11 +56,8 @@ impl<A> ISet<A> {
     /// This can be easier to work with in proofs than calling `map` and `flatten` separately,
     /// since `map` and `flatten` introduce "exists", while `map_flatten_by` does not.
     /// Also see the `set_build!` macro for a convenient interface to `map_flatten_by`.
-    pub open spec fn map_flatten_by<B>(
-        self,
-        fwd: spec_fn(A) -> ISet<B>,
-        rev: spec_fn(B) -> A,
-    ) -> ISet<B>
+    pub open spec fn map_flatten_by<B>(self, fwd: spec_fn(A) -> ISet<B>, rev: spec_fn(B) -> A)
+        -> ISet<B>
         recommends
             forall|a: A, b: B| #[trigger]
                 self.contains(a) && fwd(a).contains(b) ==> #[trigger] rev(b) == a,

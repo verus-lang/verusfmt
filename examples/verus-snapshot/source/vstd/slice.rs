@@ -135,16 +135,14 @@ pub trait ExSliceIndex<T> where T: ?Sized {
     ;
 }
 
-pub assume_specification<T, I>[ <[T]>::get::<I> ](slice: &[T], i: I) -> (b: Option<
-    &<I as SliceIndex<[T]>>::Output,
->) where I: SliceIndex<[T]>
+pub assume_specification<T, I>[ <[T]>::get::<I> ](slice: &[T], i: I)
+    -> (b: Option<&<I as SliceIndex<[T]>>::Output>) where I: SliceIndex<[T]>
     returns
         spec_slice_get(slice, i),
 ;
 
-pub uninterp spec fn spec_slice_get<T: ?Sized, I: SliceIndex<T>>(val: &T, idx: I) -> Option<
-    &<I as SliceIndex<T>>::Output,
->;
+pub uninterp spec fn spec_slice_get<T: ?Sized, I: SliceIndex<T>>(val: &T, idx: I)
+    -> Option<&<I as SliceIndex<T>>::Output>;
 
 pub broadcast axiom fn axiom_slice_get_usize<T>(v: &[T], i: usize)
     ensures

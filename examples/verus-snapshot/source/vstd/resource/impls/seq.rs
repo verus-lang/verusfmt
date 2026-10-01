@@ -317,9 +317,8 @@ impl<V> GhostSubseq<V> {
         self.frac.update(auth, vmap);
     }
 
-    pub proof fn split(tracked self: &mut GhostSubseq<V>, n: int) -> (tracked result: GhostSubseq<
-        V,
-    >)
+    pub proof fn split(tracked self: &mut GhostSubseq<V>, n: int)
+        -> (tracked result: GhostSubseq<V>)
         requires
             0 <= n <= old(self)@.len(),
         ensures
@@ -393,8 +392,8 @@ impl<V> GhostSubseq<V> {
     }
 
     // Helper to lift GhostISubmap into GhostSubseq.
-    pub proof fn new(off: nat, len: nat, tracked f: GhostISubmap<int, V>) -> (tracked result:
-        GhostSubseq<V>)
+    pub proof fn new(off: nat, len: nat, tracked f: GhostISubmap<int, V>)
+        -> (tracked result: GhostSubseq<V>)
         requires
             f@.dom() == ISet::new(|i: int| off <= i < off + len),
         ensures

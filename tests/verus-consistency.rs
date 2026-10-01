@@ -3743,3 +3743,84 @@ increment(var) atomically |update| {perm=Commit::get(update(perm));};
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_long_return_types() {
+    let file = r#"
+verus! {
+
+pub fn ptr_ref2<'a, T>(ptr: *const T, Tracked(perm): Tracked<&PointsTo<T>>) -> (v: SharedReference<'a, T>) {
+    SharedReference(unsafe { &*ptr })
+}
+
+pub fn allocate(size: usize, align: usize) -> (pt: (*mut u8, Tracked<PointsToRaw>, Tracked<Dealloc>))
+    requires
+        valid_layout(size, align),
+{
+    unimplemented!()
+}
+
+pub open spec fn ptr_null<T: ::core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>>() -> *const T {
+    arbitrary()
+}
+
+pub fn declared_only(x: SomeVeryLongTypeName, y: AnotherQuiteLongTypeName) -> (r: ResultOfTheCall<X>);
+
+pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_back ](v: &mut VecDeque<T, A>) -> (value: Option<T>)
+    ensures
+        true,
+;
+
+// Breaking before the `->` isn't enough here, so the return type still has to be split
+pub fn no_amount_of_breaking_will_help(x: u8) -> (r: ThisTypeIsSoLongThatItCannotPossiblyFitOnOneLineEvenAfterBreaking<WithArguments, AndEvenMoreArgs>) {
+    unimplemented!()
+}
+
+}
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub fn ptr_ref2<'a, T>(ptr: *const T, Tracked(perm): Tracked<&PointsTo<T>>)
+        -> (v: SharedReference<'a, T>)
+    {
+        SharedReference(unsafe { &*ptr })
+    }
+
+    pub fn allocate(size: usize, align: usize)
+        -> (pt: (*mut u8, Tracked<PointsToRaw>, Tracked<Dealloc>))
+        requires
+            valid_layout(size, align),
+    {
+        unimplemented!()
+    }
+
+    pub open spec fn ptr_null<T: ::core::marker::PointeeSized + core::ptr::Pointee<Metadata = ()>>()
+        -> *const T
+    {
+        arbitrary()
+    }
+
+    pub fn declared_only(x: SomeVeryLongTypeName, y: AnotherQuiteLongTypeName)
+        -> (r: ResultOfTheCall<X>);
+
+    pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_back ](v: &mut VecDeque<T, A>)
+        -> (value: Option<T>)
+        ensures
+            true,
+    ;
+
+    // Breaking before the `->` isn't enough here, so the return type still has to be split
+    pub fn no_amount_of_breaking_will_help(x: u8)
+        -> (r: ThisTypeIsSoLongThatItCannotPossiblyFitOnOneLineEvenAfterBreaking<
+            WithArguments,
+            AndEvenMoreArgs,
+        >)
+    {
+        unimplemented!()
+    }
+
+    } // verus!
+    "###);
+}

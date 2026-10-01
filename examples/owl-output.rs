@@ -116,10 +116,8 @@ pub fn owl_output<A>(
 }
 
 #[verifier(external_body)]
-pub fn owl_input<A>(
-    Tracked(t): Tracked<&mut ITreeToken<A, Endpoint>>,
-    listener: &TcpListener,
-) -> (ie: (Vec<u8>, String))
+pub fn owl_input<A>(Tracked(t): Tracked<&mut ITreeToken<A, Endpoint>>, listener: &TcpListener)
+    -> (ie: (Vec<u8>, String))
     requires
         old(t)@.is_input(),
     ensures
@@ -223,10 +221,9 @@ pub closed spec fn endpoint_of_addr(addr: Seq<char>) -> Endpoint {
 
 }
 
-pub open spec fn alice_main_spec(cfg: cfg_alice, mut_state: state_alice) -> (res: ITree<
-    (Seq<u8>, state_alice),
-    Endpoint,
->) {
+pub open spec fn alice_main_spec(cfg: cfg_alice, mut_state: state_alice)
+    -> (res: ITree<(Seq<u8>, state_alice), Endpoint>)
+{
     owl_spec!(mut_state,state_alice,
 let c = ((sample( NONCE_SIZE()
 , enc((*cfg.owl_shared_key).view(), (*cfg.owl_k_data).view()) ))) in
@@ -241,10 +238,9 @@ None => {(ret (NoResult()))},})) in
 )
 }
 
-pub open spec fn bob_main_spec(cfg: cfg_bob, mut_state: state_bob) -> (res: ITree<
-    ((), state_bob),
-    Endpoint,
->) {
+pub open spec fn bob_main_spec(cfg: cfg_bob, mut_state: state_bob)
+    -> (res: ITree<((), state_bob), Endpoint>)
+{
     owl_spec!(mut_state,state_bob,
 (input (i, ev)) in
 let caseval = ((ret(dec((*cfg.owl_shared_key).view(), i)))) in
@@ -416,10 +412,11 @@ impl cfg_alice {
         &self,
         Tracked(itree): Tracked<ITreeToken<(Seq<u8>, state_alice), Endpoint>>,
         mut_state: &mut state_alice,
-    ) -> (res: Result<
-        (owl_Result, Tracked<ITreeToken<(Seq<u8>, state_alice), Endpoint>>),
-        OwlError,
-    >)
+    )
+        -> (res: Result<
+            (owl_Result, Tracked<ITreeToken<(Seq<u8>, state_alice), Endpoint>>),
+            OwlError,
+        >)
         requires
             itree@ == alice_main_spec(*self, *old(mut_state)),
         ensures

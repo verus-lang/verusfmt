@@ -41,8 +41,8 @@ pub assume_specification<'b, T: core::marker::PointeeSized, 'a>[ <&'b T as Clone
         res == b,
 ;
 
-pub assume_specification<T: Clone, const N: usize>[ <[T; N] as Clone>::clone ](a: &[T; N]) -> (res:
-    [T; N])
+pub assume_specification<T: Clone, const N: usize>[ <[T; N] as Clone>::clone ](a: &[T; N])
+    -> (res: [T; N])
     ensures
         forall|i| #![all_triggers] 0 <= i < N ==> cloned::<T>(a@[i], res@[i]),
         a@ =~= res@ ==> a@ == res@,
@@ -58,9 +58,8 @@ pub fn ex_bool_clone_from(dest: &mut bool, source: &bool)
 */
 
 // Cloning a Tracked copies the underlying ghost T
-pub assume_specification<T: Copy>[ <Tracked<T> as Clone>::clone ](b: &Tracked<T>) -> (res: Tracked<
-    T,
->)
+pub assume_specification<T: Copy>[ <Tracked<T> as Clone>::clone ](b: &Tracked<T>)
+    -> (res: Tracked<T>)
     ensures
         res == b,
 ;

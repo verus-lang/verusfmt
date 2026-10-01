@@ -67,9 +67,8 @@ pub broadcast axiom fn axiom_nonzero_is_not_zero<T: ZeroablePrimitive>(n: NonZer
         !(#[trigger] n@).is_zero(),
 ;
 
-pub assume_specification<T: ZeroablePrimitive>[ NonZero::<T>::new ](n: T) -> (ret: Option<
-    NonZero<T>,
->)
+pub assume_specification<T: ZeroablePrimitive>[ NonZero::<T>::new ](n: T)
+    -> (ret: Option<NonZero<T>>)
     ensures
         match ret {
             Some(nz) => nz@ == n && !n.is_zero(),
@@ -79,8 +78,8 @@ pub assume_specification<T: ZeroablePrimitive>[ NonZero::<T>::new ](n: T) -> (re
     no_unwind
 ;
 
-pub assume_specification<T: ZeroablePrimitive>[ NonZero::<T>::new_unchecked ](n: T) -> (ret:
-    NonZero<T>)
+pub assume_specification<T: ZeroablePrimitive>[ NonZero::<T>::new_unchecked ](n: T)
+    -> (ret: NonZero<T>)
     requires
         !n.is_zero(),
     ensures
@@ -161,9 +160,8 @@ impl<T: ZeroablePrimitive> FromSpecImpl<NonZero<T>> for T {
     }
 }
 
-pub assume_specification<T: ZeroablePrimitive>[ <NonZero<T> as Clone>::clone ](
-    nz: &NonZero<T>,
-) -> NonZero<T>
+pub assume_specification<T: ZeroablePrimitive>[ <NonZero<T> as Clone>::clone ](nz: &NonZero<T>)
+    -> NonZero<T>
     returns
         nz,
 ;

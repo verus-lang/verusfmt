@@ -71,10 +71,8 @@ pub uninterp spec fn spec_range_next<A>(a: Range<A>) -> (Range<A>, Option<A>);
 /// obeys_partial_cmp_spec. Specifically, the comparison must be deterministic, and `lt` (less than)
 /// and `le` (less than or equal to) must define total orders.
 /// If using Range::contains with types that do not satisfy obeys_partial_cmp_spec, no spec is provided.
-pub assume_specification<Idx: PartialOrd<Idx>, U>[ Range::<Idx>::contains ](
-    r: &Range<Idx>,
-    i: &U,
-) -> (ret: bool) where Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>
+pub assume_specification<Idx: PartialOrd<Idx>, U>[ Range::<Idx>::contains ](r: &Range<Idx>, i: &U)
+    -> (ret: bool) where Idx: PartialOrd<U>, U: ?Sized + PartialOrd<Idx>
     ensures
         <Range::<Idx> as ContainsSpec<Idx, U>>::obeys_contains() ==> ret == r.contains_spec(i),
 ;
@@ -90,9 +88,9 @@ pub assume_specification<Idx: PartialOrd<Idx>, U>[ RangeInclusive::<Idx>::contai
 
 // A range is empty once its iterator is exhausted, or if it was never valid
 // to begin with (start > end).
-pub open spec fn spec_range_inclusive_is_empty<Idx: PartialOrd<Idx>>(
-    r: &RangeInclusive<Idx>,
-) -> bool {
+pub open spec fn spec_range_inclusive_is_empty<Idx: PartialOrd<Idx>>(r: &RangeInclusive<Idx>)
+    -> bool
+{
     !r@.start.is_le(&r@.end) || r@.exhausted
 }
 
@@ -104,8 +102,8 @@ pub assume_specification<Idx: PartialOrd<Idx>>[ RangeInclusive::<Idx>::is_empty 
             == spec_range_inclusive_is_empty(r),
 ;
 
-pub assume_specification<Idx>[ RangeInclusive::<Idx>::new ](start: Idx, end: Idx) -> (ret:
-    core::ops::RangeInclusive<Idx>)
+pub assume_specification<Idx>[ RangeInclusive::<Idx>::new ](start: Idx, end: Idx)
+    -> (ret: core::ops::RangeInclusive<Idx>)
     ensures
         ret@ == (RangeInclusiveView { start, end, exhausted: false }),
 ;
@@ -168,9 +166,8 @@ impl<A: core::iter::Step> super::iter::IteratorSpecImpl for RangeInclusive<A> {
     }
 }
 
-pub assume_specification<A: core::iter::Step>[ <Range<A> as Iterator>::next ](
-    range: &mut Range<A>,
-) -> (r: Option<A>)
+pub assume_specification<A: core::iter::Step>[ <Range<A> as Iterator>::next ](range: &mut Range<A>)
+    -> (r: Option<A>)
     ensures
         (*final(range), r) == spec_range_next(*old(range)),
 ;
@@ -204,16 +201,14 @@ pub open spec fn bound_as_ref<T>(b: &Bound<T>) -> Bound<&T> {
 // Per-type specifications for `RangeBounds::start_bound`/`end_bound`, so these
 // methods can also be called directly in exec code (not just via the spec-mode
 // models above). Each spec agrees with the corresponding `RangeBoundsSpecImpl`.
-pub assume_specification<'s, T>[ <Range<T> as RangeBounds<T>>::start_bound ](
-    range: &'s Range<T>,
-) -> (result: Bound<&'s T>)
+pub assume_specification<'s, T>[ <Range<T> as RangeBounds<T>>::start_bound ](range: &'s Range<T>)
+    -> (result: Bound<&'s T>)
     ensures
         result == Bound::Included(&range.start),
 ;
 
-pub assume_specification<'s, T>[ <Range<T> as RangeBounds<T>>::end_bound ](
-    range: &'s Range<T>,
-) -> (result: Bound<&'s T>)
+pub assume_specification<'s, T>[ <Range<T> as RangeBounds<T>>::end_bound ](range: &'s Range<T>)
+    -> (result: Bound<&'s T>)
     ensures
         result == Bound::Excluded(&range.end),
 ;
@@ -253,9 +248,8 @@ pub assume_specification<'s, T>[ <RangeTo<T> as RangeBounds<T>>::start_bound ](
         result == Bound::Unbounded,
 ;
 
-pub assume_specification<'s, T>[ <RangeTo<T> as RangeBounds<T>>::end_bound ](
-    range: &'s RangeTo<T>,
-) -> (result: Bound<&'s T>)
+pub assume_specification<'s, T>[ <RangeTo<T> as RangeBounds<T>>::end_bound ](range: &'s RangeTo<T>)
+    -> (result: Bound<&'s T>)
     ensures
         result == Bound::Excluded(&range.end),
 ;

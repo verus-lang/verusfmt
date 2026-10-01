@@ -393,12 +393,9 @@ macro_rules! l3_bits {
 
 pub(crate) use l3_bits;
 
-pub open spec fn read_entry(
-    pt_mem: mem::PageTableMemory,
-    dir_addr: nat,
-    layer: nat,
-    idx: nat,
-) -> GhostPageDirectoryEntry {
+pub open spec fn read_entry(pt_mem: mem::PageTableMemory, dir_addr: nat, layer: nat, idx: nat)
+    -> GhostPageDirectoryEntry
+{
     let region = MemRegion { base: dir_addr as nat, size: PAGE_SIZE as nat };
     PageDirectoryEntry { entry: pt_mem.spec_read(idx, region), layer: Ghost(layer) }@
 }
@@ -419,11 +416,9 @@ pub open spec fn read_entry(
 /// make more restrictive settings in the frame mappings. (Ensured in the invariant, see conjunct
 /// `directories_have_flags` in refinement layers 1 and 2.) But in the hardware model we still
 /// define the full, correct semantics to ensure the implementation sets the flags correctly.
-pub open spec fn valid_pt_walk(
-    pt_mem: mem::PageTableMemory,
-    addr: u64,
-    pte: PageTableEntry,
-) -> bool {
+pub open spec fn valid_pt_walk(pt_mem: mem::PageTableMemory, addr: u64, pte: PageTableEntry)
+    -> bool
+{
     let l0_idx: nat = l0_bits!(addr) as nat;
     let l1_idx: nat = l1_bits!(addr) as nat;
     let l2_idx: nat = l2_bits!(addr) as nat;
@@ -621,12 +616,9 @@ pub open spec fn step_PTMemOp(s1: HWVariables, s2: HWVariables) -> bool {
 
 }
 
-pub open spec fn step_TLBFill(
-    s1: HWVariables,
-    s2: HWVariables,
-    vaddr: nat,
-    pte: PageTableEntry,
-) -> bool {
+pub open spec fn step_TLBFill(s1: HWVariables, s2: HWVariables, vaddr: nat, pte: PageTableEntry)
+    -> bool
+{
     &&& interp_pt_mem(s1.pt_mem).contains_pair(vaddr, pte)
     &&& s2.tlb === s1.tlb.insert(vaddr, pte)
     &&& s2.pt_mem === s1.pt_mem

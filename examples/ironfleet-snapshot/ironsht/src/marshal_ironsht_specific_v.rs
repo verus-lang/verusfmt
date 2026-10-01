@@ -177,9 +177,11 @@ impl Marshalable for CKeyHashMap {
             <= ckeyhashmap_max_serialized_size_exec()
     }
 
-    open spec fn ghost_serialize(&self) -> Seq<u8>
-    // req, ens from trait
-     {
+    open spec fn ghost_serialize(&self)
+        -> Seq<u8>
+        // req, ens from trait
+
+    {
         self.to_vec().ghost_serialize()
     }
 
@@ -195,9 +197,8 @@ impl Marshalable for CKeyHashMap {
         self.to_vec().serialize(data)
     }
 
-    exec fn deserialize(data: &Vec<u8>, start: usize) -> (res: Option<
-        (Self, usize),
-    >)
+    exec fn deserialize(data: &Vec<u8>, start: usize)
+        -> (res: Option<(Self, usize)>)
     // req, ens from trait
     {
         match <Vec<CKeyKV>>::deserialize(data, start) {

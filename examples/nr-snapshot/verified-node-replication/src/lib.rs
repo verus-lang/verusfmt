@@ -187,10 +187,8 @@ pub trait Dispatch: Sized {
     spec fn dispatch_spec(ds: Self::View, op: Self::ReadOperation) -> Self::Response;
 
     /// specification of the [`Dispatch::dispatch_mut`] function.
-    spec fn dispatch_mut_spec(ds: Self::View, op: Self::WriteOperation) -> (
-        Self::View,
-        Self::Response,
-    );
+    spec fn dispatch_mut_spec(ds: Self::View, op: Self::WriteOperation)
+        -> (Self::View, Self::Response);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -272,10 +270,11 @@ pub trait NodeReplicatedT<DT: Dispatch + Sync>: Sized {
         op: DT::WriteOperation,
         tkn: Self::TT,
         ticket: Tracked<UnboundedLog::local_updates<DT>>,
-    ) -> (result: Result<
-        (DT::Response, Self::TT, Tracked<UnboundedLog::local_updates<DT>>),
-        (Self::TT, Tracked<UnboundedLog::local_updates<DT>>),
-    >)
+    )
+        -> (result: Result<
+            (DT::Response, Self::TT, Tracked<UnboundedLog::local_updates<DT>>),
+            (Self::TT, Tracked<UnboundedLog::local_updates<DT>>),
+        >)
         requires
             self.wf(),  // wf global node
             tkn.wf(&self.replicas().spec_index(tkn.replica_id_spec() as int)),
@@ -296,10 +295,11 @@ pub trait NodeReplicatedT<DT: Dispatch + Sync>: Sized {
         op: DT::ReadOperation,
         tkn: Self::TT,
         ticket: Tracked<UnboundedLog::local_reads<DT>>,
-    ) -> (result: Result<
-        (DT::Response, Self::TT, Tracked<UnboundedLog::local_reads<DT>>),
-        (Self::TT, Tracked<UnboundedLog::local_reads<DT>>),
-    >)
+    )
+        -> (result: Result<
+            (DT::Response, Self::TT, Tracked<UnboundedLog::local_reads<DT>>),
+            (Self::TT, Tracked<UnboundedLog::local_reads<DT>>),
+        >)
         requires
             self.wf(),  // wf global node
             tkn.wf(&self.replicas()[tkn.replica_id_spec() as int]),
@@ -697,9 +697,8 @@ pub open spec fn behavior_equiv<DT: Dispatch>(
 
 #[verus::trusted]
 trait SimpleLogRefinesAsynchronousSingleton<DT: Dispatch> {
-    proof fn exists_equiv_behavior(a: SimpleLogBehavior<DT>) -> (b: AsynchronousSingletonBehavior<
-        DT,
-    >)
+    proof fn exists_equiv_behavior(a: SimpleLogBehavior<DT>)
+        -> (b: AsynchronousSingletonBehavior<DT>)
         requires
             a.wf(),
         ensures

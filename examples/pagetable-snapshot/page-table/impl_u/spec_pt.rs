@@ -133,11 +133,9 @@ pub open spec fn init(s: PageTableVariables) -> bool {
     &&& (forall|i: nat| i < 512 ==> s.pt_mem.region_view(s.pt_mem.cr3_spec()@)[i as int] == 0)
 }
 
-pub open spec fn next_step(
-    s1: PageTableVariables,
-    s2: PageTableVariables,
-    step: PageTableStep,
-) -> bool {
+pub open spec fn next_step(s1: PageTableVariables, s2: PageTableVariables, step: PageTableStep)
+    -> bool
+{
     match step {
         PageTableStep::Map { vaddr, pte, result } => step_Map(s1, s2, vaddr, pte, result),
         PageTableStep::Unmap { vaddr, result } => step_Unmap(s1, s2, vaddr, result),

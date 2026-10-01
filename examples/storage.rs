@@ -400,8 +400,8 @@ exec fn metadata_to_bytes(metadata: &PersistentHeaderMetadata) -> (out: Vec<u8>)
     bytes
 }
 
-exec fn crc_and_metadata_bytes_to_header(crc_bytes: &[u8], header_bytes: &[u8]) -> (out:
-    PersistentHeader)
+exec fn crc_and_metadata_bytes_to_header(crc_bytes: &[u8], header_bytes: &[u8])
+    -> (out: PersistentHeader)
     requires
         crc_bytes@.len() == 8,
         header_bytes@.len() == header_size - 8,
@@ -596,11 +596,9 @@ pub proof fn lemma_data_write_is_safe<Perm>(
     }
 }
 
-pub open spec fn update_data_view_postcond(
-    pm: Seq<u8>,
-    new_bytes: Seq<u8>,
-    write_addr: int,
-) -> bool {
+pub open spec fn update_data_view_postcond(pm: Seq<u8>, new_bytes: Seq<u8>, write_addr: int)
+    -> bool
+{
     let new_pm = update_contents_to_reflect_write(pm, write_addr, new_bytes);
     let (old_ib, old_headers, old_data) = pm_to_views(pm);
     let (new_ib, new_headers, new_data) = pm_to_views(new_pm);
@@ -1583,18 +1581,14 @@ impl UntrustedLogImpl {
     // This is the invariant that the untrusted log implementation
     // maintains between its local state and the write-restricted
     // persistent memory.
-    pub open spec fn inv<Perm, PM>(
-        self,
-        wrpm: &WriteRestrictedPersistentMemory<Perm, PM>,
-    ) -> bool where Perm: CheckPermission<Seq<u8>>, PM: PersistentMemory {
+    pub open spec fn inv<Perm, PM>(self, wrpm: &WriteRestrictedPersistentMemory<Perm, PM>)
+        -> bool where Perm: CheckPermission<Seq<u8>>, PM: PersistentMemory {
         &&& wrpm.inv()
         &&& self.inv_pm_contents(wrpm@)
     }
 
-    pub exec fn read_incorruptible_boolean<PM: PersistentMemory>(pm: &PM) -> (result: Result<
-        u64,
-        InfiniteLogErr,
-    >)
+    pub exec fn read_incorruptible_boolean<PM: PersistentMemory>(pm: &PM)
+        -> (result: Result<u64, InfiniteLogErr>)
         requires
             Self::recover(pm@).is_Some(),
             pm.inv(),
@@ -1783,10 +1777,8 @@ impl UntrustedLogImpl {
 
     // Since untrusted_setup doesn't take a WriteRestrictedPersistentMemory, it is not guaranteed
     // to perform crash-safe updates.
-    pub exec fn untrusted_setup<PM>(pm: &mut PM, device_size: u64) -> (result: Result<
-        u64,
-        InfiniteLogErr,
-    >) where PM: PersistentMemory
+    pub exec fn untrusted_setup<PM>(pm: &mut PM, device_size: u64)
+        -> (result: Result<u64, InfiniteLogErr>) where PM: PersistentMemory
         requires
             old(pm).inv(),
             old(pm)@.len() == device_size,
@@ -2714,10 +2706,8 @@ impl<PM: PersistentMemory> InfiniteLogImpl<PM> {
     /// it into an `InfiniteLogImpl`. It's meant to be called after
     /// setting up the persistent memory or after crashing and
     /// restarting.
-    pub exec fn start(pm: PM, device_size: u64) -> (result: Result<
-        InfiniteLogImpl<PM>,
-        InfiniteLogErr,
-    >)
+    pub exec fn start(pm: PM, device_size: u64)
+        -> (result: Result<InfiniteLogImpl<PM>, InfiniteLogErr>)
         requires
             pm.inv(),
             pm@.len() == device_size,
@@ -2745,10 +2735,8 @@ impl<PM: PersistentMemory> InfiniteLogImpl<PM> {
 
     /// This function appends to the log and returns the offset at
     /// which the append happened.
-    pub exec fn append(&mut self, bytes_to_append: &Vec<u8>) -> (result: Result<
-        u64,
-        InfiniteLogErr,
-    >)
+    pub exec fn append(&mut self, bytes_to_append: &Vec<u8>)
+        -> (result: Result<u64, InfiniteLogErr>)
         requires
             old(self).valid(),
         ensures
@@ -3921,9 +3909,11 @@ pub proof fn axiom_bytes_uncorrupted(
 // `cdb0_val` and `cdb1_val` are different from each other, we set
 // them to CRC(b"0") and CRC(b"1"), respectively.
 pub const cdb0_val: u64 = 0xa32842d19001605e;
-  // CRC(b"0")
+
+// CRC(b"0")
 pub const cdb1_val: u64 = 0xab21aa73069531b7;
-  // CRC(b"1")
+
+// CRC(b"1")
 #[verifier(external_body)]
 pub proof fn axiom_corruption_detecting_boolean(cdb_c: u64, cdb: u64, addrs: Seq<int>)
     requires

@@ -251,6 +251,19 @@ fn map_to_doc<'a>(
     arena.concat(pair.into_inner().map(|p| to_doc(ctx, p, arena)))
 }
 
+/// Produce a document for a `ret_type` without the space that `->` normally carries in front of
+/// it, so that the caller can supply its own (possibly breaking) separator instead.
+fn ret_type_to_doc_no_leading_space<'a>(
+    ctx: &Context,
+    arena: &'a Arena<'a, ()>,
+    pair: Pair<'a, Rule>,
+) -> DocBuilder<'a, Arena<'a>> {
+    arena.concat(pair.into_inner().map(|p| match p.as_rule() {
+        Rule::rarrow_str => arena.text("->").append(arena.space()),
+        _ => to_doc(ctx, p, arena),
+    }))
+}
+
 /// Produce a document that combines the result of calling `to_doc` on each child, interspersed
 /// with newlines.  This requires special handling for comments, so we don't add excessive
 /// newlines around `//` style comments.
@@ -940,6 +953,24 @@ fn to_doc<'a>(
             let has_ret_type = pairs.clone().any(|p| {
                 matches!(p.as_rule(), Rule::ret_type) && p.clone().into_inner().count() > 0
             });
+            // When the signature doesn't fit on one line, we prefer to break just before the
+            // `->` (keeping the return type itself intact) rather than splitting the return
+            // type's own arguments across lines.  If the body's opening brace would have
+            // followed the return type, it moves to its own line too.
+            let terminator_is_block = pairs.clone().any(|p| {
+                matches!(p.as_rule(), Rule::fn_terminator)
+                    && matches!(
+                        p.into_inner().next().map(|p| p.as_rule()),
+                        Some(Rule::fn_block_expr)
+                    )
+            });
+            let has_post_ret_type_prefix = pairs
+                .clone()
+                .any(|p| matches!(p.as_rule(), Rule::prover | Rule::where_clause));
+            // If the return type ends up on its own line, the opening brace needs to go on a
+            // line of its own as well, which the return type's group takes care of.
+            let ret_type_owns_brace_break =
+                has_ret_type && !has_qualifier && !has_post_ret_type_prefix && terminator_is_block;
             let mut saw_param_list = false;
             let mut saw_comment_after_param_list = false;
             let mut pre_ret_type = true;
@@ -958,7 +989,12 @@ fn to_doc<'a>(
                                 Rule::fn_block_expr
                             ) && !saw_comment_after_param_list
                             {
-                                arena.space().append(d)
+                                if ret_type_owns_brace_break {
+                                    // The separator was already emitted by the return type
+                                    d
+                                } else {
+                                    arena.space().append(d)
+                                }
                             } else {
                                 d
                             }
@@ -966,7 +1002,15 @@ fn to_doc<'a>(
                     }
                     Rule::ret_type => {
                         pre_ret_type = false;
-                        d
+                        let doc = arena
+                            .line()
+                            .append(ret_type_to_doc_no_leading_space(ctx, arena, p))
+                            .nest(INDENT_SPACES);
+                        if ret_type_owns_brace_break {
+                            doc.append(arena.line()).group()
+                        } else {
+                            doc.group()
+                        }
                     }
                     Rule::COMMENT => {
                         if saw_param_list {
@@ -992,10 +1036,16 @@ fn to_doc<'a>(
         }
         Rule::assume_specification => arena.concat(pair.into_inner().map(|p| {
             let rule = p.as_rule();
-            let d = to_doc(ctx, p, arena);
             match rule {
-                Rule::semi_str => arena.hardline().append(d),
-                _ => d,
+                // As in `Rule::fn`, prefer breaking before the `->` over splitting the return
+                // type itself across lines
+                Rule::ret_type => arena
+                    .line()
+                    .append(ret_type_to_doc_no_leading_space(ctx, arena, p))
+                    .nest(INDENT_SPACES)
+                    .group(),
+                Rule::semi_str => arena.hardline().append(to_doc(ctx, p, arena)),
+                _ => to_doc(ctx, p, arena),
             }
         })),
         Rule::assume_specification_for => {

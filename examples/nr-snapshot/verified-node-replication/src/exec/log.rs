@@ -210,11 +210,8 @@ pub open spec fn wf(&self) -> bool {
 
 impl<DT: Dispatch> NrLog<DT> {
     /// initializes the NrLOg
-    pub fn new(num_replicas: usize, log_size: usize) -> (res: (
-        Self,
-        Vec<ReplicaToken>,
-        Tracked<NrLogTokens<DT>>,
-    ))
+    pub fn new(num_replicas: usize, log_size: usize)
+        -> (res: (Self, Vec<ReplicaToken>, Tracked<NrLogTokens<DT>>))
         requires
             log_size == LOG_SIZE,
             0 < num_replicas && num_replicas <= MAX_REPLICAS,
@@ -1604,10 +1601,8 @@ impl<DT: Dispatch> NrLog<DT> {
     /// corresponding/lowest tail `idx` in the `Log`.
     ///
     ///  - Dafny: part of advance_head
-    pub(crate) fn find_min_local_version(
-        &self,
-        cb_combiner: Tracked<CyclicBuffer::combiner<DT>>,
-    ) -> (result: (u64, Tracked<CyclicBuffer::combiner<DT>>))
+    pub(crate) fn find_min_local_version(&self, cb_combiner: Tracked<CyclicBuffer::combiner<DT>>)
+        -> (result: (u64, Tracked<CyclicBuffer::combiner<DT>>))
         requires
             self.wf(),
             cb_combiner@@.instance == self.cyclic_buffer_instance@,
@@ -1844,11 +1839,9 @@ impl<DT: Dispatch> NrLogAppendExecDataGhost<DT> {
     }
 
     // corresponds to Dafny's post_exec() function
-    pub open spec fn post_exec(
-        &self,
-        request_ids: Seq<ReqId>,
-        responses: Seq<DT::Response>,
-    ) -> bool {
+    pub open spec fn post_exec(&self, request_ids: Seq<ReqId>, responses: Seq<DT::Response>)
+        -> bool
+    {
         &&& request_ids.len() == responses.len()
         &&& self.combiner@@.value.is_Ready()
         &&& (forall|i|

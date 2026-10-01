@@ -963,11 +963,8 @@ impl Directory {
         Directory { entries: self.entries.update(n as int, e), ..self }
     }
 
-    pub open spec(checked) fn candidate_mapping_in_bounds(
-        self,
-        base: nat,
-        pte: PageTableEntry,
-    ) -> bool
+    pub open spec(checked) fn candidate_mapping_in_bounds(self, base: nat, pte: PageTableEntry)
+        -> bool
         recommends
             self.inv(),
     {

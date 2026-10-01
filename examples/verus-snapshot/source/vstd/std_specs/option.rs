@@ -206,8 +206,8 @@ pub assume_specification<T>[ Option::<T>::take ](option: &mut Option<T>) -> (t: 
 ;
 
 // map
-pub assume_specification<T, U, F: FnOnce(T) -> U>[ Option::<T>::map ](a: Option<T>, f: F) -> (ret:
-    Option<U>)
+pub assume_specification<T, U, F: FnOnce(T) -> U>[ Option::<T>::map ](a: Option<T>, f: F)
+    -> (ret: Option<U>)
     requires
         a.is_some() ==> f.requires((a.unwrap(),)),
     ensures
@@ -216,8 +216,8 @@ pub assume_specification<T, U, F: FnOnce(T) -> U>[ Option::<T>::map ](a: Option<
 ;
 
 // cloned
-pub assume_specification<'a, T: Clone>[ Option::<&'a T>::cloned ](opt: Option<&'a T>) -> (res:
-    Option<T>)
+pub assume_specification<'a, T: Clone>[ Option::<&'a T>::cloned ](opt: Option<&'a T>)
+    -> (res: Option<T>)
     ensures
         opt.is_none() ==> res.is_none(),
         opt.is_some() ==> res.is_some() && cloned::<T>(*opt.unwrap(), res.unwrap()),
@@ -272,9 +272,8 @@ pub assume_specification<T, F: FnOnce() -> T>[ Option::<T>::unwrap_or_else ](
 ;
 
 // clone
-pub assume_specification<T: Clone>[ <Option<T> as Clone>::clone ](opt: &Option<T>) -> (res: Option<
-    T,
->)
+pub assume_specification<T: Clone>[ <Option<T> as Clone>::clone ](opt: &Option<T>)
+    -> (res: Option<T>)
     ensures
         opt.is_none() ==> res.is_none(),
         opt.is_some() ==> res.is_some() && cloned::<T>(opt.unwrap(), res.unwrap()),
@@ -295,10 +294,8 @@ impl<T: super::cmp::PartialEqSpec> super::cmp::PartialEqSpecImpl for Option<T> {
     }
 }
 
-pub assume_specification<T: PartialEq>[ <Option<T> as PartialEq>::eq ](
-    x: &Option<T>,
-    y: &Option<T>,
-) -> bool
+pub assume_specification<T: PartialEq>[ <Option<T> as PartialEq>::eq ](x: &Option<T>, y: &Option<T>)
+    -> bool
 ;
 
 // PartialOrd and Ord
@@ -338,10 +335,8 @@ impl<T: super::cmp::OrdSpec> super::cmp::OrdSpecImpl for Option<T> {
     }
 }
 
-pub assume_specification<T: Ord>[ <Option<T> as Ord>::cmp ](
-    x: &Option<T>,
-    y: &Option<T>,
-) -> core::cmp::Ordering
+pub assume_specification<T: Ord>[ <Option<T> as Ord>::cmp ](x: &Option<T>, y: &Option<T>)
+    -> core::cmp::Ordering
 ;
 
 // ok_or
@@ -399,8 +394,8 @@ pub assume_specification<T>[ Option::insert ](option: &mut Option<T>, value: T) 
 ;
 
 #[doc(hidden)]
-pub assume_specification<T>[ Option::get_or_insert ](option: &mut Option<T>, value: T) -> (res:
-    &mut T)
+pub assume_specification<T>[ Option::get_or_insert ](option: &mut Option<T>, value: T)
+    -> (res: &mut T)
     ensures
         *res == (match *old(option) {
             Some(x) => x,

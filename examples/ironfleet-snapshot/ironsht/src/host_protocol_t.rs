@@ -78,11 +78,9 @@ pub open spec(checked) fn hashtable_lookup(h: Hashtable, k: AbstractKey) -> Opti
 }
 
 // Protocol/SHT/Delegations.i.dfy BulkUpdateDomain
-pub open spec(checked) fn bulk_update_domain(
-    h: Hashtable,
-    kr: KeyRange<AbstractKey>,
-    u: Hashtable,
-) -> Set<AbstractKey> {
+pub open spec(checked) fn bulk_update_domain(h: Hashtable, kr: KeyRange<AbstractKey>, u: Hashtable)
+    -> Set<AbstractKey>
+{
     Set::<AbstractKey>::new(
         |k|
             (h.dom().contains(k) || u.dom().contains(k)) && (kr.contains(k) ==> u.dom().contains(
@@ -681,11 +679,9 @@ pub open spec(checked) fn parse_args(args: AbstractArgs) -> Option<Seq<AbstractE
 
 // Ironfleet's trusted spec left ParseCommandLineConfiguration unspecified, which was an auditing
 // hole. Here we're going to define the parsing in the trusted domain.
-pub open spec(checked) fn init(
-    pre: AbstractHostState,
-    id: AbstractEndPoint,
-    args: AbstractArgs,
-) -> bool {
+pub open spec(checked) fn init(pre: AbstractHostState, id: AbstractEndPoint, args: AbstractArgs)
+    -> bool
+{
     let end_points = parse_args(args);
     if end_points is None || end_points.unwrap().len() == 0 {
         false
@@ -738,11 +734,9 @@ pub open spec(checked) fn no_invalid_sends(ios: AbstractIos) -> bool {
         0 <= i < ios.len() && ios[i] is Send ==> !(ios[i].arrow_Send_s().msg is InvalidMessage)
 }
 
-pub open spec(checked) fn next(
-    pre: AbstractHostState,
-    post: AbstractHostState,
-    ios: AbstractIos,
-) -> bool {
+pub open spec(checked) fn next(pre: AbstractHostState, post: AbstractHostState, ios: AbstractIos)
+    -> bool
+{
     &&& pre.wf()
     &&& pre.constants == post.constants
     &&& exists|step| next_step(pre, post, ios, step)

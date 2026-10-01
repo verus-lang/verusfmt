@@ -25,12 +25,8 @@ pub trait InterfaceSpec {
             self.ispec_inv(mem),
     ;
 
-    fn ispec_map_frame(
-        &self,
-        mem: &mut mem::PageTableMemory,
-        vaddr: usize,
-        pte: PageTableEntryExec,
-    ) -> (res: Result<(), ()>)
+    fn ispec_map_frame(&self, mem: &mut mem::PageTableMemory, vaddr: usize, pte: PageTableEntryExec)
+        -> (res: Result<(), ()>)
         requires
             spec_pt::step_Map_enabled(pt_vars(*old(mem)), vaddr as nat, pte@),
             self.ispec_inv(&*old(mem)),
@@ -48,10 +44,8 @@ pub trait InterfaceSpec {
             spec_pt::step_Unmap(pt_vars(*old(mem)), pt_vars(*mem), vaddr as nat, res),
     ;
 
-    fn ispec_resolve(&self, mem: &mem::PageTableMemory, vaddr: usize) -> (res: Result<
-        (usize, PageTableEntryExec),
-        (),
-    >)
+    fn ispec_resolve(&self, mem: &mem::PageTableMemory, vaddr: usize)
+        -> (res: Result<(usize, PageTableEntryExec), ()>)
         requires
             spec_pt::step_Resolve_enabled(vaddr as nat),
             self.ispec_inv(mem),

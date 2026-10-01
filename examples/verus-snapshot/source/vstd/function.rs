@@ -123,9 +123,8 @@ pub axiom fn proof_fn_as_req_ens<
     OutMode,
     Args: core::marker::Tuple,
     Output,
->(
-    tracked f: FnProof<FOpts<USAGE, ReqEns, COPY, SEND, SYNC>, ArgModes, OutMode, Args, Output>,
-) -> tracked FnProof<FOpts<USAGE, RqEn<R>, COPY, SEND, SYNC>, ArgModes, OutMode, Args, Output>
+>(tracked f: FnProof<FOpts<USAGE, ReqEns, COPY, SEND, SYNC>, ArgModes, OutMode, Args, Output>)
+    -> tracked FnProof<FOpts<USAGE, RqEn<R>, COPY, SEND, SYNC>, ArgModes, OutMode, Args, Output>
     requires
         forall|args: Args| #[trigger] R::req(args) ==> f.requires(args),
         forall|args: Args, output: Output|

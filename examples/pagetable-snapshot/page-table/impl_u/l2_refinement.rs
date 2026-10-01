@@ -981,12 +981,9 @@ impl impl_spec::InterfaceSpec for impl_spec::PageTableImpl {
         assert(PT::interp(mem, pt).inv());
     }
 
-    fn ispec_map_frame(
-        &self,
-        mem: &mut mem::PageTableMemory,
-        vaddr: usize,
-        pte: PageTableEntryExec,
-    ) -> (res: Result<(), ()>) {
+    fn ispec_map_frame(&self, mem: &mut mem::PageTableMemory, vaddr: usize, pte: PageTableEntryExec)
+        -> (res: Result<(), ()>)
+    {
         let mut pt: Ghost<PTDir> = Ghost(
             choose|pt: PTDir| #[trigger] PT::inv(mem, pt) && PT::interp(mem, pt).inv(),
         );
@@ -1014,10 +1011,9 @@ impl impl_spec::InterfaceSpec for impl_spec::PageTableImpl {
         PT::unmap(mem, &mut pt, vaddr)
     }
 
-    fn ispec_resolve(&self, mem: &mem::PageTableMemory, vaddr: usize) -> (res: Result<
-        (usize, PageTableEntryExec),
-        (),
-    >) {
+    fn ispec_resolve(&self, mem: &mem::PageTableMemory, vaddr: usize)
+        -> (res: Result<(usize, PageTableEntryExec), ()>)
+    {
         let pt: Ghost<PTDir> = Ghost(
             choose|pt: PTDir| #[trigger] PT::inv(mem, pt) && PT::interp(mem, pt).inv(),
         );

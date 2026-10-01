@@ -1235,10 +1235,9 @@ pub proof fn combiner_request_ids_proof(combiners: Map<NodeId, CombinerState>) -
     }
 }
 
-pub open spec fn combiner_request_id_fresh(
-    combiners: Map<NodeId, CombinerState>,
-    rid: ReqId,
-) -> bool {
+pub open spec fn combiner_request_id_fresh(combiners: Map<NodeId, CombinerState>, rid: ReqId)
+    -> bool
+{
     forall|n| (#[trigger] combiners.contains_key(n)) ==> !combiners[n].queued_ops().contains(rid)
 }
 
@@ -1369,10 +1368,9 @@ pub open spec fn LogContainsEntriesUpToHere<DT: Dispatch>(
 }
 
 /// the log doesn't contain any entries at or above the provided start index
-pub open spec fn LogNoEntriesFromHere<DT: Dispatch>(
-    log: Map<LogIdx, LogEntry<DT>>,
-    start: LogIdx,
-) -> bool {
+pub open spec fn LogNoEntriesFromHere<DT: Dispatch>(log: Map<LogIdx, LogEntry<DT>>, start: LogIdx)
+    -> bool
+{
     forall|i: nat| start <= i ==> !log.contains_key(i)
 }
 

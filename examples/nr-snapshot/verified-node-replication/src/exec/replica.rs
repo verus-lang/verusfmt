@@ -251,11 +251,8 @@ pub open spec fn wf(&self) -> bool {
 
 
 impl<DT: Dispatch> Replica<DT> {
-    pub fn new(
-        replica_token: ReplicaToken,
-        num_threads: usize,
-        config: Tracked<ReplicaConfig<DT>>,
-    ) -> (res: Self)
+    pub fn new(replica_token: ReplicaToken, num_threads: usize, config: Tracked<ReplicaConfig<DT>>)
+        -> (res: Self)
         requires
             num_threads == MAX_THREADS_PER_REPLICA,
             replica_token.id_spec() < MAX_REPLICAS,
@@ -558,11 +555,8 @@ impl<DT: Dispatch> Replica<DT> {
     }
 
     /// Performs one round of flat combining. Collects, appends and executes operations.
-    fn combine(
-        &self,
-        slog: &NrLog<DT>,
-        combiner_lock: Tracked<CombinerLockStateGhost<DT>>,
-    ) -> (result: Tracked<CombinerLockStateGhost<DT>>)
+    fn combine(&self, slog: &NrLog<DT>, combiner_lock: Tracked<CombinerLockStateGhost<DT>>)
+        -> (result: Tracked<CombinerLockStateGhost<DT>>)
         requires
             self.wf(),
             slog.wf(),

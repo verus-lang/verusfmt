@@ -66,10 +66,8 @@ impl<T, A: Allocator> super::core::IndexSpecImpl<usize> for VecDeque<T, A> {
     }
 }
 
-pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::index ](
-    v: &VecDeque<T, A>,
-    i: usize,
-) -> (output: &T)
+pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::index ](v: &VecDeque<T, A>, i: usize)
+    -> (output: &T)
     ensures
         output == v.spec_index(i as int),
 ;
@@ -84,8 +82,8 @@ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::index_mut ](
 ;
 
 #[verifier::when_used_as_spec(spec_vec_dequeue_len)]
-pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::len ](v: &VecDeque<T, A>) -> (len:
-    usize)
+pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::len ](v: &VecDeque<T, A>)
+    -> (len: usize)
     ensures
         len == spec_vec_dequeue_len(v),
 ;
@@ -95,9 +93,8 @@ pub assume_specification<T>[ VecDeque::<T>::new ]() -> (v: VecDeque<T>)
         v@ == Seq::<T>::empty(),
 ;
 
-pub assume_specification<T>[ <VecDeque<T> as core::default::Default>::default ]() -> (v: VecDeque<
-    T,
->)
+pub assume_specification<T>[ <VecDeque<T> as core::default::Default>::default ]()
+    -> (v: VecDeque<T>)
     ensures
         v@ == Seq::<T>::empty(),
 ;
@@ -131,9 +128,8 @@ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::push_front ](
         final(v)@ == seq![value] + old(v)@,
 ;
 
-pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_back ](
-    v: &mut VecDeque<T, A>,
-) -> (value: Option<T>)
+pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_back ](v: &mut VecDeque<T, A>)
+    -> (value: Option<T>)
     ensures
         match value {
             Some(x) => {
@@ -148,9 +144,8 @@ pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_back ](
         },
 ;
 
-pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_front ](
-    v: &mut VecDeque<T, A>,
-) -> (value: Option<T>)
+pub assume_specification<T, A: Allocator>[ VecDeque::<T, A>::pop_front ](v: &mut VecDeque<T, A>)
+    -> (value: Option<T>)
     ensures
         match value {
             Some(x) => {
@@ -219,10 +214,9 @@ pub assume_specification<T, A: Allocator + core::clone::Clone>[ VecDeque::<T, A>
         return_value@ == old(v)@.subrange(at as int, old(v)@.len() as int),
 ;
 
-pub open spec fn vec_dequeue_clone_trigger<T, A: Allocator>(
-    v1: VecDeque<T, A>,
-    v2: VecDeque<T, A>,
-) -> bool {
+pub open spec fn vec_dequeue_clone_trigger<T, A: Allocator>(v1: VecDeque<T, A>, v2: VecDeque<T, A>)
+    -> bool
+{
     true
 }
 
@@ -311,9 +305,8 @@ impl<'a, T: 'a> super::iter::DoubleEndedIteratorSpecImpl for Iter<'a, T> {
     }
 }
 
-pub assume_specification<'a, T, A: Allocator>[ VecDeque::<T, A>::iter ](
-    v: &'a VecDeque<T, A>,
-) -> (iter: Iter<'a, T>)
+pub assume_specification<'a, T, A: Allocator>[ VecDeque::<T, A>::iter ](v: &'a VecDeque<T, A>)
+    -> (iter: Iter<'a, T>)
     ensures
         IteratorSpec::remaining(&iter) == v@.as_ref(),
         into_iter_elts(iter) == IteratorSpec::remaining(&iter),

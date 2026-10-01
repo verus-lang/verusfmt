@@ -631,8 +631,8 @@ impl<T> GhostPersistentISubset<T> {
     }
 
     /// We can separate a single value out of a [`GhostPersistentISubset`]
-    pub proof fn split_singleton(tracked &mut self, v: T) -> (tracked result:
-        GhostPersistentISingleton<T>)
+    pub proof fn split_singleton(tracked &mut self, v: T)
+        -> (tracked result: GhostPersistentISingleton<T>)
         requires
             old(self)@.contains(v),
         ensures
@@ -698,8 +698,8 @@ impl<T> GhostISingleton<T> {
 
     /// We can combine two [`GhostISingleton`]s into a [`GhostISubset`]
     /// We also learn that they were disjoint.
-    pub proof fn combine(tracked self, tracked other: GhostISingleton<T>) -> (tracked r:
-        GhostISubset<T>)
+    pub proof fn combine(tracked self, tracked other: GhostISingleton<T>)
+        -> (tracked r: GhostISubset<T>)
         requires
             self.id() == other.id(),
         ensures
@@ -834,8 +834,8 @@ impl<T> GhostPersistentISingleton<T> {
     }
 
     /// We can combine two [`GhostPersistentISingleton`]s into a [`GhostPersistentISubset`]
-    pub proof fn combine(tracked self, tracked other: GhostPersistentISingleton<T>) -> (tracked r:
-        GhostPersistentISubset<T>)
+    pub proof fn combine(tracked self, tracked other: GhostPersistentISingleton<T>)
+        -> (tracked r: GhostPersistentISubset<T>)
         requires
             self.id() == other.id(),
         ensures

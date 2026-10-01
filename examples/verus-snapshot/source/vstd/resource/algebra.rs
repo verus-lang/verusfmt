@@ -227,11 +227,8 @@ impl<RA: ResourceAlgebra> Resource<RA> {
 
     /// If `x · y --> x · z` is a frame-perserving update, and we have a shared reference to `x`,
     /// we can update the `y` resource to `z`.
-    pub proof fn update_with_shared(
-        tracked self,
-        tracked other: &Resource<RA>,
-        new_value: RA,
-    ) -> (tracked out: Self)
+    pub proof fn update_with_shared(tracked self, tracked other: &Resource<RA>, new_value: RA)
+        -> (tracked out: Self)
         requires
             self.loc() == other.loc(),
             frame_preserving_update_opt(
@@ -252,8 +249,8 @@ impl<RA: ResourceAlgebra> Resource<RA> {
 
     /// This is useful when you have two (or more) shared resources and want to learn
     /// that they agree, as you can combine this validate, e.g., `x.join_shared(y).validate()`.
-    pub proof fn join_shared<'a>(tracked &'a self, tracked other: &'a Self) -> (tracked out:
-        &'a Self)
+    pub proof fn join_shared<'a>(tracked &'a self, tracked other: &'a Self)
+        -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
         ensures
@@ -303,11 +300,8 @@ impl<RA: ResourceAlgebra> Resource<RA> {
     }
 
     /// We can do a similar update to [`update_with_shared`](Resource::update_with_shared) for non-deterministic updates
-    pub proof fn join_shared_to_target<'a>(
-        tracked &'a self,
-        tracked other: &'a Self,
-        target: RA,
-    ) -> (tracked out: &'a Self)
+    pub proof fn join_shared_to_target<'a>(tracked &'a self, tracked other: &'a Self, target: RA)
+        -> (tracked out: &'a Self)
         requires
             self.loc() == other.loc(),
             conjunct_shared(Some(self.value()), Some(other.value()), Some(target)),
