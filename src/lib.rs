@@ -1495,7 +1495,9 @@ fn to_doc<'a>(
         Rule::single_expr_for_verus_clause => {
             comma_delimited_full(ctx, arena, pair).nest(INDENT_SPACES)
         }
-        Rule::verus_clause_non_expr => map_to_doc(ctx, arena, pair),
+        Rule::verus_clause_non_expr
+        | Rule::verus_clause_list_tail
+        | Rule::braced_clause_conjunct => map_to_doc(ctx, arena, pair),
         Rule::requires_clause => map_to_doc(ctx, arena, pair),
         Rule::ensures_clause => map_to_doc(ctx, arena, pair),
         Rule::default_ensures_clause => map_to_doc(ctx, arena, pair),
