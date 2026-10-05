@@ -876,7 +876,7 @@ fn to_doc<'a>(
         }
         Rule::calc_macro_call => map_to_doc(ctx, arena, pair),
         Rule::seq_macro_call => map_to_doc(ctx, arena, pair),
-        Rule::macro_call | Rule::macro_call_stmt => {
+        Rule::macro_call | Rule::macro_call_stmt | Rule::macro_expr_stmt => {
             if pair
                 .clone()
                 .into_inner()
