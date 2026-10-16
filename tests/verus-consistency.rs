@@ -3297,6 +3297,86 @@ proof fn foo(x: proof_fn(a: u32) -> u64, y: proof_fn[Send](a: u32) -> u64) {}
 }
 
 #[test]
+fn verus_closure_opens_invariants() {
+    let file = r#"
+verus! {
+proof fn test(tracked f: proof_fn[OpensInvariants](i: int)) requires f.requires((10int,)), f.opens_invariants((10int,)) == iset![3int], opens_invariants [3int, 4int] {
+    f(10);
+    let tracked none = proof_fn || -> () opens_invariants none {};
+    let tracked any = proof_fn || -> () opens_invariants any {};
+    let tracked empty = proof_fn || -> () opens_invariants [] {};
+    let tracked list = proof_fn |i: int| requires i == 10 ensures true opens_invariants [3int, 4int] { callee(); };
+    let tracked set = proof_fn[Copy] |i: int| -> () opens_invariants mask(i) {};
+    let tracked named = proof_fn || -> () opens_invariants mask {};
+    let tracked block = proof_fn || -> () opens_invariants { let mask = ISet::<int>::empty(); mask } {};
+    let tracked no_specs = proof_fn || opens_invariants none {};
+    let closure = move || -> () opens_invariants none {};
+    call(proof_fn |i: int| requires i == 10 opens_invariants [3int] {});
+}
+}
+"#;
+    let formatted = parse_and_format(file).unwrap();
+    assert_eq!(parse_and_format(&formatted).unwrap(), formatted);
+    assert_snapshot!(formatted, @r"
+    verus! {
+
+    proof fn test(tracked f: proof_fn[OpensInvariants](i: int))
+        requires
+            f.requires((10int,)),
+            f.opens_invariants((10int,)) == iset![3int],
+        opens_invariants [3int, 4int]
+    {
+        f(10);
+        let tracked none = proof_fn || -> ()
+            opens_invariants none
+            {};
+        let tracked any = proof_fn || -> ()
+            opens_invariants any
+            {};
+        let tracked empty = proof_fn || -> ()
+            opens_invariants []
+            {};
+        let tracked list = proof_fn |i: int|
+            requires
+                i == 10,
+            ensures
+                true,
+            opens_invariants [3int, 4int]
+            {
+                callee();
+            };
+        let tracked set = proof_fn[Copy] |i: int| -> ()
+            opens_invariants mask(i)
+            {};
+        let tracked named = proof_fn || -> ()
+            opens_invariants mask
+            {};
+        let tracked block = proof_fn || -> ()
+            opens_invariants {
+                let mask = ISet::<int>::empty();
+                mask
+            }
+            {};
+        let tracked no_specs = proof_fn ||
+            opens_invariants none
+            {};
+        let closure = move || -> ()
+            opens_invariants none
+            {};
+        call(
+            proof_fn |i: int|
+                requires
+                    i == 10,
+                opens_invariants [3int]
+                {},
+        );
+    }
+
+    } // verus!
+    ")
+}
+
+#[test]
 fn at_patterns() {
     // Regression test for https://github.com/verus-lang/verusfmt/issues/137
     let file = r#"
