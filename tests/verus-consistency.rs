@@ -2511,6 +2511,30 @@ pub trait Foo<T>: View<V = Seq<T>> {
 }
 
 #[test]
+fn verus_generic_arg_binding_with_generic_args() {
+    let file = r###"
+verus! {
+pub trait Foo<'a, T>: ExecSpecEq<'a, Other<'a> = &'a T> {
+}
+fn foo<F>() where F: PointerFamily<Pointer<u8> = Box<u8>> {
+}
+} // verus!
+"###;
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    pub trait Foo<'a, T>: ExecSpecEq<'a, Other<'a> = &'a T> {
+
+    }
+
+    fn foo<F>() where F: PointerFamily<Pointer<u8> = Box<u8>> {
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
 fn verus_calc_formatting() {
     let file = r###"
 verus! {
