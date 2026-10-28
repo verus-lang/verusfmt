@@ -3876,3 +3876,95 @@ fn acquire_lock() -> bool {
     } // verus!
     "###);
 }
+
+#[test]
+fn spec_block_conjunct_in_ensures() {
+    let file = r#"
+verus! {
+proof fn block_conjunct(tracked regions: &mut Regions, paddr: Paddr)
+    requires
+        old(regions).inv(),
+    ensures
+        final(regions).inv(),
+        {
+            let idx = frame_to_index(paddr);
+            let so_old = old(regions).slot_owners[idx];
+            let so_new = final(regions).slot_owners[index];
+            &&& so_new.usage == so_old.usage
+            &&& so_new.slot_vaddr == so_old.slot_vaddr
+        },
+        forall|i: int| #![trigger final(regions).slot_owners[i]]
+            i != frame_to_index(paddr)
+                ==> final(regions).slot_owners[i] == old(regions).slot_owners[i],
+{
+}
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn block_conjunct(tracked regions: &mut Regions, paddr: Paddr)
+        requires
+            old(regions).inv(),
+        ensures
+            final(regions).inv(),
+            {
+                let idx = frame_to_index(paddr);
+                let so_old = old(regions).slot_owners[idx];
+                let so_new = final(regions).slot_owners[index];
+                &&& so_new.usage == so_old.usage
+                &&& so_new.slot_vaddr == so_old.slot_vaddr
+            },
+            forall|i: int|
+                #![trigger final(regions).slot_owners[i]]
+                i != frame_to_index(paddr) ==> final(regions).slot_owners[i] == old(
+                    regions,
+                ).slot_owners[i],
+    {
+    }
+
+    } // verus!
+    "###);
+}
+
+#[test]
+fn spec_block_conjunct_in_ensures_closure_body_not_conjunct() {
+    let file = r#"
+verus! {
+fn read_with(obj_ptr: NonNull) -> Option<Ptr> {
+    NonNull::new(obj_ptr).map(
+        |ptr|
+            requires
+                P::ptr_perm_match(
+                    ptr.view_ptr_mut(),
+                    P::ref_perm_view_permission(tracked_ref_perm),
+                ),
+            {
+                unsafe { P::raw_as_ref(ptr, Tracked(tracked_ref_perm)) }
+            },
+    )
+}
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn read_with(obj_ptr: NonNull) -> Option<Ptr> {
+        NonNull::new(obj_ptr).map(
+            |ptr|
+                requires
+                    P::ptr_perm_match(
+                        ptr.view_ptr_mut(),
+                        P::ref_perm_view_permission(tracked_ref_perm),
+                    ),
+                {
+                    unsafe { P::raw_as_ref(ptr, Tracked(tracked_ref_perm)) }
+                },
+        )
+    }
+
+    } // verus!
+    "###);
+}
