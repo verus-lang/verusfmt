@@ -3847,3 +3847,32 @@ increment(var) atomically |update| {perm=Commit::get(update(perm));};
     } // verus!
     "###);
 }
+
+#[test]
+fn macro_stmt_with_postfix() {
+    let file = r#"
+verus! {
+fn acquire_lock() -> bool {
+    atomic_with_ghost! {
+        x => compare_exchange(false, true);
+        returning res;
+        ghost perms => {},
+    }.is_ok()
+}
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    fn acquire_lock() -> bool {
+        atomic_with_ghost! {
+            x => compare_exchange(false, true);
+            returning res;
+            ghost perms => {},
+        }.is_ok()
+    }
+
+    } // verus!
+    "###);
+}

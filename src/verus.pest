@@ -578,6 +578,14 @@ macro_call_stmt = {
   | attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str
 }
 
+// An expression statement headed by a brace-delimited macro invocation, e.g.
+// the trailing statement of a block, `m! { ... }.is_ok()`.  Must be tried
+// before `macro_call_stmt`, which would match just the macro and strand the
+// postfix.
+macro_expr_stmt = {
+    attr* ~ path ~ bang_str ~ !"=" ~ lbrace_str ~ token_tree* ~ rbrace_str ~ expr_outer+
+}
+
 // See https://doc.rust-lang.org/beta/reference/tokens.html#punctuation
 punctuation = {
     bin_expr_ops
@@ -1067,6 +1075,7 @@ stmt = !{
   | expr_with_block
   | expr ~ semi_str
   | item_no_macro_call
+  | macro_expr_stmt
   | macro_call_stmt
 }
 
