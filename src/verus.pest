@@ -1892,8 +1892,24 @@ comma_delimited_exprs = {
 //        a
 //    }
 // where we could interpret the ensures expression as `a == b { a }`
+//
+// A braced spec block may be a conjunct only when it is followed by a `,`
+// (consumed by the next iteration or the trailing `","` alternative); otherwise
+// the block is the body of the enclosing item, e.g. of a closure in
+//    f(|p| requires c, { body },)
 comma_delimited_exprs_for_verus_clauses = {
-    !verus_clause_non_expr ~ expr_no_struct ~ ("," ~ !verus_clause_non_expr ~ expr_no_struct)* ~ ","?
+    !verus_clause_non_expr ~ expr_no_struct ~ verus_clause_list_tail
+}
+
+verus_clause_list_tail = _{
+    ( "," ~ braced_clause_conjunct ~ &("," ~ !")" ~ !";")
+    | "," ~ !verus_clause_non_expr ~ expr_no_struct
+    | ","
+    )*
+}
+
+braced_clause_conjunct = _{
+    (bulleted_expr | block_expr) ~ expr_outer_no_struct*
 }
 
 groupable_comma_delimited_exprs_for_verus_clauses = {
