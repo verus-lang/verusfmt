@@ -3876,3 +3876,44 @@ fn acquire_lock() -> bool {
     } // verus!
     "###);
 }
+
+#[test]
+fn verus_matches_followed_by_or() {
+    let file = r#"
+verus! {
+proof fn matches_then_logical_ops(x: Foo) {
+    assert(x matches Foo::A || true);
+    assert(x matches Foo::A(k) || k == 3);
+    assert(x matches Foo::A(k) && k == 3);
+    assert(x matches Foo::A(k) ==> k == 3);
+    assert(x matches Foo::A | Foo::B);
+    assert(x matches Foo::A | Foo::B || true);
+    assert(x matches Foo::A(1) | Foo::B(2) | Foo::C || false);
+    match x {
+        Foo::A | Foo::B => {},
+        _ => {},
+    }
+}
+} // verus!
+"#;
+
+    assert_snapshot!(parse_and_format(file).unwrap(), @r###"
+    verus! {
+
+    proof fn matches_then_logical_ops(x: Foo) {
+        assert(x matches Foo::A || true);
+        assert(x matches Foo::A(k) || k == 3);
+        assert(x matches Foo::A(k) && k == 3);
+        assert(x matches Foo::A(k) ==> k == 3);
+        assert(x matches Foo::A | Foo::B);
+        assert(x matches Foo::A | Foo::B || true);
+        assert(x matches Foo::A(1) | Foo::B(2) | Foo::C || false);
+        match x {
+            Foo::A | Foo::B => {},
+            _ => {},
+        }
+    }
+
+    } // verus!
+    "###);
+}

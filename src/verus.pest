@@ -1696,7 +1696,7 @@ pat = {
         // range_pat (for 1.. or 1..2)
         (dot_dot_eq_str | dot_dot_str) ~ pat?
         // or_pat
-      | (pipe_str ~ pat_inner)* ~ pipe_str?
+      | (pipe_str ~ pat_inner)*
     )?
 }
 
